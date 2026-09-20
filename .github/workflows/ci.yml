@@ -1,0 +1,63 @@
+name: CI
+
+# Eski projede hiçbir iş akışı pull_request üzerinde çalışmıyordu; kurallar
+# ancak main'e girdikten sonra denetleniyordu. Bu iş akışı PR'da da çalışır.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mizan-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  build-and-test:
+    name: Derle ve test et
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: .NET SDK (global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore Mizan.sln
+
+      # -warnaserror ikinci bir kemer: Directory.Build.props zaten açık,
+      # ama birisi tek bir projede kapatırsa burada yakalanır.
+      - name: Derle
+        run: dotnet build Mizan.sln --configuration Release --no-restore -warnaserror
+
+      - name: Test
+        run: >
+          dotnet test Mizan.sln
+          --configuration Release
+          --no-build
+          --logger "console;verbosity=minimal"
+          --collect:"XPlat Code Coverage"
+          --results-directory TestResults
+
+      # Kapsam eşiği F4 adımında .runsettings ile bağlanacak.
+      # O zamana kadar rapor yalnızca yüklenir, kapı görevi görmez.
+      - name: Kapsam raporunu yükle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: TestResults/**/coverage.cobertura.xml
+          if-no-files-found: ignore
+          retention-days: 14

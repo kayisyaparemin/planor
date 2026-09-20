@@ -1,0 +1,67 @@
+# Mizan — düzenleyici ve stil kuralları.
+# Eski projede .editorconfig hiç yoktu; stil tartışması her dosyada yeniden başlıyordu.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,yml,yaml,xml,csproj,props,targets,xaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# --- Dosya düzeni ---
+csharp_style_namespace_declarations = file_scoped:error
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+csharp_using_directive_placement = outside_namespace:error
+
+# --- C# 12 deyimleri (02-okunabilirlik.md ile aynı) ---
+csharp_style_prefer_primary_constructors = true:suggestion
+dotnet_style_collection_initializer = true:warning
+csharp_style_prefer_collection_expression = true:warning
+csharp_style_prefer_pattern_matching = true:warning
+csharp_style_prefer_not_pattern = true:warning
+csharp_style_expression_bodied_properties = true:suggestion
+csharp_style_expression_bodied_methods = when_on_single_line:suggestion
+
+# --- Açıklık ---
+csharp_prefer_braces = true:error
+dotnet_style_qualification_for_field = false:warning
+dotnet_style_qualification_for_property = false:warning
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+dotnet_style_readonly_field = true:warning
+dotnet_style_require_accessibility_modifiers = always:error
+
+# --- İsimlendirme ---
+dotnet_naming_rule.interfaces_baslar_i.severity = error
+dotnet_naming_rule.interfaces_baslar_i.symbols = interface_sembolu
+dotnet_naming_rule.interfaces_baslar_i.style = i_onekli_pascal
+dotnet_naming_symbols.interface_sembolu.applicable_kinds = interface
+dotnet_naming_style.i_onekli_pascal.required_prefix = I
+dotnet_naming_style.i_onekli_pascal.capitalization = pascal_case
+
+dotnet_naming_rule.private_alanlar_camel.severity = error
+dotnet_naming_rule.private_alanlar_camel.symbols = private_alan
+dotnet_naming_rule.private_alanlar_camel.style = alt_cizgili_camel
+dotnet_naming_symbols.private_alan.applicable_kinds = field
+dotnet_naming_symbols.private_alan.applicable_accessibilities = private
+dotnet_naming_style.alt_cizgili_camel.required_prefix = _
+dotnet_naming_style.alt_cizgili_camel.capitalization = camel_case
+
+# --- Yasaklar (derlemeyi kırar) ---
+# CA1303 vb. yerine bizim için kritik olanlar:
+dotnet_diagnostic.CS1591.severity = error   # public tipte XML <summary> eksik
+dotnet_diagnostic.CA2007.severity = none    # ConfigureAwait: kütüphanelerde gürültü yapıyor
+dotnet_diagnostic.CA1062.severity = none    # nullable zaten açık
+
+[tests/**/*.cs]
+dotnet_diagnostic.CS1591.severity = none

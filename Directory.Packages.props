@@ -1,0 +1,41 @@
+<Project>
+
+  <!--
+    Merkezî paket sürüm yönetimi.
+    Sürüm numarası YALNIZCA burada yazılır; .csproj dosyalarında <PackageReference Version="..." />
+    kullanmak yasaktır. Sebep: eski projede sürümler dört ayrı .csproj'a dağılmıştı ve
+    aralarındaki kayma kimsenin gözüne çarpmıyordu.
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup Label="Sunum (Mizan.Presentation)">
+    <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <!--
+    Microsoft.Maui.Controls BİLEREK burada yok.
+    Mizan.App onu VersionOverride="$(MauiVersion)" ile alıyor: sürüm workload tarafından
+    belirlendiği için merkezden sabitlenemez. Version= ile yazmak NU1008/NU1010 verir,
+    referansı tamamen silmek ise CS0246 ile derlemeyi kırar. Bu üçü denendi.
+  -->
+  <ItemGroup Label="Uygulama kabuğu (Mizan.App)">
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageVersion Include="Sentry.Maui" Version="4.13.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Altyapı (Mizan.Infrastructure)">
+    <PackageVersion Include="sqlite-net-pcl" Version="1.9.172" />
+    <PackageVersion Include="PdfPig" Version="0.1.16" />
+  </ItemGroup>
+
+  <ItemGroup Label="Testler">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="xunit" Version="2.5.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
+    <PackageVersion Include="coverlet.collector" Version="6.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,33 @@
+# --- .NET ---
+bin/
+obj/
+*.user
+*.suo
+*.userprefs
+.vs/
+.vscode/
+artifacts/
+
+# --- Android / MAUI ---
+*.apk
+*.aab
+*.keystore
+*.jks
+Platforms/Android/Resources/Resource.designer.cs
+
+# --- Test çıktıları ---
+TestResults/
+coverage/
+*.coverage
+*.trx
+
+# --- Yerel, paylaşılmayan ---
+*.local.md
+.antigravity/RULES.local.md
+.env
+.env.local
+
+# --- Araçlar ---
+.idea/
+.DS_Store
+Thumbs.db

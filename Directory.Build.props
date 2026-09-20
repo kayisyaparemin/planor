@@ -1,0 +1,40 @@
+<Project>
+
+  <!--
+    Tüm projelere uygulanan ortak derleme ayarları.
+    Buradaki her satır, bir kuralın derleyici tarafından zorlanmış hâlidir;
+    yazıya güvenmek yerine derlemeyi kırmayı tercih ediyoruz.
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Uyarı = hata. "Sonra bakarız" diye biriken borç olmaz. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <NoWarn>$(NoWarn);NETSDK1206</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    Üretim projelerinde XML dokümantasyonu zorunlu.
+    TreatWarningsAsErrors ile birlikte bu, "her public tipte Türkçe <summary> olacak"
+    kuralını bir DERLEME HATASINA çevirir (CS1591). Kural artık belgede değil, derleyicide.
+  -->
+  <PropertyGroup Condition="!$(MSBuildProjectName.EndsWith('.Tests'))">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <!-- Test projelerinde XML yorumu beklenmez; test adı zaten belgedir. -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>
