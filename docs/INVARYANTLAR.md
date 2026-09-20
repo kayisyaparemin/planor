@@ -14,7 +14,7 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 
 | Kod | Kural | Koruyan test | Adım |
 |---|---|---|---|
-| — | *(taşıma ilerledikçe dolacak)* | — | — |
+| `I1` | Ay sonu ve artık yıl geçişlerinde tercih edilen gün hafızada tutulur; kısa aylarda ay sonuna kenetlenir, uzun aylara geçildiğinde orijinal gün geri kazanılır (BR-CALENDAR-01). | `Mizan.Domain.Tests.Calculations.CalendarRulesTests.AddMonthsKeepingDay_KisaAydanSonraUzunAyaGecildiginde_TercihEdilenGunuGeriKazanir` | `F2` |
 
 ## Satır eklerken
 

@@ -6,15 +6,22 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **F1** — Mimari test kalkanı |
-| Sıradaki adım | **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`) |
-| Test sayısı | 7 |
+| Son tamamlanan adım | **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`) |
+| Sıradaki adım | **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması |
+| Test sayısı | 25 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### F2 — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
+
+Zaman ve takvim altyapısı taşındı. `CalendarRules` saf hesap olarak `Mizan.Domain` altına,
+`IClock` portu `Mizan.Application` altına, `SystemClock` adaptörü ise `Mizan.Infrastructure` altına
+alındı (T9 düğümü çözüldü, K3 gereği dosyalar ayrıldı). `BR-CALENDAR-01` artık yıl ve ay sonu kenetleme
+davranışını koruyan 16 domain testi ve 2 altyapı testi eklendi. Toplam 25 test yeşil.
 
 ### F1 — Mimari test kalkanı
 

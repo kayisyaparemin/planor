@@ -18,7 +18,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K8'i denetleyen testler.
       *Bu adım kasıtlı olarak birincidir: kuralları zorlayan mekanizma, kuralların koruyacağı
       koddan önce ayakta olmalı.*
-- [ ] **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
+- [x] **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
 - [ ] **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması
 - [ ] **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir
 
@@ -158,7 +158,7 @@ Geri kalan her şey bu omurgadan sarkar.
 
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
-| F | 0 | 4 |
+| F | 2 | 4 |
 | D | 0 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
