@@ -26,7 +26,7 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ### Tier 0 — bağımlılıksız
 - [x] **D1** — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …)
-- [ ] **D2** — takvim kuralı: `CalendarRules` *(F2'de geldiyse atla)*
+- [x] **D2** — takvim kuralı: `CalendarRules` *(F2'de geldiyse atla)*
 
 ### Tier 1
 - [ ] **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar*
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 1 | 24 |
+| D | 2 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |

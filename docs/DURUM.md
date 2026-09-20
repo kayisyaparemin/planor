@@ -6,8 +6,8 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D1** — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …) |
-| Sıradaki adım | **D2** — takvim kuralı: `CalendarRules` *(F2'de geldi, atlanabilir → D3)* |
+| Son tamamlanan adım | **D2** — takvim kuralı: `CalendarRules` *(F2'de geldi, doğrulandı)* |
+| Sıradaki adım | **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar* |
 | Test sayısı | 54 |
 | Şema sürümü | — |
 
@@ -15,6 +15,13 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D2 — takvim kuralı: `CalendarRules`
+
+F2 adımında zaman ve takvim altyapısı kapsamında (`CalendarRules.cs` ve `CalendarRulesTests.cs`) taşınmış
+olan takvim kuralları doğrulandı. `BR-CALENDAR-01` kuralına göre ay sonu kenetlenmesi (Şubat 28/29,
+30 çeken aylar) ve uzun aya geçişte tercih edilen günün geri kazanılması korunuyor. Ayrı bir kod
+yazılmasına gerek kalmadan adım tamamlandı. Toplam 54 test yeşil, mimari kalkanlar temiz.
 
 ### D1 — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …)
 
