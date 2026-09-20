@@ -25,7 +25,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ## Faz D — Domain  *(saf hesap, sıfır paket)*
 
 ### Tier 0 — bağımlılıksız
-- [ ] **D1** — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …)
+- [x] **D1** — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …)
 - [ ] **D2** — takvim kuralı: `CalendarRules` *(F2'de geldiyse atla)*
 
 ### Tier 1
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 0 | 24 |
+| D | 1 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
