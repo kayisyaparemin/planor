@@ -15,7 +15,7 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz F — Temel
 
-- [ ] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K8'i denetleyen testler.
+- [x] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K8'i denetleyen testler.
       *Bu adım kasıtlı olarak birincidir: kuralları zorlayan mekanizma, kuralların koruyacağı
       koddan önce ayakta olmalı.*
 - [ ] **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
