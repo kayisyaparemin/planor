@@ -6,15 +6,23 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`) |
-| Sıradaki adım | **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması |
-| Test sayısı | 25 |
+| Son tamamlanan adım | **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması |
+| Sıradaki adım | **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir |
+| Test sayısı | 44 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### F3 — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması
+
+Para ve yuvarlama standardı merkezileştirildi. `MoneyRules` saf hesap olarak `Mizan.Domain` altına
+alındı; `MidpointRounding.AwayFromZero` ile 2 basamaklı kuruş yuvarlaması ve taksit/eşit bölüştürmede
+kuruş artığını son parçaya aktaran `Distribute` metodu eklendi (`I2` invariant'ı, 10 yeni test).
+Eski `ViewModelBase`'e gömülü kültürlü formatlayıcı elendi. `SOZLUK.md` S1–S16 kararları doğrultusunda
+çoklu gelir akışı, dönem çapası ve yasaklı terimler sınırlarıyla eksiksiz dolduruldu. Toplam 44 test yeşil.
 
 ### F2 — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
 

@@ -13,19 +13,50 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 
 | Türkçe | Kod | Tanım |
 |---|---|---|
-| dönem | `CashFlowPeriod` | İki maaş arasındaki yarı açık aralık `[başlangıç, sonraki)` |
-| dönem başlangıcı | `PeriodStart` | Maaşın yattığı gün, döneme **dahil** |
-| dönem sonu | `PeriodEnd` | Sonraki maaş günü, döneme **dahil değil** |
+| dönem | `CashFlowPeriod` | İki dönem çapası arasındaki yarı açık aralık `[başlangıç, sonraki)` |
+| dönem çapası | `PeriodAnchor` | Dönemin ne zaman döndüğünü belirleyen kural. Gelirden **ayrı** bir kavramdır. |
+| dönem başlangıcı | `PeriodStart` | Çapanın düştüğü gün, döneme **dahil** |
+| dönem sonu | `PeriodEnd` | Sonraki çapa günü, döneme **dahil değil** |
 | açılış bakiyesi | `OpeningBalance` | Dönemin ilk günündeki nakit |
 | kapanış bakiyesi | `EndingBalance` | Dönemin son anındaki nakit; sonraki dönemin açılışına eşittir |
 | projeksiyon | `Projection` | İleriye dönük dönem dizisi hesabı |
 | yükümlülük | `Obligation` | Bu dönemde ödenmesi gereken her kalem |
 | zorunlu çıkış | `MandatoryOutflow` | Yükümlülüklerin toplamı |
-| yaşam gideri | `VariableExpenseAllowance` | Dönem için ayrılan serbest harcama bütçesi |
+| yaşam gideri | `PeriodVariableExpenseAllowance` | **Dönem** için ayrılan serbest harcama havuzu (ay için değil) |
 | dönem planı | `PeriodPlanSnapshot` | Dönem başında **dondurulan** taahhüt |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
+
+## Para ve yuvarlama
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| para yuvarlama | `MoneyRules.Round` | 2 basamak ve `MidpointRounding.AwayFromZero` ile kuruşa yuvarlama |
+| kuruş korunumlu bölüştürme | `MoneyRules.Distribute` | Toplam tutarı eşit parçalara bölüp kuruş artığını son taksite ekleme |
+
+## Gelir
+
+Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı çalışanlara değil,
+**her gelir düzenine** sahip kişilere hitap eder. Tek bir düzenli gelir varsayımı yoktur.
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| gelir akışı | `IncomeStream` | Bir gelir kaynağının bütünü |
+| düzenli gelir | `RecurringIncome` | Tekrar eden gelir akışı. **Kendi ödeme gününü** taşır. |
+| tek seferlik gelir | `AdHocIncome` | Tekrar etmeyen, tarihli gelir |
+| gelir tutar geçmişi | `IncomeAmountHistory` | Bir akışın etkin tarihli tutar değişiklikleri. "En son kazanır" kuralı **akışın kendi içinde** işler, akışlar arasında değil. |
+| gelir kalemi | `IncomeProjectionItem` | Bir dönemde beklenen tek bir gelir olayı |
+
+> Birden fazla düzenli gelir **toplanır**, birbirini ezmez. Bu, eski projede bir hataydı
+> (`SAPMALAR.md` → S2) ve yeni projede bir invariant'tır.
+
+## Kullanım düzeni
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| kullanım düzeni | `CashFlowAllocationStrategy` | Paranın hangi döneme yazılacağı kararı |
+| açık faizi | `DeficitFinancingInterest` | Negatif bakiyenin maliyeti (KMH) |
 
 ## Kredi
 
@@ -50,18 +81,76 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | devreden bakiye | `CarriedBalance` | Ödenmeyip faize kalan tutar |
 | dönem içi harcama | `UnbilledSpending` | Henüz ekstreye girmemiş harcama |
 
-## Gelir ve düzen
-
-| Türkçe | Kod | Tanım |
-|---|---|---|
-| maaş | `SalaryScheduleEntry` | Etkin tarihli maaş kaydı |
-| ek gelir | `OneTimeIncome` | Tek seferlik gelir |
-| kullanım düzeni | `CashFlowAllocationStrategy` | Paranın hangi döneme yazılacağı kararı |
-| açık faizi | `DeficitFinancingInterest` | Negatif bakiyenin maliyeti (KMH) |
-
 ## Profil ve yedek
 
 | Türkçe | Kod | Tanım |
 |---|---|---|
 | profil | `UserProfile` | Bağımsız bir veri kümesi; her biri ayrı `.db3` |
 | yedek | `Backup` | Tüm profilleri içeren tek arşiv |
+
+---
+
+# Yasaklı terimler
+
+Aşağıdaki terimler `src/` ve `tests/` altında **geçemez.** `Mizan.Architecture.Tests`
+içindeki `YasakliTerimler_KaynaktaGecemez` testi bu tabloyu okur ve ihlali derlemeyi kıran
+bir hataya çevirir (kural **K9**).
+
+Hepsinin ortak sebebi aynı: bir kavramın iki canlı adı olduğu anda, hangisinin doğru olduğu
+dosyaya göre değişir ve kimse ikisini birden aramaz. Gerekçeler `SAPMALAR.md` → S11–S16.
+
+## Eşleştirme kuralı
+
+Test **PascalCase token eşleştirmesi** yapar, düz metin araması değil. Tanımlayıcı önce
+büyük harf ve alt çizgi sınırlarından parçalara ayrılır, sonra parçalar büyük/küçük harf
+gözetmeden karşılaştırılır.
+
+Bu kural üç bilinen yanlış pozitifi kendiliğinden eler:
+
+| Görünürde ihlal | Neden değil |
+|---|---|
+| `MigratePeriodPlanRevisionSchemaAsync` | Parçalar: `Migrate·Period·Plan·Revision·Schema·Async`. Hiçbiri `maas` değil. |
+| `PreviewSettlementAsync` | Parçalar: `Preview·Settlement·Async`. `Preview` ≠ `Review`. |
+| `SavingsGoal` | Parçalar: `Savings·Goal`. `Goal` komşuluğu muaf (aşağıda). |
+
+Türkçe `maaş` (ş ile) ayrıca düz metin olarak da aranır — yorumlarda ve kullanıcı
+metinlerinde geçer ve `ş` harfi yanlış pozitif üretemez.
+
+Testin kendisinin de testi vardır: yukarıdaki üç örnek `YasakliTerimRegex_YanlisPozitifUretmez`
+içinde sabitlenir. Regex gevşetilirse o test kırmızıya düşer.
+
+<!-- YASAKLI-TERIMLER:BASLANGIC -->
+
+| Yasaklı | Yerine | Kapsam | İstisna |
+|---|---|---|---|
+| `Salary` | `Income` / `RecurringIncome` | src+tests | `src/Mizan.Infrastructure/Imports/EskiSemaV17.cs` |
+| `maaş` / `maas` | `gelir` / `Income` | src+tests | yok |
+| `IncomeDay` | `PeriodAnchor.DayOfMonth` | src+tests | yok |
+| `PaymentAssignment` | `CashFlowAllocation` | src+tests | yok |
+| `PaymentAllocation` | `CashFlowAllocation` | src+tests | yok |
+| `CoinFlow` | `Mizan` | src+tests | `src/Mizan.Infrastructure/Imports/EskiSemaV17.cs` |
+| `Savings` | `Balance` | src+tests | komşu parça `Goal` veya `Target` ise muaf |
+| `LivingBudget` | `PeriodVariableExpenseAllowance` | src+tests | yok |
+| `Review` | `Settlement` | src | yok |
+
+<!-- YASAKLI-TERIMLER:BITIS -->
+
+Tablo bu iki işaretin arasında durur; test onları sınır olarak kullanır. İşaretler
+silinirse test tabloyu bulamadığı için **kırmızıya düşer** — sessizce devre dışı kalmaz.
+
+## Neden bazıları listede yok
+
+| Terim | Neden yasaklanmadı |
+|---|---|
+| `Gamification` | Yeni şemada o kolon hiç doğmuyor. Kural ölü yük olurdu. |
+| `Living` (tek başına) | `ActualLivingSpend`, `ObservedLivingSpend` ayrı kavramlar ve kendi kararlarını hak ediyor. `LivingBudget`'a dahil etmek gürültü üretir, gürültü de testin kapatılmasına yol açar. |
+| `Income` | Yasaklanamaz — doğru kelime. Ama şu an **belirsiz**: eski kodda "maaş dışı gelir" demek. Onun yerine pozitif bir invariant: hiçbir tanımlayıcı `OtherIncome` içeremez. |
+| `Review` (dokümanlarda) | "Kod incelemesi" anlamında meşru. Bu yüzden kapsamı yalnız `src`. |
+
+## Listeye terim eklerken
+
+1. Satırı yukarıdaki tabloya ekle.
+2. `SAPMALAR.md`'ye gerekçesini yaz (hangi kavramın iki adı vardı, hangisi doğru).
+3. `dotnet test` çalıştır — mevcut kodda ihlal varsa **önce onu temizle**, sonra commit et.
+4. Yanlış pozitif ürettiğini fark edersen, terimi listeden çıkarma; **istisnayı** yaz ve
+   `YasakliTerimRegex_YanlisPozitifUretmez` testine o örneği ekle.
