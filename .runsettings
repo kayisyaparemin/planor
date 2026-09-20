@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Genel test çalıştırma ayarları -->
+  <RunConfiguration>
+    <MaxCpuCount>0</MaxCpuCount>
+    <ResultsDirectory>./TestResults</ResultsDirectory>
+  </RunConfiguration>
+
+  <!-- Coverlet veri toplayıcı yapılandırması -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- Yalnızca Mizan üretim derlemelerini dahil et -->
+          <Include>[Mizan.*]*</Include>
+          <!-- Test projelerini, UI kabuğunu ve derleyici tarafından üretilen kodları hariç tut -->
+          <Exclude>[*.Tests]*;[Mizan.App]*</Exclude>
+          <ExcludeByAttribute>GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
+          <SingleHit>false</SingleHit>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

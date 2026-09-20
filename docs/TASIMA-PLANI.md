@@ -20,7 +20,7 @@ Geri kalan her şey bu omurgadan sarkar.
       koddan önce ayakta olmalı.*
 - [x] **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
 - [x] **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması
-- [ ] **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir
+- [x] **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir
 
 ## Faz D — Domain  *(saf hesap, sıfır paket)*
 
@@ -158,7 +158,7 @@ Geri kalan her şey bu omurgadan sarkar.
 
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
-| F | 3 | 4 |
+| F | 4 | 4 |
 | D | 0 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |

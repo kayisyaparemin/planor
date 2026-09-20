@@ -6,8 +6,8 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması |
-| Sıradaki adım | **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir |
+| Son tamamlanan adım | **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir |
+| Sıradaki adım | **D1** — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …) |
 | Test sayısı | 44 |
 | Şema sürümü | — |
 
@@ -15,6 +15,14 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### F4 — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir
+
+Kapsam kalkanı kuruldu ve CI'da zorunlu kılındı. Kök dizine `.runsettings` eklenerek Coverlet ile
+standart Cobertura formatında kapsam toplanması sağlandı. `scripts/verify-coverage.ps1` betiği ile
+`Mizan.Domain` (%90), `Mizan.Application` (%80) ve `Mizan.Presentation` (%70) katman bazlı eşikleri
+hesaplayıp denetleyen mekanizma oluşturuldu. `.github/workflows/ci.yml` iş akışı eklenerek PR ve push
+süreçlerinde derleme, test ve kapsam eşiği denetimi zorunlu bir kapı hâline getirildi. 44 test yeşil.
 
 ### F3 — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması
 

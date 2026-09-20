@@ -49,10 +49,14 @@ jobs:
           --no-build
           --logger "console;verbosity=minimal"
           --collect:"XPlat Code Coverage"
+          --settings .runsettings
           --results-directory TestResults
 
-      # Kapsam eşiği F4 adımında .runsettings ile bağlanacak.
-      # O zamana kadar rapor yalnızca yüklenir, kapı görevi görmez.
+      # F4: Kapsam eşiği CI'da zorlanır.
+      - name: Kapsam eşiklerini denetle
+        shell: pwsh
+        run: ./scripts/verify-coverage.ps1 -ResultsDirectory TestResults
+
       - name: Kapsam raporunu yükle
         if: always()
         uses: actions/upload-artifact@v4
