@@ -48,6 +48,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | tek seferlik gelir | `AdHocIncome` | Tekrar etmeyen, tarihli gelir |
 | gelir tutar geçmişi | `IncomeAmountHistory` | Bir akışın etkin tarihli tutar değişiklikleri. "En son kazanır" kuralı **akışın kendi içinde** işler, akışlar arasında değil. |
 | gelir kalemi | `IncomeProjectionItem` | Bir dönemde beklenen tek bir gelir olayı |
+| gelir kaynağı türü | `IncomeSourceType` | Gelir kaleminin periyodiklik türü (`Recurring` veya `AdHoc`) |
+| dönem gelir özeti | `IncomeProjectionSummary` | Bir nakit akış dönemine ait tüm gelir kalemlerini ve tür bazlı toplamları özetleyen sonuç kaydı |
+| gelir projeksiyon hesaplayıcısı | `IncomeProjectionCalculator` | Dönem için aktif düzenli gelir akışlarını ve tek seferlik gelirleri eşleştirip dönemsel gelir özetini deterministik olarak hesaplayan saf hesaplayıcı |
 
 > Birden fazla düzenli gelir **toplanır**, birbirini ezmez. Bu, eski projede bir hataydı
 > (`SAPMALAR.md` → S2) ve yeni projede bir invariant'tır.

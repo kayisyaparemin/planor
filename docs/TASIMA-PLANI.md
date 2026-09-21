@@ -40,7 +40,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **D11** — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver` *(izole, sırası esnek)*
 
 ### Tier 2
-- [ ] **D12** — gelir projeksiyonu: `IncomeProjectionCalculator`
+- [x] **D12** — gelir projeksiyonu: `IncomeProjectionCalculator`
 - [ ] **D13** — kredi itfası: `LoanAmortizationCalculator` *(bisection ile örtük faiz çözümü)*
 - [ ] **D14** — kart ekstresi: `CreditCardStatementCalculator` *(eskide 3 partial, 540 satır — bölünecek)*
 - [ ] **D15** — finansal plan bütünü: `FinancialPlan`
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 11 | 24 |
+| D | 12 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |

@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D11** — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver` |
-| Sıradaki adım | **D12** — gelir projeksiyonu: `IncomeProjectionCalculator` |
-| Test sayısı | 252 |
+| Son tamamlanan adım | **D12** — gelir projeksiyonu: `IncomeProjectionCalculator` |
+| Sıradaki adım | **D13** — kredi itfası: `LoanAmortizationCalculator` |
+| Test sayısı | 266 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D12 — gelir projeksiyonu: `IncomeProjectionCalculator`
+
+Dönemsel nakit akışında düzenli ve arızi gelirleri birleştiren saf projeksiyon hesaplayıcısı taşındı. Eski mimarideki tek maaş kısıtı (S2) kaldırılarak çoklu aktif gelir akışlarının (`ActiveRecurringIncome`) toplanması sağlandı; gelirin küresel ayara bağımlılığı elenerek her gelirin kendi `PaymentDay`'ine göre dönem içi gerçekleşme tarihine kavuşması (S3) ve kısa aylarda ay sonuna kenetlenmesi garanti altına alındı. Eski koddaki `Salary`, `PrimaryIncome` ve `OtherIncome` yasaklı hiyerarşisi temizlenerek eşit vatandaş `Recurring` ve `AdHoc` modelleri (`IncomeSourceType`, `IncomeProjectionItem`, `IncomeProjectionSummary`) K3 kuralı uyarınca müstakil dosyalara ayrıldı. İlk döneme mahsus çapa öncesi pencereye (`prePeriodIncomeStart`) düşen arızi gelirlerin kaybolmasını engelleyen ve çapa öncesini mükerrer saymayan kural `I9` invariant'ı (`BR-INCOME-01`) olarak kayda geçirildi. 14 yeni test eklendi (toplam 266 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D11 — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver`
 
