@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D22** — hedef tutar: `TargetAmountCalculator` |
-| Sıradaki adım | **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult` |
-| Test sayısı | 449 |
+| Son tamamlanan adım | **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult` |
+| Sıradaki adım | **D24** — simülasyon motoru: `SimulationCalculator` |
+| Test sayısı | 477 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D23 — senaryo sözlüğü: `SimulationRequest`, `SimulationResult`
+
+Kullanıcının varsayımsal harcama, borçlanma, taksit, finansman ve gelir artışı kararlarını mevcut plana dokunmadan izole olarak simüle etmesini sağlayan senaryo sözleşmeleri (`SimulationRequest`, `SimulationResult`, `SimulationImpactRow`, `SimulationRiskSummary`, `LoanPrepaymentImpact`, `SimulationScenarioType`) ve saf doğrulayıcı `SimulationRequestValidator` taşındı. Eski mimaride tek bir dosyaya yığılmış olan 6 tip K3 ve M2 kuralları uyarınca `Mizan.Domain/Models/` altında müstakil dosyalara ayrıldı; 15 parametreli okunaksız positional record yapısı M3 kuralı gereğince init-only özelliklerle ve yardımcı yapıcıyla refactor edildi. Yasaklı `SalaryChange` terimi S11 ve S8 uyarınca `IncomeChange` olarak düzeltildi ve çoklu gelir akışı yapısında hangi akışın (`RecurringIncomeId`) değiştiğini belirten modele kavuşturuldu; aynı akış için aynı tarihte mükerrer gelir değişikliği engellenirken farklı akışlara bağımsız zam yeteneği `I19` invariant'ı olarak sabitlendi. S18 kararı doğrultusunda eski yapay tahsis (`PaymentStrategyChange`, `NewCashFlowAllocationMode`) bütünüyle elendi. 28 yeni test eklendi (toplam 477 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D22 — hedef tutar: `TargetAmountCalculator`
 

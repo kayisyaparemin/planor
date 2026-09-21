@@ -103,7 +103,7 @@ yapmıştık?" diye geri alınır.
 | **Neden yanlış** | Bu kısıt yalnız tek akış varsa tutarlı. Çoklu akışta "aynı gün iki gelir değişikliği" normaldir (A akışına zam, B akışına yeni müşteri). |
 | **Yeni** | `IncomeChange` senaryosu **hangi akışa** uygulandığını taşır. Çakışma kontrolü akış bazında yapılır. |
 | **Etkiler** | `D23`, `D24`, `A19` |
-| **Durum** | açık |
+| **Durum** | uygulandı |
 
 ### S9 — Arayüz motorun veremediği bir genelliği vaat ediyor
 
