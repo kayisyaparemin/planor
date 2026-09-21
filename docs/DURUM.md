@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D13** — kredi itfası: `LoanAmortizationCalculator` |
-| Sıradaki adım | **D14** — kart ekstresi: `CreditCardStatementCalculator` |
-| Test sayısı | 296 |
+| Son tamamlanan adım | **D14** — kart ekstresi: `CreditCardStatementCalculator` |
+| Sıradaki adım | **D15** — finansal plan bütünü: `FinancialPlan` |
+| Test sayısı | 324 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D14 — kart ekstresi: `CreditCardStatementCalculator`
+
+Kredi kartı ekstre döngülerini, dönem içi harcamaları, asgari ödeme tutarlarını ve devreden bakiye üzerindeki akdi faizi (carry faizini) simüle eden nakit akış projeksiyon motoru taşındı. Eski projede 3 partial dosyaya ve 540 satıra yayılmış olan monolitik yapı K4 (partial yasağı) ve K3 (200 satır sınırı) kuralları gereğince 3 saf bileşene (`CreditCardDateResolver`, `CreditCardPaymentDecisionResolver`, `CreditCardStatementCalculator`) bölündü; modeller (`CreditCardPaymentResolution`, `CreditCardStatementProjection`, `CreditCardPaymentDecision`) K3 ve M2 kuralları uyarınca müstakil dosyalara çıkarıldı ve M3 ctor kısıtı gereğince init-only özelliklerle refactor edildi. Kesilmiş ekstrelerde banka faizinin nihai kabul edilip mükerrer faiz işletilmemesi, kalan anaparanın ödeme anında kapitalize edilmeyip sonraki ekstrede satır faiz olarak yansıması ve banka kesin tarihlerinin korunması `I11` invariant'ı (`BR-CARD-01`) olarak sabitlendi. 28 yeni test eklendi (toplam 324 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D13 — kredi itfası: `LoanAmortizationCalculator`
 

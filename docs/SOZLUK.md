@@ -98,6 +98,13 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | ekstre ödeme planı | `CurrentStatementPaymentPlan` | Kesilmiş mevcut ekstre için belirlenen anlık ödeme modu ve tutarı |
 | ekstre ödeme tercihi | `CreditCardPaymentPreference` | Kart ödeme tercihlerinin etkin tarihli (effective-dated) tarihçe kaydı |
 | ekstre ödeme tercihi çözümleyici | `CreditCardPaymentPreferenceResolver` | Kartın tarihsel ödeme tercihlerini etkin tarih mantığıyla çözümleyen, kronolojik sıralayan ve mükerrer kararları ayırt eden saf hesaplayıcı |
+| akdi faiz / carry faizi | `CarryInterest` | Geçmiş ekstrelerden devreden ödenmemiş anapara bakiyesine bir sonraki ekstrede uygulanan faiz yükü (BR-CARD-01) |
+| ekstre ödeme kararı | `CreditCardPaymentDecision` | Çözümlenen ekstre ödeme tutarı, karar kaynağı ve uygulanan ödeme tipini taşıyan sözleşme |
+| ekstre ödeme kararı kaynağı | `CreditCardPaymentResolution` | Ödeme tutarının hangi kaynaktan (kesilmiş ekstre planı, vade istisnası, kart stratejisi, simülasyon yedeği) belirlendiğini belirten durum |
+| ekstre projeksiyonu | `CreditCardStatementProjection` | Tek bir hesap kesim döngüsüne ait simüle edilen ekstre borcu, asgari tutarı, ödemesi, carry faizi ve devreden bakiye sözleşmesi |
+| kart tarihi çözümleyici | `CreditCardDateResolver` | Kartın hesap kesim, son ödeme, bir sonraki döngü ve işlem eşleme tarihlerini takvim ve banka kurallarına göre çözümleyen saf hesaplayıcı |
+| kart ödeme kararı çözümleyici | `CreditCardPaymentDecisionResolver` | Ekstre için plan, istisna ve strateji hiyerarşisine göre ödenecek tutar ve modu belirleyen saf hesaplayıcı |
+| kart ekstre hesaplayıcısı | `CreditCardStatementCalculator` | Kredi kartı ekstre döngülerini, dönem içi harcamaları, asgari ödemeleri ve devreden bakiye üzerindeki carry faizini simüle eden saf projeksiyon motoru |
 
 ## Vadeli ve Geçici Borç Planı
 

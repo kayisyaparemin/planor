@@ -42,7 +42,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ### Tier 2
 - [x] **D12** — gelir projeksiyonu: `IncomeProjectionCalculator`
 - [x] **D13** — kredi itfası: `LoanAmortizationCalculator` *(bisection ile örtük faiz çözümü)*
-- [ ] **D14** — kart ekstresi: `CreditCardStatementCalculator` *(eskide 3 partial, 540 satır — bölünecek)*
+- [x] **D14** — kart ekstresi: `CreditCardStatementCalculator` *(eskide 3 partial, 540 satır — bölündü: Calculator, DateResolver, PaymentDecisionResolver)*
 - [ ] **D15** — finansal plan bütünü: `FinancialPlan`
 
 ### Tier 3
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 13 | 24 |
+| D | 14 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
