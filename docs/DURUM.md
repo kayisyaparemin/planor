@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult` |
-| Sıradaki adım | **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator` |
-| Test sayısı | 419 |
+| Son tamamlanan adım | **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator` |
+| Sıradaki adım | **D22** — hedef tutar: `TargetAmountCalculator` |
+| Test sayısı | 430 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D21 — 12 dönemlik projeksiyon motoru: `FinancialProjectionCalculator`
+
+Kullanıcının tüm gelir, borç, kart ve harcama dinamiklerini 12 nakit akış dönemi boyunca ileriye doğru simüle eden ana Domain yakınsama motoru `FinancialProjectionCalculator` taşındı. Eski mimarideki 6 bağımlılık ve yapay tahsis modelleri (Upcoming/Previous, geçiş catch-up bütçeleri) elenerek M3 kuralı uyarınca 5 saf bileşenle ve S18 doğal dönemsellikle bütünleştirildi. Dönem içi negatif bakiye oluştuğunda işletilen finansman açığı faizi (KMH) ve bu açığın sonraki döneme devredilerek telafisine kadar bileşik maliyet üretmesi `I17` invariant'ı olarak sabitlendi; kart ekstre döngüleri son ödeme tarihine göre ilgili döneme atanıp kümülatif faiz maliyetleri döküldü. K3 satır limitlerine (dosya ≤ 200, metot ≤ 40) tam uyuldu. 11 yeni test eklendi (toplam 430 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D20 — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult`
 

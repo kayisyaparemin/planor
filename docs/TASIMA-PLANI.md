@@ -55,7 +55,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ### Tier 4–6
 - [x] **D19** — dönem ödemeleri gruplama: `PeriodObligationGrouper` *(eski 226 satırlık karmaşık `CashFlowAllocationPlanner` yerine doğal dönemsellikle yalınlaştırıldı)*
 - [x] **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult`
-- [ ] **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator`
+- [x] **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator`
       — *Domain'in yakınsama noktası; Application'ın kapısı*
 - [ ] **D22** — hedef tutar: `TargetAmountCalculator`
 - [ ] **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult`
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 20 | 24 |
+| D | 21 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |

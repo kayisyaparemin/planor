@@ -22,6 +22,12 @@ public sealed class CreditCardStatementCalculator(
     }
 
     /// <summary>
+    /// Belirtilen referans tarih ve kesim gününe göre o tarihte veya sonrasındaki ilk hesap kesim tarihini belirler.
+    /// </summary>
+    public DateOnly ResolveStatementCloseOnOrAfter(DateOnly date, int statementClosingDay) =>
+        _dateResolver.ResolveStatementCloseOnOrAfter(date, statementClosingDay);
+
+    /// <summary>
     /// Kredi kartı için belirtilen sayıda ekstre döngüsünü simüle ederek her bir ekstrenin
     /// borç, ödeme, akdi faiz ve devreden bakiye projeksiyonunu üretir.
     /// </summary>
