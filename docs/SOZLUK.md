@@ -81,6 +81,13 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | asgari ödeme | `MinimumPayment` | Yasal alt sınır |
 | devreden bakiye | `CarriedBalance` | Ödenmeyip faize kalan tutar |
 | dönem içi harcama | `UnbilledSpending` | Henüz ekstreye girmemiş harcama |
+| kart harcaması / taksit | `CardCharge` | Karta yansıyacak bekleyen harcama veya taksitli işlem kalemi |
+| kullanılabilir limit | `AvailableLimit` | Kartın kalan kullanılabilir kredi limiti (`Limit - KnownTotalDebt`) |
+| yasal asgari oran | `CreditCardRules.ResolveMinimumPaymentRate` | BDDK mevzuatına göre kart limitine bağlı asgari ödeme oranı (%20 veya %40) |
+| kart doğrulayıcı | `CreditCardValidator` | Kredi kartı sözleşmesi, ekstre ve plan tutarlılık denetleyicisi |
+| özel ödeme planı | `CreditCardPaymentPlan` | Belirli bir vade için tanımlanmış istisnai ödeme tercihi |
+| ekstre ödeme planı | `CurrentStatementPaymentPlan` | Kesilmiş mevcut ekstre için belirlenen anlık ödeme modu ve tutarı |
+| ekstre ödeme tercihi | `CreditCardPaymentPreference` | Kart ödeme tercihlerinin etkin tarihli (effective-dated) tarihçe kaydı |
 
 ## Profil ve yedek
 

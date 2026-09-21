@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator` |
-| Sıradaki adım | **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları |
-| Test sayısı | 132 |
+| Son tamamlanan adım | **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları |
+| Sıradaki adım | **D8** — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment` |
+| Test sayısı | 175 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D7 — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları
+
+Kredi kartı sözleşmesi ve ödeme planı modelleri taşındı. Eski projede tek bir dosyaya yığılmış olan 6 model (`CreditCard`, `CreditCardStatement`, `CardCharge`, `CreditCardPaymentPlan`, `CurrentStatementPaymentPlan`, `CreditCardPaymentPreference`) K3 ve M2 kuralları uyarınca tekil dosyalara ayrıldı; K8 uyumlu Türkçe XML dokümantasyonları eklendi. Ekstresiz ve ekstreli güncel borç ayrımı (`KnownTotalDebt`, `I5`, `BR-CARD-01`) ile türetilmiş `AvailableLimit` ve `IsActive` özellikleri eklendi. UI form yükünü hafifletmek amacıyla BDDK yasal mevzuatına dayalı asgari ödeme oranı (`CreditCardRules.ResolveMinimumPaymentRate`, `I6`, `BR-CARD-04`) ve standart vade kuralı tanımlandı. Dağınık doğrulama mantığı saf `CreditCardValidator` sınıfında toplandı. 34 yeni test eklendi (toplam 175 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D6 — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator`
 
