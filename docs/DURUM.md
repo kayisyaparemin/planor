@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D15** — finansal plan bütünü: `FinancialPlan` |
-| Sıradaki adım | **D16** — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay` |
-| Test sayısı | 343 |
+| Son tamamlanan adım | **D16** — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay` |
+| Sıradaki adım | **D17** — yükümlülük listesi: `ObligationModels`, `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator` |
+| Test sayısı | 365 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D16 — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay`
+
+Kredi sözleşmesi üzerindeki kısmi ara ödeme ve erken kapama olaylarını kronolojik sırayla takvim üzerinde simüle eden `LoanPaymentScheduleBuilder` motoru, `LoanReplay`, `LoanScheduledPayment`, `LoanPaymentKind` modelleri ve `LoanPrepaymentValidator` taşındı. Eski mimaride 347 satırlık dev monolitik dosya ve 3 public tipi tek dosyada tutan yapı K3 kuralı uyarınca müstakil dosyalara bölündü; takvim oynatma motoru ile iş kuralı doğrulaması ayrıştırıldı (Seçenek 1). Domain katmanına sızmış olan `CultureInfo.GetCultureInfo("tr-TR")` bağımlılıkları temizlenerek kültürden bağımsızlaştırıldı. Erken kapamada o güne kadar vadesi gelen taksitlerin öncelikli tahsili, ara ödemede kıst faiz ve 6502 sayılı Kanun komisyonlarının işletilmesi, vade kısaltmada son taksit daralması ve taksit azaltmada annüite yeniden hesaplaması `I13` invariant'ı (`BR-LOAN-01`) olarak sabitlendi. 22 yeni test eklendi (toplam 365 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D15 — finansal plan bütünü: `FinancialPlan`
 

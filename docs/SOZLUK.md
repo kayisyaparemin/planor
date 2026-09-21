@@ -81,6 +81,11 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | erken ödeme | `Prepayment` | Plan dışı anapara ödemesi |
 | kredi erken ödemesi | `LoanPrepayment` | Krediye planlanmış kısmi ara ödeme veya erken kapama taahhüdü |
 | erken kapama | `Payoff` | Krediyi tümüyle kapatma |
+| kredi ödeme türü | `LoanPaymentKind` | Kredi takvimindeki ödeme türü (taksit, erken kapama, ara ödeme) |
+| takvimli kredi ödemesi | `LoanScheduledPayment` | Kredinin takvimdeki tekil bir nakit çıkış kalemi |
+| kredi olay oynatımı | `LoanReplay` | Erken ödeme olaylarının kredi takvimi üstünde kronolojik oynatılmış sonucu |
+| kredi ödeme takvimi oluşturucu | `LoanPaymentScheduleBuilder` | Erken ödeme olaylarını takvim üstünde oynatarak güncel takvim ve ara durumları üreten saf motor |
+| kredi erken ödeme doğrulayıcısı | `LoanPrepaymentValidator` | Kredi erken ödeme girdilerinin iş kurallarına ve takvim durumuna uygunluğunu denetleyen saf doğrulayıcı |
 
 ## Kredi kartı
 

@@ -46,7 +46,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **D15** — finansal plan bütünü: `FinancialPlan` *(ve `LoanPrepayment` sözleşmesi)*
 
 ### Tier 3
-- [ ] **D16** — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay` *(model `LoanPrepayment` D15'te taşındı)*
+- [x] **D16** — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay` *(model `LoanPrepayment` D15'te taşındı)*
 - [ ] **D17** — yükümlülük listesi: `ObligationModels` *(kendi leaf dosyası — kural M2)*,
       `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator`
 - [ ] **D18** — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler`
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 15 | 24 |
+| D | 16 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
