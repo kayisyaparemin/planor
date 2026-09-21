@@ -63,6 +63,10 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 |---|---|---|
 | doğal dönemsellik | `period.Contains(date)` | Vadesi dönemin `[Start, End)` aralığına düşen her nakit akışının doğrudan o döneme ait olması ilkesi (S18) |
 | açık faizi | `DeficitFinancingInterest` | Negatif bakiyenin maliyeti (KMH) |
+| dönem projeksiyonu | `CashFlowPeriodProjection` | Tek bir dönemin gelir, zorunlu gider, yaşam havuzu, bakiye ve faiz projeksiyon sözleşmesi |
+| finansal projeksiyon sonucu | `FinancialProjectionResult` | 12 dönemi, yükümlülük planını ve kümülatif faiz maliyetlerini içeren bütüncül projeksiyon sonucu |
+| projeksiyon faiz özeti | `ProjectionInterestSummary` | Kredi kartı ve finansman açığı kümülatif faiz maliyetleri özeti |
+| kart projeksiyon durumu | `CreditCardPaymentProjectionStatus` | Kredi kartının belirli bir ekstre döngüsündeki simüle edilen borç, ödeme ve carry faizini kart kimliğiyle sunan sözleşme |
 
 ## Kredi
 

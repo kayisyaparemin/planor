@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D19** — dönem ödemeleri gruplama: `PeriodObligationGrouper` |
-| Sıradaki adım | **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult` |
-| Test sayısı | 403 |
+| Son tamamlanan adım | **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult` |
+| Sıradaki adım | **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator` |
+| Test sayısı | 419 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D20 — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult`
+
+12 dönemlik nakit akış projeksiyonunun çekirdek veri modelleri (`CashFlowPeriodProjection`, `FinancialProjectionResult`, `CreditCardPaymentProjectionStatus`, `ProjectionInterestSummary`) taşındı. Eski mimaride tek bir dosyaya yığılmış olan 4 tip K3 kuralı uyarınca `Mizan.Domain/Models/` altında müstakil dosyalara ayrıldı; 37 parametreli okunaksız positional record yapısı M3 kuralı gereğince init-only özelliklerle refactor edildi. Eski modeldeki yapay tahsis çöplüğü (Upcoming/Previous modları, geçiş pencereleri, forward funded ve catch-up alanları) S18 doğal dönemsellik ilkesi doğrultusunda tamamen temizlendi; yasaklı `PrimaryIncome`/`OtherIncome` terimleri S5 ve S11 kararlarıyla `RecurringIncomeTotal` ve `AdHocIncomeTotal` olarak düzeltildi. Tek bir dönemin açılış/kapanış bakiyesi, finansman açığı faizi, devreden açık ve telafi göstergeleri saf türetilmiş özelliklerle modellendi; 12 dönemin kümülatif faiz toplamları `PeriodObligationPlan` ile bütünleştirildi. 7 yeni test eklendi (toplam 419 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D19 — dönem ödemeleri gruplama: `PeriodObligationGrouper`
 
