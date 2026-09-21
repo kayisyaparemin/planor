@@ -68,6 +68,8 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | projeksiyon faiz özeti | `ProjectionInterestSummary` | Kredi kartı ve finansman açığı kümülatif faiz maliyetleri özeti |
 | kart projeksiyon durumu | `CreditCardPaymentProjectionStatus` | Kredi kartının belirli bir ekstre döngüsündeki simüle edilen borç, ödeme ve carry faizini kart kimliğiyle sunan sözleşme |
 | finansal projeksiyon hesaplayıcısı | `FinancialProjectionCalculator` | Kullanıcının tüm finansal planını (gelirler, krediler, kredi kartları, vadeli borçlar, büyük harcamalar) 12 nakit akış dönemi boyunca simüle eden ana motor |
+| hedef tutar ulaşılabilirlik sonucu | `TargetReachabilityResult` | Kullanıcının hedef birikim tutarına projeksiyon boyunca ne zaman ulaştığını veya başlangıçta ulaşıp ulaşmadığını gösteren sözleşme |
+| hedef tutar hesaplayıcısı | `TargetAmountCalculator` | Nakit akış projeksiyonu üzerinde kullanıcının hedef tutarına hangi dönemde ulaştığını deterministik olarak hesaplayan saf Domain motoru |
 
 ## Kredi
 

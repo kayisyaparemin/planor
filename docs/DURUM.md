@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator` |
-| Sıradaki adım | **D22** — hedef tutar: `TargetAmountCalculator` |
-| Test sayısı | 430 |
+| Son tamamlanan adım | **D22** — hedef tutar: `TargetAmountCalculator` |
+| Sıradaki adım | **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult` |
+| Test sayısı | 449 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D22 — hedef tutar: `TargetAmountCalculator`
+
+Kullanıcının belirlediği finansal hedef tutara nakit akış projeksiyonu boyunca ne zaman ulaştığını veya başlangıç açılış bakiyesiyle zaten ulaşıp ulaşmadığını tespit eden saf hesaplayıcı `TargetAmountCalculator` ve sonuç sözleşmesi `TargetReachabilityResult` taşındı. Eski projede tek bir dosyaya yığılmış olan iki tip K3 ve M2 kuralları uyarınca müstakil dosyalara ayrıldı; D20 adımında standartlaştırılan `OpeningBalance` ve `EndingBalance` alanlarına bağlandı. Hedef tutarın pozitif olması, ilk dönem açılışında hedefe zaten ulaşılmışsa `IsAlreadyReached = true` dönmesi ve kronolojik kümülatif bakiye üzerinde ilk ulaşım döneminin bulunması `I18` invariant'ı olarak tescillendi. Savunmacı null denetimleri ve K8 uyumlu Türkçe dokümantasyon eklendi. 19 yeni test eklendi (toplam 449 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D21 — 12 dönemlik projeksiyon motoru: `FinancialProjectionCalculator`
 

@@ -57,7 +57,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult`
 - [x] **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator`
       — *Domain'in yakınsama noktası; Application'ın kapısı*
-- [ ] **D22** — hedef tutar: `TargetAmountCalculator`
+- [x] **D22** — hedef tutar: `TargetAmountCalculator`
 - [ ] **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult`
 - [ ] **D24** — simülasyon motoru: `SimulationCalculator`
       *(düğüm T1: bağımlılığını kendisi `new`lemeyecek, zorunlu parametre)*
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 21 | 24 |
+| D | 22 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
