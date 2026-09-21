@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult` |
-| Sıradaki adım | **D24** — simülasyon motoru: `SimulationCalculator` |
-| Test sayısı | 477 |
+| Son tamamlanan adım | **D24** — simülasyon motoru: `SimulationCalculator` |
+| Sıradaki adım | **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision` |
+| Test sayısı | 495 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D24 — simülasyon motoru: `SimulationCalculator`
+
+Kullanıcının canlı finansal planına dokunmadan "What-If" senaryolarını izole bir dünyada koşturup baz durumla karşılaştıran simülasyon motoru `SimulationCalculator` ve senaryo koşullarını plana işleyen saf `ScenarioPlanBuilder` taşındı. Eski projede 4 partial dosyaya ve 800+ satıra yığılmış olan monolitik yapı K3 ve K4 kuralları gereğince iki odaklı sınıfa ayrıldı; T1 düğümü ve M1 kuralı gereğince gizli `new` deseni elenerek tüm hesaplayıcı ve doğrulayıcı bağımlılıkları zorunlu parametre yapıldı. Kural K1 uyarınca Domain'e sızmış olan `CultureInfo.GetCultureInfo("tr-TR")` ve kültürlü para formatlamaları temizlendi; S8 ve S18 kararları doğrultusunda yapay tahsis modelleri bütünüyle dışarıda bırakılarak çoklu gelir zamları `IncomeAmountHistory` üzerinden işlendi. Kredi kartı ekstre, erken kapama, finansman ve nakit harcama etkileri `I20` invariant'ı olarak sabitlendi. 18 yeni test eklendi (toplam 495 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D23 — senaryo sözlüğü: `SimulationRequest`, `SimulationResult`
 

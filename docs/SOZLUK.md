@@ -81,6 +81,8 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | simülasyon sonucu | `SimulationResult` | Mevcut baz projeksiyon ile senaryo projeksiyonunun kümülatif faiz, tasarruf ve risk metriklerini içeren bütüncül karşılaştırma sonucu |
 | kredi erken ödeme etkisi | `LoanPrepaymentImpact` | Erken kapama veya ara ödemelerin belirli bir krediye olan faiz kazancı, erken bitiş tarihi ve yeni taksit tutarı etkilerini sunan sözleşme |
 | simülasyon istek doğrulayıcısı | `SimulationRequestValidator` | Simülasyon senaryo isteklerinin tutarlılığını, yasal ve matematiksel kısıtlarını ve çoklu gelir akışı çakışmalarını denetleyen saf sınıf |
+| senaryo plan kurucusu | `ScenarioPlanBuilder` | Kullanıcının simülasyon senaryo isteklerini (kart harcaması, finansman, borç, gelir artışı vb.) mevcut finansal plana uygulayarak izole bir hipotetik plan inşa eden saf hesaplayıcı |
+| simülasyon motoru | `SimulationCalculator` | Canlı baz plan ile varsayımsal senaryo koşullarını 12 dönem boyunca koşturup karşılaştıran, likidite farklarını, ek faiz maliyeti ve tasarruflarını hesaplayan ana motor |
 
 ## Kredi
 

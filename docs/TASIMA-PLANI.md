@@ -59,8 +59,8 @@ Geri kalan her şey bu omurgadan sarkar.
       — *Domain'in yakınsama noktası; Application'ın kapısı*
 - [x] **D22** — hedef tutar: `TargetAmountCalculator`
 - [x] **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult`
-- [ ] **D24** — simülasyon motoru: `SimulationCalculator`
-      *(düğüm T1: bağımlılığını kendisi `new`lemeyecek, zorunlu parametre)*
+- [x] **D24** — simülasyon motoru: `SimulationCalculator`
+      *(düğüm T1: bağımlılığını kendisi `new`lemeyecek, zorunlu parametre — K3/K4 gereği `ScenarioPlanBuilder` ve `SimulationCalculator` olarak ayrıştırıldı)*
 
 ## Faz H — Tarihçe  *(D'den bağımsız, paralel ilerleyebilir)*
 
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 23 | 24 |
+| D | 24 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
