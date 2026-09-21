@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D4** — gelir defteri: `RecurringIncome`, `IncomeAmountHistory`, `ActiveRecurringIncome`, `AdHocIncome`, `IncomeResolver` |
-| Sıradaki adım | **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator` |
-| Test sayısı | 118 |
+| Son tamamlanan adım | **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator` |
+| Sıradaki adım | **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları |
+| Test sayısı | 132 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D6 — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator`
+
+Taksitli harcama ve borç bölüştürme altyapısı taşındı. Eski projede tek dosyaya sıkıştırılmış olan `ScheduledAmount` değer nesnesi K3 ve M2 kuralları gereğince `Mizan.Domain.Models` altına tekil dosya olarak çıkarıldı; K8 uyumlu Türkçe XML dokümantasyonu eklendi. Eski kodda sınıf içine manuel yazılmış olan kuruş artık hesabı F3 adımında taşınan `MoneyRules.Distribute` saf metoduna delege edilerek `I2` invariant'ı (`BR-MONEY-01`) korundu; takvim vadeleri için `CalendarRules.AddMonthsKeepingDay` kullanılarak ay sonu kenetlenmesi ve artık yıl kuralları (`BR-CALENDAR-01`) sağlandı. 14 yeni test eklendi (toplam 132 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D4 — gelir defteri: `RecurringIncome`, `IncomeAmountHistory`, `ActiveRecurringIncome`, `AdHocIncome`, `IncomeResolver`
 

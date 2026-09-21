@@ -34,6 +34,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 |---|---|---|
 | para yuvarlama | `MoneyRules.Round` | 2 basamak ve `MidpointRounding.AwayFromZero` ile kuruşa yuvarlama |
 | kuruş korunumlu bölüştürme | `MoneyRules.Distribute` | Toplam tutarı eşit parçalara bölüp kuruş artığını son taksite ekleme |
+| takvimli taksit tutarı | `ScheduledAmount` | Belirli bir vadeye bağlanmış takvimli taksit veya nakit çıkış tutarı |
 
 ## Gelir
 
