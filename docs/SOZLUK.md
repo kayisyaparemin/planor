@@ -88,6 +88,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | özel ödeme planı | `CreditCardPaymentPlan` | Belirli bir vade için tanımlanmış istisnai ödeme tercihi |
 | ekstre ödeme planı | `CurrentStatementPaymentPlan` | Kesilmiş mevcut ekstre için belirlenen anlık ödeme modu ve tutarı |
 | ekstre ödeme tercihi | `CreditCardPaymentPreference` | Kart ödeme tercihlerinin etkin tarihli (effective-dated) tarihçe kaydı |
+| ekstre ödeme tercihi çözümleyici | `CreditCardPaymentPreferenceResolver` | Kartın tarihsel ödeme tercihlerini etkin tarih mantığıyla çözümleyen, kronolojik sıralayan ve mükerrer kararları ayırt eden saf hesaplayıcı |
 
 ## Vadeli ve Geçici Borç Planı
 

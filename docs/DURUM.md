@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D9** — planlı büyük harcama + `UserSettings` |
-| Sıradaki adım | **D11** — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver` |
-| Test sayısı | 231 |
+| Son tamamlanan adım | **D11** — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver` |
+| Sıradaki adım | **D12** — gelir projeksiyonu: `IncomeProjectionCalculator` |
+| Test sayısı | 252 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D11 — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver`
+
+Kredi kartı ekstre ödeme tercihlerini (asgari, tamamı, özel tutar) etkin tarihli (effective-dated) geçmiş üzerinden çözümleyen saf hesaplayıcı taşındı. Eski projede tek dosyada instance ve statik metot karmaşası yaratan yapı M8 uyarınca tutarlı bir API'ye kavuşturuldu; bayat ve elenmiş harcama kaydırma referansları temizlendi, K8 uyumlu Türkçe XML özetleri ve savunmacı null denetimleri eklendi. Yürürlükteki kararın tespiti (`Resolve`), arayüz için kronolojik sıralama (`Ordered`), tablonun gereksiz şişmesini engelleyen karar özdeşliği denetimi (`RepresentsSameDecision`) ve iş kuralları doğrulaması (`Validate`) sağlandı. Etkin tarihli append-only tarihçe kuralı `I8` invariant'ı olarak tescillendi. 21 yeni test eklendi (toplam 252 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D9 — planlı büyük harcama + `UserSettings`
 
