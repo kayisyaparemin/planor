@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D16** — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay` |
-| Sıradaki adım | **D17** — yükümlülük listesi: `ObligationModels`, `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator` |
-| Test sayısı | 365 |
+| Son tamamlanan adım | **D17** — yükümlülük listesi: `ObligationModels`, `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator` |
+| Sıradaki adım | **D18** — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler` |
+| Test sayısı | 382 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D17 — yükümlülük listesi: `ObligationModels`, `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator`
+
+Kullanıcının kredi, kredi kartı, vadeli borç ve taksitli ödemelerini tek bir takvim üzerinde birleştiren ve kategori bazlı zorunlu çıkış özeti (`MandatoryPaymentSummary`) üreten `MandatoryPaymentCalculator` ile vadeli borç taksitlerini yükümlülük kalemlerine (`ObligationItem`) dönüştüren `ScheduledPaymentCalculator` taşındı. Eski projede tek dosyaya yığılmış olan 5 tip K3 kuralı uyarınca müstakil dosyalara ayrıldı; modeller M2 kuralı gereğince `Models/` altına leaf olarak taşındı. Eski `ObligationItem` üzerinde yer alan yapay tahsis (`UpcomingPeriod` / `PreviousPeriod`) ve geçiş kalıntıları S18 doğal dönemsellik ilkesi doğrultusunda temizlendi; `PaymentAllocationReason` enum'ı elendi. M3 ctor parametre kısıtı (≤ 5) korunarak modeller init-only özelliklerle refactor edildi. Planlanan büyük harcamanın zorunlu özet toplamına girmemesi `I14` invariant'ı olarak sabitlendi. 17 yeni test eklendi (toplam 382 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D16 — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay`
 

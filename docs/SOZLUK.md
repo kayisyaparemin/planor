@@ -123,6 +123,16 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | plan türü | `PaymentPlanKind` | Borç planının niteliği (Geçici, Taksitli, Periyodik veya Diğer) |
 | plan doğrulayıcı | `TemporaryPaymentPlanValidator` | Geçici ödeme planı ve taksitlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
 
+## Yükümlülük ve Ödeme Takvimi
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| yükümlülük türü | `ObligationType` | Borç ve nakit çıkış yükümlülüklerinin tür sınıflandırması (Kredi, Kart, Geçici, Taksitli, Diğer, Büyük Harcama) |
+| yükümlülük kalemi | `ObligationItem` | Belirli bir vadede ödenmesi gereken tekil bir borç veya harcama yükümlülüğü sözleşmesi |
+| zorunlu ödeme özeti | `MandatoryPaymentSummary` | Dönem içi zorunlu nakit çıkışlarını kategori bazında toplayan ve genel toplamı veren özet modeli |
+| vadeli ödeme hesaplayıcısı | `ScheduledPaymentCalculator` | Vadeli borç planlarından ödenmemiş taksitleri ayıklayarak standart yükümlülük kalemlerine dönüştüren saf hesaplayıcı |
+| zorunlu ödeme hesaplayıcısı | `MandatoryPaymentCalculator` | Krediler, erken ödemeler, vadeli planlar ve kart ödemelerini takvimde birleştirip zorunlu ödeme özetini üreten saf Domain motoru |
+
 ## Planlı Harcama ve Kullanıcı Ayarları
 
 | Türkçe | Kod | Tanım |
