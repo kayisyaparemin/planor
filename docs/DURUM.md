@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D5** — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator` |
-| Sıradaki adım | **D4** — gelir defteri: `SalaryScheduleEntry`, `OneTimeIncome`, `IncomeResolver` |
-| Test sayısı | 108 |
+| Son tamamlanan adım | **D4** — gelir defteri: `RecurringIncome`, `IncomeAmountHistory`, `ActiveRecurringIncome`, `AdHocIncome`, `IncomeResolver` |
+| Sıradaki adım | **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator` |
+| Test sayısı | 118 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D4 — gelir defteri: `RecurringIncome`, `IncomeAmountHistory`, `ActiveRecurringIncome`, `AdHocIncome`, `IncomeResolver`
+
+Gelir modelleri ve çoklu gelir çözümleyici taşındı. Eski mimaride tek bir maaşın geçmişi olarak tasarlanıp ikinci bir düzenli geliri sessizce ezen kritik model hatası (`S2` sapması) düzeltildi; `RecurringIncome` (akış) ve `IncomeAmountHistory` (akışa bağlı etkin tarihli tutar geçmişi) olarak ikiye ayrıldı (Seçenek 1). Her düzenli gelirin kendi ödeme gününü taşıması sağlandı (`S3`). Ayrıcalıklı maaş ve diğer gelir kavramları elenerek `RecurringIncome` ve `AdHocIncome` eşit vatandaş yapıldı (`S5`), yasaklı `Salary` terimi temizlendi (`S11`). `BR-INCOME-01` gereğince dönem başlangıcı itibarıyla geçerli en son tutarın seçilmesi ve dönem içi zamların korunması sağlandı (`I4` invariant'ı). K3 kuralı gereğince her tip tekil dosyaya ayrıldı, K8 uyumlu Türkçe XML özetleri eklendi. 10 yeni test eklendi (toplam 118 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D5 — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator`
 

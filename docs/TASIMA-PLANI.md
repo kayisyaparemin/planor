@@ -30,7 +30,7 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ### Tier 1
 - [x] **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar*
-- [ ] **D4** — gelir defteri: `SalaryScheduleEntry`, `OneTimeIncome`, `IncomeResolver`
+- [x] **D4** — gelir defteri: `RecurringIncome`, `IncomeAmountHistory`, `ActiveRecurringIncome`, `AdHocIncome`, `IncomeResolver`
 - [x] **D5** — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator`
 - [ ] **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator`
 - [ ] **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 5 | 24 |
+| D | 6 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
