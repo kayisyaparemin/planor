@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D14** — kart ekstresi: `CreditCardStatementCalculator` |
-| Sıradaki adım | **D15** — finansal plan bütünü: `FinancialPlan` |
-| Test sayısı | 324 |
+| Son tamamlanan adım | **D15** — finansal plan bütünü: `FinancialPlan` |
+| Sıradaki adım | **D16** — kredi erken ödeme: `LoanPaymentScheduleBuilder`, `LoanReplay` |
+| Test sayısı | 343 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D15 — finansal plan bütünü: `FinancialPlan`
+
+Kullanıcının tüm finansal varlık, yükümlülük, sözleşme ve bütçe parametrelerini tek bir çatı altında toplayan bütüncül `FinancialPlan` modeli ve saf `FinancialPlanValidator` taşındı. Eski mimarideki yapay tahsis modelleri (`PaymentAssignmentStrategies`) S18 doğal dönemsellik ilkesi doğrultusunda tamamen elendi; tek maaş ve diğer gelir kısıtları (`Salaries`, `OtherIncomes`) S2, S3 ve S5 kararları gereğince `RecurringIncomes`, `IncomeHistories` ve `AdHocIncomes` modellerine dönüştürüldü. Eski projede 4 farklı serviste kod tekrarına ve M8 ihlaline yol açan `CanBuildProjection` mantığı `FinancialPlan` üzerine saf bir türetilmiş özellik olarak alındı ve `I12` invariant'ı olarak sabitlendi. Model bütünlüğünü sağlamak adına D16'da planlanan 12 satırlık saf `LoanPrepayment` sözleşmesi bu adımda taşındı (Karar 1 / Seçenek 1). 19 yeni test eklendi (toplam 343 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D14 — kart ekstresi: `CreditCardStatementCalculator`
 

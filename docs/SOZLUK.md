@@ -27,6 +27,8 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
+| finansal plan | `FinancialPlan` | Kullanıcının tüm finansal varlık, yükümlülük, gelir ve ayarlarını tek çatı altında toplayan bütüncül sözleşme |
+| plan doğrulayıcı | `FinancialPlanValidator` | Finansal planın ve alt bileşenlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
 
 ## Para ve yuvarlama
 
@@ -77,6 +79,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | taksit | `Installment` | Aylık ödeme kalemi |
 | kalan borç | `RemainingDebt` | Bugün itibarıyla kalan anapara |
 | erken ödeme | `Prepayment` | Plan dışı anapara ödemesi |
+| kredi erken ödemesi | `LoanPrepayment` | Krediye planlanmış kısmi ara ödeme veya erken kapama taahhüdü |
 | erken kapama | `Payoff` | Krediyi tümüyle kapatma |
 
 ## Kredi kartı
