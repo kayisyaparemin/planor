@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D17** — yükümlülük listesi: `ObligationModels`, `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator` |
-| Sıradaki adım | **D18** — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler` |
-| Test sayısı | 382 |
+| Son tamamlanan adım | **D18** — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler` |
+| Sıradaki adım | **D19** — dönem ödemeleri gruplama: `PeriodObligationGrouper` |
+| Test sayısı | 393 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D18 — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler`
+
+Dönem mutabakatı ve kapanışında kredi kartına yapılan fiili ödemeyi borçtan düşerek devreden bakiyeyi ve sonraki dönem başlangıç durumunu belirleyen saf `CreditCardActualPaymentReconciler` taşındı. Eski projede yaprak olması gerekirken yapıcıda ekstre hesaplayıcısı enjekte eden ve tek bir ödeme için 24 aylık projeksiyon çalıştıran T2 düğümü çözüldü: hesaplayıcı bağımlılığı ve kullanılmayan `carryInterestRate` parametresi elendi; hazır ekstre projeksiyonu (`CreditCardStatementProjection`) doğrudan parametre olarak alındı (Seçenek 1). Fiili ödemeden sonra yalnızca kalan anaparanın devretmesi ve faizin ödeme anında kapitalize edilmemesi kuralı (`I11` ve `I15`), ekstre kesim tarihine kadar olan harcamaların elenerek mükerrer sayımın önlenmesi ve kapanan ekstreye ait planların emekliye ayrılması sağlandı. 11 yeni test eklendi (toplam 393 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D17 — yükümlülük listesi: `ObligationModels`, `ScheduledPaymentCalculator`, `MandatoryPaymentCalculator`
 
