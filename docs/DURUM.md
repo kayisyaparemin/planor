@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D8** — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment` |
-| Sıradaki adım | **D9** — planlı büyük harcama + `UserSettings` |
-| Test sayısı | 201 |
+| Son tamamlanan adım | **D9** — planlı büyük harcama + `UserSettings` |
+| Sıradaki adım | **D11** — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver` |
+| Test sayısı | 231 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D9 — planlı büyük harcama + `UserSettings`
+
+Planlanan tek seferlik büyük harcama (`PlannedLargeExpense`) ve kullanıcı ayarları (`UserSettings`) modelleri taşındı. Eski projede tek dosyaya yığılmış olan modeller K3 gereğince tekil dosyalara ayrıldı ve K8 uyumlu Türkçe XML özetleri eklendi. `PlannedLargeExpense` üzerine `IsActive` yeteneği kazandırıldı. `UserSettings` modelinde `S1` sapması doğrultusunda yasaklı `IncomeDay` yerine `PeriodAnchor` değer nesnesi; `S7` ve `S16` uyarınca aylık oranlamalı `MonthlyVariableExpenseAllowance` yerine dönem başına serbest havuzu temsil eden `PeriodVariableExpenseAllowance` yerleştirildi. `ProjectionOpeningBalance` ve `ProjectionAnchorDate` alanlarının Ayarlar UI ekranı için değil, başlangıç projeksiyon zemini olduğu netleştirildi. Eski projede kurulum tarihi ile çapa arasındaki yapay hayalet dönemin kapatılması saçmalığını önlemek amacıyla `S19` kararı (`SAPMALAR.md`) kayda geçirildi. Dağınık doğrulamalar `PlannedLargeExpenseValidator` ve `UserSettingsValidator` saf sınıflarında toplandı. 30 yeni test eklendi (toplam 231 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D8 — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment`
 

@@ -98,6 +98,16 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | plan türü | `PaymentPlanKind` | Borç planının niteliği (Geçici, Taksitli, Periyodik veya Diğer) |
 | plan doğrulayıcı | `TemporaryPaymentPlanValidator` | Geçici ödeme planı ve taksitlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
 
+## Planlı Harcama ve Kullanıcı Ayarları
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| planlı büyük harcama | `PlannedLargeExpense` | Belirli bir kesin tarihte yapılması öngörülen tek seferlik nakit çıkışı |
+| planlı harcama durumu | `PlannedExpenseStatus` | Harcamanın yaşam döngüsü durumu (Planlandı, Tamamlandı, İptal) |
+| kullanıcı ayarları | `UserSettings` | Dönem çapası, yaşam gideri havuzu, açılış durumu ve faiz parametrelerini tutan temel ayarlar |
+| harcama doğrulayıcı | `PlannedLargeExpenseValidator` | Planlanan harcama tutarlılık ve geçerlilik denetleyicisi |
+| ayar doğrulayıcı | `UserSettingsValidator` | Kullanıcı ayarları tutarlılık ve faiz sınırları denetleyicisi |
+
 ## Profil ve yedek
 
 | Türkçe | Kod | Tanım |
