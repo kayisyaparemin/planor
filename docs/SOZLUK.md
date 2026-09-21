@@ -133,6 +133,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | zorunlu ödeme özeti | `MandatoryPaymentSummary` | Dönem içi zorunlu nakit çıkışlarını kategori bazında toplayan ve genel toplamı veren özet modeli |
 | vadeli ödeme hesaplayıcısı | `ScheduledPaymentCalculator` | Vadeli borç planlarından ödenmemiş taksitleri ayıklayarak standart yükümlülük kalemlerine dönüştüren saf hesaplayıcı |
 | zorunlu ödeme hesaplayıcısı | `MandatoryPaymentCalculator` | Krediler, erken ödemeler, vadeli planlar ve kart ödemelerini takvimde birleştirip zorunlu ödeme özetini üreten saf Domain motoru |
+| dönem yükümlülük grubu | `PeriodObligationGroup` | Belirli bir nakit akış dönemine [Start, End) vadesi düşen borç ve harcama yükümlülüklerini doğal dönemsellikle bir arada tutan sözleşme |
+| dönem yükümlülük planı | `PeriodObligationPlan` | Tüm projeksiyon dönemleri boyunca gruplanmış yükümlülük dağılımını ve ufuk dışı kalan kalemleri içeren sonuç sözleşmesi |
+| dönem yükümlülük gruplayıcısı | `PeriodObligationGrouper` | Borç ve harcama yükümlülüklerini doğal dönemsellik ilkesine göre ilgili nakit akış dönemlerine [Start, End) gruplayan ve ufuk dışı kalemleri ayrıştıran saf Domain motoru |
 
 ## Planlı Harcama ve Kullanıcı Ayarları
 

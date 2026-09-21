@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D18** — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler` |
-| Sıradaki adım | **D19** — dönem ödemeleri gruplama: `PeriodObligationGrouper` |
-| Test sayısı | 393 |
+| Son tamamlanan adım | **D19** — dönem ödemeleri gruplama: `PeriodObligationGrouper` |
+| Sıradaki adım | **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult` |
+| Test sayısı | 403 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D19 — dönem ödemeleri gruplama: `PeriodObligationGrouper`
+
+Kullanıcının kredi taksitleri, kredi kartı ekstre ödemeleri, vadeli borç senetleri ve planlı büyük harcamalarını ilgili nakit akış dönemlerine [Start, End) dağıtan saf `PeriodObligationGrouper` motoru ve `PeriodObligationGroup`, `PeriodObligationPlan` modelleri taşındı. Eski projede maaş öncesi/sonrası psikolojik kaydırmalar nedeniyle ortaya çıkan 600+ satırlık yapay tahsis makinesi (Upcoming/Previous modları, geçiş catch-up/forward funded tutarları) S18 doğal dönemsellik ilkesi uyarınca tamamen elendi (Seçenek 1). Yükümlülüklerin vadesi hangi dönemin yarı açık aralığına (`period.Contains(dueDate)`) düşüyorsa doğrudan ve tekil olarak o döneme atanması kuralı yeni `I16` invariant'ı olarak sabitlendi; ilk dönemden önce ve 12 dönemlik projeksiyon ufkundan sonra kalan kalemlerin sessizce kaybolmayıp açıkça `PreFirstPeriodItems` ve `PostHorizonItems` listelerinde raporlanması garanti altına alındı. 10 yeni test eklendi (toplam 403 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D18 — kart ödemesi mutabakatı: `CreditCardActualPaymentReconciler`
 
