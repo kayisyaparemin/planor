@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D10** — dönem kullanım düzeni: **TAŞINMADI (ELENDİ)** — *S18: yapay tahsis elendi, doğal dönemsellik ilkesi benimsendi* |
+| Son tamamlanan adım | **D5** — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator` |
 | Sıradaki adım | **D4** — gelir defteri: `SalaryScheduleEntry`, `OneTimeIncome`, `IncomeResolver` |
-| Test sayısı | 86 |
+| Test sayısı | 108 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D5 — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator`
+
+Kredi sözleşmesi (`Loan`) ve saf taksit takvimi üreticisi (`LoanScheduleCalculator`) taşındı. Eski projede `FinanceModels.cs` dosyasına yığılmış olan model K3 kuralı gereğince kendi tekil dosyasına ayrıldı, K8 uyumlu Türkçe XML özetleri ve savunmacı null/değer denetimleri eklendi. `BR-CALENDAR-01` gereğince 31 çeken aylardan Şubat (artık yıl 29 ve normal 28) ve 30 çeken aylara geçişlerde vade gününün korunması ve geri kazanılması garanti altına alındı. Kalan toplam nominal borç ve son taksit hesaplamaları donduruldu. 22 yeni test eklendi (toplam 108 test yeşil, Domain kapsamı %100).
 
 ### D10 — dönem kullanım düzeni: TAŞINMADI (ELENDİ)
 
