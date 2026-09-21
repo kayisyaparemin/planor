@@ -33,4 +33,4 @@ Hata sanılıp "düzeltilmemesi" gereken bilinçli kararlar buraya yazılır.
 
 | Karar | Gerekçe |
 |---|---|
-| *(henüz yok)* | |
+| Yapay dönem kullanım düzeni (`UpcomingPeriod` / `PreviousPeriod`) ve harcama kaydırma mekanizması (`CashFlowAllocationPlanner`) elendi. Harcamalar ve gelirler doğrudan vadesinin düştüğü yarı açık aralıktaki `[PeriodStart, PeriodEnd)` döneme aittir (doğal dönemsellik). | Mizan v2'de çoklu gelir akışı (`S2`) ve bağımsız dönem çapası (`S1`) benimsendiği için harcamayı yapay olarak maaş öncesi/sonrası döneme kaydırmak dönemsellik muhasebe ilkesini bozuyor ve 600+ satırlık yapay karmaşa (catch-up, forward-funded) üretiyordu. Likidite farkı dönem içi bakiye (KMH) konusudur, bütçe tahsis konusu değildir (`S18`). |

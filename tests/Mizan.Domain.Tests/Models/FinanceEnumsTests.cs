@@ -66,12 +66,6 @@ public sealed class FinanceEnumsTests
         Assert.Equal(2, (int)PlannedExpenseStatus.Cancelled);
     }
 
-    [Fact]
-    public void CashFlowAllocationMode_DegerleriVeKarsiliklari_DogruTanimlanmali()
-    {
-        Assert.Equal(0, (int)CashFlowAllocationMode.UpcomingPeriod);
-        Assert.Equal(1, (int)CashFlowAllocationMode.PreviousPeriod);
-    }
 
     [Fact]
     public void LoanKind_6502SayiliKanunKarsiliklari_DogruTanimlanmali()

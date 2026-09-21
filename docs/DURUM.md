@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar* |
+| Son tamamlanan adım | **D10** — dönem kullanım düzeni: **TAŞINMADI (ELENDİ)** — *S18: yapay tahsis elendi, doğal dönemsellik ilkesi benimsendi* |
 | Sıradaki adım | **D4** — gelir defteri: `SalaryScheduleEntry`, `OneTimeIncome`, `IncomeResolver` |
-| Test sayısı | 87 |
+| Test sayısı | 86 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D10 — dönem kullanım düzeni: TAŞINMADI (ELENDİ)
+
+Eski projede maaş öncesi/sonrası harcamaları yapay olarak farklı dönemlere kaydıran ve 600+ satırlık geçiş karmaşası (`TransitionCatchUp`, `ForwardFundedAmount`) üreten `CashFlowAllocationMode`, `CashFlowAllocationStrategy`, `PaymentAllocationStrategyResolver` ve `CashFlowAllocationPlanner` mimariden elendi (taşımama hakkı). Mizan v2'nin bağımsız dönem çapası (`PeriodAnchor`, `S1`) ve çoklu gelir akışı (`RecurringIncome`, `S2`) vizyonuyla uyumlu olarak "doğal dönemsellik" ilkesi benimsendi (`S18` sapması): vadesi `[PeriodStart, PeriodEnd)` aralığına düşen her kalem doğrudan o döneme aittir. D1'de taşınmış olan ölü `CashFlowAllocationMode` enum'ı temizlendi. Toplam 86 test yeşil, mimari kalkanlar temiz.
 
 ### D3 — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator`
 

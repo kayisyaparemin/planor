@@ -8,7 +8,7 @@ taşınmış şeylere dayanır. Sırayı değiştirmek geri dönmek demektir.
 
 Protokol: `.antigravity/workflows/tasima-adimi.md` — yedi aşama, atlanamaz.
 
-**Kritik yol:** `D1 → D2 → D3 → D10 → D5 → D13 → D16 → D17 → D19 → D20 → D21 → D24`
+**Kritik yol:** `D1 → D2 → D3 → D5 → D13 → D16 → D17 → D19 → D20 → D21 → D24`
 Geri kalan her şey bu omurgadan sarkar.
 
 ---
@@ -25,7 +25,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ## Faz D — Domain  *(saf hesap, sıfır paket)*
 
 ### Tier 0 — bağımlılıksız
-- [x] **D1** — para sözlüğü: 10 enum (`LoanKind`, `CreditCardPaymentType`, `CashFlowAllocationMode` …)
+- [x] **D1** — para sözlüğü: 9 enum (`LoanKind`, `CreditCardPaymentType` …)
 - [x] **D2** — takvim kuralı: `CalendarRules` *(F2'de geldiyse atla)*
 
 ### Tier 1
@@ -36,7 +36,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [ ] **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları
 - [ ] **D8** — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment`
 - [ ] **D9** — planlı büyük harcama + `UserSettings`
-- [ ] **D10** — dönem kullanım düzeni: `CashFlowAllocationStrategy`, `PaymentAllocationStrategyResolver`
+- [x] **D10** — dönem kullanım düzeni: **TAŞINMADI (ELENDİ)** — S18: Yapay tahsis (Upcoming/Previous) yerine doğal dönemsellik `[Start, End)` benimsendi
 - [ ] **D11** — kart ödeme tercihi: `CreditCardPaymentPreferenceResolver` *(izole, sırası esnek)*
 
 ### Tier 2
@@ -53,7 +53,7 @@ Geri kalan her şey bu omurgadan sarkar.
       *(düğüm T2: projeksiyonu kendisi hesaplamayacak, hazır projeksiyon alacak)*
 
 ### Tier 4–6
-- [ ] **D19** — ödeme tahsisi: `CashFlowAllocationPlanner`
+- [ ] **D19** — dönem ödemeleri gruplama: `PeriodObligationGrouper` *(eski 226 satırlık karmaşık `CashFlowAllocationPlanner` yerine doğal dönemsellikle yalınlaştırıldı)*
 - [ ] **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult`
 - [ ] **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator`
       — *Domain'in yakınsama noktası; Application'ın kapısı*
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 3 | 24 |
+| D | 4 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |

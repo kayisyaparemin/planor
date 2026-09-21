@@ -51,11 +51,11 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 > Birden fazla düzenli gelir **toplanır**, birbirini ezmez. Bu, eski projede bir hataydı
 > (`SAPMALAR.md` → S2) ve yeni projede bir invariant'tır.
 
-## Kullanım düzeni
+## Dönemsellik ve Bakiye
 
 | Türkçe | Kod | Tanım |
 |---|---|---|
-| kullanım düzeni | `CashFlowAllocationStrategy` | Paranın hangi döneme yazılacağı kararı |
+| doğal dönemsellik | `period.Contains(date)` | Vadesi dönemin `[Start, End)` aralığına düşen her nakit akışının doğrudan o döneme ait olması ilkesi (S18) |
 | açık faizi | `DeficitFinancingInterest` | Negatif bakiyenin maliyeti (KMH) |
 
 ## Kredi
