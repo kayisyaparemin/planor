@@ -68,6 +68,12 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 |---|---|---|
 | kredi | `Loan` | Banka kredisi |
 | itfa | `Amortization` | Anapara/faiz ayrışması |
+| kredi itfası | `LoanAmortization` | Çözümlenmiş annüite faiz, anapara ve taksit modeli |
+| kredi analizi | `LoanAnalysis` | Kredi itfa analizi ve engel denetimi sonuç modeli |
+| itfa faiz kaynağı | `LoanRateSource` | Faiz türetiminin kullanıcının girdiği anaparadan mı banka teklifinden mi çözüldüğü ayrımı |
+| itfa engel durumu | `LoanAnalysisIssue` | İtfa çözümüne engel olan durumlar (pasif, eksik anapara, mantıksız faiz vb.) |
+| erken kapama teklifi | `LoanPayoffQuote` | Belirli bir takvim gününde krediyi kapatmanın net nakit maliyeti ve faiz tasarrufu |
+| kredi itfa hesaplayıcısı | `LoanAmortizationCalculator` | Annüite eşit taksitli kredilerde örtük faizi bisection yöntemiyle çözen ve tarihli kapama bedelini hesaplayan saf motor |
 | taksit | `Installment` | Aylık ödeme kalemi |
 | kalan borç | `RemainingDebt` | Bugün itibarıyla kalan anapara |
 | erken ödeme | `Prepayment` | Plan dışı anapara ödemesi |

@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D12** — gelir projeksiyonu: `IncomeProjectionCalculator` |
-| Sıradaki adım | **D13** — kredi itfası: `LoanAmortizationCalculator` |
-| Test sayısı | 266 |
+| Son tamamlanan adım | **D13** — kredi itfası: `LoanAmortizationCalculator` |
+| Sıradaki adım | **D14** — kart ekstresi: `CreditCardStatementCalculator` |
+| Test sayısı | 296 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D13 — kredi itfası: `LoanAmortizationCalculator`
+
+Kredinin annüite taksit tutarından örtük aylık efektif faiz oranını bisection (ikiye bölme) yöntemiyle geri çözen, tarihli erken kapama bedelini ve 6502 sayılı Kanun'a dayalı yasal tazminatları hesaplayan saf motor taşındı. Eski projede tek bir 377 satırlık dosyaya yığılmış olan 6 public tip (`LoanRateSource`, `LoanAnalysisIssue`, `LoanAmortization`, `LoanAnalysis`, `LoanPayoffQuote`, `LoanAmortizationCalculator`) K3 kuralı uyarınca müstakil dosyalara ayrıldı; record modelleri ctor parametre kısıtını (M3) aşmayacak şekilde init-only özelliklerle refactor edildi. `LoanScheduleCalculator` zorunlu primary constructor parametresi yapılarak M1 kuralı sağlandı; özel `RoundMoney` yerine F3 adımındaki `MoneyRules.Round` entegre edildi. Taksit ödendiğinde yalnızca anapara payının düşmesi ve yasal erken ödeme komisyonu tavanları `I10` invariant'ı (`BR-LOAN-01`) olarak sabitlendi. 30 yeni test eklendi (toplam 296 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D12 — gelir projeksiyonu: `IncomeProjectionCalculator`
 
