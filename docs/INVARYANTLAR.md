@@ -20,6 +20,7 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I4` | Çoklu düzenli gelir akışları bağımsızdır ve birbirini ezmez; her akışın kendi etkin tarihli tutar geçmişi taranır ve dönem başlangıcı itibarıyla (EffectiveDate <= Period.Start) yürürlükte olan en güncel tutar çözümlenir, dönem içi zamlar o dönemi etkilemez (BR-INCOME-01). | `Mizan.Domain.Tests.Calculations.IncomeResolverTests.Resolve_BirdenFazlaAktifAkisVarsa_HerIkiGeliriDeCozumler_BirincisiEzilmez` | `D4` |
 | `I5` | Kredi kartı güncel toplam borcu (KnownTotalDebt), ekstre kesilmişse ekstre tutarı ile ekstre tarihinden sonraki harcamaların toplamıdır; ekstre yoksa devreden bakiye, dönem içi harcama ve tüm gelecek harcamaların toplamıdır (BR-CARD-01). | `Mizan.Domain.Tests.Models.CreditCardTests.KnownTotalDebt_KesilmisEkstreVarken_EkstreTutariniVeYalnizcaSonrakiHarcamalariToplar` | `D7` |
 | `I6` | Kredi kartı asgari ödeme oranı yasal mevzuata (BDDK) tabidir; kart limiti 25.000 TL ve altında ise %20, 25.000 TL üzerinde ise %40 olarak çözümlenir (BR-CARD-04). | `Mizan.Domain.Tests.Calculations.CreditCardRulesTests.ResolveMinimumPaymentRate_LimitSinirinaGore_DogruBddkOraniniUretir` | `D7` |
+| `I7` | Kredi ve kart haricindeki vadeli ödeme planlarının kalan borcu (RemainingAmount), yalnızca henüz ödenmemiş (IsPaid == false) taksitlerin toplamıdır; ödenen taksitler anında borçtan düşer ve tüm taksitler ödendiğinde plan tamamlanmış sayılır. | `Mizan.Domain.Tests.Models.TemporaryPaymentPlanTests.RemainingAmount_YalnizcaOdenmemisTaksitleriToplar` | `D8` |
 
 
 ## Satır eklerken

@@ -89,6 +89,15 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | ekstre ödeme planı | `CurrentStatementPaymentPlan` | Kesilmiş mevcut ekstre için belirlenen anlık ödeme modu ve tutarı |
 | ekstre ödeme tercihi | `CreditCardPaymentPreference` | Kart ödeme tercihlerinin etkin tarihli (effective-dated) tarihçe kaydı |
 
+## Vadeli ve Geçici Borç Planı
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| geçici ödeme planı | `TemporaryPaymentPlan` | Kredi ve kredi kartı haricindeki vadeli borç, senet, taksit ve periyodik yükümlülük sözleşmesi |
+| plan taksiti | `TemporaryPaymentInstallment` | Geçici ödeme planına ait tekil takvimli ödeme kalemi |
+| plan türü | `PaymentPlanKind` | Borç planının niteliği (Geçici, Taksitli, Periyodik veya Diğer) |
+| plan doğrulayıcı | `TemporaryPaymentPlanValidator` | Geçici ödeme planı ve taksitlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
+
 ## Profil ve yedek
 
 | Türkçe | Kod | Tanım |

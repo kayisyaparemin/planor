@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları |
-| Sıradaki adım | **D8** — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment` |
-| Test sayısı | 175 |
+| Son tamamlanan adım | **D8** — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment` |
+| Sıradaki adım | **D9** — planlı büyük harcama + `UserSettings` |
+| Test sayısı | 201 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### D8 — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment`
+
+Kredi ve kart haricindeki vadeli borç, senet, taksit ve periyodik yükümlülük modelleri taşındı. Eski projede `FinanceModels.cs` içine sıkıştırılmış ve anemik DTO olarak bırakılmış olan modeller K3 uyarınca tekil dosyalara ayrıldı; K8 uyumlu Türkçe XML dokümantasyonları eklendi. Modele ödenmemiş taksitleri toplayan kalan borç (`RemainingAmount`, `I7`), kalan taksit adedi (`RemainingInstallmentCount`), tamamlanma kontrolü (`IsCompleted`), vadesi en yakın sıradaki ödeme (`NextInstallment`) ve kronolojik sıralayıp PlanId kenetleyen `Normalize()` zengin yetenekleri kazandırıldı. Dağınık doğrulama kontrolleri `TemporaryPaymentPlanValidator` saf sınıfında toplandı. 26 yeni test eklendi (toplam 201 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D7 — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları
 
