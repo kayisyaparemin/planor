@@ -62,6 +62,8 @@ dotnet_naming_style.alt_cizgili_camel.capitalization = camel_case
 dotnet_diagnostic.CS1591.severity = error   # public tipte XML <summary> eksik
 dotnet_diagnostic.CA2007.severity = none    # ConfigureAwait: kütüphanelerde gürültü yapıyor
 dotnet_diagnostic.CA1062.severity = none    # nullable zaten açık
+dotnet_diagnostic.CA1822.severity = none    # DI ile enjekte edilen durumsuz hesaplayıcı sınıfları için statik zorlamasını kapatır
+
 
 [tests/**/*.cs]
 dotnet_diagnostic.CS1591.severity = none

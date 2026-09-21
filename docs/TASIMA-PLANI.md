@@ -29,7 +29,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **D2** — takvim kuralı: `CalendarRules` *(F2'de geldiyse atla)*
 
 ### Tier 1
-- [ ] **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar*
+- [x] **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar*
 - [ ] **D4** — gelir defteri: `SalaryScheduleEntry`, `OneTimeIncome`, `IncomeResolver`
 - [ ] **D5** — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator`
 - [ ] **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator`
@@ -159,7 +159,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
 | F | 4 | 4 |
-| D | 2 | 24 |
+| D | 3 | 24 |
 | H | 0 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |

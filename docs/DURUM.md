@@ -6,9 +6,9 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D2** — takvim kuralı: `CalendarRules` *(F2'de geldi, doğrulandı)* |
-| Sıradaki adım | **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar* |
-| Test sayısı | 54 |
+| Son tamamlanan adım | **D3** — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator` — *yarı açık aralık burada doğar* |
+| Sıradaki adım | **D4** — gelir defteri: `SalaryScheduleEntry`, `OneTimeIncome`, `IncomeResolver` |
+| Test sayısı | 87 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
@@ -16,7 +16,12 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
 
+### D3 — dönem takvimi: `CashFlowPeriod`, `CashFlowPeriodCalculator`
+
+Dönem takvimi altyapısı taşındı. `PeriodAnchor` değer nesnesi eklenerek tek tamsayı gün kısıtı aşıldı (S1 sapması uygulandı), `IncomeDay` yasaklı terimi temizlendi. `CashFlowPeriod` ile yarı açık aralık kuralı (`[Start, End)`) `I3` invariant'ı olarak sabitlendi (`Contains`, `DayCount`, `end > start` kontrolü). `CashFlowPeriodCalculator` ile ay sonu kenetlenmeli 12-60 dönemlik seri üretimi, dönem başlangıcı ve mutabakat (settlement) tarihi hesaplamaları sağlandı. K3 gereğince tipler tekil dosyalara ayrıldı. 33 yeni test eklendi. Toplam 87 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz.
+
 ### D2 — takvim kuralı: `CalendarRules`
+
 
 F2 adımında zaman ve takvim altyapısı kapsamında (`CalendarRules.cs` ve `CalendarRulesTests.cs`) taşınmış
 olan takvim kuralları doğrulandı. `BR-CALENDAR-01` kuralına göre ay sonu kenetlenmesi (Şubat 28/29,

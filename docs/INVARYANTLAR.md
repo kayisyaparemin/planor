@@ -16,6 +16,8 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 |---|---|---|---|
 | `I1` | Ay sonu ve artık yıl geçişlerinde tercih edilen gün hafızada tutulur; kısa aylarda ay sonuna kenetlenir, uzun aylara geçildiğinde orijinal gün geri kazanılır (BR-CALENDAR-01). | `Mizan.Domain.Tests.Calculations.CalendarRulesTests.AddMonthsKeepingDay_KisaAydanSonraUzunAyaGecildiginde_TercihEdilenGunuGeriKazanir` | `F2` |
 | `I2` | Para her zaman 2 ondalık basamakla ve `MidpointRounding.AwayFromZero` ile yuvarlanır; taksit ve eşit bölüştürmelerde kuruş artığı son parçaya eklenerek para kuruşu kuruşuna korunur (BR-MONEY-01). | `Mizan.Domain.Tests.Calculations.MoneyRulesTests.Distribute_TamBolunmeyenTutar_KurusArtiginiSonTaksiteEkler` | `F3` |
+| `I3` | Nakit akış dönemleri yarı açık aralıktır: [başlangıç, bitiş). Başlangıç günü döneme dahil, bitiş günü dahil değildir; ardışık dönemlerin birleşiminde boşluk veya çakışma oluşamaz. | `Mizan.Domain.Tests.Models.CashFlowPeriodTests.Contains_YariAcikAralikKuraliniUygular` | `D3` |
+
 
 ## Satır eklerken
 
