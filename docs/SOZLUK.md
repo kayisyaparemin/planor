@@ -38,6 +38,8 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
 | gözlem ödemesi | `PeriodObservationPayment` | Dondurulan plan ödeme satırının dönem içi gözlem defterindeki ara gerçekleşme kaydı |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
+| dönem kapanış taahhüdü | `PeriodSettlementCommit` | Kapanan dönemin gerçekleşmesini, güncellenen araçları ve yeni dönemin planını atomik olarak bağlayan taahhüt sözleşmesi |
+| dönem kapanış doğrulayıcısı | `PeriodSettlementCommitValidator` | Dönem kapanış taahhüdünün referans, takvim ve devir bakiyesi sürekliliğini denetleyen saf doğrulayıcı |
 | finansal plan | `FinancialPlan` | Kullanıcının tüm finansal varlık, yükümlülük, gelir ve ayarlarını tek çatı altında toplayan bütüncül sözleşme |
 | plan doğrulayıcı | `FinancialPlanValidator` | Finansal planın ve alt bileşenlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
 

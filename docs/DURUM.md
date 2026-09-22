@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları |
-| Sıradaki adım | **H4** — checkpoint taahhüdü: `FinancialReviewCommit` |
-| Test sayısı | 558 |
+| Son tamamlanan adım | **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` |
+| Sıradaki adım | **A1** — saat ve profil kimliği: `IClock`, `UserProfile` |
+| Test sayısı | 573 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### H4 — checkpoint taahhüdü: `PeriodSettlementCommit`, `PeriodSettlementCommitValidator`
+
+Bir nakit akış döneminin kapanışı (checkpoint / settlement) anında, kapanan dönemin fiilî gerçekleşmesini (`PeriodActual`), güncellenen finansal araçları (krediler, kartlar, vadeli planlar, büyük harcamalar, tüketilen erken ödemeler) ve yeni dönemin dondurulmuş başlangıç planını (`PeriodPlanSnapshot`, `FinancialSnapshot`) atomik bir bütün olarak veritabanına aktaran taahhüt sözleşmesi taşındı. `S12` ve `SOZLUK.md` uyarınca yasaklı `Review` terimi elenerek model `PeriodSettlementCommit` olarak adlandırıldı; K3 kuralı gereğince `FinancialHistoryModels.cs` monolitinden `Mizan.Domain/Models/` altına müstakil bir dosyaya ayrıldı. 10 parametreli okunaksız positional record yapısı init-only özellikler ve boş liste varsayılanlarıyla refactor edildi. `FinancialHistoryData` salt bir okuma modeli (Query DTO) olduğu için Domain'e taşınmayıp Application A4 adımına bırakıldı (Seçenek A). Kapanan dönemin bitiş tarihi ile yeni dönemin başlangıç tarihinin eşleşmesi (`Actual.PeriodEnd == NewPlan.PeriodStart`), teyit edilen fiilî kapanış bakiyesinin yeni dönemin açılış bakiyesine devretmesi (`Actual.ConfirmedEndingBalance == NewSnapshot.ProjectionOpeningBalance == NewPlan.OpeningBalance`) ve snapshot referanslarının kenetlenmesi kuralları saf `PeriodSettlementCommitValidator` ve `IsConsistent` ile kalkan altına alınarak `I21` invariant'ı olarak sabitlendi. 15 yeni test eklendi (toplam 573 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### H3 — dönem gözlem defteri: `PeriodObservation`, `PeriodObservationPayment`
 

@@ -67,7 +67,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`
 - [x] **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 - [x] **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları (`PeriodObservationPayment`) — *S20 kararıyla spekülatif `PeriodObservationFlow` elendi*
-- [ ] **H4** — checkpoint taahhüdü: `FinancialReviewCommit`
+- [x] **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` *(eski `FinancialReviewCommit` — S12 gereği adlandırıldı)*
 
 ## Faz A — Application
 
@@ -160,7 +160,7 @@ Geri kalan her şey bu omurgadan sarkar.
 |---|---|---|
 | F | 4 | 4 |
 | D | 24 | 24 |
-| H | 3 | 4 |
+| H | 4 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
 | V | 0 | 14 |
