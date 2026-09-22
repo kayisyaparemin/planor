@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` |
-| Sıradaki adım | **A1** — saat ve profil kimliği: `IClock`, `UserProfile` |
-| Test sayısı | 570 |
+| Son tamamlanan adım | **A1** — saat ve profil kimliği: `IClock`, `UserProfile` |
+| Sıradaki adım | **A2** — depo portları: `ILoanRepository`, `ICreditCardRepository`, … |
+| Test sayısı | 575 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A1 — saat ve profil kimliği: `IClock`, `UserProfile`
+
+Application katmanının ilk adımı taşındı. Keşif sırasında `IClock`'un F2'de zaten taşınmış olduğu (arayüz `Mizan.Application/Abstractions`, `SystemClock` adaptörü `Mizan.Infrastructure/Time` altında, T9 düğümü) tespit edildi; bu adımda yalnız `UserProfile` record'u eklendi ve `TASIMA-PLANI.md`'deki A1 kutusu bu notla işaretlendi. Model, her profilin kendi izole `.db3` dosyasına karşılık geldiği kimliği taşır (`Id`, `Name`, `CreatedAt`, `LastOpenedAt`, `DefaultName = "Profilim"`, `MaxNameLength = 30`); eski `ProfileModels.cs` içeriğiyle davranışsal olarak birebir, yalnız K3 gereği dosya adı tip adıyla eşleşecek şekilde `UserProfile.cs` olarak taşındı. `SAPMALAR.md` tarandı, bu adımı etkileyen açık bir sapma kaydı bulunmadığı için sadakatle taşındı. 5 yeni test eklendi (toplam 575 test yeşil, Application kapsamı %100, mimari kalkanlar temiz).
 
 ### Düzeltme — S21: Banka ekstresinden otomatik içe aktarma (PDF Statement Import) özelliği elendi
 
