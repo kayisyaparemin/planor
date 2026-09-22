@@ -30,6 +30,11 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | finansal durum anlık görüntüsü | `FinancialSnapshot` | Kullanıcının belirli bir tarihteki açılış bakiyesi, çapa kuralı ve mutabakat tarihini donduran üst başlık kaydı |
 | finansal durum kaynağı | `FinancialSnapshotSource` | Finansal durum kaydının oluşturulma yaşam döngüsü (kurulum, aylık kapanış, toparlama) |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
+| fiilî ödeme | `ActualPayment` | Dondurulan plan ödeme satırının dönem sonundaki gerçekleşme sonucu |
+| plansız akış | `ActualFlow` | Dönem planında yer almayan arızi gelir veya gider satırı |
+| fiilî yaşam gideri kırılımı | `ActualLivingBreakdown` | Serbest yaşam havuzundan fiilen yapılan harcamaların kategori dökümü |
+| fiilî ödeme durumu | `ActualPaymentStatus` | Ödemenin yapılıp yapılmadığı veya farklı tutarla gerçekleştiği durumu |
+| plansız akış türü | `ActualFlowType` | Plansız nakit hareketinin gelir mi ödeme mi olduğunu belirten yön |
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
 | finansal plan | `FinancialPlan` | Kullanıcının tüm finansal varlık, yükümlülük, gelir ve ayarlarını tek çatı altında toplayan bütüncül sözleşme |

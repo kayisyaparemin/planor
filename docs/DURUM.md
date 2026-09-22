@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision` |
-| Sıradaki adım | **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow` |
-| Test sayısı | 524 |
+| Son tamamlanan adım | **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow` |
+| Sıradaki adım | **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları |
+| Test sayısı | 549 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### H2 — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
+
+Kapanan nakit akış döneminin fiilî karnesini, dondurulan plan taahhüdüyle (`PeriodPlanSnapshot`) karşılaştırarak saklayan gerçekleşme modelleri (`PeriodActual`, `ActualPayment`, `ActualFlow`, `ActualLivingBreakdown`, `ActualPaymentStatus`, `ActualFlowType`) taşındı. Eski projede tek bir dosyaya yığılmış olan 6 tip K3 ve M2 kuralları gereğince `Mizan.Domain/Models/` altında müstakil dosyalara ayrıldı; K8 uyumlu Türkçe `<summary>` açıklamaları eklendi. `S19` kararı uyarınca kurulum ile ilk çapa arasındaki hayalet dönemin kapatılması engellendi; `PeriodActual` her zaman tam bir nakit akış döneminin yarı açık aralığını (`[PeriodStart, PeriodEnd)`) denetleyecek şekilde `ContainsDate` ile kenetlendi. Kasa mutabakat farkı (`ReconciliationAdjustment`), ödeme kapanış durumu (`IsSettled`), plan/fiili farkı (`Variance`), plansız akış türleri ve toplam fiilî çıkışlar (`TotalActualOutflows`) zengin iş yetenekleri olarak modellendi. 25 yeni test eklendi (toplam 549 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### H1 — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`
 
