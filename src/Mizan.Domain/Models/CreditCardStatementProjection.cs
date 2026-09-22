@@ -47,7 +47,4 @@ public sealed record CreditCardStatementProjection
 
     /// <summary>Banka tarafından fiilen kesilmiş gerçek bir ekstre olup olmadığı.</summary>
     public bool IsActualStatement { get; init; }
-
-    /// <summary>Kesilmiş gerçek ekstrenin kaynağı (Manuel, PDF içe aktarım vb.).</summary>
-    public CreditCardStatementSource? StatementSource { get; init; }
 }

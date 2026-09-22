@@ -30,15 +30,6 @@ public sealed record CreditCardStatement
     /// <summary>Banka tarafından bildirilen bir sonraki son ödeme tarihi.</summary>
     public DateOnly? NextDueDate { get; init; }
 
-    /// <summary>Ekstre verisinin sisteme nasıl aktarıldığı (Manuel, PDF vb.).</summary>
-    public CreditCardStatementSource Source { get; init; } = CreditCardStatementSource.Manual;
-
-    /// <summary>İçe aktarılan ekstre belgesinin mükerrerliği önleyen parmak izi özeti.</summary>
-    public string? SourceDocumentFingerprint { get; init; }
-
-    /// <summary>Ekstrenin dış kaynaktan içe aktarıldığı an.</summary>
-    public DateTimeOffset? ImportedAt { get; init; }
-
     /// <summary>Kaydın sisteme ilk girildiği an.</summary>
     public DateTimeOffset CreatedAt { get; init; }
 

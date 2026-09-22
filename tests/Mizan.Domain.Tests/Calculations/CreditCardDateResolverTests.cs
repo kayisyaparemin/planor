@@ -41,30 +41,6 @@ public sealed class CreditCardDateResolverTests
     }
 
     [Fact]
-    public void ResolveNextStatementDate_BankadanGelenExactTarihVarsa_OnuOncelikler()
-    {
-        var importedDate = new DateOnly(2026, 9, 28);
-        var result = _resolver.ResolveNextStatementDate(
-            new DateOnly(2026, 8, 25),
-            statementClosingDay: 25,
-            importedExactDate: importedDate);
-
-        Assert.Equal(importedDate, result);
-    }
-
-    [Fact]
-    public void ResolveNextDueDate_BankadanGelenExactVadeVarsa_OnuOncelikler()
-    {
-        var importedDueDate = new DateOnly(2026, 10, 8);
-        var result = _resolver.ResolveNextDueDate(
-            new DateOnly(2026, 9, 28),
-            paymentDueDay: 5,
-            importedExactDate: importedDueDate);
-
-        Assert.Equal(importedDueDate, result);
-    }
-
-    [Fact]
     public void ResolveChargeStatementClose_KesimdenOncekiHarcama_IlkEkstreyeDuser()
     {
         var result = _resolver.ResolveChargeStatementClose(

@@ -8,13 +8,17 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 |---|---|
 | Son tamamlanan adım | **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` |
 | Sıradaki adım | **A1** — saat ve profil kimliği: `IClock`, `UserProfile` |
-| Test sayısı | 573 |
+| Test sayısı | 570 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Düzeltme — S21: Banka ekstresinden otomatik içe aktarma (PDF Statement Import) özelliği elendi
+
+Kredi kartı ekstrelerinin banka PDF belgelerinden otomatik ayrıştırılması özelliği, bankaların standart bir format sunmaması, analizin tamamlanmamış olması ve MVP'de yarım/kırılgan çalışması gerekçesiyle v2 kapsamından bütünüyle elendi (S21, Taşımama hakkı). F, D fazlarında taşınmış olan sınıflardaki izler temizlendi: `CreditCardStatementSource.cs` silindi; `CreditCardStatement` modelinden `Source`, `SourceDocumentFingerprint`, `ImportedAt` özellikleri, `CreditCardStatementProjection`'dan `StatementSource`, `CreditCardStatementCalculator`'dan `source` eşlemesi ve `CreditCardDateResolver`'dan `importedExactDate` parametreleri kaldırıldı. `Directory.Packages.props`'taki `PdfPig` bağımlılığı elendi; `A25` ve `I5` adımları iptal edildi. 3 bayat test temizlendi (toplam 570 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### H4 — checkpoint taahhüdü: `PeriodSettlementCommit`, `PeriodSettlementCommitValidator`
 

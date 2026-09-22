@@ -35,13 +35,6 @@ public sealed class FinanceEnumsTests
     }
 
     [Fact]
-    public void CreditCardStatementSource_DegerleriVeKarsiliklari_DogruTanimlanmali()
-    {
-        Assert.Equal(0, (int)CreditCardStatementSource.Manual);
-        Assert.Equal(1, (int)CreditCardStatementSource.PdfImport);
-    }
-
-    [Fact]
     public void CurrentStatementPaymentMode_DegerleriVeKarsiliklari_DogruTanimlanmali()
     {
         Assert.Equal(0, (int)CurrentStatementPaymentMode.Minimum);

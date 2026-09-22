@@ -9,7 +9,7 @@ Bu dosya mimariyi **anlatır**. Bağlayıcı kurallar `.antigravity/rules/` alt�
 |---|---|---|
 | `Mizan.Domain` | `net8.0` | Saf finansal hesap. Sıfır paket, sıfır I/O, sıfır saat. |
 | `Mizan.Application` | `net8.0` | Portlar (arayüzler) ve kullanım senaryoları. |
-| `Mizan.Infrastructure` | `net8.0` | SQLite, dosya sistemi, PDF, telemetri adaptörleri. |
+| `Mizan.Infrastructure` | `net8.0` | SQLite, dosya sistemi, telemetri adaptörleri. |
 | `Mizan.Presentation` | `net8.0` | ViewModel'ler. **MAUI referansı yok.** |
 | `Mizan.App` | `net8.0-android` | XAML, platform kodu, kompozisyon kökü. |
 

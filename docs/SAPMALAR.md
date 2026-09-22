@@ -188,4 +188,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `H3`, `A4`, `A15`, `A21`, `I1`, `V3` |
 | **Durum** | uygulandı |
 
+### S21 — Banka ekstresinden otomatik içe aktarma (PDF Statement Import) özelliği elendi
+
+| | |
+|---|---|
+| **Eski** | `ICreditCardStatementImport`, `CreditCardStatementImportModels`, `CreditCardStatementImportWorkflow`, `CreditCardStatementImporter`, `CreditCardStatementParsers`. Yalnızca 2 banka (Akbank Axess ve Garanti Bonus) için PDF ayrıştırma, confidence puanlama ve kart kontrol UI'ında PDF yükleme diyaloğu vardı. Taşınan Domain modellerinde `CreditCardStatementSource` enum'ı (`Manual`, `PdfImport`), `CreditCardStatement.SourceDocumentFingerprint`, `CreditCardStatement.ImportedAt`, `CreditCardStatementProjection.StatementSource` ve `CreditCardDateResolver`'da `importedExactDate` alanları bulunuyordu. |
+| **Neden yanlış** | Bankaların sağladığı PDF/ekstre veri formatları birbirinden radikal düzeyde farklıdır, standart bir şablon yoktur ve bankalar arayüzlerini/PDF mizanpajlarını sık sık değiştirmektedir. Tüm bankalar analiz edilmemiştir ve eski MVP uygulamasında da bu özellik kırılgan regex'lerle yarım çalışıyordu. Olgunlaşmamış ve yüksek bakım maliyetli bir özelliğin v2'ye taşınması mimariyi gereksiz kirletmekte ve karmaşıklaştırmaktadır. |
+| **Yeni** | Ekstreden otomatik içe aktarma özelliği bütünüyle elendi (Taşımama hakkı). Kredi kartı ekstreleri kullanıcının doğrudan tutar, asgari tutar ve vade bilgilerini girdiği veya dönemsel mutabakatla onayladığı yalın ve güvenilir bir sözleşmeye indirgendi. `CreditCardStatementSource` enum'ı, `SourceDocumentFingerprint`, `ImportedAt` ve `StatementSource` alanları ile `importedExactDate` parametreleri silindi; `PdfPig` NuGet paketi kaldırıldı. `A25` ve `I5` adımları iptal edildi. |
+| **Etkiler** | `D1`, `D7`, `D14`, `A25`, `I5`, `V7` |
+| **Durum** | uygulandı |
+
 

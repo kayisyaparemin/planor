@@ -74,26 +74,22 @@ public sealed class CreditCardDateResolver
 
     /// <summary>
     /// Mevcut ekstre tarihinden bir sonraki döngünün hesap kesim tarihini türetir.
-    /// Varsa bankanın bildirdiği kesin tarih kullanılır.
     /// </summary>
     public DateOnly ResolveNextStatementDate(
         DateOnly actualStatementDate,
-        int statementClosingDay,
-        DateOnly? importedExactDate = null)
+        int statementClosingDay)
     {
         CalendarRules.ValidateDay(statementClosingDay);
-        return importedExactDate ?? CalendarRules.AddMonthsKeepingDay(actualStatementDate, 1, statementClosingDay);
+        return CalendarRules.AddMonthsKeepingDay(actualStatementDate, 1, statementClosingDay);
     }
 
     /// <summary>
     /// Bir sonraki ekstre kesim tarihine göre sonraki son ödeme tarihini hesaplar.
-    /// Varsa bankanın bildirdiği kesin tarih kullanılır.
     /// </summary>
     public DateOnly ResolveNextDueDate(
         DateOnly nextStatementDate,
-        int paymentDueDay,
-        DateOnly? importedExactDate = null) =>
-        importedExactDate ?? ResolvePaymentDueDate(nextStatementDate, paymentDueDay);
+        int paymentDueDay) =>
+        ResolvePaymentDueDate(nextStatementDate, paymentDueDay);
 
     /// <summary>
     /// Kartın güncel durumuna veya simülasyon döngüsüne göre ilgili ekstrenin son ödeme tarihini belirler.

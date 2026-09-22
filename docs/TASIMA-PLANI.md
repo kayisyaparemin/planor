@@ -25,7 +25,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ## Faz D — Domain  *(saf hesap, sıfır paket)*
 
 ### Tier 0 — bağımlılıksız
-- [x] **D1** — para sözlüğü: 9 enum (`LoanKind`, `CreditCardPaymentType` …)
+- [x] **D1** — para sözlüğü: 8 enum (`LoanKind`, `CreditCardPaymentType` …) *(S21 ile `CreditCardStatementSource` elendi)*
 - [x] **D2** — takvim kuralı: `CalendarRules` *(F2'de geldiyse atla)*
 
 ### Tier 1
@@ -33,7 +33,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **D4** — gelir defteri: `RecurringIncome`, `IncomeAmountHistory`, `ActiveRecurringIncome`, `AdHocIncome`, `IncomeResolver`
 - [x] **D5** — kredi sözleşmesi: `Loan`, `LoanScheduleCalculator`
 - [x] **D6** — taksit bölüştürme: `ScheduledAmount`, `InstallmentScheduleCalculator`
-- [x] **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları
+- [x] **D7** — kart sözleşmesi: `CreditCard`, `CreditCardStatement`, `CardCharge`, ödeme planları *(S21 ile içe aktarma alanları elendi)*
 - [x] **D8** — geçici ödeme planı: `TemporaryPaymentPlan`, `TemporaryPaymentInstallment`
 - [x] **D9** — planlı büyük harcama + `UserSettings`
 - [x] **D10** — dönem kullanım düzeni: **TAŞINMADI (ELENDİ)** — S18: Yapay tahsis (Upcoming/Previous) yerine doğal dönemsellik `[Start, End)` benimsendi
@@ -42,7 +42,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ### Tier 2
 - [x] **D12** — gelir projeksiyonu: `IncomeProjectionCalculator`
 - [x] **D13** — kredi itfası: `LoanAmortizationCalculator` *(bisection ile örtük faiz çözümü)*
-- [x] **D14** — kart ekstresi: `CreditCardStatementCalculator` *(eskide 3 partial, 540 satır — bölündü: Calculator, DateResolver, PaymentDecisionResolver)*
+- [x] **D14** — kart ekstresi: `CreditCardStatementCalculator` *(eskide 3 partial, 540 satır — bölündü: Calculator, DateResolver, PaymentDecisionResolver; S21 ile importedExactDate ve StatementSource elendi)*
 - [x] **D15** — finansal plan bütünü: `FinancialPlan` *(ve `LoanPrepayment` sözleşmesi)*
 
 ### Tier 3
@@ -101,7 +101,7 @@ Geri kalan her şey bu omurgadan sarkar.
       16 ViewModel'in 11'i yalnız buna bağlıydı. ViewModel'ler dar portlara bağlanacak.
 - [ ] **A23** — sunum yardımcıları: `CashFlowPeriodDetailPresenter`, `SimulatorInsightService`
 - [ ] **A24** — kataloglar: senaryo ve kayıt girişi katalogları
-- [ ] **A25** — ekstre içe aktarma portları *(bağımsız paralel şerit)*
+- [x] **A25** — ekstre içe aktarma portları: **TAŞINMADI (ELENDİ)** — S21: Otomatik ekstre içe aktarma özelliği bütünüyle elendi
 - [ ] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
 - [ ] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
 
@@ -113,7 +113,7 @@ Geri kalan her şey bu omurgadan sarkar.
       `SqliteMizanStore` değil)*
 - [ ] **I3** — profil deposu ve profil başına veritabanı
 - [ ] **I4** — yedekleme arşivi *(düğüm T8: `IProfileFileLayout` portu üzerinden)*
-- [ ] **I5** — PDF ekstre içe aktarma: PdfPig + Akbank Axess / Garanti Bonus ayrıştırıcıları
+- [x] **I5** — PDF ekstre içe aktarma: **TAŞINMADI (ELENDİ)** — S21: PdfPig ve banka ayrıştırıcıları elendi
 - [ ] **I6** — telemetri adaptörü + PII maskesi
       *(eskinin açığı: maske yalnız `event.Message`'ı kapsıyordu; exception metni, breadcrumb,
       extra ve ekran görüntüsü açıkta kalıyordu. `AttachScreenshot` varsayılan olarak kapalı.)*
@@ -161,8 +161,8 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 0 | 26 *(A22 taşınmıyor)* |
-| I | 0 | 6 |
+| A | 0 | 25 *(A22 ve A25 taşınmıyor)* |
+| I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

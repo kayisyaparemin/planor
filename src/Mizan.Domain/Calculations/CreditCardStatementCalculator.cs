@@ -112,20 +112,19 @@ public sealed class CreditCardStatementCalculator(
             : Math.Max(0m, statementBalance.Value - decision.Payment.Value);
 
         return CreateProjection(closeDate, dueDate, carried, newCharges, statementBalance, minimumPayment,
-            decision, carriedAfterPayment, carryInterest, carryInterestRate, isActual, actualStatement?.Source);
+            decision, carriedAfterPayment, carryInterest, carryInterestRate, isActual);
     }
 
     private static CreditCardStatementProjection CreateProjection(
         DateOnly closeDate, DateOnly dueDate, decimal? carried, decimal newCharges,
         decimal? statementBalance, decimal? minimumPayment, CreditCardPaymentDecision decision,
-        decimal? carriedAfter, decimal carryInterest, decimal carryInterestRate, bool isActual,
-        CreditCardStatementSource? source) => new()
+        decimal? carriedAfter, decimal carryInterest, decimal carryInterestRate, bool isActual) => new()
     {
         StatementCloseDate = closeDate, PaymentDueDate = dueDate, OpeningCarriedBalance = carried,
         NewCharges = newCharges, StatementBalance = statementBalance, MinimumPayment = minimumPayment,
         Payment = decision.Payment, CarriedAfterPayment = carriedAfter, CarryInterest = carryInterest,
         NextCarriedBalance = carriedAfter, AppliedInterestRate = carryInterestRate,
         PaymentResolution = decision.Resolution, AppliedPaymentType = decision.PaymentType,
-        IsActualStatement = isActual, StatementSource = isActual ? source : null
+        IsActualStatement = isActual
     };
 }
