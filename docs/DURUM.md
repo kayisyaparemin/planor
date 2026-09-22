@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **D24** — simülasyon motoru: `SimulationCalculator` |
-| Sıradaki adım | **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision` |
-| Test sayısı | 495 |
+| Son tamamlanan adım | **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision` |
+| Sıradaki adım | **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow` |
+| Test sayısı | 524 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### H1 — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`
+
+Dönem başında dondurulan nakit akışı taahhüdünü ve kasıtlı planlama değişikliklerini temsil eden tarihçe modelleri (`FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`, `PeriodPlanPaymentLine`, `FinancialSnapshotSource`, `PlanPaymentSourceType`) taşındı. Eski mimaride tek bir 247 satırlık dosyaya yığılmış olan modeller K3 ve M2 kuralları gereğince `Mizan.Domain/Models/` altında müstakil dosyalara ayrıldı; K8 uyumlu Türkçe `<summary>` açıklamaları eklendi. `S1` sapması uyarınca yasaklı `IncomeDay` yerine `PeriodAnchor` entegre edildi; `S18` doğal dönemsellik ilkesi doğrultusunda yapay tahsis modu (`StrategyUsed`) ile yapay pencere alanları (`PaymentWindowStart`, `PaymentWindowEnd`) elendi. `PlannedInterest` türetilmiş özelliği eklenerek iki snapshot modeli arasında faiz hesap simetrisi sağlandı; `PlannedNetChange`, `TotalPlannedOutflows`, `HasDeficit` ve `ContainsDate` zengin iş yetenekleri kazandırıldı. 20 yeni test eklendi (toplam 524 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### D24 — simülasyon motoru: `SimulationCalculator`
 

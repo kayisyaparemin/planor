@@ -64,7 +64,7 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz H — Tarihçe  *(D'den bağımsız, paralel ilerleyebilir)*
 
-- [ ] **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`
+- [x] **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`
 - [ ] **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 - [ ] **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları
 - [ ] **H4** — checkpoint taahhüdü: `FinancialReviewCommit`
@@ -160,7 +160,7 @@ Geri kalan her şey bu omurgadan sarkar.
 |---|---|---|
 | F | 4 | 4 |
 | D | 24 | 24 |
-| H | 0 | 4 |
+| H | 1 | 4 |
 | A | 0 | 26 *(A22 taşınmıyor)* |
 | I | 0 | 6 |
 | V | 0 | 14 |

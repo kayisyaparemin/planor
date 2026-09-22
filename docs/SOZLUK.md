@@ -24,6 +24,11 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | zorunlu çıkış | `MandatoryOutflow` | Yükümlülüklerin toplamı |
 | yaşam gideri | `PeriodVariableExpenseAllowance` | **Dönem** için ayrılan serbest harcama havuzu (ay için değil) |
 | dönem planı | `PeriodPlanSnapshot` | Dönem başında **dondurulan** taahhüt |
+| dönem planı revizyonu | `PeriodPlanRevision` | Dönem içinde planlama kararlarında yapılan değişiklikleri append-only kaydeden sürüm |
+| plan ödeme satırı | `PeriodPlanPaymentLine` | Dondurulan dönem planına ait tekil bir ödeme taahhüdü kalemi |
+| plan ödeme kaynağı türü | `PlanPaymentSourceType` | Plan ödeme satırının kaynaklandığı borç veya harcama enstrümanı türü |
+| finansal durum anlık görüntüsü | `FinancialSnapshot` | Kullanıcının belirli bir tarihteki açılış bakiyesi, çapa kuralı ve mutabakat tarihini donduran üst başlık kaydı |
+| finansal durum kaynağı | `FinancialSnapshotSource` | Finansal durum kaydının oluşturulma yaşam döngüsü (kurulum, aylık kapanış, toparlama) |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
