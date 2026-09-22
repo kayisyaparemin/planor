@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow` |
-| Sıradaki adım | **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları |
-| Test sayısı | 549 |
+| Son tamamlanan adım | **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları |
+| Sıradaki adım | **H4** — checkpoint taahhüdü: `FinancialReviewCommit` |
+| Test sayısı | 558 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### H3 — dönem gözlem defteri: `PeriodObservation`, `PeriodObservationPayment`
+
+Açık nakit akış döneminde kullanıcının anlık serbest nakit bakiyesini (`ObservedBalance`), dönemin canlı harcanan yaşam giderini (`ObservedLivingSpend`) ve plandaki borç ödemelerinin ara gerçekleşme durumlarını saklayan gözlem defteri modelleri (`PeriodObservation`, `PeriodObservationPayment`) taşındı. Eski mimaride tek bir dosyaya yığılmış olan modeller K3 ve M2 kuralları uyarınca `Mizan.Domain/Models/` altında müstakil dosyalara ayrıldı; K8 uyumlu Türkçe `<summary>` açıklamaları eklendi. `S20` kararı uyarınca Mizan'ın "bakiye üzerinden gidişat türetme" nakit akışı felsefesine aykırı olan, arayüzde hiç var olmamış ve eski kodda spekülatif ölü tablo olarak kalmış `PeriodObservationFlow` bütünüyle elendi (Taşımama hakkı). Gözlem defterinin snapshot zincirini ilerletmediği ve dondurulan planı mutasyona uğratmadığı ilkesi korundu; `HasObservedBalance`, `TotalObservedPayments`, `FindPayment`, `IsPaymentSettled`, `IsSettled` ve `CalculateVariance` gibi zengin iş yetenekleri eklendi. 9 yeni test eklendi (toplam 558 test yeşil, Domain kapsamı %100, mimari kalkanlar temiz).
 
 ### H2 — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 

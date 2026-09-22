@@ -36,6 +36,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | fiilî ödeme durumu | `ActualPaymentStatus` | Ödemenin yapılıp yapılmadığı veya farklı tutarla gerçekleştiği durumu |
 | plansız akış türü | `ActualFlowType` | Plansız nakit hareketinin gelir mi ödeme mi olduğunu belirten yön |
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
+| gözlem ödemesi | `PeriodObservationPayment` | Dondurulan plan ödeme satırının dönem içi gözlem defterindeki ara gerçekleşme kaydı |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
 | finansal plan | `FinancialPlan` | Kullanıcının tüm finansal varlık, yükümlülük, gelir ve ayarlarını tek çatı altında toplayan bütüncül sözleşme |
 | plan doğrulayıcı | `FinancialPlanValidator` | Finansal planın ve alt bileşenlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
