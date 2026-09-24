@@ -48,6 +48,17 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | güncel ödeme satırları | `OpenPeriodLedger.CurrentPaymentLines` | Dönem içinde "planım şu an ne" sorusunun satırları: son revizyonunkiler, revizyon yoksa dondurulan planınkiler (I24) |
 | ödeme satırı durumu | `PeriodPaymentLineClassification` | Açık dönemin güncel ödeme satırlarının bir güne göre durumu: gözlenen bakiyeye yansımış ödemeler, gözlemden sonra yapılanlar, kalan ve ertelenen satırlar |
 | ödeme satırı sınıflandırıcısı | `PeriodPaymentLineClassifier` | Bir ödemenin yapılıp yapılmadığını açık işaret → hatırlatıcı cevabı → vade önceliğiyle bulan, işareti ve cevabı kaynak + vadeyle eşleyen bağımlılıksız yardımcı (I30, S33) |
+| son revizyon | `OpenPeriodLedger.LatestRevision` | Dönem içinde "planım şu an ne" sorusunun cevabı olan revizyon; yoksa cevap dondurulan planın kendisi (I24) |
+| güncel gelir satırları | `OpenPeriodLedger.CurrentIncomeLines` | Son revizyonun, yoksa dondurulan planın gelir satırları, yatacakları günlerle (S31) |
+| gidişat | `PeriodProgress` | Açık dönemde planın dediği ile kullanıcının girdiği bakiyeden çıkan tahmin yan yana: harcanan ve kalan yaşam havuzu, KMH faizi, dönem sonu (I31) |
+| gidişat hesaplayıcısı | `PeriodProgressCalculator` | Açık dönem defterinden gidişatı üreten bağımlılıksız yardımcı; KMH'yı `DeficitFinancingRules`'tan, satır durumunu `PeriodPaymentLineClassifier`'dan alır |
+| gidişat servisi | `PeriodProgressService` | Defteri, ayarları ve kartları dar portlardan okuyup kartın güncel ödemesini bulan ve hesabı hesaplayıcıya bırakan ince kabuk |
+| kart karşılaştırması | `PeriodCardComparison` | Bir kartın bu dönemdeki ödemesi: planlanan (kilitli) ile kartın bugünkü hâline göre güncel tutar |
+| gözlenen yaşam harcaması | `ObservedLivingSpend` | Bakiye farkından, bakiyeye yansımış ödemeler ve yatmış gelir hesaba katılarak geri çözülen yaşam harcaması; fiş toplamı değildir (S20) |
+| kalan yaşam havuzu | `RemainingVariableExpenseAllowance` | Dönemin yaşam havuzundan kalan; havuz aşıldıysa sıfır. Yasaklı eski adı `RemainingLivingBudget` (S16) |
+| havuz aşımı | `LivingOverspend` | Gözlenen yaşam harcamasının havuzu aştığı tutar; dönem sonuna yansır |
+| dönem sonu tahmini | `ProjectedEndingBalance` | Bu gidişatla dönemin kapanacağı bakiye, KMH faizi düşülmüş. Yasaklı eski adı `ProjectedEndingSavings` (S13) |
+| dönem sonu sapması | `EndingDeviation` | Dönem sonu tahmini − planlanan kapanış |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
 | dönem kapanış taahhüdü | `PeriodSettlementCommit` | Kapanan dönemin gerçekleşmesini, güncellenen araçları ve yeni dönemin planını atomik olarak bağlayan taahhüt sözleşmesi |
 | dönem kapanış doğrulayıcısı | `PeriodSettlementCommitValidator` | Dönem kapanış taahhüdünün referans, takvim ve devir bakiyesi sürekliliğini denetleyen saf doğrulayıcı |

@@ -91,16 +91,16 @@ Geri kalan her şey bu omurgadan sarkar.
   - [x] **A13a** — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService` *(S28 ile ekran metni ve kültür elendi)*
   - [x] **A13b** — erken kapama önerisi: `LoanPayoffAdvisor` *(`SimulationCalculator` yerine yalnız `ScenarioPlanBuilder`)*
 - [x] **A14** — tarihçe sorgusu: `HistoryQueryService` *(S29 ile özet bakiye yerine net değişim toplar)*
-- [ ] **A15** — mevcut dönem motoru: `PeriodProgressService`
+- [x] **A15** — mevcut dönem motoru: `PeriodProgressService`
       *(düğüm T6: dondurma kuralı elle kopyalanmayacak, ortak yardımcı kullanılacak. İki katmana
       dokunduğu, ~500 satır olduğu ve dar portlarla 7 bağımlılığa çıktığı için bölündü; `S31`
       gereği `A15c`'den önce bir düzeltme girer)*
   - [x] **A15a** — KMH kuralı tek yerde: `DeficitFinancingRules` *(Domain; `FinancialProjectionCalculator` onu kullanır)*
   - [x] **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` *(kural M8; `FinancialSnapshotService` ve `HistoricalPlanRevisionService`'teki kopyalar ona geçer)*
   - [x] **S31 düzeltmesi** — dondurulan plana gelir satırları *(H1, A10, A11'e dokunur; ayrı onayla)*
-  - [ ] **A15c** — mevcut dönemin gidişatı *(~440 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
+  - [x] **A15c** — mevcut dönemin gidişatı *(~440 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
     - [x] **A15c-1** — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification` *(S33)*
-    - [ ] **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32, S34)*
+    - [x] **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32, S34)*
 - [ ] **A16** — dönem mutabakatı: `PeriodReviewService`
 - [ ] **A17** — **plan okuma ve plan yazma ayrılır**: `IPlanReader` + `IPlanChangeRecorder`
       — *düğüm T5. Eskide tek `FinancialPlanQueryService` vardı: 11 bağımlılık, 21 çağrı
@@ -177,7 +177,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 14 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 15 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

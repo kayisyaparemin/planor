@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A15c-1** — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification` |
-| Sıradaki adım | **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32, S34)* |
-| Test sayısı | 845 |
+| Son tamamlanan adım | **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` (A15 tamamlandı) |
+| Sıradaki adım | **A16** — dönem mutabakatı: `PeriodReviewService` |
+| Test sayısı | 872 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A15c-2 — gidişat: `PeriodProgressService`, `PeriodProgress`
+
+A15 tamamlandı. Eski 318 satırlık servis üçe ayrıldı: ince kabuk `PeriodProgressService` (5 dar bağımlılık, M3 sınırında), bağımlılıksız `PeriodProgressCalculator` ve A15c-1'in satır sınıflandırıcısı; KMH faizi A15a'nın `DeficitFinancingRules`'undan geliyor (T6 kapandı). **S31 gidişat yarısı:** gelir dondurulan plandaki günüyle ayrılıyor; gözlem günü ve öncesinde yatan bakiyede, sonra yatacak olan dönem sonuna ekleniyor. Eski formül gelir günü dönem ortasında olan kullanıcıya "47.000 harcadın" diyordu, gidişat artık plana sadık (`I31`). **S30:** kartın güncel ödemesi `[Start, End)` penceresiyle seçiliyor (`I32`). **S32/S34:** `PlanFrozenOn`, `ObservedBalance` kopyaları, ekran bayrakları ve `PeriodCardComparison.Difference` taşınmadı; model 22 alanı konumsal değil `required init` ile taşıyor. `OpenPeriodLedger` artık `LatestRevision` ve `CurrentIncomeLines` da veriyor. **Dikkat:** satırsız eski planda (G1) gidişat geliri görmez; A16'nın kapanış taslağı S33'teki eşleşmeyi kullanmalı; `AnsweredAt` yerel saat notu (A15a) hâlâ açık. 27 yeni test eklendi (toplam 872 test yeşil, Application kapsamı %98,24, Domain %97,64, mimari kalkanlar temiz).
 
 ### A15c-1 — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification`
 

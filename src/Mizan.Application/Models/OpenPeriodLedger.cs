@@ -20,9 +20,22 @@ public sealed record OpenPeriodLedger(
     IReadOnlyList<PaymentReminderResponse> ReminderAnswers)
 {
     /// <summary>
+    /// Dönem içinde "planım şu an ne" sorusunun cevabı olan son revizyon; revizyon yoksa <c>null</c>
+    /// ve cevap dondurulan planın kendisidir (I24).
+    /// </summary>
+    public PeriodPlanRevision? LatestRevision => Revisions.Count > 0 ? Revisions[^1] : null;
+
+    /// <summary>
     /// Dönem içinde "planım şu an ne" sorusunun ödeme satırları: son revizyonunkiler, revizyon
     /// yoksa dondurulan planınkiler (I24). Dondurulan plan tarihçede değişmeden kalır.
     /// </summary>
     public IReadOnlyList<PeriodPlanPaymentLine> CurrentPaymentLines =>
-        Revisions.Count > 0 ? Revisions[^1].PaymentLines : Plan.PaymentLines;
+        LatestRevision?.PaymentLines ?? Plan.PaymentLines;
+
+    /// <summary>
+    /// Dönem içinde "planım şu an ne" sorusunun gelir satırları, yatacakları günlerle: son
+    /// revizyonunkiler, revizyon yoksa dondurulan planınkiler (I24, S31).
+    /// </summary>
+    public IReadOnlyList<PeriodPlanIncomeLine> CurrentIncomeLines =>
+        LatestRevision?.IncomeLines ?? Plan.IncomeLines;
 }
