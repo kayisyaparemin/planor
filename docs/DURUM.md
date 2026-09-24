@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A17** — plan okuma ve plan yazma ayrılır: `IPlanReader` + `IPlanChangeRecorder` |
-| Sıradaki adım | **A18** — kart yükümlülüğü: `CreditCardObligationService` |
-| Test sayısı | 904 |
+| Son tamamlanan adım | **A18** — kart yükümlülüğü: `CreditCardObligationService` |
+| Sıradaki adım | **A19** — simülasyon iş akışı: `ISimulationWorkflowService` |
+| Test sayısı | 924 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A18 — kart yükümlülüğü: `CreditCardObligationService`
+
+Kullanıcının kredi kartı tanımlarını, ekstre verilerini, etkin tarihli ödeme tercihi tarihçesini ve geleceğe dönük özel ödeme planlarını yöneten `CreditCardObligationService` ile kullanım senaryosu portu `ICreditCardObligationService` taşındı. Kural M5 uyarınca eski `IMizanStore` tanrı arayüzü yerine yalnız dar port `ICreditCardRepository`, Kural M4 uyarınca ise `IFinancialPlanQueryService` yerine yazma portu `IPlanChangeRecorder` enjekte edildi (**S43**; toplam 4 bağımlılık, M3 sınırında). S21 kararı uyarınca PDF içe aktarma kalıntıları (`PdfImport`, `ImportedAt`) temizlendi. K3 kuralı uyarınca metot gövdeleri ve dosya boyutu (188 satır ≤ 200) korundu. Kart ekleme, ekstre girişi, plan güncelleme/silme ve kart silme operasyonlarında açık dönem revizyon taahhüdü (`I24`) tetiklenir. 20 yeni birim testi eklendi (toplam 924 test yeşil, `CreditCardObligationService` kapsamı %100, mimari kalkanlar temiz).
 
 ### A17 — plan okuma ve plan yazma ayrılır: `IPlanReader` + `IPlanChangeRecorder`
 

@@ -104,7 +104,8 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A16** — dönem mutabakatı: `PeriodSettlementService` *(S12 gereği adlandırıldı; K3/K4 için `PeriodActualBuilder` ayrıldı, T6/M8 için `FindFinalRevisions` ortaklaştırıldı, S35–S39)*
 - [x] **A17** — **plan okuma ve plan yazma ayrılır**: `IPlanReader` + `IPlanChangeRecorder`
       — *düğüm T5, kural M4; S40, S41, S42 ile 7 dar repo kompozisyonu ve sıfır yan etkili salt okuyucu kuruldu*
-- [ ] **A18** — kart yükümlülüğü: `CreditCardObligationService`
+- [x] **A18** — kart yükümlülüğü: `CreditCardObligationService`
+      — *S43: dar repo ICreditCardRepository ve yazma portu IPlanChangeRecorder'a bağlandı; ICreditCardObligationService arayüzü kuruldu; PDF içe aktarma kalıntıları temizlendi*
 - [ ] **A19** — simülasyon iş akışı: `ISimulationWorkflowService`
 - [ ] **A20** — yükümlülük yönetimi: `IObligationManagementService`
 - [ ] **A21** — dönem iş akışı: `IPeriodWorkflowService`
@@ -175,7 +176,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 17 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 18 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

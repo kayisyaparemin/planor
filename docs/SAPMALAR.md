@@ -409,3 +409,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A17` |
 | **Durum** | uygulandı |
 
+### S43 — Kart yükümlülük servisi dar portlara bağlandı ve içe aktarma kalıntıları temizlendi
+
+| | |
+|---|---|
+| **Eski** | `CreditCardObligationService` `IMizanStore` tanrı arayüzüne ve `IFinancialPlanQueryService` okuma cephesine bağlıydı; ekstre kaydetmede PDF içe aktarma kontrolü (`CreditCardStatementSource.PdfImport`, `ImportedAt`) yapılıyordu; servisin arayüzü bulunmuyordu. |
+| **Neden yanlış** | Düğüm T10 / Kural M5 (tanrı arayüz), Düğüm T5 / Kural M4 (okuma/yazma ayrışması), Kural M3 (ViewModel'ler somut servise değil dar porta bağlanmalı) ve S21 (PDF içe aktarma elendi). |
+| **Yeni** | 1. Yalnızca dar depo portu `ICreditCardRepository` ve yazma portu `IPlanChangeRecorder` enjekte edilir (toplam 4 bağımlılık ≤ 5, Kural M3).<br>2. S21 uyarınca `Source` ve `ImportedAt` kontrolleri kaldırıldı.<br>3. `ICreditCardObligationService` arayüzü `Abstractions/` altına eklendi. |
+| **Etkiler** | `A18`, `A20`, `V7`, `MauiProgram.cs` |
+| **Durum** | uygulandı |
+
+
