@@ -246,5 +246,12 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A7`, `A9`–`A21`, `I2` |
 | **Durum** | uygulandı |
 
+### S27 — Ödenmeyen yükümlülük devir tarihi (carryDate) doğal dönemsellik gereği newAnchor olur
 
-
+| | |
+|---|---|
+| **Eski** | `carryDate = newAnchor.AddDays(1)`. Ödenmeyen taksit, borç ve harcamalar yeni dönemin ilk günü yerine ikinci gününe öteleniyordu. |
+| **Neden yanlış** | Eski projede dönemler `(checkpoint, nextCheckpoint]` (sol açık, sağ kapalı) şeklinde modellenmişti. Bu nedenle `checkpoint` gününün kendisi yeni dönemin DIŞINDA kalıyor ve borcu yeni döneme sokabilmek için zorunlu olarak `+1 gün` ekleniyordu. |
+| **Yeni** | Mizan v2'de `CashFlowPeriod` yarı açık aralığı `[Start, End)` şeklindedir (S18 doğal dönemsellik). Kapanan dönem `[oldAnchor, newAnchor)` iken, yeni dönemin başlangıcı tam olarak `PeriodStart = newAnchor`'dur (`period.Contains(newAnchor) == true`). Ödenmeyen borçlar yapay olarak bir gün ötelenmez, doğrudan yeni dönemin açılış/ilk gününe (`carryDate = newAnchor`) devredilir. |
+| **Etkiler** | `A12`, `A16` |
+| **Durum** | uygulandı |

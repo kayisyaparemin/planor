@@ -83,7 +83,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
 - [x] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
-- [ ] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
+- [x] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
 - [ ] **A13** — kredi kapatma: `LoanPayoffService`, `LoanPayoffAdvisor`
 - [ ] **A14** — tarihçe sorgusu: `HistoryQueryService`
 - [ ] **A15** — mevcut dönem motoru: `PeriodProgressService`
