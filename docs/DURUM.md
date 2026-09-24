@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver` |
-| Sıradaki adım | **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService` |
-| Test sayısı | 701 |
+| Son tamamlanan adım | **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService` |
+| Sıradaki adım | **A11** — plan revizyonu: `HistoricalPlanRevisionService` |
+| Test sayısı | 715 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A10 — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
+
+Dönem başında nakit akışı taahhüdünü donduran `PeriodPlanSnapshotService`, finansal durum yaşam döngüsünü ve takvim döngüsü onarımını yöneten `FinancialSnapshotService` ve transfer paketi `FinancialSnapshotBundle` taşındı. Kullanıcının düzensiz gelir (tek seferlik arızi gelir veya başlangıç bakiyesiyle borç kapatma) durumunda da projeksiyon kurabilmesi için `FinancialPlan.CanBuildProjection` kuralı ve `I12` invariant'ı genişletildi. Kural M5 ve `S26` gereğince tanrı arayüz `IMizanStore` yerine dar port `IPeriodHistoryRepository` kullanıldı; K3 gereği `FinancialSnapshotBundle` müstakil bir modele ayrıldı ve `Freeze` gövdesi küçük yardımcılarla refactor edildi. `S1` uyarınca `IncomeDay` yerine `PeriodAnchor`, `S13` uyarınca `startingBalance`, `S7`/`S16` uyarınca dönemsel harcama havuzu ve `S18` uyarınca doğal dönemsellik (`period.Contains`) entegre edildi. Dondurulan plan taahhüdünün ve ödeme satırlarının dönem başladıktan sonra hiçbir plan mutasyonundan etkilenmeyeceği `I23` invariant'ı olarak sabitlendi. 14 yeni birim testi eklendi (toplam 715 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A9 — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
 

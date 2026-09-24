@@ -37,9 +37,12 @@ public sealed record FinancialPlan
 
     /// <summary>
     /// Planın 12 dönemlik nakit akış projeksiyonu üretmeye hazır olup olmadığını belirler.
-    /// Başlangıç çapa tarihinin ayarlanmış olmasını ve en az bir aktif düzenli gelir akışını gerektirir.
+    /// Başlangıç çapa tarihinin ayarlanmış olmasını ve en az bir finansal başlangıç dayanağını
+    /// (aktif düzenli gelir, tek seferlik arızi gelir veya sıfırdan farklı açılış bakiyesi) gerektirir.
     /// </summary>
     public bool CanBuildProjection =>
         Settings.ProjectionAnchorDate != default &&
-        RecurringIncomes.Any(x => x.IsActive);
+        (RecurringIncomes.Any(x => x.IsActive) ||
+         AdHocIncomes.Count > 0 ||
+         Settings.ProjectionOpeningBalance != 0m);
 }

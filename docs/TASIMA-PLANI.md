@@ -80,7 +80,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A7** — depo kompozisyonu. Eski `IMizanStore` **taşınmaz**; dar portlar kullanılır *(düğüm T10; S26 ile IMizanStore ve kompozit arayüzler elendi, mimari testle yasaklandı)*
 - [x] **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation`
 - [x] **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
-- [ ] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
+- [x] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
 - [ ] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
 - [ ] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
@@ -161,7 +161,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 9 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 10 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

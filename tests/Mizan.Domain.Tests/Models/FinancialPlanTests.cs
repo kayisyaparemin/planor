@@ -80,6 +80,36 @@ public sealed class FinancialPlanTests
     }
 
     [Fact]
+    public void CanBuildProjection_DuzenliGelirYokAmaTekSeferlikGelirVarsa_TrueDondurur()
+    {
+        var plan = new FinancialPlan
+        {
+            Settings = new UserSettings { ProjectionAnchorDate = new DateOnly(2026, 10, 1) },
+            AdHocIncomes =
+            [
+                new AdHocIncome { ExactDate = new DateOnly(2026, 10, 15), Amount = 500_000m, Description = "Telif" }
+            ]
+        };
+
+        Assert.True(plan.CanBuildProjection);
+    }
+
+    [Fact]
+    public void CanBuildProjection_GelirYokAmaAcilisBakiyesiVarsa_TrueDondurur()
+    {
+        var plan = new FinancialPlan
+        {
+            Settings = new UserSettings
+            {
+                ProjectionAnchorDate = new DateOnly(2026, 10, 1),
+                ProjectionOpeningBalance = 150_000m
+            }
+        };
+
+        Assert.True(plan.CanBuildProjection);
+    }
+
+    [Fact]
     public void LoanPrepayment_ModelBaslatma_AlanlariDogruTutar()
     {
         var prepaymentId = Guid.NewGuid();
