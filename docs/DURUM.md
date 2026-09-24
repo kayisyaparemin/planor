@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService` |
-| Sıradaki adım | **A13** — kredi kapatma: `LoanPayoffService`, `LoanPayoffAdvisor` |
-| Test sayısı | 744 |
+| Son tamamlanan adım | **A13a** — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService` |
+| Sıradaki adım | **A13b** — erken kapama önerisi: `LoanPayoffAdvisor` |
+| Test sayısı | 766 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A13a — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService`
+
+A13 ~460 satır ve iki iş yeteneği taşıdığı için ikiye bölündü; bu alt adımda kredinin bugünkü kapatma bedelini (`Describe`), planlı erken ödemelerin o günkü tutarlarını (`DescribePrepayments`) ve kaydetme kapısını (`PrepareForSave`) taşıyan `LoanPayoffService` ile modelleri `LoanPayoffOverview`, `PlannedLoanPrepayment` (K3 gereği müstakil dosyalar) taşındı. Kaydetmede bankanın kapatma tutarı otoritedir: tarihsizse bugünle damgalanır, anapara ondan geri çözülüp elle girilenin yerine yazılır; gelecek tarihli, son taksitten eski veya taksitlerle uyuşmayan tutar reddedilir (`I25`). `S28` ile modelin servisin statik metodunu çağırarak ürettiği engel metni (`IssueMessage`/`DescribeIssue`, M6/M8 ihlali) taşınmadı, metin V6'da `LoanAnalysisIssue`'dan üretilecek; hata mesajları Türkçe kaldı ama `tr-TR` kültürü taşımıyor (tarih sabit `dd.MM.yyyy`, tutar mesajda yok). Eski yorumdaki "(K2)" eski numaralandırmaydı, v2'de düşürüldü. 22 yeni test eklendi (toplam 766 test yeşil, Application kapsamı %98, Domain %96,92, mimari kalkanlar temiz).
 
 ### A12 — araç mutabakatı: `FinancialInstrumentReconciliationService`
 

@@ -255,3 +255,13 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Yeni** | Mizan v2'de `CashFlowPeriod` yarı açık aralığı `[Start, End)` şeklindedir (S18 doğal dönemsellik). Kapanan dönem `[oldAnchor, newAnchor)` iken, yeni dönemin başlangıcı tam olarak `PeriodStart = newAnchor`'dur (`period.Contains(newAnchor) == true`). Ödenmeyen borçlar yapay olarak bir gün ötelenmez, doğrudan yeni dönemin açılış/ilk gününe (`carryDate = newAnchor`) devredilir. |
 | **Etkiler** | `A12`, `A16` |
 | **Durum** | uygulandı |
+
+### S28 — Kredi analizi engel metni Application'dan çıkar, kaydetme hataları kültür taşımaz
+
+| | |
+|---|---|
+| **Eski** | `LoanPayoffOverview.IssueMessage` (bir model) `LoanPayoffService.DescribeIssue` statik metodunu çağırarak `LoanAnalysisIssue` için Türkçe ekran metni üretiyordu. `LoanPayoffService.PrepareForSave` hata mesajlarında tutarı ve tarihi `CultureInfo.GetCultureInfo("tr-TR")` ile biçimliyordu (`130.000 TL`, `18.09.2026`). |
+| **Neden yanlış** | Model servise bakıyordu (M6) ve enjekte edilmeyen bir sınıfın statik metodunu çağırıyordu (M8). Ekran metni, kararı veren Domain enum'undan (`LoanAnalysisIssue`) sunum kenarında türetilebilecekken uygulama katmanına gömülmüştü. Kural 05'e göre kültür yalnız sunum kenarında geçer. |
+| **Yeni** | `DescribeIssue` ve `IssueMessage` taşınmaz (Taşımama hakkı); `LoanPayoffOverview` yalnız `Analysis.Issue` enum'unu taşır, metin eşlemesi `V6`'da sunum katmanında yapılır. `PrepareForSave` Türkçe `InvalidOperationException` mesajlarını korur (Domain `LoanPrepaymentValidator` emsali) ama `CultureInfo` kullanmaz: tarih kültürden bağımsız sabit `dd.MM.yyyy` deseniyle yazılır, para tutarı mesaja gömülmez. |
+| **Etkiler** | `A13`, `A20`, `V6` |
+| **Durum** | uygulandı |

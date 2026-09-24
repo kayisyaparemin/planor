@@ -84,7 +84,9 @@ Geri kalan her şey bu omurgadan sarkar.
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
 - [x] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
 - [x] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
-- [ ] **A13** — kredi kapatma: `LoanPayoffService`, `LoanPayoffAdvisor`
+- [ ] **A13** — kredi kapatma *(~460 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
+  - [x] **A13a** — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService` *(S28 ile ekran metni ve kültür elendi)*
+  - [ ] **A13b** — erken kapama önerisi: `LoanPayoffAdvisor`
 - [ ] **A14** — tarihçe sorgusu: `HistoryQueryService`
 - [ ] **A15** — mevcut dönem motoru: `PeriodProgressService`
       *(düğüm T6: dondurma kuralı elle kopyalanmayacak, ortak yardımcı kullanılacak)*

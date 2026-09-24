@@ -133,6 +133,10 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kredi olay oynatımı | `LoanReplay` | Erken ödeme olaylarının kredi takvimi üstünde kronolojik oynatılmış sonucu |
 | kredi ödeme takvimi oluşturucu | `LoanPaymentScheduleBuilder` | Erken ödeme olaylarını takvim üstünde oynatarak güncel takvim ve ara durumları üreten saf motor |
 | kredi erken ödeme doğrulayıcısı | `LoanPrepaymentValidator` | Kredi erken ödeme girdilerinin iş kurallarına ve takvim durumuna uygunluğunu denetleyen saf doğrulayıcı |
+| kredi kapatma servisi | `LoanPayoffService` | Kredinin bugünkü kapatma bedelini ve planlı erken ödeme tutarlarını çıkaran, krediyi kaydetmeden önce banka kapatma tutarının otoritesiyle doğrulayan uygulama servisi |
+| kredi kapatma görünümü | `LoanPayoffOverview` | Bir kredinin analizini ve bugün kapatılırsa ödenecek bedelin dökümünü birlikte taşıyan model; engel metni taşımaz (S28) |
+| planlı erken ödeme görünümü | `PlannedLoanPrepayment` | Planlanmış bir ara ödeme veya erken kapamanın o gün ödenecek, her seferinde yeniden hesaplanan tutarı |
+| banka kapatma tutarı | `EarlyClosureAmount` | Bankanın belirli bir gün için bildirdiği erken kapama tutarı; kaydedildiğinde kalan anaparanın otoritesidir (I25) |
 
 ## Kredi kartı
 
