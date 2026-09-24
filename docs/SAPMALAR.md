@@ -196,6 +196,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Neden yanlış** | Bankaların sağladığı PDF/ekstre veri formatları birbirinden radikal düzeyde farklıdır, standart bir şablon yoktur ve bankalar arayüzlerini/PDF mizanpajlarını sık sık değiştirmektedir. Tüm bankalar analiz edilmemiştir ve eski MVP uygulamasında da bu özellik kırılgan regex'lerle yarım çalışıyordu. Olgunlaşmamış ve yüksek bakım maliyetli bir özelliğin v2'ye taşınması mimariyi gereksiz kirletmekte ve karmaşıklaştırmaktadır. |
 | **Yeni** | Ekstreden otomatik içe aktarma özelliği bütünüyle elendi (Taşımama hakkı). Kredi kartı ekstreleri kullanıcının doğrudan tutar, asgari tutar ve vade bilgilerini girdiği veya dönemsel mutabakatla onayladığı yalın ve güvenilir bir sözleşmeye indirgendi. `CreditCardStatementSource` enum'ı, `SourceDocumentFingerprint`, `ImportedAt` ve `StatementSource` alanları ile `importedExactDate` parametreleri silindi; `PdfPig` NuGet paketi kaldırıldı. `A25` ve `I5` adımları iptal edildi. |
 | **Etkiler** | `D1`, `D7`, `D14`, `A25`, `I5`, `V7` |
+### S22 — Profil deposundan tek veritabanı geçiş metotları (AdoptLegacyDatabase) elendi
+
+| | |
+|---|---|
+| **Eski** | `IProfileRepository.HasLegacyDatabase`, `IProfileRepository.AdoptLegacyDatabaseAsync`, `ProfileService.GetProfilesAsync` içindeki otomatik taşıma bloğu. Eski tek veritabanlı sürümlerden profil mimarisine geçerken `coinflow.db3` dosyasını ilk açılışta `Profilim` adlı profile aktarıyordu. |
+| **Neden yanlış** | Mizan v2 tamamen yeni bir uygulama kimliği (`com.mizan.app`) ile kurulmaktadır; eski uygulamanın (`com.coinflow.mobile`) tek veritabanı yolu cihazdaki bu yolda hiçbir zaman var olmayacaktır. Eski şema v17 verileri `TASIMA-PLANI.md`'deki `G1` adımında (yedek arşivinden tek seferlik içe aktarma) taşınacaktır. Eski tek dosya geçiş mantığı yeni mimaride ölü koddur. |
+| **Yeni** | `HasLegacyDatabase` ve `AdoptLegacyDatabaseAsync` metotları `IProfileRepository` ve `ProfileService` sözleşmesinden tamamen elendi (Taşımama hakkı). Profil deposu yalnızca mevcut profillerin CRUD işlemlerine odaklanır. |
+| **Etkiler** | `A3`, `I3`, `G1` |
 | **Durum** | uygulandı |
 
 

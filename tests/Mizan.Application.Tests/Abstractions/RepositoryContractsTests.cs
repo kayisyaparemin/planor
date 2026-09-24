@@ -13,7 +13,8 @@ public sealed class RepositoryContractsTests
         typeof(IPlannedLargeExpenseRepository),
         typeof(IRecurringIncomeRepository),
         typeof(IAdHocIncomeRepository),
-        typeof(IUserSettingsRepository)
+        typeof(IUserSettingsRepository),
+        typeof(IProfileRepository)
     ];
 
     [Fact]

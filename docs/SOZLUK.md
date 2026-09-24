@@ -185,6 +185,10 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | Türkçe | Kod | Tanım |
 |---|---|---|
 | profil | `UserProfile` | Bağımsız bir veri kümesi; her biri ayrı `.db3` |
+| profil deposu | `IProfileRepository` | Kullanıcı profillerinin meta bilgilerini listeleyen, kaydeden ve silen veri deposu portu |
+| profil depo anahtarı | `IProfileStoreSwitch` | Uygulamanın veri deposunu açık profile bağlayan veya erişimi kesen port |
+| profil adı doğrulayıcısı | `ProfileNameValidator` | Profil adının uzunluk, boşluk ve Türkçe harf kurallarına göre benzersizliğini denetleyen saf yardımcı |
+| profil servisi | `ProfileService` | Profil yaşam döngüsünü (CRUD, oturum açma ve kapatma) yöneten kullanım senaryosu servisi |
 | yedek | `Backup` | Tüm profilleri içeren tek arşiv |
 
 ---

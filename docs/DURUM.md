@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A2** — depo portları: `ILoanRepository`, `ICreditCardRepository`, … |
-| Sıradaki adım | **A3** — profil servisi: `IProfileRepository`, `ProfileService` |
-| Test sayısı | 585 |
+| Son tamamlanan adım | **A3** — profil servisi: `IProfileRepository`, `ProfileService`, `IProfileStoreSwitch`, `ProfileNameValidator` |
+| Sıradaki adım | **A4** — dönem tarihçesi portu |
+| Test sayısı | 608 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A3 — profil servisi: `IProfileRepository`, `ProfileService`, `IProfileStoreSwitch`, `ProfileNameValidator`
+
+Çok kiracılı profil mimarisinin portları ve yaşam döngüsü yönetim servisi taşındı. Kural K3 uyarınca eski kodda tek bir dosyaya yığılmış olan arayüzler müstakil dosyalara (`IProfileRepository.cs` ve `IProfileStoreSwitch.cs`) ayrıldı; 252 satırlık monolitik servis K3 sınırına (≤ 200 satır) uyum için ad doğrulama, Türkçe kültür kurallarıyla duyarsız karşılaştırma ("İpek" == "ipek") ve benzersiz isim türetme yetenekleri saf `ProfileNameValidator` sınıfına delege edilerek sadeleştirildi. S22 kararı (Taşımama hakkı) gereğince eski uygulamanın tek veritabanı döneminden kalan ve v2'de ölü kod olan `HasLegacyDatabase` ve `AdoptLegacyDatabaseAsync` metotları sözleşmeden temizlendi; veri aktarımı `G1` adımına bırakıldı. Açık olan ve son kalan profilin silinmesi engellenerek veri güvenliği korundu; profil açılışında `IProfileStoreSwitch` üzerinden veritabanı anahtarlanması ve oturum kimliği (`SessionId`) yenilenmesi garanti altına alındı. `RepositoryContractsTests` güncellendi, `InMemoryProfileRepository` ve `InMemoryProfileStoreSwitch` test çiftleri eklendi. 23 yeni test eklendi (toplam 608 test yeşil, Application kapsamı %97.96, Domain %94.29, mimari kalkanlar temiz).
 
 ### A2 — depo portları: `ILoanRepository`, `ICreditCardRepository`, …
 
