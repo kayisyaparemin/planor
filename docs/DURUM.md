@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A19** — simülasyon iş akışı: `ISimulationWorkflowService` |
-| Sıradaki adım | **A20** — yükümlülük yönetimi: `IObligationManagementService` |
-| Test sayısı | 950 |
+| Son tamamlanan adım | **A20** — yükümlülük yönetimi: `IObligationManagementService` |
+| Sıradaki adım | **A21** — dönem iş akışı: `IPeriodWorkflowService` |
+| Test sayısı | 983 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A20 — yükümlülük yönetimi: `IObligationManagementService`
+
+Kullanıcının kredi, vadeli/taksitli borç planı ve planlı büyük harcama yükümlülüklerini yöneten `ObligationManagementService` ile kullanım senaryosu portu `IObligationManagementService` taşındı. Kural K4 (`partial` yasağı), Kural K3 (≤ 200 satır), Kural M3 (≤ 5 bağımlılık) ve Kural M5 (≤ 10 metot) ihlalleri çözüldü (**S47**): Eski 25 metotlu monolitik tanrı arayüz ayıklandı; yapay tahsis modelleri ve metotları elendi (**S18**); mükerrer kredi kartı delegasyonları A18'deki `ICreditCardObligationService`'e bırakıldı. Çekirdek borç yükümlülükleri 5 dar bağımlılıkla (`ILoanRepository`, `ITemporaryPaymentPlanRepository`, `IPlannedLargeExpenseRepository`, `LoanPayoffService`, `IPlanChangeRecorder`) `ObligationManagementService` altında toplandı; banka kapatma tutarı otoritesi (`I25`), borç normalizasyonu (`I7`), büyük harcama kuralları (`I14`) ve açık dönem revizyon tetikleme (`I24`) garanti altına alındı. Borç olmayan gelir akışları (`RecurringIncome` ve `AdHocIncome`) ise tek sorumluluk ilkesi gereğince 3 dar bağımlılıkla çalışan müstakil `IncomePlanService` ve `IIncomePlanService` dar portuna ayrıldı. 33 yeni birim testi eklendi (toplam 983 test yeşil, Application kapsamı %97,58, Domain %95,18, mimari kalkanlar temiz).
 
 ### A19 — simülasyon iş akışı: `ISimulationWorkflowService`
 

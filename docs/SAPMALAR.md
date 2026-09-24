@@ -447,7 +447,12 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Neden yanlış** | C# parametre isimlendirme kuralı camelCase olmalıdır (S10). Ayrıca yaşam harcaması artık aylık değil dönemliktir (S7, S16). |
 | **Yeni** | Parametre `decimal? variableExpenseAllowanceOverride = null` olarak adlandırılır. |
 | **Etkiler** | `A19`, `V10` |
+### S47 — IObligationManagementService ayrıştırıldı ve odaklandı (Tanrı arayüz ve partial elendi)
+
+| | |
+|---|---|
+| **Eski** | `IObligationManagementService` içinde kredi, vadeli plan, büyük harcama, kredi kartı delegasyonu, düzenli maaş, tek seferlik gelir, yapay tahsis stratejileri, kullanıcı ayarları ve onboarding tek arayüzde (25 metot, 2 partial dosya, 8 bağımlılık) toplanmıştı. |
+| **Neden yanlış** | Kural K4 (`partial` yasağı), Kural K3 (dosya ≤ 200 satır), Kural M3 (≤ 5 bağımlılık) ve Kural M5 (arayüz ≤ 10 metot) ihlalidir. Ayrıca gelir bir "yükümlülük" (obligation/borç) değildir; nakit girişidir. Kart metotları zaten A18'de taşınmışken burada mükerrer delegasyon yapmak yalancı cephedir (T7). |
+| **Yeni** | 1. **Yapay tahsis metotları elendi (S18):** `SaveSalaryAsync` (dönüşü), `GetInitialPaymentStrategySetupAsync`, `CompleteInitialPaymentStrategySetupAsync`, `SaveCashFlowAllocationStrategyAsync`, `DeleteCashFlowAllocationStrategyAsync` taşınmaz (Taşımama hakkı).<br>2. **Kart metotları mükerrerliği elendi (M3, M5):** Kart işlemleri doğrudan `A18`'de taşınan `ICreditCardObligationService` üzerinden yürütülür; bu servisten ayıklanır (Taşımama hakkı).<br>3. **Çekirdek borç yükümlülükleri `IObligationManagementService`'te toplandı:** Krediler, vadeli planlar ve büyük harcamalar (7 metot, 5 dar bağımlılık: `ILoanRepository`, `ITemporaryPaymentPlanRepository`, `IPlannedLargeExpenseRepository`, `LoanPayoffService`, `IPlanChangeRecorder`).<br>4. **Gelir yönetimi `IIncomePlanService` dar portuna ayrıldı:** `RecurringIncome` ve `AdHocIncome` ekleme/silme (6 metot, 3 dar bağımlılık: `IRecurringIncomeRepository`, `IAdHocIncomeRepository`, `IPlanChangeRecorder`).<br>5. **Ayarlar ve Onboarding:** `IUserSettingsService` (V13) ve `IOnboardingService` (V4) kendi ekran adımlarında odaklı dar portlar olarak kurgulanır. |
+| **Etkiler** | `A20`, `V4`, `V6`, `V13`, `MauiProgram.cs` |
 | **Durum** | uygulandı |
-
-
-

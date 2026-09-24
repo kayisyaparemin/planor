@@ -106,6 +106,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | gelir kaynağı türü | `IncomeSourceType` | Gelir kaleminin periyodiklik türü (`Recurring` veya `AdHoc`) |
 | dönem gelir özeti | `IncomeProjectionSummary` | Bir nakit akış dönemine ait tüm gelir kalemlerini ve tür bazlı toplamları özetleyen sonuç kaydı |
 | gelir projeksiyon hesaplayıcısı | `IncomeProjectionCalculator` | Dönem için aktif düzenli gelir akışlarını ve tek seferlik gelirleri eşleştirip dönemsel gelir özetini deterministik olarak hesaplayan saf hesaplayıcı |
+| gelir planı servisi | `IIncomePlanService` | Düzenli ve tek seferlik gelir akışlarının doğrulanmasını, kaydedilmesini, silinmesini ve açık dönem plan revizyonlarını yöneten kullanım senaryosu portu |
 
 > Birden fazla düzenli gelir **toplanır**, birbirini ezmez. Bu, eski projede bir hataydı
 > (`SAPMALAR.md` → S2) ve yeni projede bir invariant'tır.
@@ -225,6 +226,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | dönem yükümlülük grubu | `PeriodObligationGroup` | Belirli bir nakit akış dönemine [Start, End) vadesi düşen borç ve harcama yükümlülüklerini doğal dönemsellikle bir arada tutan sözleşme |
 | dönem yükümlülük planı | `PeriodObligationPlan` | Tüm projeksiyon dönemleri boyunca gruplanmış yükümlülük dağılımını ve ufuk dışı kalan kalemleri içeren sonuç sözleşmesi |
 | dönem yükümlülük gruplayıcısı | `PeriodObligationGrouper` | Borç ve harcama yükümlülüklerini doğal dönemsellik ilkesine göre ilgili nakit akış dönemlerine [Start, End) gruplayan ve ufuk dışı kalemleri ayrıştıran saf Domain motoru |
+| yükümlülük yönetim servisi | `IObligationManagementService` | Kredi, vadeli borç planı ve büyük harcama yükümlülüklerinin doğrulanmasını, kaydedilmesini, silinmesini ve açık dönem plan revizyonlarını yöneten kullanım senaryosu portu |
 
 ## Planlı Harcama ve Kullanıcı Ayarları
 

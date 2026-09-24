@@ -108,7 +108,8 @@ Geri kalan her şey bu omurgadan sarkar.
       — *S43: dar repo ICreditCardRepository ve yazma portu IPlanChangeRecorder'a bağlandı; ICreditCardObligationService arayüzü kuruldu; PDF içe aktarma kalıntıları temizlendi*
 - [x] **A19** — simülasyon iş akışı: `ISimulationWorkflowService`
       — *S44: dar depolar IncomePlanWriter ve FinancialInstrumentWriter kompozisyonuna bağlandı; S45/S46 temizlendi; ISimulationPlanApplier ile tam M3 sınırında kalındı*
-- [ ] **A20** — yükümlülük yönetimi: `IObligationManagementService`
+- [x] **A20** — yükümlülük yönetimi: `IObligationManagementService`
+      *(S47: tanrı arayüz ve partial elendi; kredi, vadeli plan ve büyük harcamalar 5 dar bağımlılıkla IObligationManagementService'te toplandı; gelir yönetimi IIncomePlanService portuna ayrıldı)*
 - [ ] **A21** — dönem iş akışı: `IPeriodWorkflowService`
 - [ ] **A22** — cephe `MizanService`: **TAŞINMAZ.** Düğüm T7: 515 satırlık tek kapı,
       16 ViewModel'in 11'i yalnız buna bağlıydı. ViewModel'ler dar portlara bağlanacak.
@@ -177,7 +178,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 19 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 20 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |
