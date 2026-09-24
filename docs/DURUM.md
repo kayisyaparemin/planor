@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A5** — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload` |
-| Sıradaki adım | **A6** — simülasyon taslağı portu |
-| Test sayısı | 658 |
+| Son tamamlanan adım | **A6** — simülasyon taslağı portu: `ISimulationDraftRepository`, `SimulationDraft`, `SimulationDraftCondition` |
+| Sıradaki adım | **A7** — depo kompozisyonu. Eski `IMizanStore` taşınmaz, dar portlar kullanılır |
+| Test sayısı | 665 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A6 — simülasyon taslağı portu: `ISimulationDraftRepository`, `SimulationDraft`, `SimulationDraftCondition`
+
+Kullanıcının simülatör ekranında oluşturduğu varsayımsal plan taslaklarının, koşul sıralamasının ve aktiflik tercihlerinin kalıcı olarak saklanmasını sağlayan veri erişim portu ve modelleri taşındı. Kural K3 gereğince eski `SimulationDraftModels.cs` monolitindeki modeller müstakil dosyalara (`SimulationDraft.cs`, `SimulationDraftCondition.cs`) çıkarıldı ve K8 uyumlu Türkçe XML dokümantasyonları eklendi. `S25` kararı uyarınca eski şemadaki yasaklı terimleri (`SalaryScheduleEntry`, `PaymentAssignmentStrategies`, `OneTimeIncome`) taşıyan ve Kural M5'i ihlal eden plan uygulama batch metodu (`ApplySimulationBatchAsync`) arayüzden elendi (Taşımama hakkı); port yalnızca taslak yönetimine odaklanarak `ISimulationDraftRepository` olarak adlandırıldı. `RepositoryContractsTests` ve `InMemorySimulationDraftRepository` test çifti oluşturuldu; koşul sırasının, açık/kapalı durumunun korunması ve son güncellenme tarihine göre azalan sıralama testlerle kalkan altına alındı. 7 yeni test eklendi (toplam 665 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A5 — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload`
 

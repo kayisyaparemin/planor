@@ -99,6 +99,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | simülasyon istek doğrulayıcısı | `SimulationRequestValidator` | Simülasyon senaryo isteklerinin tutarlılığını, yasal ve matematiksel kısıtlarını ve çoklu gelir akışı çakışmalarını denetleyen saf sınıf |
 | senaryo plan kurucusu | `ScenarioPlanBuilder` | Kullanıcının simülasyon senaryo isteklerini (kart harcaması, finansman, borç, gelir artışı vb.) mevcut finansal plana uygulayarak izole bir hipotetik plan inşa eden saf hesaplayıcı |
 | simülasyon motoru | `SimulationCalculator` | Canlı baz plan ile varsayımsal senaryo koşullarını 12 dönem boyunca koşturup karşılaştıran, likidite farklarını, ek faiz maliyeti ve tasarruflarını hesaplayan ana motor |
+| simülasyon taslağı | `SimulationDraft` | Kullanıcının simülatörde kurduğu ve adlandırarak sakladığı varsayımsal koşullar paketi; canlı plana girmez |
+| simülasyon taslak koşulu | `SimulationDraftCondition` | Simülasyon taslağı içerisindeki tekil senaryo isteğini ve açık/kapalı (aktif/pasif) tercihini tutan kayıt |
+| simülasyon taslağı deposu | `ISimulationDraftRepository` | Simülasyon taslaklarının ve bağlı koşullarının kalıcı olarak saklanmasını, listelenmesini ve silinmesini sağlayan veri erişim portu |
 
 ## Kredi
 

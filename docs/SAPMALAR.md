@@ -226,4 +226,15 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A4`, `A5`, `I2` |
 | **Durum** | uygulandı |
 
+### S25 — Simülasyon taslağı portu ile plan uygulama batch'i ayrıştırıldı
+
+| | |
+|---|---|
+| **Eski** | `ISimulationRepository` içinde hem taslak yönetimi (`GetSimulationDraftsAsync`, `UpsertSimulationDraftAsync`, `DeleteSimulationDraftAsync`) hem de plan uygulama batch'i (`ApplySimulationBatchAsync(SimulationPersistenceBatch)`) yer alıyordu. `SimulationPersistenceBatch` modeli ise eski şemanın yasaklı terimlerini (`SalaryScheduleEntry`, `PaymentAssignmentStrategies`, `OneTimeIncome`) barındırıyordu. |
+| **Neden yanlış** | İki tamamen farklı sorumluluğun tek arayüzde birleşmesi Kural M5'i (dar portlar) ihlal eder. Taslaklar `simulation_drafts` ve `simulation_draft_conditions` tablolarında izole saklanan varsayımsal deneme paketleridir; oysa simülasyonu plana uygulamak A2'de taşınan temel enstrüman depolarının (`ILoanRepository`, `ICreditCardRepository`, `IRecurringIncomeRepository` vb.) ve `A19` iş akışının sorumluluğudur. |
+| **Yeni** | Port yalnızca taslak yönetimine odaklanır ve sorumluluğunu açıkça belirtecek şekilde `ISimulationDraftRepository` olarak adlandırılır. `ApplySimulationBatchAsync` porttan elenir (Taşımama hakkı). Plan uygulama mekanizması `A19` adımında temiz port kompozisyonuyla kurgulanacaktır. |
+| **Etkiler** | `A6`, `A19`, `I2` |
+| **Durum** | uygulandı |
+
+
 

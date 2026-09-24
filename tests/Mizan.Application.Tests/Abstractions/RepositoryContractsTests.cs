@@ -17,7 +17,8 @@ public sealed class RepositoryContractsTests
         typeof(IProfileRepository),
         typeof(IPeriodHistoryRepository),
         typeof(IPeriodObservationRepository),
-        typeof(IPaymentReminderRepository)
+        typeof(IPaymentReminderRepository),
+        typeof(ISimulationDraftRepository)
     ];
 
     [Fact]
