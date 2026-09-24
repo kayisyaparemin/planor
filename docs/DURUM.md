@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A4** — dönem tarihçesi portu: `FinancialHistoryData`, `IPeriodHistoryRepository`, `IPeriodObservationRepository` |
-| Sıradaki adım | **A5** — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload` |
-| Test sayısı | 615 |
+| Son tamamlanan adım | **A5** — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload` |
+| Sıradaki adım | **A6** — simülasyon taslağı portu |
+| Test sayısı | 658 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A5 — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload`
+
+Ödeme günü hatırlatma sistemi sözlüğü, modelleri, saf zamanlama motoru ve Android bildirim veri taşıyıcısı taşındı. Kural K3 ve M3 gereğince eski `PaymentReminderModels.cs` monolitindeki 8 public tip müstakil dosyalara çıkarıldı ve 5'ten fazla özellik taşıyan modeller (`PaymentReminder`, `PaymentReminderBoard`, `PaymentReminderResponse`) init-only özelliklerle refactor edildi. 294 satırlık monolitik `PaymentReminderPlanner` saf zamanlama motoru (`PaymentReminderPlanner`) ve Türkçe bildirim/kart metin formatlayıcısı (`PaymentReminderFormatter`) olarak iki odaklı sınıfa bölündü. `S24` kararı doğrultusunda eski dağınık repo yapıları birleştirilerek bağımsız dar port `IPaymentReminderRepository` eklendi; `RepositoryContractsTests` ve `InMemoryPaymentReminderRepository` test çifti oluşturuldu. Aynı güne düşen ödemelerin konsolidasyonu, 35 günlük ufuk ve geçmiş saat filtresi, gece sessizliği (22:00–08:00 arası sabah 09:00'a öteleme) ve dayanıklı anahtarlama (`DueKey`) `I22` invariant'ı olarak sabitlendi. 43 yeni test eklendi (toplam 658 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A4 — dönem tarihçesi portu: `FinancialHistoryData`, `IPeriodHistoryRepository`, `IPeriodObservationRepository`
 
