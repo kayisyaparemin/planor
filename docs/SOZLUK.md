@@ -48,6 +48,10 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | plan gerçekleşme karşılaştırması | `PlanActualComparison` | Dondurulan/revize dönem planı ile fiilî gerçekleşme arasındaki bakiye farkını, kategorik satırları ve Türkçe özeti sunan sonuç sözleşmesi |
 | plan gerçekleşme karşılaştırma satırı | `PlanActualComparisonLine` | Plan ile gerçekleşme arasındaki tek bir kategoriye ait bütçe ve fiilî tutar karşılaştırma kalemi |
 | plan gerçekleşme kıyaslayıcısı | `PlanActualComparisonCalculator` | Dönem başında dondurulan plan ile dönem sonundaki fiilî gerçekleşmeyi 12 kategoride kuruşu kuruşuna karşılaştırıp özet üreten saf hesaplayıcı |
+| dönemin nihai planı | `HistoryPeriod.Revision` | Kapanmış bir dönemde, kapanışa açılış günü dahil o güne kadar oluşturulan en son plan revizyonu; revizyon yoksa orijinal plan. Karne buna göre çıkar (I27) |
+| tarihçe sorgu servisi | `HistoryQueryService` | Kapanmış dönemleri orijinal plan, nihai revizyon, gerçekleşme ve karneyle eşleştirip hiçbir şey yazmadan sunan salt okuma servisi |
+| tarihçe dönemi | `HistoryPeriod` | Kapanmış tek bir dönemin orijinal planı, nihai revizyonu, gerçekleşmesi, kapanıştan çıkan finansal durumu ve karnesi |
+| tarihçe özeti | `HistorySummary` | Son kapanan dönemlerin planlanan ve fiilî net değişim (kapanış − açılış) toplamları ile farkı; bakiye toplamı değildir (S29) |
 | yükümlülük normalizasyonu | `ObligationValidation` | Kredi kartı ve vadeli borç enstrümanlarının saat sağlayıcısıyla eksik tarihlerini tamamlayan ve kart kurallarını doğrulayan saf yardımcı |
 
 ## Para ve yuvarlama

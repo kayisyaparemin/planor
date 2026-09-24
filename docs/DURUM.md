@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A13b** — erken kapama önerisi: `LoanPayoffAdvisor` (A13 tamamlandı) |
-| Sıradaki adım | **A14** — tarihçe sorgusu: `HistoryQueryService` |
-| Test sayısı | 778 |
+| Son tamamlanan adım | **A14** — tarihçe sorgusu: `HistoryQueryService` |
+| Sıradaki adım | **A15** — mevcut dönem motoru: `PeriodProgressService` |
+| Test sayısı | 797 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A14 — tarihçe sorgusu: `HistoryQueryService`
+
+Geçmiş ekranının veri kaynağı olan salt okuma servisi `HistoryQueryService` ile modelleri `HistoryPeriod` (6 alan olduğu için init-only) ve `HistorySummary` taşındı. Servis, her gerçekleşmeyi orijinal planıyla, dönemin nihai revizyonuyla, kapanıştan çıkan finansal durumla ve A8'deki karneyle eşleştiriyor; `S26` gereği `IMizanStore` yerine yalnız `IPeriodHistoryRepository` kullanıyor. Nihai plan kuralı olduğu gibi korundu: kapanışa açılış günü (UTC takvim günü) dahil o güne kadar oluşan en son revizyon; aynı anda oluşanlarda büyük numara kazanır (`I27`). `S29` ile son dönemler özeti dönem sonu bakiyelerini (stok) toplamak yerine dönem içi net değişimleri topluyor; fark eskisiyle kuruşu kuruşuna aynı. Ayrıca tek dönem sorgusu bulunamayan id için `null` dönüyor, özet adedi sıfır/negatifse `ArgumentOutOfRangeException` fırlatıyor. **A16 dikkat:** nihai revizyon kuralı eskide `PeriodReviewService` içinde iki kez daha kopyalanmıştı; A16'da kopyalanmayacak, `HistoryQueryService.SelectFinalPlanRevisions` bağımlılıksız ortak bir yardımcıya çıkarılıp iki servis de onu kullanacak (T6, M8). 19 yeni test eklendi (toplam 797 test yeşil, Application kapsamı %97,94, Domain %97,59, mimari kalkanlar temiz).
 
 ### A13b — erken kapama önerisi: `LoanPayoffAdvisor`
 

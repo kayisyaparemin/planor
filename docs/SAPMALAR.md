@@ -265,3 +265,13 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Yeni** | `DescribeIssue` ve `IssueMessage` taşınmaz (Taşımama hakkı); `LoanPayoffOverview` yalnız `Analysis.Issue` enum'unu taşır, metin eşlemesi `V6`'da sunum katmanında yapılır. `PrepareForSave` Türkçe `InvalidOperationException` mesajlarını korur (Domain `LoanPrepaymentValidator` emsali) ama `CultureInfo` kullanmaz: tarih kültürden bağımsız sabit `dd.MM.yyyy` deseniyle yazılır, para tutarı mesaja gömülmez. |
 | **Etkiler** | `A13`, `A20`, `V6` |
 | **Durum** | uygulandı |
+
+### S29 — Son dönemler özeti bakiye değil, net değişim toplar
+
+| | |
+|---|---|
+| **Eski** | `HistoryQueryService.GetRecentSummaryAsync` son N dönemin `PlannedEndingBalance` ve `ActualEndingSavings` değerlerini topluyordu; `HistoryViewModel` bunu "Dönem sonu • son 3 dönem" başlığıyla "Planlanan / Gerçekleşen / Fark" olarak gösteriyordu. |
+| **Neden yanlış** | Dönem sonu bakiyesi bir **stoktur**; dönemler arasında toplanamaz. Üç dönemi 50.000 TL planlanıp 49.000 TL kapanan kullanıcı "Planlanan 150.000 / Gerçekleşen 147.000" görüyordu. Bu sayılar kullanıcının hesabında hiçbir zaman olmadı. Yalnız fark toplamı anlamlıydı, çünkü her dönemin kendi sapmasıdır. |
+| **Yeni** | `HistorySummary(PlannedNetChange, ActualNetChange, Difference, PeriodCount)`. Planlanan net değişim `Σ (nihai planın kapanış bakiyesi − plan açılış bakiyesi)`, fiilî net değişim `Σ (teyitli kapanış − plan açılış bakiyesi)`. Açılış iki tarafta aynı olduğu için (`I21`) fark eskisiyle kuruşu kuruşuna aynı çıkar. Ekran "son 3 dönemde X TL artış planladın, Y TL gerçekleşti" diyebilir. |
+| **Etkiler** | `A14`, `V12` |
+| **Durum** | uygulandı |
