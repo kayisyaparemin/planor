@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **S31 düzeltmesi** — dondurulan plana gelir satırları: `PeriodPlanIncomeLine`, `PeriodPlanLineBuilder` |
-| Sıradaki adım | **A15c** — mevcut dönemin gidişatı: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32)* |
-| Test sayısı | 824 |
+| Son tamamlanan adım | **A15c-1** — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification` |
+| Sıradaki adım | **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32, S34)* |
+| Test sayısı | 845 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A15c-1 — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification`
+
+A15c ~440 satır ve iki iş yeteneği olduğu için ikiye bölündü; bu yarı eski `PeriodProgressService.Build`'in 214 satırlık gövdesinden "hangi ödeme yapıldı, hangisi kaldı" kararını bağımlılıksız bir yardımcıya taşıdı. Öncelik: gözlem defterindeki açık işaret → hatırlatıcı cevabı ("Ertele" vadesi geçse de kalandır) → vade. Yapılan ödemeler gözlenen bakiyeye yansıyıp yansımadığına göre ikiye ayrılıyor; A15c-2'nin gidişatı yaşam harcamasını bundan geri çözecek. **S33 (hata düzeltmesi):** eskide açık işaret satır kimliğiyle eşleniyordu ve plan revizyonu satırlara yeni kimlik verdiği için sessizce yetim kalıyordu; artık hatırlatıcı cevabı gibi kaynak + vadeyle eşleniyor (`I30`). `OpenPeriodLedger.CurrentPaymentLines` "planım şu an ne" (son revizyon, yoksa dondurulan plan) sorusunu tek yerde cevaplıyor. Aşama 3 kararları da bu adımda kaydedildi: S31'e "gözlem günü yatan gelir bakiyededir", yeni `S34` (A15c-2'de uygulanacak). Aynı anahtara iki hatırlatıcı cevabı gelirse liste sırası değil en son verilen geçerli. 21 yeni test eklendi (toplam 845 test yeşil, Application kapsamı %98,11, Domain %97,6, mimari kalkanlar temiz).
 
 ### Düzeltme — S31: dondurulan plana gelir satırları
 

@@ -283,7 +283,7 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Eski** | `PeriodProgressService.CurrentCardPayments`, kartın bu dönemdeki güncel ödemesini `PaymentDueDate > PeriodStart && PaymentDueDate <= PeriodEnd` penceresiyle, yani `(başlangıç, bitiş]` aralığıyla topluyordu. |
 | **Neden yanlış** | Eski projenin sol-açık dönem modelinden kalma (bkz. `S27`). v2'de dönem `[Start, End)` ve dondurulan plan satırları `period.Contains` ile seçiliyor. Eski pencere korunursa vadesi dönemin ilk gününe düşen kart ödemesi gidişattan **düşer** (güncel tutar bulunamaz), vadesi dönem sonu gününe (yani sonraki dönemin ilk gününe) düşen ödeme ise bu döneme **sızar**. Plan satırı ile güncel tutar farklı dönemlere bakmış olur. |
 | **Yeni** | Kartın güncel ödemesi, dondurulan planla aynı kuralla seçilir: `period.Contains(statement.PaymentDueDate)`. |
-| **Etkiler** | `A15c` |
+| **Etkiler** | `A15c-2` |
 | **Durum** | açık |
 
 ### S31 — Gidişat, gelirin dönem içindeki tarihini bilmeli
@@ -294,9 +294,10 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Neden yanlış** | Eskide doğruydu, çünkü dönem gelir gününde başlıyordu. `S3` ile gelir kendi ödeme gününe kavuştu ve `S4` ile dönem çapası gelirden ayrıldı; artık gelir dönemin ortasında yatabiliyor. Çapa ayın 1'i, gelir 15'i olan kullanıcı 12'sinde bakiyesini girerse, henüz yatmamış 40.000 TL'lik gelir "harcanmış" sayılır: gerçekte 7.000 TL harcamış kullanıcıya "47.000 TL harcadın, havuzu 32.000 TL aştın" denir. Çapa günü ile gelir günü farklı olan her kullanıcıda, gelirden önceki her gözlem yanlış çıkar. |
 | **Yeni** | Dondurulan plan gelir kalemlerini de **satır satır** taşır (projeksiyon onları `IncomeItems` olarak zaten tarihleriyle üretiyor). Gidişat gelirleri de ödeme satırları gibi ayırır: gözlem gününden önce yatan gelir bakiyenin içindedir; sonra yatacak olan dönem sonuna eklenir. Karar: `A15c`'den önce dondurulan plana gelir satırlarını ekleyen ayrı bir düzeltme yapılır; `A15c` bir kez ve bu modelle yazılır. Canlı plandan gelir takvimi hesaplamak reddedildi: dondurulmuş planın dışına çıkar ve bağımlılığı büyütür. |
 | **Uygulama (plan yarısı)** | `PeriodPlanSnapshot` ve `PeriodPlanRevision` yeni `IncomeLines` koleksiyonunu (`PeriodPlanIncomeLine`: tür, kaynak gelir kimliği, ad, tarih, tutar) taşır; satırlar projeksiyonun o döneme saydığı gelir kalemlerinin kendisidir, toplamları `PlannedIncome`'a kuruşu kuruşuna eşittir (`I28`). Gelir `PaymentLines`'a yeni bir `PlanPaymentSourceType` olarak **girmez**: `ActualPayment` ve `PeriodObservationPayment` ödeme satırına bağlanıyor, gelir orada olsaydı dönem kapanışında ve gözlemde "ödenmemiş ödeme" gibi görünürdü. Plan revizyonu imzası gelir satırlarını da karşılaştırır; toplam aynı kalıp yalnız yatış günü değişse de revizyon doğar. |
-| **Etkiler** | `H1`, `A10`, `A11`, `A15c`, `I1`, `G1` |
-| **İlgili** | `G1` bunu bilmeli: eski veritabanındaki açık dönem planında gelir satırı yoktur. İçe aktarıcı ya açık dönem planını yeniden dondurmalı ya da boş `IncomeLines` gidişatta tanımlı bir davranışa bağlanmalı. Bu, `G1`'in Aşama 3'ünde konuşulacak açık bir sorudur. |
-| **Durum** | açık — plan yarısı uygulandı (S31 düzeltmesi); gidişat yarısı `A15c`'de |
+| **Karar (gözlem günü)** | `A15c` Aşama 3'te verildi: gözlem **günü** yatan gelir bakiyenin içinde sayılır (`PlannedDate <= ObservedOn`). Kullanıcı bakiyesine en çok gelir günü bakıyor ve gelir genelde gece ya da sabah yatıyor. Varsayım yanlış çıkarsa hata kötümser tarafta kalır: o gün harcama fazla, dönem sonu düşük görünür. Ödemelerle aynı kural (`<`) reddedildi: gelir yatmış hâlde bakiye giren kullanıcıda gelir iki kez sayılır, dönem sonu iyimser şişerdi. Ödeme satırlarının eski kuralı (gözlem günü düşen ödeme henüz yansımamış sayılır) değişmez. |
+| **Etkiler** | `H1`, `A10`, `A11`, `A15c-2`, `I1`, `G1` |
+| **İlgili** | `G1` bunu bilmeli: eski veritabanındaki açık dönem planında gelir satırı yoktur. İçe aktarıcı ya açık dönem planını yeniden dondurmalı ya da boş `IncomeLines` gidişatta tanımlı bir davranışa bağlanmalı. Bu, `G1`'in Aşama 3'ünde konuşulacak açık bir sorudur. `A15c` satırsız plan için geri dönüş kuralı **eklemez**: satırı olmayan planda gidişat geliri görmez. |
+| **Durum** | açık — plan yarısı uygulandı (S31 düzeltmesi); gidişat yarısı `A15c-2`'de |
 
 ### S32 — Mevcut dönem modelinden kopya alan ve ekran bayrakları ayıklandı
 
@@ -305,5 +306,25 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Eski** | `PeriodProgress` 24 parametreli bir record'du. `PlanFrozenOn` her zaman `PeriodStart` ile dolduruluyordu. `HasObservation`, `HasRemainingLines`, `WasRevised`, `ElapsedRatio` ve `HasDeficitFinancing` yalnız ana sayfanın hangi bölümü göstereceğine karar veriyordu. Ayrıca `ProjectedEndingSavings` (`S13`) ve `RemainingLivingBudget` (`S16`) yasaklı terimleri taşıyordu. |
 | **Neden yanlış** | `PlanFrozenOn` ayrı bir bilgi gibi görünen bir kopya: plan her zaman dönem başında dondurulduğu için başka bir değer alamıyor, ama okuyan kişi iki tarihin farklı olabileceğini sanıyor. Görünürlük bayrakları ise bir ekran kararı; eskide ViewModel test edilemediği için Application modeline sığınmışlardı. `Mizan.Presentation` test edilebildiği için bu gerekçe kalmadı. |
 | **Yeni** | `PlanFrozenOn` taşınmaz; ekran `PeriodStart`'ı kullanır. Görünürlük bayrakları `V3` ViewModel'inde türetilir. İş kuralı taşıyan türetmeler (`LivingOverspend`, `EndingDeviation`, `DeficitInterestDeviation`, `IsSnoozed`) modelde kalır. Adlar: `ProjectedEndingBalance`, `RemainingVariableExpenseAllowance`. |
-| **Etkiler** | `A15c`, `V3` |
+| **Etkiler** | `A15c-2`, `V3` |
+| **Durum** | açık |
+
+### S33 — Gözlem defterindeki açık işaret plan revizyonundan sonra da geçerli kalır
+
+| | |
+|---|---|
+| **Eski** | `PeriodProgressService.Build`, gözlem defterindeki açık işareti (`PeriodObservationPayment.PeriodPlanPaymentLineId`) güncel plan satırlarıyla **satır kimliği** üzerinden eşliyordu. Hatırlatıcı cevapları ise aynı metotta kaynak + vade anahtarıyla eşleniyordu; yorum sebebini söylüyordu: *"revizyon satır kimliklerini yenilediği için kimlikle eşlenmez"*. |
+| **Neden yanlış** | Aynı sebep açık işarete de geçerli, ama işaret o dersi almamış. v2'de de revizyon her satıra yeni kimlik veriyor (`HistoricalPlanRevisionService`). Kullanıcı kirayı "ödendi" işaretler, sonra kart ödeme tercihini değiştirir ve bir revizyon doğar: işaret hiçbir güncel satırla eşleşmez, kira yeniden "kalan"a düşer ve dönem sonundan ikinci kez çıkarılır. Hata sessizdir; kullanıcı yalnız dönem sonunun kötüleştiğini görür. |
+| **Yeni** | İşaret, konduğu satırın kaynak + vadesine çevrilir (hatırlatıcının `PaymentReminderPlanner.DueKey`'i) ve güncel satırlarla bu anahtarla eşlenir. Aynı ödemeye birden fazla plan sürümünde işaret konmuşsa en yeni sürümdeki geçerlidir. Domain modeli değişmez. Revizyon ödemenin vadesini de değiştirdiyse eşleşme bulunamaz ve işaret yok sayılır — hatırlatıcı cevaplarıyla aynı sınır. |
+| **Etkiler** | `A15c-1`, `A16` *(kapanış taslağı aynı işareti okuyacak; aynı eşleşmeyi kullanmalı)* |
+| **Durum** | uygulandı |
+
+### S34 — Mevcut dönem modelinden iki alan daha ayıklandı
+
+| | |
+|---|---|
+| **Eski** | `PeriodProgress.ObservedBalance`, `PeriodProgress.Observation.ObservedBalance` ile aynı değerle dolduruluyordu. `PeriodCardComparison.Difference` (güncel − planlanan) tanımlıydı. |
+| **Neden yanlış** | `ObservedBalance`, `S32`'deki `PlanFrozenOn` ile aynı tuzak: ayrı bir bilgi gibi görünen bir kopya; eski ana sayfa değeri zaten `Observation` üzerinden okuyordu. `Difference` hiçbir ekranda kullanılmıyordu. |
+| **Yeni** | İkisi de taşınmaz. Gözlenen bakiye `Observation.ObservedBalance`'tan okunur; kart farkı ekran isterse `V3`'te türetilir. |
+| **Etkiler** | `A15c-2`, `V3` |
 | **Durum** | açık |

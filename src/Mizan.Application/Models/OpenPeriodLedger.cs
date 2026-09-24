@@ -17,4 +17,12 @@ public sealed record OpenPeriodLedger(
     PeriodPlanSnapshot Plan,
     IReadOnlyList<PeriodPlanRevision> Revisions,
     PeriodObservation? Observation,
-    IReadOnlyList<PaymentReminderResponse> ReminderAnswers);
+    IReadOnlyList<PaymentReminderResponse> ReminderAnswers)
+{
+    /// <summary>
+    /// Dönem içinde "planım şu an ne" sorusunun ödeme satırları: son revizyonunkiler, revizyon
+    /// yoksa dondurulan planınkiler (I24). Dondurulan plan tarihçede değişmeden kalır.
+    /// </summary>
+    public IReadOnlyList<PeriodPlanPaymentLine> CurrentPaymentLines =>
+        Revisions.Count > 0 ? Revisions[^1].PaymentLines : Plan.PaymentLines;
+}

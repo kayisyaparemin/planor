@@ -45,6 +45,9 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | plansız akış türü | `ActualFlowType` | Plansız nakit hareketinin gelir mi ödeme mi olduğunu belirten yön |
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
 | gözlem ödemesi | `PeriodObservationPayment` | Dondurulan plan ödeme satırının dönem içi gözlem defterindeki ara gerçekleşme kaydı |
+| güncel ödeme satırları | `OpenPeriodLedger.CurrentPaymentLines` | Dönem içinde "planım şu an ne" sorusunun satırları: son revizyonunkiler, revizyon yoksa dondurulan planınkiler (I24) |
+| ödeme satırı durumu | `PeriodPaymentLineClassification` | Açık dönemin güncel ödeme satırlarının bir güne göre durumu: gözlenen bakiyeye yansımış ödemeler, gözlemden sonra yapılanlar, kalan ve ertelenen satırlar |
+| ödeme satırı sınıflandırıcısı | `PeriodPaymentLineClassifier` | Bir ödemenin yapılıp yapılmadığını açık işaret → hatırlatıcı cevabı → vade önceliğiyle bulan, işareti ve cevabı kaynak + vadeyle eşleyen bağımlılıksız yardımcı (I30, S33) |
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
 | dönem kapanış taahhüdü | `PeriodSettlementCommit` | Kapanan dönemin gerçekleşmesini, güncellenen araçları ve yeni dönemin planını atomik olarak bağlayan taahhüt sözleşmesi |
 | dönem kapanış doğrulayıcısı | `PeriodSettlementCommitValidator` | Dönem kapanış taahhüdünün referans, takvim ve devir bakiyesi sürekliliğini denetleyen saf doğrulayıcı |
