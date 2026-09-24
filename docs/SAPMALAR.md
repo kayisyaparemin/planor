@@ -275,3 +275,33 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Yeni** | `HistorySummary(PlannedNetChange, ActualNetChange, Difference, PeriodCount)`. Planlanan net değişim `Σ (nihai planın kapanış bakiyesi − plan açılış bakiyesi)`, fiilî net değişim `Σ (teyitli kapanış − plan açılış bakiyesi)`. Açılış iki tarafta aynı olduğu için (`I21`) fark eskisiyle kuruşu kuruşuna aynı çıkar. Ekran "son 3 dönemde X TL artış planladın, Y TL gerçekleşti" diyebilir. |
 | **Etkiler** | `A14`, `V12` |
 | **Durum** | uygulandı |
+
+### S30 — Mevcut dönemde kartın güncel ödemesi yarı açık dönem penceresiyle seçilir
+
+| | |
+|---|---|
+| **Eski** | `PeriodProgressService.CurrentCardPayments`, kartın bu dönemdeki güncel ödemesini `PaymentDueDate > PeriodStart && PaymentDueDate <= PeriodEnd` penceresiyle, yani `(başlangıç, bitiş]` aralığıyla topluyordu. |
+| **Neden yanlış** | Eski projenin sol-açık dönem modelinden kalma (bkz. `S27`). v2'de dönem `[Start, End)` ve dondurulan plan satırları `period.Contains` ile seçiliyor. Eski pencere korunursa vadesi dönemin ilk gününe düşen kart ödemesi gidişattan **düşer** (güncel tutar bulunamaz), vadesi dönem sonu gününe (yani sonraki dönemin ilk gününe) düşen ödeme ise bu döneme **sızar**. Plan satırı ile güncel tutar farklı dönemlere bakmış olur. |
+| **Yeni** | Kartın güncel ödemesi, dondurulan planla aynı kuralla seçilir: `period.Contains(statement.PaymentDueDate)`. |
+| **Etkiler** | `A15c` |
+| **Durum** | açık |
+
+### S31 — Gidişat, gelirin dönem içindeki tarihini bilmeli
+
+| | |
+|---|---|
+| **Eski** | `PeriodProgressService.Build` dönem başı pozisyonunu `OpeningBalance + PlannedIncome` olarak alıyordu: gözlenen bakiyeden yaşam harcamasını `açılış + gelir − yapılan ödemeler − bakiye` diye geri çözüyordu. Dondurulan plan (`PeriodPlanSnapshot`) geliri yalnız **toplam** olarak saklıyor; gelirin ne zaman yattığı plan içinde yok. |
+| **Neden yanlış** | Eskide doğruydu, çünkü dönem gelir gününde başlıyordu. `S3` ile gelir kendi ödeme gününe kavuştu ve `S4` ile dönem çapası gelirden ayrıldı; artık gelir dönemin ortasında yatabiliyor. Çapa ayın 1'i, gelir 15'i olan kullanıcı 12'sinde bakiyesini girerse, henüz yatmamış 40.000 TL'lik gelir "harcanmış" sayılır: gerçekte 7.000 TL harcamış kullanıcıya "47.000 TL harcadın, havuzu 32.000 TL aştın" denir. Çapa günü ile gelir günü farklı olan her kullanıcıda, gelirden önceki her gözlem yanlış çıkar. |
+| **Yeni** | Dondurulan plan gelir kalemlerini de **satır satır** taşır (projeksiyon onları `IncomeItems` olarak zaten tarihleriyle üretiyor). Gidişat gelirleri de ödeme satırları gibi ayırır: gözlem gününden önce yatan gelir bakiyenin içindedir; sonra yatacak olan dönem sonuna eklenir. Karar: `A15c`'den önce dondurulan plana gelir satırlarını ekleyen ayrı bir düzeltme yapılır; `A15c` bir kez ve bu modelle yazılır. Canlı plandan gelir takvimi hesaplamak reddedildi: dondurulmuş planın dışına çıkar ve bağımlılığı büyütür. |
+| **Etkiler** | `H1`, `A10`, `A11`, `A15c`, `I1` |
+| **Durum** | açık |
+
+### S32 — Mevcut dönem modelinden kopya alan ve ekran bayrakları ayıklandı
+
+| | |
+|---|---|
+| **Eski** | `PeriodProgress` 24 parametreli bir record'du. `PlanFrozenOn` her zaman `PeriodStart` ile dolduruluyordu. `HasObservation`, `HasRemainingLines`, `WasRevised`, `ElapsedRatio` ve `HasDeficitFinancing` yalnız ana sayfanın hangi bölümü göstereceğine karar veriyordu. Ayrıca `ProjectedEndingSavings` (`S13`) ve `RemainingLivingBudget` (`S16`) yasaklı terimleri taşıyordu. |
+| **Neden yanlış** | `PlanFrozenOn` ayrı bir bilgi gibi görünen bir kopya: plan her zaman dönem başında dondurulduğu için başka bir değer alamıyor, ama okuyan kişi iki tarihin farklı olabileceğini sanıyor. Görünürlük bayrakları ise bir ekran kararı; eskide ViewModel test edilemediği için Application modeline sığınmışlardı. `Mizan.Presentation` test edilebildiği için bu gerekçe kalmadı. |
+| **Yeni** | `PlanFrozenOn` taşınmaz; ekran `PeriodStart`'ı kullanır. Görünürlük bayrakları `V3` ViewModel'inde türetilir. İş kuralı taşıyan türetmeler (`LivingOverspend`, `EndingDeviation`, `DeficitInterestDeviation`, `IsSnoozed`) modelde kalır. Adlar: `ProjectedEndingBalance`, `RemainingVariableExpenseAllowance`. |
+| **Etkiler** | `A15c`, `V3` |
+| **Durum** | açık |

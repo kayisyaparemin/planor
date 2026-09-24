@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A14** — tarihçe sorgusu: `HistoryQueryService` |
-| Sıradaki adım | **A15** — mevcut dönem motoru: `PeriodProgressService` |
-| Test sayısı | 797 |
+| Son tamamlanan adım | **A15a** — KMH kuralı tek yerde: `DeficitFinancingRules` |
+| Sıradaki adım | **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` |
+| Test sayısı | 804 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A15a — KMH kuralı tek yerde: `DeficitFinancingRules`
+
+A15 (`PeriodProgressService`) iki katmana dokunduğu, ~500 satır olduğu ve dar portlarla 7 bağımlılığa çıktığı için A15a/A15b/A15c olarak bölündü; `S31` gereği A15c'den önce dondurulan plana gelir satırları ekleyen bir düzeltme girecek. Bu alt adım düğüm T6'nın Domain yarısını çözüyor: eskide gidişat, KMH faizini dondurma motorundan elle kopyalamıştı (*"Motorla birebir aynı kural"*, `PeriodProgressService.cs:252`). v2'de kural `FinancialProjectionCalculator` içinde satır içiydi; artık bağımlılıksız `DeficitFinancingRules.CalculateInterest`'te duruyor ve motor onu çağırıyor. A15c'de gidişat da aynı metodu çağıracak. Davranış değişmedi: `I17` testi motor üzerinden yeşil. A15'in sapmaları bu adımda kaydedildi (`S30` kart penceresi, `S31` gelir zamanlaması, `S32` ayıklanan alanlar). **Açık not (K7):** hatırlatıcı cevabının `AnsweredAt` alanı yerel `DateTime`, gözlem zamanı UTC `DateTimeOffset`; A15c bu karşılaştırmayı olduğu gibi taşıyacak, `AnsweredAt → DateTimeOffset` kural 05 gereği ayrı bir düzeltme. 7 yeni test eklendi (toplam 804 test yeşil, Application kapsamı %97,94, Domain %97,59, mimari kalkanlar temiz).
 
 ### A14 — tarihçe sorgusu: `HistoryQueryService`
 

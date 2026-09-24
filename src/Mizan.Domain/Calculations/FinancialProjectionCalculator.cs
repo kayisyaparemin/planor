@@ -91,9 +91,7 @@ public sealed class FinancialProjectionCalculator(
         var cardStatuses = statuses.Where(x => x.AssignedPeriodDate == period.Start).ToArray();
 
         var endingBeforeDeficit = openingBalance + surplus;
-        var deficitInterest = endingBeforeDeficit < 0m
-            ? MoneyRules.Round(Math.Abs(endingBeforeDeficit) * plan.Settings.DeficitFinancingInterestRate)
-            : 0m;
+        var deficitInterest = DeficitFinancingRules.CalculateInterest(endingBeforeDeficit, plan.Settings.DeficitFinancingInterestRate);
         var ending = endingBeforeDeficit - deficitInterest;
 
         var projection = new CashFlowPeriodProjection
