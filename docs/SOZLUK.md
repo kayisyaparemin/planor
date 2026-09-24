@@ -45,6 +45,10 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | dönem kapanış doğrulayıcısı | `PeriodSettlementCommitValidator` | Dönem kapanış taahhüdünün referans, takvim ve devir bakiyesi sürekliliğini denetleyen saf doğrulayıcı |
 | finansal plan | `FinancialPlan` | Kullanıcının tüm finansal varlık, yükümlülük, gelir ve ayarlarını tek çatı altında toplayan bütüncül sözleşme |
 | plan doğrulayıcı | `FinancialPlanValidator` | Finansal planın ve alt bileşenlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
+| plan gerçekleşme karşılaştırması | `PlanActualComparison` | Dondurulan/revize dönem planı ile fiilî gerçekleşme arasındaki bakiye farkını, kategorik satırları ve Türkçe özeti sunan sonuç sözleşmesi |
+| plan gerçekleşme karşılaştırma satırı | `PlanActualComparisonLine` | Plan ile gerçekleşme arasındaki tek bir kategoriye ait bütçe ve fiilî tutar karşılaştırma kalemi |
+| plan gerçekleşme kıyaslayıcısı | `PlanActualComparisonCalculator` | Dönem başında dondurulan plan ile dönem sonundaki fiilî gerçekleşmeyi 12 kategoride kuruşu kuruşuna karşılaştırıp özet üreten saf hesaplayıcı |
+| yükümlülük normalizasyonu | `ObligationValidation` | Kredi kartı ve vadeli borç enstrümanlarının saat sağlayıcısıyla eksik tarihlerini tamamlayan ve kart kurallarını doğrulayan saf yardımcı |
 
 ## Para ve yuvarlama
 

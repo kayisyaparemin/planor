@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A7** — depo kompozisyonu. Eski `IMizanStore` taşınmaz, dar portlar kullanılır (düğüm T10, S26) |
-| Sıradaki adım | **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation` |
-| Test sayısı | 670 |
+| Son tamamlanan adım | **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation` |
+| Sıradaki adım | **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver` |
+| Test sayısı | 688 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A8 — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation`
+
+Kapanan nakit akış döneminin dondurulan/revize plan taahhüdü ile fiilî gerçekleşmesi arasındaki bütçe sapmalarını 12 ayrı kategoride kuruşu kuruşuna karşılaştırıp Türkçe açıklama özetini üreten saf hesaplayıcı `PlanActualComparisonCalculator` ve borç enstrümanlarının normalizasyonunu sağlayan `ObligationValidation` taşındı. Kural K3 gereğince `PlanActualComparison` ve `PlanActualComparisonLine` müstakil modellere çıkarıldı; S13 uyarınca yasaklı `ActualEndingSavings` özelliği `ActualEndingBalance` olarak düzeltildi. `PlanActualComparisonCalculator` içinde gereksiz ara nesne yerine doğrudan plan/revizyon kıyası yapılarak M3 ve K3 metot satır sınırlarına tam uyuldu; işletim sistemi dilinden bağımsız olarak Türkçe para formatı (`tr-TR`) sabitlendi. S23/S1/S2/S18 uyarınca eski ölü `ValidateOnboardingDraft` elendi; kart ve vadeli plan normalizasyonları ile Domain `CreditCardValidator` delegasyonu `ObligationValidation` altında toplandı. 18 yeni test eklendi (toplam 688 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A7 — depo kompozisyonu. Eski `IMizanStore` taşınmaz, dar portlar kullanılır (düğüm T10, S26)
 
