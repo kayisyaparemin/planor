@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A1** — saat ve profil kimliği: `IClock`, `UserProfile` |
-| Sıradaki adım | **A2** — depo portları: `ILoanRepository`, `ICreditCardRepository`, … |
-| Test sayısı | 575 |
+| Son tamamlanan adım | **A2** — depo portları: `ILoanRepository`, `ICreditCardRepository`, … |
+| Sıradaki adım | **A3** — profil servisi: `IProfileRepository`, `ProfileService` |
+| Test sayısı | 585 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A2 — depo portları: `ILoanRepository`, `ICreditCardRepository`, …
+
+Temel finansal enstrümanların ve kullanıcı ayarlarının veri deposu erişim kapıları olan dar portlar taşındı. Kural M5 ve Düğüm T10 gereğince 40 metotlu tanrı arayüz `IMizanStore` bütünüyle elendi; her varlık en fazla 6 metottan oluşan kendi odaklı arayüzüne kavuşturuldu (`ILoanRepository`, `ICreditCardRepository`, `ITemporaryPaymentPlanRepository`, `IPlannedLargeExpenseRepository`, `IRecurringIncomeRepository`, `IAdHocIncomeRepository`, `IUserSettingsRepository`). S5 ve S11 uyarınca ayrıcalıklı maaş yapısı elenerek çoğul `IRecurringIncomeRepository` ve tek seferlik `IAdHocIncomeRepository` olarak genelleştirildi; S18 doğal dönemsellik uyarınca yapay tahsis CRUD metotları ayarlardan temizlendi. `ILoanRepository` erken ödeme kaydı için `UpsertLoanPrepaymentAsync` metoduyla tamamlandı; `IUserSettingsRepository` M5 uyarınca yalnız `UserSettings` modeline odaklandı. Port sözleşme kuralları (`RepositoryContractsTests`) ve Application katmanı testlerinde kullanılacak bellek içi test çiftleri (`InMemory*Repository`) oluşturuldu. 10 yeni test eklendi (toplam 585 test yeşil, Application kapsamı %80, Domain %94.29, mimari kalkanlar temiz).
 
 ### A1 — saat ve profil kimliği: `IClock`, `UserProfile`
 
