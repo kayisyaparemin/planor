@@ -136,6 +136,10 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kredi kapatma servisi | `LoanPayoffService` | Kredinin bugünkü kapatma bedelini ve planlı erken ödeme tutarlarını çıkaran, krediyi kaydetmeden önce banka kapatma tutarının otoritesiyle doğrulayan uygulama servisi |
 | kredi kapatma görünümü | `LoanPayoffOverview` | Bir kredinin analizini ve bugün kapatılırsa ödenecek bedelin dökümünü birlikte taşıyan model; engel metni taşımaz (S28) |
 | planlı erken ödeme görünümü | `PlannedLoanPrepayment` | Planlanmış bir ara ödeme veya erken kapamanın o gün ödenecek, her seferinde yeniden hesaplanan tutarı |
+| erken kapama danışmanı | `LoanPayoffAdvisor` | Ufuktaki her taksit gününü deneyip projeksiyonu kapamalı/kapamasız koşturarak krediyi hangi gün kapatmanın güvenli ve kazançlı olduğunu bulan uygulama servisi |
+| erken kapama önerisi | `LoanPayoffAdvice` | Bir kredi için önerilen (en erken) ve en kârlı kapatma günü, kapatma bedeli, faiz tasarrufu ve net kazanç |
+| erken kapama öneri durumu | `LoanPayoffAdviceStatus` | Önerinin sonucu: önerilir, güvenli ay yok, kazandırmaz, anapara gerekli, zaten kapanıyor |
+| net kazanç | `NetGain` | Kapatmanın 12. dönem sonu bakiye farkı ile ufuk sonrasında ödenmeyecek taksitlerin toplamı; kapatma parasının açık faizi maliyeti içindedir |
 | banka kapatma tutarı | `EarlyClosureAmount` | Bankanın belirli bir gün için bildirdiği erken kapama tutarı; kaydedildiğinde kalan anaparanın otoritesidir (I25) |
 
 ## Kredi kartı

@@ -84,9 +84,9 @@ Geri kalan her şey bu omurgadan sarkar.
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
 - [x] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
 - [x] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
-- [ ] **A13** — kredi kapatma *(~460 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
+- [x] **A13** — kredi kapatma *(~460 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
   - [x] **A13a** — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService` *(S28 ile ekran metni ve kültür elendi)*
-  - [ ] **A13b** — erken kapama önerisi: `LoanPayoffAdvisor`
+  - [x] **A13b** — erken kapama önerisi: `LoanPayoffAdvisor` *(`SimulationCalculator` yerine yalnız `ScenarioPlanBuilder`)*
 - [ ] **A14** — tarihçe sorgusu: `HistoryQueryService`
 - [ ] **A15** — mevcut dönem motoru: `PeriodProgressService`
       *(düğüm T6: dondurma kuralı elle kopyalanmayacak, ortak yardımcı kullanılacak)*
@@ -163,7 +163,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 10 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 11 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

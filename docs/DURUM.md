@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A13a** — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService` |
-| Sıradaki adım | **A13b** — erken kapama önerisi: `LoanPayoffAdvisor` |
-| Test sayısı | 766 |
+| Son tamamlanan adım | **A13b** — erken kapama önerisi: `LoanPayoffAdvisor` (A13 tamamlandı) |
+| Sıradaki adım | **A14** — tarihçe sorgusu: `HistoryQueryService` |
+| Test sayısı | 778 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A13b — erken kapama önerisi: `LoanPayoffAdvisor`
+
+"Bu krediyi hangi gün kapatabilirim?" sorusunu, ufuktaki her taksit gününü deneyip projeksiyonu kapamalı/kapamasız koşturarak cevaplayan `LoanPayoffAdvisor` ile `LoanPayoffAdvice` (9 parametreli positional record yerine init-only) ve `LoanPayoffAdviceStatus` taşındı. Öneri kuralı olduğu gibi korundu: hiçbir dönemde açık baz çizgiden büyümez **ve** net kazanç (12. dönem sonu farkı + ufuk sonrası ödenmeyecek taksitler) pozitifse gün önerilir, öneri en erken böyle gündür; en kârlı gün farklıysa o da verilir (`I26`). Eskide yalnız senaryo planı kurmak için bütün `SimulationCalculator` sürükleniyordu; artık D24'te ayrılan `ScenarioPlanBuilder` enjekte ediliyor. `S11` gereği `firstSalaryDate` → `firstPeriodStartDate`; 138 satırlık `AdviseLoan` K3 için aday bulma, aday değerlendirme ve özetleme adımlarına bölündü. Dikkat: ufuk sonrası açık faizi sayılmadığından derin açıkta sonuç `NotWorthIt` değil `NoSafeMonth` çıkar (kasıtlı sadeleştirme olarak kayda geçti). 12 yeni test eklendi (toplam 778 test yeşil, Application kapsamı %97,89, Domain %97,59, mimari kalkanlar temiz).
 
 ### A13a — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService`
 
