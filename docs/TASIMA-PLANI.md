@@ -102,10 +102,8 @@ Geri kalan her şey bu omurgadan sarkar.
     - [x] **A15c-1** — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification` *(S33)*
     - [x] **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32, S34)*
 - [x] **A16** — dönem mutabakatı: `PeriodSettlementService` *(S12 gereği adlandırıldı; K3/K4 için `PeriodActualBuilder` ayrıldı, T6/M8 için `FindFinalRevisions` ortaklaştırıldı, S35–S39)*
-- [ ] **A17** — **plan okuma ve plan yazma ayrılır**: `IPlanReader` + `IPlanChangeRecorder`
-      — *düğüm T5. Eskide tek `FinancialPlanQueryService` vardı: 11 bağımlılık, 21 çağrı
-      noktası, adı "query" olmasına rağmen plan revizyonu yazıyordu. Bu adım planın en
-      kritik kararıdır; Aşama 2'de ayrıntılı konuşulacak.*
+- [x] **A17** — **plan okuma ve plan yazma ayrılır**: `IPlanReader` + `IPlanChangeRecorder`
+      — *düğüm T5, kural M4; S40, S41, S42 ile 7 dar repo kompozisyonu ve sıfır yan etkili salt okuyucu kuruldu*
 - [ ] **A18** — kart yükümlülüğü: `CreditCardObligationService`
 - [ ] **A19** — simülasyon iş akışı: `ISimulationWorkflowService`
 - [ ] **A20** — yükümlülük yönetimi: `IObligationManagementService`
@@ -177,7 +175,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 16 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 17 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

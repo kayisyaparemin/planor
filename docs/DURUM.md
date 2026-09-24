@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A16** — dönem mutabakatı: `PeriodSettlementService`, `PeriodActualBuilder` |
-| Sıradaki adım | **A17** — plan okuma ve plan yazma ayrılır: `IPlanReader` + `IPlanChangeRecorder` |
-| Test sayısı | 892 |
+| Son tamamlanan adım | **A17** — plan okuma ve plan yazma ayrılır: `IPlanReader` + `IPlanChangeRecorder` |
+| Sıradaki adım | **A18** — kart yükümlülüğü: `CreditCardObligationService` |
+| Test sayısı | 904 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A17 — plan okuma ve plan yazma ayrılır: `IPlanReader` + `IPlanChangeRecorder`
+
+Eski `FinancialPlanQueryService` (11 bağımlılık, 21 çağrı noktası) hem okuma hem yazma (revizyon/snapshot) yaparak CQRS ve M4 kurallarını çiğneyen en büyük mimari düğümdü (T5). Okuma ve yazma kesin olarak iki dar porta ayrıldı (**S40**): salt okuyucu `IPlanReader` (sıfır yan etki, snapshot/revizyon yazmaz) ve değişiklik kaydedici `IPlanChangeRecorder` (`RecordChangeAsync`). Tanrı sorgu cephesindeki 8 delegasyon metodu (`GetDashboardAsync`, `GetFuturePeriodsAsync` vb.) elendi, saf hesaplayıcılara bırakıldı (**S41**). M3 (≤ 5 bağımlılık) sınırına tam uyum için 7 dar repo iki odaklı okuyucuyla kompozisyona bağlandı (**S42**): `FinancialInstrumentReader` (4 repo) ve `IncomePlanReader` (2 repo); `PlanReader` 3 repo + yardımcı + tarihçe ile tam 5 bağımlılıkta kaldı. `I16` gereği açık dönemin kart harcamaları projeksiyondan filtrelendi; `IRecurringIncomeRepository`'ye gelir geçmişi metotları emsal olarak eklendi. 12 yeni test eklendi (toplam 904 test yeşil, Application kapsamı %97,74, Domain %95,18, mimari kalkanlar temiz).
 
 ### A16 — dönem mutabakatı: `PeriodSettlementService`, `PeriodActualBuilder`
 

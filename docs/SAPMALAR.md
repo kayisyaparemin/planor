@@ -379,3 +379,33 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A14`, `A16` |
 | **Durum** | uygulandı |
 
+### S40 — Plan okuma ve plan yazma kesin olarak ayrıldı (Düğüm T5, Kural M4)
+
+| | |
+|---|---|
+| **Eski** | `FinancialPlanQueryService` hem 7 tablodan plan okuyor hem de adı "Query" olmasına rağmen `GetFinancialPlanAsync` ve `CapturePlanningChangeAsync` içinde veritabanına başlangıç snapshot'ı ve açık plan revizyonu yazıyordu (21 çağrı noktası). |
+| **Neden yanlış** | Okuma işlemi yan etki üretemez (CQRS/M4). Bir ekran planı okurken arkada veritabanına revizyon yazılması beklenmeyen yan etkilere yol açar. Ayrıca yazan servislerin okuma servisine bağımlı olması mimariyi düğümler. |
+| **Yeni** | Salt okuma portu `IPlanReader` (sıfır yan etki, snapshot/revizyon yazmaz) ve plan değişikliği kayıt portu `IPlanChangeRecorder` (`RecordChangeAsync`) olarak ayrıştırıldı. CRUD servisleri okuma portunu görmez, sadece `IPlanChangeRecorder`'ı tetikler. |
+| **Etkiler** | `A17`, `A18`, `A19`, `A20`, `A21` |
+| **Durum** | uygulandı |
+
+### S41 — Projeksiyon ve tavsiye sorgu cephesi elendi; PlanReader yalnız plan okur
+
+| | |
+|---|---|
+| **Eski** | `FinancialPlanQueryService` içinde `GetDashboardAsync`, `GetFuturePeriodsAsync`, `GetLoanPayoffAdviceAsync`, `FindTargetPeriodAsync`, `FindTargetReachabilityAsync` gibi 8 adet hesaplayıcı delegasyon metodu vardı. |
+| **Neden yanlış** | Kural M3 ve M5 ihlalidir. Bu metotlar servisi 11 bağımlılıklı bir tanrı cepheye dönüştürüyordu. Oysa `FinancialProjectionService`, `LoanPayoffAdvisor` ve `TargetAmountCalculator` zaten bağımsız ve test edilebilir servislerdir. |
+| **Yeni** | Bu delegasyon metotları `IPlanReader`'a taşınmaz (Taşımama hakkı). `IPlanReader` yalnızca `GetPlanAsync` ve `GetProjectionPlanAsync` sunar; hesaplamayı yapacak servisler bu planı girdi olarak alır. |
+| **Etkiler** | `A17`, `A22`, `V3`, `V8`, `V10` |
+| **Durum** | uygulandı |
+
+### S42 — 7 Depo portu M3 kuralı için kompozisyonla bağlandı
+
+| | |
+|---|---|
+| **Eski** | Tek bir tanrı arayüz (`IMizanStore`) üzerinden 7 tablo okunuyordu. |
+| **Neden yanlış** | v2'de `IMizanStore` kalktı (`S26`). 7 ayrı dar depo portunu doğrudan tek bir sınıfın yapıcısına koymak M3 kuralını (yapıcıda en fazla 5 parametre) ve `TypeSafetyRules.CheckTypeSizeLimits` mimari testini bozar. |
+| **Yeni** | Borç enstrümanları `FinancialInstrumentReader` (4 repo: kredi, kart, vadeli plan, büyük harcama) ve gelir akışları `IncomePlanReader` (2 repo) altında toplandı; `PlanReader` ise 3 repo (ayarlar, gelir okuyucu, enstrüman okuyucu) + tarihçe + sınır çözücü olmak üzere tam 5 parametreyle M3 sınırında tutuldu. |
+| **Etkiler** | `A17` |
+| **Durum** | uygulandı |
+

@@ -30,4 +30,29 @@ public sealed class InMemoryRecurringIncomeRepository : IRecurringIncomeReposito
         _incomes.Remove(id);
         return Task.CompletedTask;
     }
+
+    private readonly Dictionary<Guid, IncomeAmountHistory> _histories = [];
+
+    public Task<IReadOnlyList<IncomeAmountHistory>> GetIncomeAmountHistoriesAsync(CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        IReadOnlyList<IncomeAmountHistory> result = _histories.Values
+            .OrderBy(x => x.EffectiveDate)
+            .ToArray();
+        return Task.FromResult(result);
+    }
+
+    public Task UpsertIncomeAmountHistoryAsync(IncomeAmountHistory history, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        _histories[history.Id] = history;
+        return Task.CompletedTask;
+    }
+
+    public Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        _histories.Remove(id);
+        return Task.CompletedTask;
+    }
 }

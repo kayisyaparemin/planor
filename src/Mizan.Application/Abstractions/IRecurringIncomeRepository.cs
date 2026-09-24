@@ -22,4 +22,19 @@ public interface IRecurringIncomeRepository
     /// Belirtilen düzenli gelir akışını ve geçmişini kalıcı olarak siler.
     /// </summary>
     Task DeleteRecurringIncomeAsync(Guid id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Kayıtlı tüm düzenli gelir tutar ve zam revizyon kayıtlarını listeler.
+    /// </summary>
+    Task<IReadOnlyList<IncomeAmountHistory>> GetIncomeAmountHistoriesAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Düzenli bir gelir akışına ait tutar veya zam geçmişi kaydeder veya günceller.
+    /// </summary>
+    Task UpsertIncomeAmountHistoryAsync(IncomeAmountHistory history, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Belirtilen tutar geçmişi kaydını kalıcı olarak siler.
+    /// </summary>
+    Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default);
 }
