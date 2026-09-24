@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A6** — simülasyon taslağı portu: `ISimulationDraftRepository`, `SimulationDraft`, `SimulationDraftCondition` |
-| Sıradaki adım | **A7** — depo kompozisyonu. Eski `IMizanStore` taşınmaz, dar portlar kullanılır |
-| Test sayısı | 665 |
+| Son tamamlanan adım | **A7** — depo kompozisyonu. Eski `IMizanStore` taşınmaz, dar portlar kullanılır (düğüm T10, S26) |
+| Sıradaki adım | **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation` |
+| Test sayısı | 670 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A7 — depo kompozisyonu. Eski `IMizanStore` taşınmaz, dar portlar kullanılır (düğüm T10, S26)
+
+Eski mimaride 10 ayrı veri deposunu miras alarak 40 metot barındıran tanrı arayüz `IMizanStore` ve servislerin dar portlar yerine bu arayüze bağlanması sorunu (Düğüm T10 — Ayrıştırma Dekoratif, Kural M5) çözüldü. `S26` kararı uyarınca eski `IMizanStore` bütünüyle elendi (Taşımama hakkı). A2–A6 adımlarında oluşturulan 12 dar portun bağımsızlığı korundu; veritabanı ilklendirmesi profil açılışına (`IProfileStoreSwitch`), tohumlama ise altyapı katmanına bırakıldı. `RepositoryContractsTests` ve `TypeSafetyRules` altında hiçbir depo portunun başka bir depoyu miras alamayacağı, kompozit depo arayüzü kurulamayacağı ve `IMizanStore`'un üretimde var olamayacağı mimari test kalkanıyla sabitlendi. 5 yeni test eklendi (toplam 670 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A6 — simülasyon taslağı portu: `ISimulationDraftRepository`, `SimulationDraft`, `SimulationDraftCondition`
 

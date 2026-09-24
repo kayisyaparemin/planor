@@ -26,4 +26,7 @@ internal static class ArchitectureRules
 
     public static IReadOnlyList<string> VerifyTypeSizeLimits() =>
         TypeSafetyRules.CheckTypeSizeLimits();
+
+    public static IReadOnlyList<string> VerifyNoCompositeRepositories() =>
+        TypeSafetyRules.CheckNoCompositeRepositories();
 }

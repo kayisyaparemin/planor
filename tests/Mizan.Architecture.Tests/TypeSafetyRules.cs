@@ -101,6 +101,43 @@ internal static class TypeSafetyRules
         return violations;
     }
 
+    public static IReadOnlyList<string> CheckNoCompositeRepositories()
+    {
+        var violations = new List<string>();
+
+        foreach (var assemblyName in ProductionAssemblies)
+        {
+            var assembly = Assembly.Load(assemblyName);
+            foreach (var type in assembly.GetTypes())
+            {
+                CheckTypeForCompositeRepositoryViolations(type, violations);
+            }
+        }
+
+        return violations;
+    }
+
+    public static void CheckTypeForCompositeRepositoryViolations(Type type, List<string> violations)
+    {
+        if (type.Name == "IMizanStore" || type.Name.EndsWith("MizanStore", StringComparison.Ordinal))
+        {
+            violations.Add($"{type.FullName}: IMizanStore veya türevleri tanrı arayüzdür, var olamaz (Kural M5, Düğüm T10).");
+        }
+
+        if (type.IsInterface)
+        {
+            var inheritedRepoInterfaces = type.GetInterfaces()
+                .Where(i => i.Name.EndsWith("Repository", StringComparison.Ordinal))
+                .ToList();
+
+            if (inheritedRepoInterfaces.Count > 1 ||
+                (inheritedRepoInterfaces.Count == 1 && type.Name.EndsWith("Repository", StringComparison.Ordinal) && type != inheritedRepoInterfaces[0]))
+            {
+                violations.Add($"{type.FullName}: Depo arayüzleri başka depo arayüzlerini miras alamaz. Kompozit arayüz yasaktır (Kural M5, Düğüm T10). Miras alınan: {string.Join(", ", inheritedRepoInterfaces.Select(i => i.Name))}");
+            }
+        }
+    }
+
     private static void CheckAppAsyncVoid(List<string> violations)
     {
         var appDir = Path.Combine(SolutionPaths.SourceDirectory, "Mizan.App");

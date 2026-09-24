@@ -74,9 +74,10 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A1** — saat ve profil kimliği: `IClock`, `UserProfile` *(`IClock` zaten F2'de taşınmıştı; bu adımda yalnız `UserProfile` eklendi)*
 - [x] **A2** — depo portları: `ILoanRepository`, `ICreditCardRepository`, `ITemporaryPaymentPlanRepository`, `IPlannedLargeExpenseRepository`, `IRecurringIncomeRepository`, `IAdHocIncomeRepository`, `IUserSettingsRepository` *(dar portlar — kural M5, düğüm T10; S2, S5, S11, S18)*
 - [x] **A3** — profil servisi: `IProfileRepository`, `ProfileService`, `IProfileStoreSwitch`, `ProfileNameValidator` *(S22 ile `AdoptLegacyDatabase` elendi, `ProfileNameValidator` K3 kuralı için ayrıldı)*
+- [x] **A4** — dönem tarihçesi portu: `FinancialHistoryData`, `IPeriodHistoryRepository`, `IPeriodObservationRepository` *(S23 ile `ApplyOnboardingSetup` elendi, S24 ile reminder ayrıldı)*
 - [x] **A5** — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload` *(ve `PaymentReminderFormatter`, `IPaymentReminderRepository`)*
 - [x] **A6** — simülasyon taslağı portu: `ISimulationDraftRepository`, `SimulationDraft`, `SimulationDraftCondition` *(S25 ile apply batch elendi, dar taslak portu yapıldı)*
-- [ ] **A7** — depo kompozisyonu. Eski `IMizanStore` **taşınmaz**; dar portlar kullanılır (düğüm T10)
+- [x] **A7** — depo kompozisyonu. Eski `IMizanStore` **taşınmaz**; dar portlar kullanılır *(düğüm T10; S26 ile IMizanStore ve kompozit arayüzler elendi, mimari testle yasaklandı)*
 - [ ] **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation`
 - [ ] **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
 - [ ] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
@@ -160,7 +161,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 6 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 7 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

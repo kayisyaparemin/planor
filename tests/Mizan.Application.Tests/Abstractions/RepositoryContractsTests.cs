@@ -61,4 +61,41 @@ public sealed class RepositoryContractsTests
             }
         }
     }
+
+    [Fact]
+    public void TumDepoPortlari_BagimsizOlmalidir_KompozitDepoYasak()
+    {
+        // Kural M5 ve Düğüm T10: Hiçbir depo portu başka bir depoyu miras alamaz; kompozit tanrı arayüzler yasaktır.
+        foreach (var type in RepositoryTypes)
+        {
+            var inheritedRepoInterfaces = type.GetInterfaces()
+                .Where(i => RepositoryTypes.Contains(i))
+                .ToList();
+
+            Assert.Empty(inheritedRepoInterfaces);
+        }
+    }
+
+    [Fact]
+    public void TumDepoPortlari_EksiksizListelenmisOlmali()
+    {
+        var applicationAssembly = typeof(ILoanRepository).Assembly;
+        var allRepoInterfaces = applicationAssembly.GetTypes()
+            .Where(t => t.IsInterface && t.Name.EndsWith("Repository", StringComparison.Ordinal))
+            .ToList();
+
+        Assert.Equal(RepositoryTypes.Length, allRepoInterfaces.Count);
+        foreach (var repo in allRepoInterfaces)
+        {
+            Assert.Contains(repo, RepositoryTypes);
+        }
+    }
+
+    [Fact]
+    public void IMizanStore_TanriArayuzu_UretimdeVarOlamaz()
+    {
+        var applicationAssembly = typeof(ILoanRepository).Assembly;
+        var mizanStoreType = applicationAssembly.GetType("Mizan.Application.Abstractions.IMizanStore");
+        Assert.Null(mizanStoreType);
+    }
 }

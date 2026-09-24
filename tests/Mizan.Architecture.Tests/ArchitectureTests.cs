@@ -55,4 +55,19 @@ public sealed class ArchitectureTests
         var violations = ArchitectureRules.VerifyTypeSizeLimits();
         Assert.Empty(violations);
     }
+
+    [Fact]
+    public void KompozitDepoArayuzu_Ve_IMizanStore_Yasak()
+    {
+        var violations = ArchitectureRules.VerifyNoCompositeRepositories();
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void KompozitDepoKurali_IhlalGordugunde_Yakalayabilmelidir()
+    {
+        var violations = new List<string>();
+        TypeSafetyRules.CheckTypeForCompositeRepositoryViolations(typeof(Fakes.IFakeCompositeStore), violations);
+        Assert.NotEmpty(violations);
+    }
 }

@@ -236,5 +236,15 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A6`, `A19`, `I2` |
 | **Durum** | uygulandı |
 
+### S26 — IMizanStore tanrı arayüzü elendi, dar portlar zorunlu kılındı (Düğüm T10)
+
+| | |
+|---|---|
+| **Eski** | `IMizanStore` 10 ayrı depoyu (`ISettingsRepository`, `ISalaryRepository`, `IIncomeRepository`, `ILoanRepository`, `IPaymentPlanRepository`, `ICreditCardRepository`, `IExpenseRepository`, `IObservationRepository`, `ISimulationRepository`, `IFinancialSnapshotRepository`) tek bir arayüzde birleştiriyordu. Ayrıca veritabanı ilklendirme (`InitializeAsync`), tüm finansal verileri temizleme (`ClearAllFinancialDataAsync`) ve canonical test tohumu yükleme (`LoadCanonicalDevelopmentDataAsync`) metotlarını taşıyordu. 11 servis ve `MizanService` doğrudan `IMizanStore` alıyordu. |
+| **Neden yanlış** | Kural M5 (tanrı arayüz yasak) ve Düğüm T10 (ayrıştırma dekoratif) ihlalidir. 10 repo arayüzü tanımlanmış olmasına rağmen servislerin hiçbirinin bunları kullanmaması mimari ayrıştırmayı yalancı kılıyordu. Bir servisin tek bir tabloya ihtiyaç duyduğunda bile 40 metotlu tanrı arayüze erişmesi bağımlılık grafiğini çorba yapıyor, test sahtelerini aşırı şişiriyordu. Veritabanı ilklendirmesi profil açılışının (`IProfileStoreSwitch`), tohumlama ise geliştirme altyapısının konusudur. |
+| **Yeni** | `IMizanStore` taşınmadan elendi (Taşımama hakkı). A2–A6 adımlarında taşınan 12 bağımsız dar port kullanılır. Servisler yalnızca ihtiyaç duydukları dar portları (en fazla 1–3 adet) enjekte eder (Kural M3). `IMizanStore` veya birden fazla depoyu birleştiren kompozit arayüzlerin türemesi mimari testle (`ArchitectureTests.KompozitDepoArayuzu_Ve_IMizanStore_Yasak`) kesin olarak engellenir. |
+| **Etkiler** | `A7`, `A9`–`A21`, `I2` |
+| **Durum** | uygulandı |
+
 
 
