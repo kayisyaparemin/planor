@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A15a** — KMH kuralı tek yerde: `DeficitFinancingRules` |
-| Sıradaki adım | **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` |
-| Test sayısı | 804 |
+| Son tamamlanan adım | **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` |
+| Sıradaki adım | **S31 düzeltmesi** — dondurulan plana gelir satırları (ayrı onayla); ardından **A15c** |
+| Test sayısı | 816 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A15b — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader`
+
+Kural M8'in kendi örneği olan eski `PeriodProgressService.ResolveOpenPlan` statiği taşınmadı; "güncel durum hangisi, açık dönem hangisi, planın revizyonları hangi sırada" soruları artık tarihçenin kendisine soruluyor (`FinancialHistoryData.FindLatestCurrentSnapshot`, `FindOpenPlan`, `FindRevisions`). v2'de bu sorgular zaten kopyalanmıştı; `FinancialSnapshotService` (`LatestCurrent` statiği kalktı), `HistoricalPlanRevisionService` (iki kopya + sıralama) ve `HistoryQueryService` (revizyon sıralaması) yardımcıya geçti. Davranış korundu: revizyon servisinin "mutabakat tarihi geçtiyse revizyon yakalama" filtresi ve tarihçe sorgusunun kapanış günü kesmesi kendi servislerinde kaldı; kesme A16'da ortak yardımcıya çıkacak. A15c'nin beş bağımlılık sınırında (M3) kalabilmesi için `OpenPeriodLedgerReader` açık dönemin planını, revizyonlarını, gözlemini ve **yalnız vadesi o döneme düşen** hatırlatıcı cevaplarını tek `OpenPeriodLedger`'da topluyor. Taşınan `LatestCurrent` testi `DateTimeOffset.UtcNow` kullanıyordu; yerine sabit zaman damgalı testler yazıldı. 13 yeni test eklendi, 1 test taşındı (toplam 816 test yeşil, Application kapsamı %97,94, Domain %97,59, mimari kalkanlar temiz).
 
 ### A15a — KMH kuralı tek yerde: `DeficitFinancingRules`
 

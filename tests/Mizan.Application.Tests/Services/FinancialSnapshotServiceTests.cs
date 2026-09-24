@@ -115,27 +115,6 @@ public sealed class FinancialSnapshotServiceTests
             null));
     }
 
-    [Fact]
-    public void LatestCurrent_GecmisListesinden_IsCurrentOlanEnGuncelKaydiSecer()
-    {
-        var oldDate = new DateOnly(2026, 9, 1);
-        var newDate = new DateOnly(2026, 10, 1);
-        var history = new FinancialHistoryData(
-            [
-                new FinancialSnapshot { SnapshotDate = oldDate, IsCurrent = true, CreatedAtUtc = DateTimeOffset.UtcNow.AddDays(-30) },
-                new FinancialSnapshot { SnapshotDate = newDate, IsCurrent = true, CreatedAtUtc = DateTimeOffset.UtcNow },
-                new FinancialSnapshot { SnapshotDate = newDate.AddMonths(1), IsCurrent = false }
-            ],
-            [],
-            [],
-            []);
-
-        var latest = FinancialSnapshotService.LatestCurrent(history);
-
-        Assert.NotNull(latest);
-        Assert.Equal(newDate, latest.SnapshotDate);
-    }
-
     private static FinancialPlan CreateBasicPlan(decimal income)
     {
         var id = Guid.NewGuid();

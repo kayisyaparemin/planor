@@ -93,7 +93,7 @@ Geri kalan her şey bu omurgadan sarkar.
       dokunduğu, ~500 satır olduğu ve dar portlarla 7 bağımlılığa çıktığı için bölündü; `S31`
       gereği `A15c`'den önce bir düzeltme girer)*
   - [x] **A15a** — KMH kuralı tek yerde: `DeficitFinancingRules` *(Domain; `FinancialProjectionCalculator` onu kullanır)*
-  - [ ] **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` *(kural M8; `FinancialSnapshotService` ve `HistoricalPlanRevisionService`'teki kopyalar ona geçer)*
+  - [x] **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` *(kural M8; `FinancialSnapshotService` ve `HistoricalPlanRevisionService`'teki kopyalar ona geçer)*
   - [ ] **S31 düzeltmesi** — dondurulan plana gelir satırları *(H1, A10, A11'e dokunur; ayrı onayla)*
   - [ ] **A15c** — mevcut dönemin gidişatı: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32)*
 - [ ] **A16** — dönem mutabakatı: `PeriodReviewService`

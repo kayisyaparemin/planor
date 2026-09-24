@@ -30,6 +30,10 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | finansal durum anlık görüntüsü | `FinancialSnapshot` | Kullanıcının belirli bir tarihteki açılış bakiyesi, çapa kuralı ve mutabakat tarihini donduran üst başlık kaydı |
 | finansal durum kaynağı | `FinancialSnapshotSource` | Finansal durum kaydının oluşturulma yaşam döngüsü (kurulum, aylık kapanış, toparlama) |
 | finansal tarihçe verisi | `FinancialHistoryData` | Dondurulmuş durumlar, planlar, revizyonlar ve gerçekleşmeleri içeren salt okuma tarihçe paketi (Query DTO) |
+| güncel finansal durum | `FinancialHistoryData.FindLatestCurrentSnapshot` | Güncel işaretli durumlardan en yeni tarihli olanı; aynı tarihte birden fazlaysa en son oluşturulanı |
+| açık dönem planı | `FinancialHistoryData.FindOpenPlan` | Güncel finansal duruma bağlı, kapanışı henüz kaydedilmemiş en son dondurulan plan. Mutabakat tarihi geçmiş ama kapatılmamış dönem hâlâ açıktır |
+| açık dönem defteri | `OpenPeriodLedger` | Açık dönemin dondurulan planı, dönem içi revizyonları, gözlem defteri ve vadesi o döneme düşen hatırlatıcı cevapları bir arada |
+| açık dönem defteri okuyucusu | `OpenPeriodLedgerReader` | Açık dönem defterini tarihçe, gözlem ve hatırlatıcı portlarından okuyup birleştiren, hiçbir şey yazmayan servis |
 | dönem tarihçesi deposu | `IPeriodHistoryRepository` | Dondurulmuş planları, revizyonları, gerçekleşmeleri ve settlement taahhütlerini kalıcılaştıran port |
 | dönem gözlem defteri deposu | `IPeriodObservationRepository` | Açık dönemin ara bakiye ve borç ödeme işaretlerini saklayan veri deposu portu |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |

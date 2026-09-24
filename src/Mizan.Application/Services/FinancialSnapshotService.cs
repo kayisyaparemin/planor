@@ -35,7 +35,7 @@ public sealed class FinancialSnapshotService(
         ArgumentNullException.ThrowIfNull(plan);
 
         var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
-        var current = LatestCurrent(history);
+        var current = history.FindLatestCurrentSnapshot();
         if (current is not null)
         {
             return await HandleExistingSnapshotAsync(plan, history, current, cancellationToken);
@@ -77,7 +77,7 @@ public sealed class FinancialSnapshotService(
         ArgumentNullException.ThrowIfNull(plan);
 
         var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
-        var previous = LatestCurrent(history);
+        var previous = history.FindLatestCurrentSnapshot();
         var bundle = Build(plan, startingBalance, snapshotDate, source, note, previous?.Id);
 
         await _periodHistoryRepository.SaveCurrentFinancialSnapshotAsync(
@@ -135,20 +135,6 @@ public sealed class FinancialSnapshotService(
         return new FinancialSnapshotBundle(snapshot, frozenPlan, updatedSettings);
     }
 
-    /// <summary>
-    /// Finansal tarihçe verisinden şu anda yürürlükte olan (IsCurrent = true) en güncel finansal durumu seçer.
-    /// </summary>
-    public static FinancialSnapshot? LatestCurrent(FinancialHistoryData history)
-    {
-        ArgumentNullException.ThrowIfNull(history);
-
-        return history.Snapshots
-            .Where(x => x.IsCurrent)
-            .OrderByDescending(x => x.SnapshotDate)
-            .ThenByDescending(x => x.CreatedAtUtc)
-            .FirstOrDefault();
-    }
-
     private async Task<FinancialSnapshot> HandleExistingSnapshotAsync(
         FinancialPlan plan,
         FinancialHistoryData history,
@@ -156,11 +142,7 @@ public sealed class FinancialSnapshotService(
         CancellationToken cancellationToken)
     {
         var expectedSettlementDate = _periodCalculator.GetNextSettlementDate(current.SnapshotDate, current.Anchor);
-        var pendingPlan = history.Plans
-            .Where(x => x.FinancialSnapshotId == current.Id)
-            .Where(x => history.Actuals.All(actual => actual.PeriodPlanSnapshotId != x.Id))
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .FirstOrDefault();
+        var pendingPlan = history.FindOpenPlan();
 
         var requiresCadenceRepair = pendingPlan is not null &&
             (current.NextSettlementDate != expectedSettlementDate ||

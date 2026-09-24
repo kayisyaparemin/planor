@@ -92,15 +92,13 @@ public sealed class HistoryQueryService(
     /// <summary>
     /// Dönemin nihai planına sayılan revizyonlar, eskiden yeniye: kapanışa açılış günü (UTC takvim
     /// günü) dahil o güne kadar oluşturulanlar; aynı anda oluşanlarda büyük numara sonra gelir (I27).
-    /// A16'da dönem kapanışı da bu kurala ihtiyaç duyduğunda ortak yardımcıya çıkarılacak (T6, M8).
+    /// Sıralama tarihçenin kendisinden gelir; kapanış günü kesmesi A16'da dönem kapanışı da bu kurala
+    /// ihtiyaç duyduğunda ortak yardımcıya çıkarılacak (T6, M8).
     /// </summary>
     private static PeriodPlanRevision[] SelectFinalPlanRevisions(
         FinancialHistoryData history,
         PeriodPlanSnapshot plan) =>
-        history.Revisions
-            .Where(x => x.PeriodPlanSnapshotId == plan.Id)
+        history.FindRevisions(plan.Id)
             .Where(x => DateOnly.FromDateTime(x.CreatedAtUtc.UtcDateTime) <= plan.SettlementAvailableFrom)
-            .OrderBy(x => x.CreatedAtUtc)
-            .ThenBy(x => x.RevisionNumber)
             .ToArray();
 }

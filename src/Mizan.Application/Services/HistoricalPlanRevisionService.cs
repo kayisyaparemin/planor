@@ -42,14 +42,9 @@ public sealed class HistoricalPlanRevisionService(
         }
 
         var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
-        var currentSnapshot = FindLatestCurrentSnapshot(history);
-        if (currentSnapshot is null)
-        {
-            return null;
-        }
-
-        var openPlan = FindOpenPlan(history, currentSnapshot, _clock.Today);
-        if (openPlan is null)
+        var currentSnapshot = history.FindLatestCurrentSnapshot();
+        var openPlan = history.FindOpenPlan();
+        if (currentSnapshot is null || openPlan is null || _clock.Today > openPlan.SettlementAvailableFrom)
         {
             return null;
         }
@@ -61,13 +56,13 @@ public sealed class HistoricalPlanRevisionService(
             return null;
         }
 
-        var revisions = GetRevisionsForPlan(history, openPlan.Id);
+        var revisions = history.FindRevisions(openPlan.Id);
         if (!HasPlanChanged(openPlan, latestFrozenPlan, revisions))
         {
             return null;
         }
 
-        var revision = MapToRevision(openPlan.Id, latestFrozenPlan, revisions.Length + 1, _clock.UtcNow, trigger);
+        var revision = MapToRevision(openPlan.Id, latestFrozenPlan, revisions.Count + 1, _clock.UtcNow, trigger);
         await _periodHistoryRepository.SavePeriodPlanRevisionAsync(revision, cancellationToken);
         return revision;
     }
@@ -75,42 +70,14 @@ public sealed class HistoricalPlanRevisionService(
     private static bool HasPlanChanged(
         PeriodPlanSnapshot openPlan,
         PeriodPlanSnapshot latestFrozenPlan,
-        PeriodPlanRevision[] revisions)
+        IReadOnlyList<PeriodPlanRevision> revisions)
     {
-        var currentSignature = revisions.Length == 0
+        var currentSignature = revisions.Count == 0
             ? PlanRevisionSignature.From(openPlan)
             : PlanRevisionSignature.From(revisions[^1]);
         var candidateSignature = PlanRevisionSignature.From(latestFrozenPlan);
 
         return !currentSignature.Equals(candidateSignature);
-    }
-
-    private static FinancialSnapshot? FindLatestCurrentSnapshot(FinancialHistoryData history)
-    {
-        return history.Snapshots
-            .Where(x => x.IsCurrent)
-            .OrderByDescending(x => x.SnapshotDate)
-            .ThenByDescending(x => x.CreatedAtUtc)
-            .FirstOrDefault();
-    }
-
-    private static PeriodPlanSnapshot? FindOpenPlan(
-        FinancialHistoryData history,
-        FinancialSnapshot currentSnapshot,
-        DateOnly today)
-    {
-        var openPlan = history.Plans
-            .Where(x => x.FinancialSnapshotId == currentSnapshot.Id)
-            .Where(x => history.Actuals.All(actual => actual.PeriodPlanSnapshotId != x.Id))
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .FirstOrDefault();
-
-        if (openPlan is null || today > openPlan.SettlementAvailableFrom)
-        {
-            return null;
-        }
-
-        return openPlan;
     }
 
     private static FinancialPlan PrepareScopedPlan(
@@ -137,15 +104,6 @@ public sealed class HistoricalPlanRevisionService(
                 })
                 .ToArray()
         };
-    }
-
-    private static PeriodPlanRevision[] GetRevisionsForPlan(FinancialHistoryData history, Guid planId)
-    {
-        return history.Revisions
-            .Where(x => x.PeriodPlanSnapshotId == planId)
-            .OrderBy(x => x.CreatedAtUtc)
-            .ThenBy(x => x.RevisionNumber)
-            .ToArray();
     }
 
     private static PeriodPlanRevision MapToRevision(
