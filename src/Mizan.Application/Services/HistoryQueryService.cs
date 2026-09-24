@@ -75,30 +75,17 @@ public sealed class HistoryQueryService(
     private HistoryPeriod BuildPeriod(FinancialHistoryData history, PeriodActual actual)
     {
         var plan = history.Plans.Single(x => x.Id == actual.PeriodPlanSnapshotId);
-        var revisions = SelectFinalPlanRevisions(history, plan);
-        var revision = revisions.LastOrDefault();
+        var revisions = history.FindFinalRevisions(plan);
+        var revision = revisions.Count > 0 ? revisions[^1] : null;
 
         return new HistoryPeriod
         {
             OriginalPlan = plan,
             Revision = revision,
-            RevisionCount = revisions.Length,
+            RevisionCount = revisions.Count,
             Actual = actual,
             ResultSnapshot = history.Snapshots.Single(x => x.Id == actual.ResultFinancialSnapshotId),
             Comparison = _comparisonCalculator.Calculate(plan, revision, actual)
         };
     }
-
-    /// <summary>
-    /// Dönemin nihai planına sayılan revizyonlar, eskiden yeniye: kapanışa açılış günü (UTC takvim
-    /// günü) dahil o güne kadar oluşturulanlar; aynı anda oluşanlarda büyük numara sonra gelir (I27).
-    /// Sıralama tarihçenin kendisinden gelir; kapanış günü kesmesi A16'da dönem kapanışı da bu kurala
-    /// ihtiyaç duyduğunda ortak yardımcıya çıkarılacak (T6, M8).
-    /// </summary>
-    private static PeriodPlanRevision[] SelectFinalPlanRevisions(
-        FinancialHistoryData history,
-        PeriodPlanSnapshot plan) =>
-        history.FindRevisions(plan.Id)
-            .Where(x => DateOnly.FromDateTime(x.CreatedAtUtc.UtcDateTime) <= plan.SettlementAvailableFrom)
-            .ToArray();
 }

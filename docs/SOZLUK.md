@@ -62,6 +62,16 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | dönem kapanışı | `PeriodSettlement` | Planın gerçekleşmeyle mutabakatı |
 | dönem kapanış taahhüdü | `PeriodSettlementCommit` | Kapanan dönemin gerçekleşmesini, güncellenen araçları ve yeni dönemin planını atomik olarak bağlayan taahhüt sözleşmesi |
 | dönem kapanış doğrulayıcısı | `PeriodSettlementCommitValidator` | Dönem kapanış taahhüdünün referans, takvim ve devir bakiyesi sürekliliğini denetleyen saf doğrulayıcı |
+| dönem mutabakatı uygunluğu | `PeriodSettlementAvailability` | Açık dönemin kapatılmaya hazır olup olmadığını sunan metinsiz durum sözleşmesi (S36) |
+| ödeme gerçekleşme taslağı | `ActualPaymentDraft` | Dondurulan plan ödeme satırına ait kullanıcının girdiği fiilî durum ve tutar girdisi |
+| plansız akış taslağı | `ActualFlowDraft` | Dönem içinde ortaya çıkan beklenmedik gelir veya gider akış girdisi |
+| yaşam harcaması döküm taslağı | `LivingBreakdownDraft` | Serbest yaşam havuzundan harcanan tutarın kategori bazlı döküm kalemi |
+| dönem mutabakatı taslağı | `PeriodSettlementDraft` | Dönem mutabakatında kullanıcının sunduğu tüm gerçekleşme bildirimlerini taşıyan girdi paketi |
+| dönem mutabakatı bağlamı | `PeriodSettlementContext` | Dönem kapanış ekranı ve sihirbazı için plan, nihai revizyon, önerilen açılış bakiyesi ve karne bağlamı |
+| dönem mutabakatı önizlemesi | `PeriodSettlementPreview` | Kapanış taslağının onay öncesi türetilen bakiyesini, teyitli bakiyesini, mutabakat düzeltmesini ve karnesini sunan önizleme |
+| dönem mutabakatı sonucu | `PeriodSettlementResult` | Başarıyla tamamlanan dönem kapanışının yeni durum, yeni plan ve gerçekleşme karnesi paketi |
+| dönem mutabakatı servisi | `PeriodSettlementService` | Dönem kapanış mutabakatını (uygunluk, bağlam, önizleme, kesinleştirme) koordine eden uygulama servisi |
+| dönem fiilî durum kurucusu | `PeriodActualBuilder` | Kapanış taslağını doğrulayarak fiilî durumu (PeriodActual) ve türetilen bakiyeyi inşa eden bağımsız saf yardımcı |
 | finansal plan | `FinancialPlan` | Kullanıcının tüm finansal varlık, yükümlülük, gelir ve ayarlarını tek çatı altında toplayan bütüncül sözleşme |
 | plan doğrulayıcı | `FinancialPlanValidator` | Finansal planın ve alt bileşenlerinin iş kurallarına uygunluğunu denetleyen saf sınıf |
 | plan gerçekleşme karşılaştırması | `PlanActualComparison` | Dondurulan/revize dönem planı ile fiilî gerçekleşme arasındaki bakiye farkını, kategorik satırları ve Türkçe özeti sunan sonuç sözleşmesi |

@@ -64,4 +64,14 @@ public sealed record FinancialHistoryData(
             .OrderBy(x => x.CreatedAtUtc)
             .ThenBy(x => x.RevisionNumber)
             .ToArray();
+
+    /// <summary>
+    /// Bir dönem planının nihai planına sayılan revizyonlarını kronolojik sırayla verir (I27):
+    /// kapanışa açılış günü (UTC takvim günü) dahil o güne kadar oluşturulanlar; aynı anda oluşanlarda
+    /// büyük numara sonra gelir.
+    /// </summary>
+    public IReadOnlyList<PeriodPlanRevision> FindFinalRevisions(PeriodPlanSnapshot plan) =>
+        FindRevisions(plan.Id)
+            .Where(x => DateOnly.FromDateTime(x.CreatedAtUtc.UtcDateTime) <= plan.SettlementAvailableFrom)
+            .ToArray();
 }

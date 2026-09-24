@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` (A15 tamamlandı) |
-| Sıradaki adım | **A16** — dönem mutabakatı: `PeriodReviewService` |
-| Test sayısı | 872 |
+| Son tamamlanan adım | **A16** — dönem mutabakatı: `PeriodSettlementService`, `PeriodActualBuilder` |
+| Sıradaki adım | **A17** — plan okuma ve plan yazma ayrılır: `IPlanReader` + `IPlanChangeRecorder` |
+| Test sayısı | 892 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A16 — dönem mutabakatı: `PeriodSettlementService`, `PeriodActualBuilder`
+
+Eski `PeriodReviewService` (~450 satır, 2 partial, 6 bağımlılık) K3/K4 ve M3 sınırlarına uyum için servis orkestratörü `PeriodSettlementService` (5 dar bağımlılık, 167 satır) ve bağımsız saf yardımcı `PeriodActualBuilder` (185 satır) olarak ayrıldı; eski `FinancialStateReconciliationService`'in tek türetim hesabı doğrudan builder'a alındı (**S38**). **S35:** Yasaklı `Review` ve `Savings` terimleri elendi (`PeriodSettlementService`, `PeriodSettlementDraft`, `SuggestedStartingBalance`, `ConfirmedEndingBalance`). **S36:** `PeriodSettlementAvailability` ekran metninden ve kültüründen arındırıldı. **S37:** Fiilî hareket ve ödeme tarihleri doğal dönemsellik `[Start, End)` yarı açık aralığına kenetlendi. **S39 (T6/M8):** `HistoryQueryService` ve `PeriodReviewService`'teki kopya nihai revizyon seçimi `FinancialHistoryData.FindFinalRevisions` üzerinde ortaklaştırıldı. Kapanış, dondurulan plan gerçekleşmesini, güncellenen araçları ve yeni dönemin planını atomik `PeriodSettlementCommit` (`I21`) ile taahhüt eder. 20 yeni test eklendi (toplam 892 test yeşil, Application kapsamı %97,74, Domain %95,18, mimari kalkanlar temiz).
 
 ### A15c-2 — gidişat: `PeriodProgressService`, `PeriodProgress`
 

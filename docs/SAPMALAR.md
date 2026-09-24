@@ -328,3 +328,54 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Yeni** | İkisi de taşınmaz. Gözlenen bakiye `Observation.ObservedBalance`'tan okunur; kart farkı ekran isterse `V3`'te türetilir. |
 | **Etkiler** | `A15c-2`, `V3` |
 | **Durum** | uygulandı |
+
+### S35 — Dönem mutabakatı ve kapanışı terminolojisi tamamlandı (Review -> Settlement, Savings -> Balance)
+
+| | |
+|---|---|
+| **Eski** | `PeriodReviewService`, `FinancialReviewModels`, `PeriodReviewDraft`, `PeriodReviewAvailability`, `PeriodReviewContext`, `PeriodReviewPreview`, `FinancialReviewResult`, `SuggestedStartingSavings`, `ConfirmedStartingSavings`. |
+| **Neden yanlış** | `Review` (`S12`) ve `Savings` (`S13`) yasaklı terimlerdir (`SOZLUK.md`, kural K9). `Review` yerine `Settlement`, `Savings` yerine `Balance` kullanılmalıdır. |
+| **Yeni** | `PeriodSettlementService`, `PeriodSettlementDraft`, `PeriodSettlementAvailability`, `PeriodSettlementContext`, `PeriodSettlementPreview`, `PeriodSettlementResult`, `SuggestedStartingBalance`, `ConfirmedEndingBalance`. |
+| **Etkiler** | `A16`, `V11` |
+| **Durum** | uygulandı |
+
+### S36 — Dönem mutabakatı uygunluk modeli ekran metninden ve kültürden arındırıldı
+
+| | |
+|---|---|
+| **Eski** | `PeriodReviewAvailability.Message` servisin içinde `CultureInfo.GetCultureInfo("tr-TR")` ile biçimlendirilmiş Türkçe ekran metni taşıyordu (`"10 Eylül dönemi güncellenmeye hazır"`). |
+| **Neden yanlış** | Kural 01 ve `S28` emsali uyarınca Application katmanı ekran metni ve kültür/tarih formatlama taşıyamaz. Kültür yalnız sunum kenarında (Presentation/ViewModel) geçerlidir. |
+| **Yeni** | `PeriodSettlementAvailability` saf tarihleri ve bayrakları taşır (`HasCurrentSnapshot`, `IsDue`, `CurrentSnapshot`, `PendingPlan`, `LastUpdatedDate`); ekrana gösterilecek kullanıcı metni `V11` veya `V3` sunum katmanında üretilir. |
+| **Etkiler** | `A16`, `V3`, `V11` |
+| **Durum** | uygulandı |
+
+### S37 — Fiilî mutabakat hareket tarihleri doğal dönemselliğe [Start, End) bağlandı
+
+| | |
+|---|---|
+| **Eski** | `draft.Flows.Any(x => x.Date <= snapshot.SnapshotDate || x.Date > plan.SettlementAvailableFrom)` ve ödeme tarihleri için sol-açık, sağ-kapalı `(Start, End]` aralığı denetleniyordu. |
+| **Neden yanlış** | Eski projede dönemler sol-açık modellenmişti (`S27`). Mizan v2'de dönemler `[PeriodStart, PeriodEnd)` yarı açık aralığıdır (`S18`). |
+| **Yeni** | Dönem içi fiilî akış ve ödeme tarihleri `x.Date < plan.PeriodStart || x.Date >= plan.PeriodEnd` kuralıyla (`[PeriodStart, PeriodEnd)`) denetlenir. |
+| **Etkiler** | `A16` |
+| **Durum** | uygulandı |
+
+### S38 — Kapanış koordinasyonu ile fiilî durum inşası ayrıştırıldı
+
+| | |
+|---|---|
+| **Eski** | `PeriodReviewService` iki partial dosyaya yayılmış 452 satırlık bir monolitti; tek bir aritmetik hesaplama için `FinancialStateReconciliationService`'e bağlanıyordu (6 bağımlılık). |
+| **Neden yanlış** | K3 (dosya ≤ 200, metot ≤ 40), K4 (partial yasağı) ve M3 (≤ 5 bağımlılık) kurallarının ihlali. |
+| **Yeni** | Servis koordinasyonu `PeriodSettlementService` (5 dar bağımlılık, 167 satır) ve bağımsız saf yardımcı `PeriodActualBuilder` (185 satır) olarak ayrıldı. `FinancialStateReconciliationService` bağımlılığı elendi ve türetilen bakiye hesabı inşa ediciye alındı. |
+| **Etkiler** | `A16` |
+| **Durum** | uygulandı |
+
+### S39 — Nihai revizyon seçimi ortaklaştırıldı (T6, M8)
+
+| | |
+|---|---|
+| **Eski** | Dönemin nihai plan revizyonunu seçme kuralı (`SelectFinalRevision`, `IsValidForFinalPlan`) hem `HistoryQueryService` hem de `PeriodReviewService` içine kopyalanmıştı. |
+| **Neden yanlış** | Düğüm T6 (kod kopyalama) ve Kural M8 (statik yan erişim/veri sorgusu ayrışması) ihlalidir. |
+| **Yeni** | Nihai revizyon sorgusu verinin kendisine verildi: `FinancialHistoryData.FindFinalRevisions(PeriodPlanSnapshot plan)`. Hem `HistoryQueryService` hem de `PeriodSettlementService` doğrudan bu metodu çağırır. |
+| **Etkiler** | `A14`, `A16` |
+| **Durum** | uygulandı |
+
