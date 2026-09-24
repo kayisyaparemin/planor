@@ -14,7 +14,9 @@ public sealed class RepositoryContractsTests
         typeof(IRecurringIncomeRepository),
         typeof(IAdHocIncomeRepository),
         typeof(IUserSettingsRepository),
-        typeof(IProfileRepository)
+        typeof(IProfileRepository),
+        typeof(IPeriodHistoryRepository),
+        typeof(IPeriodObservationRepository)
     ];
 
     [Fact]

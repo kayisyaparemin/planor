@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A3** — profil servisi: `IProfileRepository`, `ProfileService`, `IProfileStoreSwitch`, `ProfileNameValidator` |
-| Sıradaki adım | **A4** — dönem tarihçesi portu |
-| Test sayısı | 608 |
+| Son tamamlanan adım | **A4** — dönem tarihçesi portu: `FinancialHistoryData`, `IPeriodHistoryRepository`, `IPeriodObservationRepository` |
+| Sıradaki adım | **A5** — hatırlatıcı sözlüğü: `PaymentReminderPlanner`, `PaymentReminderPayload` |
+| Test sayısı | 615 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A4 — dönem tarihçesi portu: `FinancialHistoryData`, `IPeriodHistoryRepository`, `IPeriodObservationRepository`
+
+Dondurulmuş dönem planları, finansal durum anlık görüntüleri, revizyonlar, dönem gerçekleşmeleri ve açık dönemin gözlem defterini yöneten veri erişim portları taşındı. `FinancialHistoryData` salt okuma modeli (Query DTO) olarak Application katmanına alındı. Kural M5 uyarınca eski monolitik `IFinancialSnapshotRepository` ve `IObservationRepository` yapıları gözden geçirildi; bildirim ve hatırlatıcı yanıtları `S24` kararıyla A5 adımına ayrılarak `IPeriodObservationRepository` yalnızca canlı dönemin serbest nakit ve borç gerçekleşme işaretlerine odaklandı. Eski şemaya ait yasaklı modelleri barındıran `ApplyOnboardingSetupAsync` metodu `S23` uyarınca elendi (Taşımama hakkı). S12 ve `SOZLUK.md` doğrultusunda dönem kapanışı taahhüdü `CommitPeriodSettlementAsync` olarak sabitlendi. Port sözleşme kuralları (`RepositoryContractsTests`), DTO testleri ve bellek içi test çiftleri (`InMemoryPeriodHistoryRepository`, `InMemoryPeriodObservationRepository`) oluşturuldu. 7 yeni test eklendi (toplam 615 test yeşil, Application kapsamı %98.18, Domain %94.29, mimari kalkanlar temiz).
 
 ### A3 — profil servisi: `IProfileRepository`, `ProfileService`, `IProfileStoreSwitch`, `ProfileNameValidator`
 

@@ -206,4 +206,24 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A3`, `I3`, `G1` |
 | **Durum** | uygulandı |
 
+### S23 — Tarihçe deposundan eski onboarding batch metodu (ApplyOnboardingSetup) elendi
+
+| | |
+|---|---|
+| **Eski** | `IFinancialSnapshotRepository.ApplyOnboardingSetupAsync(OnboardingPersistenceBatch batch)`. Eski şemadaki yasaklı terimleri (`Salaries`, `OtherIncomes`, `PaymentAssignmentStrategies`) ve yapay tahsis modellerini taşıyan monolitik bir batch alıyordu. |
+| **Neden yanlış** | Mizan v2'de çoklu gelir akışı (`S2`), dönem çapası (`S1`), doğal dönemsellik (`S18`) benimsendi ve eski yapay tahsis stratejileri tamamen elendi. Eski onboarding batch'i bu ölü alanları barındırıyordu. Ayrıca Mizan v2'de kurulum sihirbazı (onboarding) dar portlar (`IUserSettingsRepository`, `IRecurringIncomeRepository`, `IPeriodHistoryRepository` vb.) üzerinden Faz V ve A20 adımlarında temiz modellerle kurgulanacaktır. |
+| **Yeni** | `ApplyOnboardingSetupAsync` metodu tarihçe portundan tamamen elendi (Taşımama hakkı). Tarihçe portu yalnızca dondurulmuş planların, durumların ve dönem mutabakat taahhütlerinin yönetimine odaklanır. |
+| **Etkiler** | `A4`, `I2`, `V4` |
+| **Durum** | uygulandı |
+
+### S24 — Gözlem defteri ile hatırlatıcı yanıtları portları ayrıştırıldı
+
+| | |
+|---|---|
+| **Eski** | `IObservationRepository` içinde hem dönem içi ara gözlem defteri (`PeriodObservation`) hem de bildirim/hatırlatıcı yanıtları (`PaymentReminderResponse`) metotları tek bir arayüzde toplanmıştı. |
+| **Neden yanlış** | İki tamamen bağımsız iş yeteneğinin tek portta birleşmesi Kural M5'i (dar odaklı portlar) zorlar ve ilgisiz servislerin birbirine bağımlı olmasına yol açar. Gözlem defteri açık dönemin serbest nakit ve borç gerçekleşmesini tutarken, hatırlatıcılar bildirim yaşam döngüsüne aittir. |
+| **Yeni** | `IPeriodObservationRepository` yalnızca dönem gözlem defteri işlemlerine (`GetPeriodObservationAsync`, `UpsertPeriodObservationAsync`, `DeletePeriodObservationAsync`) odaklandı. Hatırlatıcı yanıtları ve politikaları müstakil olarak `A5` adımında ele alınacaktır. |
+| **Etkiler** | `A4`, `A5`, `I2` |
+| **Durum** | uygulandı |
+
 

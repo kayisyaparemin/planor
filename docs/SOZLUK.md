@@ -29,6 +29,9 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | plan ödeme kaynağı türü | `PlanPaymentSourceType` | Plan ödeme satırının kaynaklandığı borç veya harcama enstrümanı türü |
 | finansal durum anlık görüntüsü | `FinancialSnapshot` | Kullanıcının belirli bir tarihteki açılış bakiyesi, çapa kuralı ve mutabakat tarihini donduran üst başlık kaydı |
 | finansal durum kaynağı | `FinancialSnapshotSource` | Finansal durum kaydının oluşturulma yaşam döngüsü (kurulum, aylık kapanış, toparlama) |
+| finansal tarihçe verisi | `FinancialHistoryData` | Dondurulmuş durumlar, planlar, revizyonlar ve gerçekleşmeleri içeren salt okuma tarihçe paketi (Query DTO) |
+| dönem tarihçesi deposu | `IPeriodHistoryRepository` | Dondurulmuş planları, revizyonları, gerçekleşmeleri ve settlement taahhütlerini kalıcılaştıran port |
+| dönem gözlem defteri deposu | `IPeriodObservationRepository` | Açık dönemin ara bakiye ve borç ödeme işaretlerini saklayan veri deposu portu |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
 | fiilî ödeme | `ActualPayment` | Dondurulan plan ödeme satırının dönem sonundaki gerçekleşme sonucu |
 | plansız akış | `ActualFlow` | Dönem planında yer almayan arızi gelir veya gider satırı |
