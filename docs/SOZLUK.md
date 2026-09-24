@@ -89,6 +89,10 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kart projeksiyon durumu | `CreditCardPaymentProjectionStatus` | Kredi kartının belirli bir ekstre döngüsündeki simüle edilen borç, ödeme ve carry faizini kart kimliğiyle sunan sözleşme |
 | finansal projeksiyon hesaplayıcısı | `FinancialProjectionCalculator` | Kullanıcının tüm finansal planını (gelirler, krediler, kredi kartları, vadeli borçlar, büyük harcamalar) 12 nakit akış dönemi boyunca simüle eden ana motor |
 | hedef tutar hesaplayıcısı | `TargetAmountCalculator` | Nakit akış projeksiyonu üzerinde kullanıcının hedef tutarına hangi dönemde ulaştığını deterministik olarak hesaplayan saf Domain motoru |
+| projeksiyon başlangıç sınırı | `ProjectionBoundary` | Projeksiyonun başlangıç çapa tarihini, ilk projeksiyon dönemi başlangıcını ve devreden açılış bakiyesini taşıyan sınır sözleşmesi |
+| projeksiyon başlangıç sınırı çözümleyicisi | `ProjectionBoundaryResolver` | Kapanan dönem gerçekleşmelerini ve mevcut durumu analiz ederek projeksiyonun başlangıç çapasını ve ilk açık dönemini belirleyen servis |
+| ana ekran özeti | `DashboardSnapshot` | Aktif dönemi, çapa öncesi açık kalemleri, yaklaşan ilk 5 ödemeyi, 12 dönem sonu nakit dengesini ve en sıkışık dönemi sunan özet sözleşmesi |
+| finansal projeksiyon servisi | `FinancialProjectionService` | Domain projeksiyon motorunu arayüzün ihtiyaç duyduğu Dashboard özeti ve dönem takvimine bağlayan ince uygulama servisi |
 
 ## Simülasyon
 

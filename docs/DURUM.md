@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation` |
-| Sıradaki adım | **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver` |
-| Test sayısı | 688 |
+| Son tamamlanan adım | **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver` |
+| Sıradaki adım | **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService` |
+| Test sayısı | 701 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A9 — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
+
+Saf Domain projeksiyon motorunu (`FinancialProjectionCalculator`) sunum katmanının Dashboard ve 12 dönem takvimi ihtiyaçlarına bağlayan ince uygulama kabuğu `FinancialProjectionService` ve projeksiyonun başlangıç çapasını, devreden açılış bakiyesini ve gerçekleşmemiş ilk dönemini çözümleyen `ProjectionBoundaryResolver` taşındı. Kural K3 ve M6 gereğince `ProjectionBoundary` servis dosyasından çıkarılıp müstakil bir modele (`Models/ProjectionBoundary.cs`) dönüştürüldü; `DashboardSnapshot` ile birlikte M3 yapıcı parametre sınırına tam uyum için init-only özelliklerle refactor edildi. `S18` uyarınca eski yapay tahsis ve strateji alanları (`CurrentStrategy`, `PendingStrategy`) `DashboardSnapshot`'tan elendi; `S11`, `S4`, `S13` ve `S1` gereğince yasaklı terimler (`FirstUnrealizedSalaryDate` -> `FirstUnrealizedPeriodStartDate`, `StartingSavings` -> `StartingBalance`, `TwelvePeriodEndingProjectedBalance` -> `TwelvePeriodEndingBalance`, `IncomeDay` -> `PeriodAnchor`) düzeltildi. K3 kuralı için metot gövdeleri (≤ 40 satır) küçük odaklı yardımcılarla sadeleştirildi. 13 yeni birim testi eklendi (toplam 701 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A8 — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation`
 
