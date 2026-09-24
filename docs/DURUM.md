@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` |
-| Sıradaki adım | **S31 düzeltmesi** — dondurulan plana gelir satırları (ayrı onayla); ardından **A15c** |
-| Test sayısı | 816 |
+| Son tamamlanan adım | **S31 düzeltmesi** — dondurulan plana gelir satırları: `PeriodPlanIncomeLine`, `PeriodPlanLineBuilder` |
+| Sıradaki adım | **A15c** — mevcut dönemin gidişatı: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32)* |
+| Test sayısı | 824 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Düzeltme — S31: dondurulan plana gelir satırları
+
+Tür **K** (kavramsal sapma): eskide dönem gelir gününde başladığı için dondurulan planın geliri yalnız toplam olarak tutması doğruydu; `S3`/`S4` ile gelir dönemin ortasında yatabildiği için A15c'nin gidişatı gelirin gününü bilmek zorunda. `PeriodPlanSnapshot` ve `PeriodPlanRevision` artık `IncomeLines` (`PeriodPlanIncomeLine`: tür, kaynak düzenli/tek seferlik gelir kimliği, ad, tarih, tutar) taşıyor; satırlar projeksiyonun o döneme saydığı gelir kalemlerinin kendisi, toplamları `PlannedIncome`'a kuruşu kuruşuna eşit (`I28`). Gelir `PaymentLines`'a girmedi: `ActualPayment` ve `PeriodObservationPayment` ödeme satırına bağlanıyor, gelir "ödenmemiş ödeme" gibi görünürdü. Revizyon imzası gelir satırlarını da karşılaştırıyor; toplam aynı kalıp yalnız yatış günü değişse de revizyon doğuyor (`I29`). `PeriodPlanSnapshotService` 200 satır sınırına dayandığı için satır üretimi bağımlılıksız `PeriodPlanLineBuilder`'a çıktı; yapıcılar, depo portu ve `FinancialSnapshotService` değişmedi. H1, A10, A11 geri açılıp kapandı; I1 tarifi 31 tabloya çıktı. **G1 dikkat:** eski açık dönem planında gelir satırı yok (S31 "İlgili"). 8 yeni test eklendi (toplam 824 test yeşil, Application kapsamı %98,5, Domain %97,81, mimari kalkanlar temiz).
 
 ### A15b — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader`
 

@@ -174,6 +174,56 @@ public sealed class PeriodPlanSnapshotServiceTests
         Assert.Equal("Ödeme tutarı dönem başında belirlenmemişti.", cardLine.Detail);
     }
 
+    [Fact]
+    public void Freeze_GelirDonemOrtasindaYatiyorsa_GelirSatiriTarihiyleDondurulur()
+    {
+        // Çapa ayın 1'i, maaş ayın 15'i: gelir dönemin ortasında yatar (S31)
+        var plan = CreateBasicPlan(40_000m, paymentDay: 15);
+        var salaryId = plan.RecurringIncomes[0].Id;
+        var snapshot = CreateSnapshot(new DateOnly(2026, 10, 1), 20_000m);
+
+        var frozen = _service.Freeze(plan, snapshot, DateTimeOffset.UtcNow);
+
+        var salary = Assert.Single(frozen.IncomeLines);
+        Assert.Equal(frozen.Id, salary.PeriodPlanSnapshotId);
+        Assert.Equal(IncomeSourceType.Recurring, salary.SourceType);
+        Assert.Equal(salaryId, salary.RecurringIncomeId);
+        Assert.Null(salary.AdHocIncomeId);
+        Assert.Equal("Maaş", salary.Name);
+        Assert.Equal(new DateOnly(2026, 10, 15), salary.PlannedDate);
+        Assert.Equal(40_000m, salary.PlannedAmount);
+    }
+
+    [Fact]
+    public void Freeze_DuzenliVeTekSeferlikGelir_SatirToplamiPlanlananGelireKurusuKurusunaEsittir()
+    {
+        var bonusId = Guid.NewGuid();
+        var plan = CreateBasicPlan(38_750.25m, paymentDay: 15) with
+        {
+            AdHocIncomes =
+            [
+                new AdHocIncome { Id = bonusId, Description = "İkramiye", Amount = 1_249.75m, ExactDate = new DateOnly(2026, 10, 20) },
+                new AdHocIncome { Description = "Sonraki Dönem İadesi", Amount = 900m, ExactDate = new DateOnly(2026, 11, 5) }
+            ]
+        };
+        var snapshot = CreateSnapshot(new DateOnly(2026, 10, 1), 20_000m);
+
+        var frozen = _service.Freeze(plan, snapshot, DateTimeOffset.UtcNow);
+
+        Assert.Equal(40_000m, frozen.PlannedIncome);
+        Assert.Equal(frozen.PlannedIncome, frozen.IncomeLines.Sum(x => x.PlannedAmount));
+        Assert.Collection(
+            frozen.IncomeLines,
+            salary => Assert.Equal(new DateOnly(2026, 10, 15), salary.PlannedDate),
+            bonus =>
+            {
+                Assert.Equal(IncomeSourceType.AdHoc, bonus.SourceType);
+                Assert.Equal(bonusId, bonus.AdHocIncomeId);
+                Assert.Equal("İkramiye", bonus.Name);
+                Assert.Equal(new DateOnly(2026, 10, 20), bonus.PlannedDate);
+            });
+    }
+
     private static FinancialSnapshot CreateSnapshot(DateOnly date, decimal balance) => new()
     {
         Id = Guid.NewGuid(),
@@ -185,7 +235,7 @@ public sealed class PeriodPlanSnapshotServiceTests
         IsCurrent = true
     };
 
-    private static FinancialPlan CreateBasicPlan(decimal income)
+    private static FinancialPlan CreateBasicPlan(decimal income, int paymentDay = 1)
     {
         var id = Guid.NewGuid();
         return new FinancialPlan
@@ -196,7 +246,7 @@ public sealed class PeriodPlanSnapshotServiceTests
                 ProjectionAnchorDate = new DateOnly(2026, 10, 1),
                 PeriodVariableExpenseAllowance = 15_000m
             },
-            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Maaş", PaymentDay = 1, IsActive = true }],
+            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Maaş", PaymentDay = paymentDay, IsActive = true }],
             IncomeHistories = [new IncomeAmountHistory { RecurringIncomeId = id, Amount = income, EffectiveDate = new DateOnly(2026, 10, 1) }]
         };
     }

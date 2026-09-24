@@ -277,6 +277,61 @@ public sealed class HistoricalPlanRevisionServiceTests
         Assert.Equal(0m, storedPlan.PlannedLargeExpenses);
     }
 
+    [Fact]
+    public async Task CaptureOpenPlanRevisionAsync_TekSeferlikGelirEklenirse_RevizyonGelirSatiriniTasirOrijinalPlanDegismez()
+    {
+        var service = CreateService();
+        var plan = CreateBasicPlan(40_000m);
+        var snapshot = CreateSnapshot(new DateOnly(2026, 10, 1), 20_000m);
+        var frozenPlan = _planSnapshotService.Freeze(plan, snapshot, _clock.UtcNow);
+        await _repository.SaveCurrentFinancialSnapshotAsync(snapshot, frozenPlan);
+
+        var bonusId = Guid.NewGuid();
+        var mutatedPlan = plan with
+        {
+            AdHocIncomes = [new AdHocIncome { Id = bonusId, Description = "İkramiye", Amount = 10_000m, ExactDate = new DateOnly(2026, 10, 20) }]
+        };
+
+        var revision = await service.CaptureOpenPlanRevisionAsync(mutatedPlan, "İkramiye eklendi");
+
+        Assert.NotNull(revision);
+        Assert.Equal(2, revision.IncomeLines.Count);
+        Assert.Equal(revision.PlannedIncome, revision.IncomeLines.Sum(x => x.PlannedAmount));
+        Assert.All(revision.IncomeLines, line => Assert.Equal(frozenPlan.Id, line.PeriodPlanSnapshotId));
+        Assert.DoesNotContain(revision.IncomeLines, line => frozenPlan.IncomeLines.Any(x => x.Id == line.Id));
+        var bonus = Assert.Single(revision.IncomeLines, x => x.AdHocIncomeId == bonusId);
+        Assert.Equal(new DateOnly(2026, 10, 20), bonus.PlannedDate);
+
+        var history = await _repository.GetFinancialHistoryAsync();
+        var storedPlan = history.Plans.Single(x => x.Id == frozenPlan.Id);
+        var storedSalary = Assert.Single(storedPlan.IncomeLines);
+        Assert.Equal(40_000m, storedSalary.PlannedAmount);
+    }
+
+    [Fact]
+    public async Task CaptureOpenPlanRevisionAsync_YalnizGelirTarihiDegisirse_YeniRevizyonUretir()
+    {
+        var service = CreateService();
+        var bonus = new AdHocIncome { Description = "İkramiye", Amount = 10_000m, ExactDate = new DateOnly(2026, 10, 10) };
+        var plan = CreateBasicPlan(40_000m) with { AdHocIncomes = [bonus] };
+        var snapshot = CreateSnapshot(new DateOnly(2026, 10, 1), 20_000m);
+        var frozenPlan = _planSnapshotService.Freeze(plan, snapshot, _clock.UtcNow);
+        await _repository.SaveCurrentFinancialSnapshotAsync(snapshot, frozenPlan);
+
+        // Toplam gelir aynı, yalnız ikramiyenin yatacağı gün dönem içinde kaydı (S31)
+        var mutatedPlan = plan with { AdHocIncomes = [bonus with { ExactDate = new DateOnly(2026, 10, 25) }] };
+
+        var revision = await service.CaptureOpenPlanRevisionAsync(mutatedPlan, "İkramiye günü değişti");
+
+        Assert.NotNull(revision);
+        Assert.Equal(frozenPlan.PlannedIncome, revision.PlannedIncome);
+        Assert.Contains(revision.IncomeLines, x => x.AdHocIncomeId == bonus.Id && x.PlannedDate == new DateOnly(2026, 10, 25));
+
+        var history = await _repository.GetFinancialHistoryAsync();
+        var storedPlan = history.Plans.Single(x => x.Id == frozenPlan.Id);
+        Assert.Contains(storedPlan.IncomeLines, x => x.AdHocIncomeId == bonus.Id && x.PlannedDate == new DateOnly(2026, 10, 10));
+    }
+
     private static FinancialSnapshot CreateSnapshot(DateOnly date, decimal balance) => new()
     {
         Id = Guid.NewGuid(),

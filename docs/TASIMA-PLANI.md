@@ -65,6 +65,7 @@ Geri kalan her şey bu omurgadan sarkar.
 ## Faz H — Tarihçe  *(D'den bağımsız, paralel ilerleyebilir)*
 
 - [x] **H1** — dönem planı defteri: `FinancialSnapshot`, `PeriodPlanSnapshot`, `PeriodPlanRevision`
+      *(S31 düzeltmesiyle geri açılıp kapandı: plan ve revizyon `IncomeLines` / `PeriodPlanIncomeLine` taşır)*
 - [x] **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 - [x] **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları (`PeriodObservationPayment`) — *S20 kararıyla spekülatif `PeriodObservationFlow` elendi*
 - [x] **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` *(eski `FinancialReviewCommit` — S12 gereği adlandırıldı)*
@@ -82,7 +83,9 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
 - [x] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
+      *(S31 düzeltmesiyle geri açılıp kapandı: dondurma gelir satırlarını tarihleriyle üretir; satır üretimi 200 satır sınırı için `PeriodPlanLineBuilder`'a çıktı)*
 - [x] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
+      *(S31 düzeltmesiyle geri açılıp kapandı: revizyon gelir satırlarını taşır, imza yalnız yatış günü değişikliğini de yakalar)*
 - [x] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
 - [x] **A13** — kredi kapatma *(~460 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
   - [x] **A13a** — kapatma bedeli ve kaydetme kapısı: `LoanPayoffService` *(S28 ile ekran metni ve kültür elendi)*
@@ -94,7 +97,7 @@ Geri kalan her şey bu omurgadan sarkar.
       gereği `A15c`'den önce bir düzeltme girer)*
   - [x] **A15a** — KMH kuralı tek yerde: `DeficitFinancingRules` *(Domain; `FinancialProjectionCalculator` onu kullanır)*
   - [x] **A15b** — açık dönemi bulmak tek yerde: `FinancialHistoryData.FindOpenPlan`, `OpenPeriodLedgerReader` *(kural M8; `FinancialSnapshotService` ve `HistoricalPlanRevisionService`'teki kopyalar ona geçer)*
-  - [ ] **S31 düzeltmesi** — dondurulan plana gelir satırları *(H1, A10, A11'e dokunur; ayrı onayla)*
+  - [x] **S31 düzeltmesi** — dondurulan plana gelir satırları *(H1, A10, A11'e dokunur; ayrı onayla)*
   - [ ] **A15c** — mevcut dönemin gidişatı: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32)*
 - [ ] **A16** — dönem mutabakatı: `PeriodReviewService`
 - [ ] **A17** — **plan okuma ve plan yazma ayrılır**: `IPlanReader` + `IPlanChangeRecorder`
@@ -115,8 +118,9 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz I — Infrastructure
 
-- [ ] **I1** — **temiz şema v1**: 29 tablo, `PRAGMA user_version`, gerçek foreign key'ler.
+- [ ] **I1** — **temiz şema v1**: 31 tablo, `PRAGMA user_version`, gerçek foreign key'ler.
       *Eski v17'nin 16 yalancı kolonu, 12 ölü kolonu ve hiçbir migration'ı taşınmaz.*
+      *(S31 ile +2 tablo: plan ve revizyon gelir satırları — ödeme satırlarının iki tablosu emsal)*
 - [ ] **I2** — depo implementasyonları *(dar port başına ayrı sınıf — tek 2.400 satırlık
       `SqliteMizanStore` değil)*
 - [ ] **I3** — profil deposu ve profil başına veritabanı
@@ -159,6 +163,8 @@ Geri kalan her şey bu omurgadan sarkar.
 - [ ] **G1** — Eski uygulamanın (`com.coinflow.mobile`, şema v17) yedek arşivini okuyan
       tek seferlik içe aktarıcı. Yeni app id `com.mizan.app` olduğu için cihazda güncelleme
       değil yan yana kurulum olur; veri bu yolla taşınır.
+      *(S31: eski açık dönem planında gelir satırı yok — içe aktarıcı açık planı yeniden dondurmalı
+      ya da boş `IncomeLines` gidişatta tanımlı davranışa bağlanmalı; Aşama 3'te karar verilir)*
 
 ---
 

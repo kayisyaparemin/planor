@@ -170,4 +170,51 @@ public sealed class PlanRevisionSignatureTests
 
         Assert.False(sig1.Equals(sig2));
     }
+
+    [Fact]
+    public void Equals_YalnizGelirSatiriTarihiFarkliysa_FalseDondurur()
+    {
+        var bonusId = Guid.NewGuid();
+        var early = CreatePlanWithIncome(bonusId, new DateOnly(2026, 10, 10));
+        var late = CreatePlanWithIncome(bonusId, new DateOnly(2026, 10, 25));
+
+        Assert.False(PlanRevisionSignature.From(early).Equals(PlanRevisionSignature.From(late)));
+    }
+
+    [Fact]
+    public void Equals_GelirSatirlariYalnizKimlikteFarkliysa_TrueDondurur()
+    {
+        var bonusId = Guid.NewGuid();
+        var original = CreatePlanWithIncome(bonusId, new DateOnly(2026, 10, 10));
+        var copy = original with
+        {
+            Id = Guid.NewGuid(),
+            IncomeLines = original.IncomeLines
+                .Select(line => line with { Id = Guid.NewGuid(), PeriodPlanSnapshotId = Guid.NewGuid() })
+                .ToArray()
+        };
+
+        var originalSignature = PlanRevisionSignature.From(original);
+        var copySignature = PlanRevisionSignature.From(copy);
+
+        Assert.True(originalSignature.Equals(copySignature));
+        Assert.Equal(originalSignature.GetHashCode(), copySignature.GetHashCode());
+    }
+
+    private static PeriodPlanSnapshot CreatePlanWithIncome(Guid adHocIncomeId, DateOnly incomeDate) => new()
+    {
+        PlannedIncome = 10_000m,
+        PlannedEndingBalance = 10_000m,
+        IncomeLines =
+        [
+            new PeriodPlanIncomeLine
+            {
+                SourceType = IncomeSourceType.AdHoc,
+                AdHocIncomeId = adHocIncomeId,
+                Name = "İkramiye",
+                PlannedDate = incomeDate,
+                PlannedAmount = 10_000m
+            }
+        ]
+    };
 }

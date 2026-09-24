@@ -48,6 +48,9 @@ public sealed record PlanRevisionSignature
     /// <summary>Kronolojik ve tür bazlı sıralanmış ödeme satırları imzası.</summary>
     public IReadOnlyList<PlanRevisionLineSignature> Lines { get; init; } = [];
 
+    /// <summary>Kronolojik ve tür bazlı sıralanmış gelir satırları imzası; toplam aynı kalsa da yatış günü değişikliğini yakalar.</summary>
+    public IReadOnlyList<PlanRevisionIncomeLineSignature> IncomeLines { get; init; } = [];
+
     /// <summary>
     /// Dönem planı anlık görüntüsünden imza nesnesi türetir.
     /// </summary>
@@ -69,7 +72,8 @@ public sealed record PlanRevisionSignature
             PlannedCardInterest = plan.PlannedCardInterest,
             PlannedDeficitInterest = plan.PlannedDeficitInterest,
             PlannedEndingBalance = plan.PlannedEndingBalance,
-            Lines = OrderLines(plan.PaymentLines)
+            Lines = OrderLines(plan.PaymentLines),
+            IncomeLines = OrderIncomeLines(plan.IncomeLines)
         };
     }
 
@@ -94,7 +98,8 @@ public sealed record PlanRevisionSignature
             PlannedCardInterest = revision.PlannedCardInterest,
             PlannedDeficitInterest = revision.PlannedDeficitInterest,
             PlannedEndingBalance = revision.PlannedEndingBalance,
-            Lines = OrderLines(revision.PaymentLines)
+            Lines = OrderLines(revision.PaymentLines),
+            IncomeLines = OrderIncomeLines(revision.IncomeLines)
         };
     }
 
@@ -120,7 +125,8 @@ public sealed record PlanRevisionSignature
                PlannedCardInterest == other.PlannedCardInterest &&
                PlannedDeficitInterest == other.PlannedDeficitInterest &&
                PlannedEndingBalance == other.PlannedEndingBalance &&
-               Lines.SequenceEqual(other.Lines);
+               Lines.SequenceEqual(other.Lines) &&
+               IncomeLines.SequenceEqual(other.IncomeLines);
     }
 
     /// <summary>
@@ -147,6 +153,11 @@ public sealed record PlanRevisionSignature
             hash.Add(line);
         }
 
+        foreach (var incomeLine in IncomeLines)
+        {
+            hash.Add(incomeLine);
+        }
+
         return hash.ToHashCode();
     }
 
@@ -157,6 +168,17 @@ public sealed record PlanRevisionSignature
             .OrderBy(x => x.PlannedDate)
             .ThenBy(x => x.SourceType)
             .ThenBy(x => x.SourceEntityId)
+            .ToArray();
+    }
+
+    private static PlanRevisionIncomeLineSignature[] OrderIncomeLines(IEnumerable<PeriodPlanIncomeLine> lines)
+    {
+        return lines
+            .Select(PlanRevisionIncomeLineSignature.From)
+            .OrderBy(x => x.PlannedDate)
+            .ThenBy(x => x.SourceType)
+            .ThenBy(x => x.RecurringIncomeId)
+            .ThenBy(x => x.AdHocIncomeId)
             .ToArray();
     }
 }

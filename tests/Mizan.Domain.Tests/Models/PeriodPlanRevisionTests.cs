@@ -40,4 +40,13 @@ public sealed class PeriodPlanRevisionTests
         Assert.NotNull(revision.PaymentLines);
         Assert.Empty(revision.PaymentLines);
     }
+
+    [Fact]
+    public void IncomeLines_VarsayilanOlarakBosListeyleBaslatilir()
+    {
+        var revision = new PeriodPlanRevision();
+
+        Assert.NotNull(revision.IncomeLines);
+        Assert.Empty(revision.IncomeLines);
+    }
 }

@@ -114,4 +114,17 @@ public sealed class PeriodPlanSnapshotTests
         Assert.NotNull(plan.PaymentLines);
         Assert.Empty(plan.PaymentLines);
     }
+
+    [Fact]
+    public void IncomeLines_VarsayilanOlarakBosListeyleBaslatilir()
+    {
+        var plan = new PeriodPlanSnapshot
+        {
+            PeriodStart = PeriodStart,
+            PeriodEnd = PeriodEnd
+        };
+
+        Assert.NotNull(plan.IncomeLines);
+        Assert.Empty(plan.IncomeLines);
+    }
 }

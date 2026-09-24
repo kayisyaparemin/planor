@@ -71,6 +71,9 @@ public sealed record PeriodPlanSnapshot
     /// <summary>Dönem planına dahil edilen tekil ödeme taahhüdü satırları.</summary>
     public IReadOnlyList<PeriodPlanPaymentLine> PaymentLines { get; init; } = [];
 
+    /// <summary>Dönem planına dahil edilen, tarihleriyle dondurulmuş gelir satırları; toplamları <see cref="PlannedIncome"/>'a eşittir.</summary>
+    public IReadOnlyList<PeriodPlanIncomeLine> IncomeLines { get; init; } = [];
+
     /// <summary>Dönem boyunca hedeflenen net nakit değişimi (kapanış bakiyesi - açılış bakiyesi).</summary>
     public decimal PlannedNetChange => PlannedEndingBalance - OpeningBalance;
 

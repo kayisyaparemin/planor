@@ -68,6 +68,9 @@ public sealed record PeriodPlanRevision
     /// <summary>Revize edilmiş tekil ödeme taahhüdü satırları.</summary>
     public IReadOnlyList<PeriodPlanPaymentLine> PaymentLines { get; init; } = [];
 
+    /// <summary>Revize edilmiş, tarihleriyle birlikte gelir satırları; toplamları <see cref="PlannedIncome"/>'a eşittir.</summary>
+    public IReadOnlyList<PeriodPlanIncomeLine> IncomeLines { get; init; } = [];
+
     /// <summary>Revize edilen planın negatif kapanış bakiyesiyle (finansman açığıyla) sonuçlanıp sonuçlanmadığını belirtir.</summary>
     public bool HasDeficit => PlannedEndingBalance < 0m;
 }

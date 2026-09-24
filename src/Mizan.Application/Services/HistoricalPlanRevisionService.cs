@@ -141,6 +141,13 @@ public sealed class HistoricalPlanRevisionService(
                     Id = Guid.NewGuid(),
                     PeriodPlanSnapshotId = periodPlanSnapshotId
                 })
+                .ToArray(),
+            IncomeLines = frozen.IncomeLines
+                .Select(line => line with
+                {
+                    Id = Guid.NewGuid(),
+                    PeriodPlanSnapshotId = periodPlanSnapshotId
+                })
                 .ToArray()
         };
     }

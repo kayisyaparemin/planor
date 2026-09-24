@@ -27,6 +27,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | dönem planı revizyonu | `PeriodPlanRevision` | Dönem içinde planlama kararlarında yapılan değişiklikleri append-only kaydeden sürüm |
 | plan ödeme satırı | `PeriodPlanPaymentLine` | Dondurulan dönem planına ait tekil bir ödeme taahhüdü kalemi |
 | plan ödeme kaynağı türü | `PlanPaymentSourceType` | Plan ödeme satırının kaynaklandığı borç veya harcama enstrümanı türü |
+| plan gelir satırı | `PeriodPlanIncomeLine` | Dondurulan dönem planına ait, yatacağı günle birlikte tekil bir gelir kalemi; ödeme satırı değildir (S31) |
 | finansal durum anlık görüntüsü | `FinancialSnapshot` | Kullanıcının belirli bir tarihteki açılış bakiyesi, çapa kuralı ve mutabakat tarihini donduran üst başlık kaydı |
 | finansal durum kaynağı | `FinancialSnapshotSource` | Finansal durum kaydının oluşturulma yaşam döngüsü (kurulum, aylık kapanış, toparlama) |
 | finansal tarihçe verisi | `FinancialHistoryData` | Dondurulmuş durumlar, planlar, revizyonlar ve gerçekleşmeleri içeren salt okuma tarihçe paketi (Query DTO) |
