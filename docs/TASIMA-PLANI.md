@@ -82,7 +82,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
 - [x] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
-- [ ] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
+- [x] **A11** — plan revizyonu: `HistoricalPlanRevisionService`
 - [ ] **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService`
 - [ ] **A13** — kredi kapatma: `LoanPayoffService`, `LoanPayoffAdvisor`
 - [ ] **A14** — tarihçe sorgusu: `HistoryQueryService`

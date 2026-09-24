@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService` |
-| Sıradaki adım | **A11** — plan revizyonu: `HistoricalPlanRevisionService` |
-| Test sayısı | 715 |
+| Son tamamlanan adım | **A11** — plan revizyonu: `HistoricalPlanRevisionService` |
+| Sıradaki adım | **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService` |
+| Test sayısı | 729 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A11 — plan revizyonu: `HistoricalPlanRevisionService`
+
+Açık nakit akış dönemi devam ederken kullanıcının kasıtlı planlama değişikliklerini (kart ödeme tercihi, yeni borç, büyük harcama iptali vb.) orijinal dondurulmuş planı (`PeriodPlanSnapshot`) mutasyona uğratmadan append-only plan revizyonları (`PeriodPlanRevision`) olarak kaydeden `HistoricalPlanRevisionService` ve iki plan taahhüdü arasında fark olup olmadığını inceleyen imza modelleri (`PlanRevisionSignature`, `PlanRevisionLineSignature`) taşındı. Kural M5 ve `S26` gereğince tanrı arayüz `IMizanStore` yerine dar port `IPeriodHistoryRepository` kullanıldı. K3 kuralı için 268 satırlık monolitik dosya servis ve imza modellerine bölündü; M3 yapıcı kuralı için `PlanRevisionLineSignature` init-only özelliklerle refactor edildi. `S1` uyarınca `PeriodAnchor`, `S18` uyarınca doğal dönemsellik (`period.Contains`) entegre edilerek dönem içi gerçekleşen günlük kart harcamalarının yapay plan revizyonu tetiklemesi engellendi. Fark yaratmayan plan güncellemelerinde mükerrer revizyon üretilmemesi ve orijinal plan taahhüdünün değişmezliği `I24` invariant'ı olarak sabitlendi. 14 yeni birim testi eklendi (toplam 729 test yeşil, Application kapsamı %96.43, Domain %94.29, mimari kalkanlar temiz).
 
 ### A10 — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
 
