@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A11** — plan revizyonu: `HistoricalPlanRevisionService` |
-| Sıradaki adım | **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService` |
-| Test sayısı | 729 |
+| Son tamamlanan adım | **A12** — araç mutabakatı: `FinancialInstrumentReconciliationService` |
+| Sıradaki adım | **A13** — kredi kapatma: `LoanPayoffService`, `LoanPayoffAdvisor` |
+| Test sayısı | 744 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A12 — araç mutabakatı: `FinancialInstrumentReconciliationService`
+
+*(Bu giriş A12 commit'inde (`7d55e74`) yazılmamıştı; A13 öncesinde koddan türetilerek eklendi.)* Dönem kapanışında fiilî ödemeleri kredilere, kartlara, vadeli planlara, büyük harcamalara ve erken ödemelere uygulayıp yeni döneme devreden sözleşme durumlarını üreten `FinancialInstrumentReconciliationService` ve sonuç modeli `ReconciledFinancialInstruments` taşındı. K3 sınırı için kredi tarafı (taksit ödendiğinde yalnız anapara payının düşmesi, erken ödemenin tüketilmesi, bayatlayan banka kapatma tutarının düşürülmesi) müstakil `LoanInstrumentReconciler`'a ayrıldı. `S27` kararıyla ödenmeyen taksit, borç ve büyük harcamaların devir tarihi `newAnchor + 1 gün` yerine doğrudan yeni dönemin ilk günü (`carryDate = newAnchor`) yapıldı. 15 yeni test eklendi (toplam 744 test yeşil).
 
 ### A11 — plan revizyonu: `HistoricalPlanRevisionService`
 
