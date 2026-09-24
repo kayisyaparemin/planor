@@ -106,7 +106,8 @@ Geri kalan her şey bu omurgadan sarkar.
       — *düğüm T5, kural M4; S40, S41, S42 ile 7 dar repo kompozisyonu ve sıfır yan etkili salt okuyucu kuruldu*
 - [x] **A18** — kart yükümlülüğü: `CreditCardObligationService`
       — *S43: dar repo ICreditCardRepository ve yazma portu IPlanChangeRecorder'a bağlandı; ICreditCardObligationService arayüzü kuruldu; PDF içe aktarma kalıntıları temizlendi*
-- [ ] **A19** — simülasyon iş akışı: `ISimulationWorkflowService`
+- [x] **A19** — simülasyon iş akışı: `ISimulationWorkflowService`
+      — *S44: dar depolar IncomePlanWriter ve FinancialInstrumentWriter kompozisyonuna bağlandı; S45/S46 temizlendi; ISimulationPlanApplier ile tam M3 sınırında kalındı*
 - [ ] **A20** — yükümlülük yönetimi: `IObligationManagementService`
 - [ ] **A21** — dönem iş akışı: `IPeriodWorkflowService`
 - [ ] **A22** — cephe `MizanService`: **TAŞINMAZ.** Düğüm T7: 515 satırlık tek kapı,
@@ -176,7 +177,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 18 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 19 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

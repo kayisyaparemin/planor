@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A18** — kart yükümlülüğü: `CreditCardObligationService` |
-| Sıradaki adım | **A19** — simülasyon iş akışı: `ISimulationWorkflowService` |
-| Test sayısı | 924 |
+| Son tamamlanan adım | **A19** — simülasyon iş akışı: `ISimulationWorkflowService` |
+| Sıradaki adım | **A20** — yükümlülük yönetimi: `IObligationManagementService` |
+| Test sayısı | 950 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A19 — simülasyon iş akışı: `ISimulationWorkflowService`
+
+Kullanıcının What-If senaryolarını izole çalıştırmasını, taslaklar halinde kalıcı yönetmesini ve onaylanan senaryoları canlı finansal plana aktarmasını sağlayan `SimulationWorkflowService` ile kullanım senaryosu portu `ISimulationWorkflowService` taşındı. Kural M5 ve Düğüm T10 uyarınca eski `IMizanStore` ve monolitik `ApplySimulationBatchAsync` elendi; Kural M3 gereğince (≤ 5 bağımlılık) yazma sorumluluğu `IncomePlanWriter` (2 repo) ve `FinancialInstrumentWriter` (4 repo) odaklı yazıcıları üzerinden `SimulationPlanApplier`'a delege edildi (**S44**). `SimulationWorkflowService` tam 5 dar bağımlılıkla M3 sınırında tutuldu (`IClock`, `IPlanReader`, `ISimulationDraftRepository`, `SimulationCalculator`, `ISimulationPlanApplier`). Yasaklı terim `SalaryHistory` -> `IncomeHistory` olarak düzeltildi ve yapay tahsis (`Settings`) elendi (**S45**); simülasyon harcama havuzu parametresi `variableExpenseAllowanceOverride` olarak standartlaştırıldı (**S46**). Simülasyonun açık kullanıcı onayı olmadan uygulanamayacağı ve mükerrer isteklerin idempotentliği `I33` invariant'ı (`BR-SIM-01`) olarak sabitlendi. 26 yeni birim testi eklendi (toplam 950 test yeşil, `SimulationWorkflowService` ve yazıcılar kapsamı %100, mimari kalkanlar temiz).
 
 ### A18 — kart yükümlülüğü: `CreditCardObligationService`
 

@@ -419,4 +419,35 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A18`, `A20`, `V7`, `MauiProgram.cs` |
 | **Durum** | uygulandı |
 
+### S44 — Simülasyon uygulama sorumluluğu dar yazıcı kompozisyonuna bağlandı
+
+| | |
+|---|---|
+| **Eski** | `IMizanStore.ApplySimulationBatchAsync(SimulationPersistenceBatch)` tanrı depoda tek bir monolitik batch çalıştırıyordu; `SimulationPersistenceBatchBuilder` ise eski şema modellerini taşıyordu. |
+| **Neden yanlış** | Kural M5 / Düğüm T10 (tanrı arayüz) ve S25 (batch ve tanrı arayüz elendi). Ayrıca 6 dar repo doğrudan servise enjekte edilirse M3 kuralı (yapıcıda en fazla 5 bağımlılık) ve mimari test ihlal edilir. |
+| **Yeni** | Gelir depoları `IncomePlanWriter` (2 repo), finansal enstrüman depoları `FinancialInstrumentWriter` (4 repo) altında toplandı; `SimulationPlanApplier` bu iki yazıcıyı, `ScenarioPlanBuilder`'ı ve `IPlanChangeRecorder`'ı kullanarak senaryoları mevcut plana uygular (4 bağımlılık). `SimulationWorkflowService` ise 5 bağımlılıkla (`IClock`, `IPlanReader`, `ISimulationDraftRepository`, `SimulationCalculator`, `ISimulationPlanApplier`) tam M3 sınırında kalır. |
+| **Etkiler** | `A19`, `A20` |
+| **Durum** | uygulandı |
+
+### S45 — SimulationApplyDestination modelleri yasaklı terimlerden ve yapay tahsisten arındırıldı
+
+| | |
+|---|---|
+| **Eski** | `SimulationApplyDestination.SalaryHistory` ve `SimulationApplyDestination.Settings`. |
+| **Neden yanlış** | `Salary` (`S11`) yasaklı terimdir; `Settings` ise simülatör üzerinden `PaymentStrategyChange` (yapay tahsis) uygulandığında dönüyordu ve `S18` uyarınca yapay tahsis modu bütünüyle elendi. |
+| **Yeni** | `SimulationApplyDestination.IncomeHistory` kullanılır; `Settings` enum değeri elenir (Taşımama hakkı). |
+| **Etkiler** | `A19`, `V6`, `V10` |
+| **Durum** | uygulandı |
+
+### S46 — Simülasyon harcama havuzu parametresi C# ve dönem standardına uyarlandı
+
+| | |
+|---|---|
+| **Eski** | `ISimulationWorkflowService.SimulateAsync` metodunda `decimal? MonthlyVariableExpenseAllowanceOverride = null` PascalCase parametre adı. |
+| **Neden yanlış** | C# parametre isimlendirme kuralı camelCase olmalıdır (S10). Ayrıca yaşam harcaması artık aylık değil dönemliktir (S7, S16). |
+| **Yeni** | Parametre `decimal? variableExpenseAllowanceOverride = null` olarak adlandırılır. |
+| **Etkiler** | `A19`, `V10` |
+| **Durum** | uygulandı |
+
+
 
