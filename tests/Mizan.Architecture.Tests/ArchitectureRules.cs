@@ -32,4 +32,10 @@ internal static class ArchitectureRules
 
     public static IReadOnlyList<string> VerifyNoGodFacade() =>
         TypeSafetyRules.CheckNoGodFacade();
+
+    public static IReadOnlyList<string> VerifyOfflineManifest() =>
+        OfflineRules.CheckAndroidManifest();
+
+    public static IReadOnlyList<string> VerifyNoSentryPackage() =>
+        OfflineRules.CheckNoSentryPackage();
 }

@@ -21,9 +21,13 @@
     belirlendiği için merkezden sabitlenemez. Version= ile yazmak NU1008/NU1010 verir,
     referansı tamamen silmek ise CS0246 ile derlemeyi kırar. Bu üçü denendi.
   -->
+  <!--
+    Sentry BİLEREK yok (S60). Mizan çevrimdışıdır; Sentry'nin Android kütüphanesi manifest
+    birleşmesinde internet iznini kendiliğinden ekliyordu ve eski uygulamanın internete
+    çıkabilmesinin tek sebebiydi. Mimari test (MerkeziPaketler_SentryIcermez) geri gelmesini engeller.
+  -->
   <ItemGroup Label="Uygulama kabuğu (Mizan.App)">
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-    <PackageVersion Include="Sentry.Maui" Version="4.13.0" />
   </ItemGroup>
 
   <ItemGroup Label="Altyapı (Mizan.Infrastructure)">

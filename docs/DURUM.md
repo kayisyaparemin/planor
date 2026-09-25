@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I4c** — yedek klasörü |
-| Sıradaki adım | **I6** — telemetri adaptörü + PII maskesi |
-| Test sayısı | 1226 |
+| Son tamamlanan adım | **I6** — telemetri adaptörü (Sentry taşınmadı, S60) |
+| Sıradaki adım | **V0** — kabuk ve altyapı |
+| Test sayısı | 1234 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I6 — telemetri adaptörü: Sentry taşınmadı, `NullTelemetryService` ve çevrimdışılık kalkanı
+
+Faz I tamamlandı. Keşif, planın saydığı açıklardan daha temel bir sorun buldu (**S60**). Eski Sentry DSN'i hiç ayarlanmamıştı, olaylar hep örnek adrese gitti. Port hiçbir yerden çağrılmıyordu. Uygulamanın internet izni yalnız Sentry'nin Android kütüphanesinden geliyordu. Maske baktığı tek alanda da bozuktu: `15000 TL` ve `₺` sembollü tutarlar açıkta kalıyordu. Bu yüzden Sentry taşınmadı. Portun tek adaptörü artık `Mizan.Infrastructure.Telemetry.NullTelemetryService`; bildirimi yutar, asla istisna fırlatmaz (K5 catch blokları için). Manifestten `INTERNET` ve `ACCESS_NETWORK_STATE` silindi, `allowBackup="false"` yapıldı. Onaylı katman istisnası: manifest App katmanında. Mimari testler (`OfflineRules`) ağ iznini, bulut yedeğini ve Sentry paketini yasaklıyor (**`I40`**). Release APK'nın birleşmiş manifestinde INTERNET olmadığı doğrulandı; Debug'da hata ayıklayıcı için .NET kendisi ekliyor. **Dikkat:** V0'da DI kaydı `AddSingleton<ITelemetryService, NullTelemetryService>()` olacak, `UseSentry` olmayacak. Kaynak manifest testi, bir kütüphanenin derlemede eklediği izni göremez; birleşmiş manifest denetimi K2'ye kaldı. Android 12 ve üstünde cihazdan cihaza aktarım `allowBackup` ile kapanmıyor (gerekirse `dataExtractionRules`, V0). Yaklaşık 35 satır üretim kodu. 8 yeni test eklendi (toplam 1.234 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I4c — yedek klasörü: `FolderBackupStorage`, `IStorageAccess`
 

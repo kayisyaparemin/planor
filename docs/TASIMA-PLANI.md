@@ -150,7 +150,10 @@ Geri kalan her şey bu omurgadan sarkar.
         *(S59: ayrım önekte — v2 `Mizan-yedegi-`, onaylı tek sabitlik Application istisnası; klasör deposu bütün
         dosyaları listeler; `AndroidStorageAccess`, izinler ve klasör adı V0/V13'te)*
 - [x] **I5** — PDF ekstre içe aktarma: **TAŞINMADI (ELENDİ)** — S21: PdfPig ve banka ayrıştırıcıları elendi
-- [ ] **I6** — telemetri adaptörü + PII maskesi
+- [x] **I6** — telemetri adaptörü + PII maskesi: **Sentry TAŞINMADI** — S60: DSN hiç ayarlanmamıştı (örnek
+      adres), port hiçbir yerden çağrılmıyordu, internet izni yalnız Sentry'nin AAR'ından geliyordu, maske
+      `Message`'da da bozuktu; yerine `NullTelemetryService` ve çevrimdışılık kalkanı (`I40`: ağ izni yok,
+      `allowBackup` kapalı, Sentry paketi yasak)
       *(eskinin açığı: maske yalnız `event.Message`'ı kapsıyordu; exception metni, breadcrumb,
       extra ve ekran görüntüsü açıkta kalıyordu. `AttachScreenshot` varsayılan olarak kapalı.)*
 
@@ -200,7 +203,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | D | 24 | 24 |
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
-| I | 4 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı)* |
+| I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-	<uses-permission android:name="android.permission.INTERNET" />
+	<!-- allowBackup kapalı: Android'in bulut yedeği profil veritabanlarını Google hesabına
+	     yükler. Kullanıcının verisi cihazdan yalnız kendi aldığı Mizan-yedegi- dosyasıyla çıkar (I40, S60). -->
+	<application android:allowBackup="false" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<!-- İnternet izni BİLEREK yok: Mizan çevrimdışıdır (I40, S60). Eskide bu izin yalnız
+	     Sentry'nin Android kütüphanesinden geliyordu. Debug derlemesinde hata ayıklayıcı için
+	     .NET onu kendisi ekler; yayın derlemesine girmez. -->
 </manifest>

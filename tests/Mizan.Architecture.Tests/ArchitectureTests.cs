@@ -85,4 +85,48 @@ public sealed class ArchitectureTests
         TypeSafetyRules.CheckTypeForGodFacadeViolations(typeof(Fakes.FakeMizanService), violations);
         Assert.NotEmpty(violations);
     }
+
+    [Fact]
+    public void AndroidManifest_AgIzniVeBulutYedegiIstemez()
+    {
+        var violations = ArchitectureRules.VerifyOfflineManifest();
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void AndroidManifestKurali_IhlalGordugunde_Yakalayabilmelidir()
+    {
+        var manifest = System.Xml.Linq.XDocument.Parse(
+            """
+            <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application android:supportsRtl="true" />
+              <uses-permission android:name="android.permission.INTERNET" />
+            </manifest>
+            """);
+
+        var violations = OfflineRules.CheckManifestContent(manifest);
+
+        Assert.Equal(2, violations.Count);
+    }
+
+    [Fact]
+    public void MerkeziPaketler_SentryIcermez()
+    {
+        var violations = ArchitectureRules.VerifyNoSentryPackage();
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void SentryKurali_IhlalGordugunde_Yakalayabilmelidir()
+    {
+        const string props = """
+            <ItemGroup>
+              <PackageVersion Include="Sentry.Maui" Version="4.13.0" />
+            </ItemGroup>
+            """;
+
+        var violations = OfflineRules.CheckPackageContent("Directory.Packages.props", props);
+
+        Assert.NotEmpty(violations);
+    }
 }
