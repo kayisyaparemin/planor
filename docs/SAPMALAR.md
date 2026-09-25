@@ -497,5 +497,16 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A24`, `A19`, `V6`, `V10` |
 | **Durum** | uygulandı |
 
+### S52 — Yedekleme orkestrasyonu K3 ve M3 kurallarına uyarlandı, dosya kuralları saf sınıfa ayrıldı
+
+| | |
+|---|---|
+| **Eski** | `BackupService.cs` (302 satır) içinde servis orkestrasyonu, dosya adlandırma, filtreleme ve saklama kotası mantığı iç içeydi. `BackupModels.cs` ve `IBackup.cs` dosyalarında 12 adet public tip tek dosyalara yığılmıştı. `RestoreAsync` içinde `profiles.HasLegacyDatabase` kontrolü vardı. Servisin kullanım senaryosu portu (`IBackupService`) yoktu. |
+| **Neden yanlış** | Kural K3 (dosya ≤ 200 satır, metot ≤ 40 satır, tek public tip), Kural M3 (ViewModel'ler somut servise değil dar porta bağlanmalı), Kural M5 (arayüzde en fazla 10 metot) ve S22 (legacy tek dosya geçişi elendi). |
+| **Yeni** | 1. **K3 uyumu:** `BackupService` (198 satır) ve saf kurallar sınıfı `BackupRetentionRules` (89 satır) olarak ayrıldı. 12 tip müstakil leaf dosyalarına çıkarıldı.<br>2. **M3 ve M5 uyumu:** Ayarlar ekranı ve arka plan işleri için `IBackupService` portu eklendi; Kural M5 uyarınca 10 metot sınırında tutuldu.<br>3. **S22 uyumu:** `HasLegacyDatabase` kontrolü kaldırıldı (Taşımama hakkı); yalnızca profil mevcudiyeti (`profiles.GetProfilesAsync().Count > 0`) denetlenir.<br>4. **İsimlendirme entegrasyonu:** Kopya profil adlandırması ve numaralandırma A3 adımında oluşturulan `ProfileNameValidator.GenerateUniqueName` saf yardımcısına bağlandı. |
+| **Etkiler** | `A26`, `V13`, `NightlyBackupJob`, `MauiProgram.cs` |
+| **Durum** | uygulandı |
+
+
 
 

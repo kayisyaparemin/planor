@@ -256,6 +256,14 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | profil adı doğrulayıcısı | `ProfileNameValidator` | Profil adının uzunluk, boşluk ve Türkçe harf kurallarına göre benzersizliğini denetleyen saf yardımcı |
 | profil servisi | `ProfileService` | Profil yaşam döngüsünü (CRUD, oturum açma ve kapatma) yöneten kullanım senaryosu servisi |
 | yedek | `Backup` | Tüm profilleri içeren tek arşiv |
+| profil yedek arşivi | `IProfileBackupArchive` | Bütün profilleri tek bir zip arşivine yazan, özetini okuyan ve geri açan fiziksel arşivleme portu |
+| harici yedek deposu | `IBackupStorage` | Yedek dosyalarının cihazdaki harici depolama konumuna yazılmasını ve silinmesini yöneten port |
+| yedekleme servisi portu | `IBackupService` | Yedekleme, geri yükleme ve profil aktarma kullanım senaryolarını sunan dar port |
+| yedekleme servisi | `BackupService` | Gece yedekleme görevi, manuel yedekleme, kota temizliği ve geri yükleme orkestrasyonunu yürüten servis |
+| yedek saklama kuralları | `BackupRetentionRules` | Dosya adı biçimlendirme, filtreleme, kopya profil adlandırma ve en yeni 7 dosyayı tutma kurallarını yöneten saf yardımcı |
+| yedek özeti | `BackupSummary` | Yedek arşivinin oluşturulma zamanını ve içerdiği profil listesini taşıyan sözleşme |
+| son yedek durumu | `BackupState` | Son yedeğin zaman damgasını, dosya adını ve veri parmak izini tutan durum kaydı |
+| yedekleme seçenekleri | `BackupOptions` | Yedekleme çalışma dizini ve saklanacak azami dosya sayısını yapılandıran ayarlar |
 
 ---
 

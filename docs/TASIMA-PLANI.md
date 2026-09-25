@@ -118,7 +118,8 @@ Geri kalan her şey bu omurgadan sarkar.
   - [x] **A23b** — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService`, `SimulatorProjectionMath`, `SimulatorInterestPresenter`, `SimulatorTimelineNarrative` *(S50: Mizan.Presentation projesine taşındı, K3/K4 için faiz kıyaslaması ve anlatı derleyicisi ayrıldı, M3 yapıcı sınırlarına tam uyuldu)*
 - [x] **A24** — kataloglar: senaryo ve kayıt girişi katalogları: `SimulationScenarioCatalog`, `FinancialRecordEntryCatalog` *(S51: tekil dosyalara bölündü, Salary ve yapay tahsis elendi, M3 yapıcı sınırlarına tam uyuldu)*
 - [x] **A25** — ekstre içe aktarma portları: **TAŞINMADI (ELENDİ)** — S21: Otomatik ekstre içe aktarma özelliği bütünüyle elendi
-- [ ] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
+- [x] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
+      *(S52: BackupRetentionRules saf sınıfına ayrıldı, IBackupService dar portu eklendi, S22 uyarınca HasLegacyDatabase elendi)*
 - [ ] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
 
 ## Faz I — Infrastructure
@@ -180,7 +181,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 23 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 24 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

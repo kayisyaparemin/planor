@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A24** — kataloglar: senaryo ve kayıt girişi katalogları: `SimulationScenarioCatalog`, `FinancialRecordEntryCatalog` |
-| Sıradaki adım | **A26** — yedekleme: `BackupService`, `IProfileBackupArchive` *(A25 elendi)* |
-| Test sayısı | 1052 |
+| Son tamamlanan adım | **A26** — yedekleme: `BackupService`, `IProfileBackupArchive` |
+| Sıradaki adım | **A27** — telemetri portu: `ITelemetryService` |
+| Test sayısı | 1074 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A26 — yedekleme: `BackupService`, `IProfileBackupArchive`
+
+Kullanıcının tek cihazda çevrimdışı çalışan tüm profillerini tek bir atomik arşivde yedekleyen, değişiklik yoksa gece yedeğinde dosya yazmayan, en yeni 7 yedeği koruyup eskileri temizleyen ve yedekten profil ekleme/geri yükleme orkestrasyonunu yürüten `BackupService`, harici depolama portu `IBackupStorage`, arşiv portu `IProfileBackupArchive` ve kullanım senaryosu portu `IBackupService` taşındı. S52 kararı doğrultusunda eski 302 satırlık monolitik servis K3 (dosya ≤ 200, metot ≤ 40 satır) ve K4 (partial yasağı) gereğince orkestrasyon servisi `BackupService` (198 satır) ve saf kurallar sınıfı `BackupRetentionRules` (89 satır) olarak ayrıştırıldı. Eski `BackupModels.cs` ve `IBackup.cs` içindeki 12 tip müstakil leaf dosyalarına çıkarıldı (K3); V13 (Ayarlar) ekranının somut servise bağımlı kalmaması için `IBackupService` arayüzü eklendi ve Kural M5 sınırında (10 metot) tutuldu. S22 kararı uyarınca eski tek dosya geçiş kontrolü (`HasLegacyDatabase`) tamamen ayıklandı; kopya isim üretimi A3'teki `ProfileNameValidator.GenerateUniqueName` saf yardımcısına bağlandı; CA1001 gereği `IDisposable` eklendi. 22 yeni birim testi eklendi (toplam 1.074 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A24 — kataloglar: senaryo ve kayıt girişi katalogları: `SimulationScenarioCatalog`, `FinancialRecordEntryCatalog`
 
