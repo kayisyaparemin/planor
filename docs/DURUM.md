@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I2a** — gelir ve kredi depoları: `SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository` |
-| Sıradaki adım | **I2b** — borç planları ve kredi kartı depoları (`SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository`) |
-| Test sayısı | 1108 |
+| Son tamamlanan adım | **I2b** — borç planları ve kredi kartı depoları: `SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository` |
+| Sıradaki adım | **I2c** — taslak, bildirim ve canlı gözlem depoları (`SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository`) |
+| Test sayısı | 1117 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I2b — borç planları ve kredi kartı depoları: `SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository`
+
+Geçici borç/ödeme planları, planlı büyük harcamalar ve kredi kartı kök varlık (aggregate root) depolarının SQLite somut adaptörleri taşındı (`SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository`). K3 kuralı uyarınca tüm entity'ler tekil dosyalarda oluşturuldu (`PaymentPlanEntity`, `PaymentInstallmentEntity`, `PlannedLargeExpenseEntity`, `CreditCardEntity`, `CardInstallmentEntity`, `CreditCardStatementEntity`, `CreditCardPaymentPlanEntity`, `CreditCardPaymentPreferenceEntity`). Kredi kartı modelinin karmaşık çocuk koleksiyonları (taksitler, ekstreler, ödeme planları, tercihler) K3 dosya (≤ 200 satır) ve metot (≤ 40 satır) limitlerini korumak amacıyla `CreditCardEntityMapper` saf haritalayıcısına devredildi. SQLite yabancı anahtar kısıtı (`ON DELETE CASCADE`) ile ödeme planı veya kredi kartı silindiğinde taksitlerinin otomatik silinmesi güvenceye alındı; kart güncelleme işlemi `RunInTransactionAsync` ile atomik kılındı. 9 yeni repo testi eklendi (toplam 1.117 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I2a — gelir ve kredi depoları: `SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository`
 
