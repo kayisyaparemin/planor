@@ -507,6 +507,17 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A26`, `V13`, `NightlyBackupJob`, `MauiProgram.cs` |
 | **Durum** | uygulandı |
 
+### S53 — Temiz şema v1: 30 tablo, PRAGMA user_version = 1, gerçek yabancı anahtarlar ve yalancı/ölü kolonların arındırılması
+
+| | |
+|---|---|
+| **Eski** | Eski SQLite şeması v1'den v17'ye kadar 17 migration zinciriyle büyümüştü. `PRAGMA foreign_keys = ON;` kapalıydı ve ilişkiler zorlanmıyordu; çocuk tablolar yetim kalabiliyordu. 16 yalancı kolon (kodda okunmayan/kullanılmayan kolonlar) ve 12 ölü kolon (eski adımlarda atılan `SalaryDay`, `StartDate`, `EndDate`, `CurrentTotalDebt`, `SchemaVersion`, `ActualSnapshotDate` vb.) tablolarda yer işgal ediyordu. Dokümandaki mekanik `29 + 2 = 31` hesabı, elenen iki tablo (`payment_assignment_strategies` — S18, `period_observation_flows` — S20) hesaba katılmadan yapılmıştı. |
+| **Neden yanlış** | Temiz bir v2 kurulumunda 17 migration çalıştırılmaz. `PRAGMA user_version = 1` doğrudan temiz v1 olarak oluşturulmalıdır. Yabancı anahtarların (`FOREIGN KEY ... REFERENCES ... ON DELETE CASCADE`) aktif olmaması veri bütünlüğünü bozar ve yetim kayıtlar üretir. Kullanılmayan veya Domain kurallarıyla çelişen ölü kolonların şemada bulunması kafa karıştırır. |
+| **Yeni** | 1. **30 Temiz Tablo:** 29 eski tablo - S18 `payment_assignment_strategies` - S20 `period_observation_flows` + S2/S5 `income_amount_histories` + S31 `period_plan_income_lines` + S31 `period_plan_revision_income_lines` = 30 tablo.<br>2. **İlişkisel Bütünlük:** `PRAGMA foreign_keys = ON;` zorunlu kılınmıştır; tüm ilişkiler gerçek `FOREIGN KEY` ve `ON DELETE CASCADE` ile bağlanmıştır.<br>3. **Temiz Başlangıç:** `PRAGMA user_version = 1` doğrudan set edilir; migration zincirleri taşınmaz.<br>4. **Ölü ve Yalancı Kolonlar Arındırıldı:** `StartDate`/`EndDate` (plan snapshot), `CurrentTotalDebt` (kredi kartları), `SalaryDay` (gelirler), `ActualSnapshotDate` (gerçekleşme) ve `SchemaVersion` (anlık görüntü) kolonları şemadan temizlendi; testlerle yoklukları kalkan altına alındı.<br>5. **K3 Uyumu:** DDL komutları 200 satır sınırını aşmamak için 4 odaklı iç sınıfa bölündü (`SchemaIncomeLoanTables`, `SchemaCardTables`, `SchemaSnapshotTables`, `SchemaActualAndObservationTables`). |
+| **Etkiler** | `I1`, `I2`, `G1`, `DatabaseSchema`, `SqliteConnectionFactory` |
+| **Durum** | uygulandı |
+
+
 
 
 

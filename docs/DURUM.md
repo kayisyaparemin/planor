@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A27** — telemetri portu: `ITelemetryService` |
-| Sıradaki adım | **I1** — **temiz şema v1**: 31 tablo, `PRAGMA user_version`, gerçek foreign key'ler. |
-| Test sayısı | 1081 |
-| Şema sürümü | — |
+| Son tamamlanan adım | **I1** — **temiz şema v1**: 30 tablo, `PRAGMA user_version = 1`, gerçek foreign key'ler |
+| Sıradaki adım | **I2** — depo implementasyonları *(dar port başına ayrı sınıf)* |
+| Test sayısı | 1092 |
+| Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I1 — temiz şema v1: 30 tablo, PRAGMA user_version = 1, gerçek foreign key'ler
+
+Mizan'ın SQLite temiz şema v1 altyapısı, DDL tanımları ve bağlantı fabrikası kuruldu. S53 kararı doğrultusunda eski projenin v17'ye kadar uzanan 17 migration'ı atıldı, `PRAGMA user_version = 1` doğrudan temiz başlangıç olarak tanımlandı. Eski 29 tablo hesabı, yapay tahsis (`payment_assignment_strategies` — S18) ve spekülatif ara akışların (`period_observation_flows` — S20) elenmesi, birden fazla gelir akışı geçmişi (`income_amount_histories` — S2/S5) ve dondurulan/revize plan gelir satırlarının (`period_plan_income_lines`, `period_plan_revision_income_lines` — S31) eklenmesiyle **30 temiz tablo** olarak netleştirildi. Tüm ilişkilerde `PRAGMA foreign_keys = ON;` ve `ON DELETE CASCADE` kuralı zorunlu kılındı. 16 yalancı ve 12 ölü kolon (`StartDate`, `EndDate`, `CurrentTotalDebt`, `SalaryDay`, `ActualSnapshotDate`, `SchemaVersion` vb.) şemadan tamamen arındırıldı. K3 kuralı uyarınca (dosya ≤ 200 satır) DDL scriptleri 4 odaklı iç sınıfa bölündü (`SchemaIncomeLoanTables`, `SchemaCardTables`, `SchemaSnapshotTables`, `SchemaActualAndObservationTables`). Şema ilklendirme, sürüm kontrolü ve yabancı anahtar zorlaması `DatabaseSchema` ve `SqliteConnectionFactory` ile sağlandı. 11 yeni test eklendi (toplam 1.092 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A27 — telemetri portu: `ITelemetryService`
 

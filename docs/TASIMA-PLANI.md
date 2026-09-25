@@ -124,9 +124,9 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz I — Infrastructure
 
-- [ ] **I1** — **temiz şema v1**: 31 tablo, `PRAGMA user_version`, gerçek foreign key'ler.
+- [x] **I1** — **temiz şema v1**: 30 tablo, `PRAGMA user_version = 1`, gerçek foreign key'ler.
       *Eski v17'nin 16 yalancı kolonu, 12 ölü kolonu ve hiçbir migration'ı taşınmaz.*
-      *(S31 ile +2 tablo: plan ve revizyon gelir satırları — ödeme satırlarının iki tablosu emsal)*
+      *(S53: 30 tablo — 29 eski tablo - S18 tahsis - S20 gözlem akışları + S2/S5 gelir geçmişi + S31 plan/revizyon gelir satırları)*
 - [ ] **I2** — depo implementasyonları *(dar port başına ayrı sınıf — tek 2.400 satırlık
       `SqliteMizanStore` değil)*
 - [ ] **I3** — profil deposu ve profil başına veritabanı
@@ -182,7 +182,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | D | 24 | 24 |
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
-| I | 0 | 5 *(I5 taşınmıyor)* |
+| I | 1 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |
