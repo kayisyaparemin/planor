@@ -112,8 +112,7 @@ Geri kalan her şey bu omurgadan sarkar.
       *(S47: tanrı arayüz ve partial elendi; kredi, vadeli plan ve büyük harcamalar 5 dar bağımlılıkla IObligationManagementService'te toplandı; gelir yönetimi IIncomePlanService portuna ayrıldı)*
 - [x] **A21** — dönem iş akışı: `IPeriodWorkflowService`
       *(S48: Kural M5 ve M3 gereği dönem mutabakat/gözlem servisi IPeriodWorkflowService ve ödeme hatırlatıcı servisi IPaymentReminderService olarak ayrıştırıldı; PaymentDueCollector odaklı yardımcı servisi eklendi)*
-- [ ] **A22** — cephe `MizanService`: **TAŞINMAZ.** Düğüm T7: 515 satırlık tek kapı,
-      16 ViewModel'in 11'i yalnız buna bağlıydı. ViewModel'ler dar portlara bağlanacak.
+- [x] **A22** — cephe `MizanService`: **TAŞINMADI (ELENDİ)** — S49: Düğüm T7, Kural M3; 515 satırlık tanrı cephe elendi, ViewModel'ler dar portlara bağlanır, mimari testle yasaklandı
 - [ ] **A23** — sunum yardımcıları: `CashFlowPeriodDetailPresenter`, `SimulatorInsightService`
 - [ ] **A24** — kataloglar: senaryo ve kayıt girişi katalogları
 - [x] **A25** — ekstre içe aktarma portları: **TAŞINMADI (ELENDİ)** — S21: Otomatik ekstre içe aktarma özelliği bütünüyle elendi
@@ -179,7 +178,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 21 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 22 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

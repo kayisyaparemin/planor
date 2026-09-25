@@ -29,4 +29,7 @@ internal static class ArchitectureRules
 
     public static IReadOnlyList<string> VerifyNoCompositeRepositories() =>
         TypeSafetyRules.CheckNoCompositeRepositories();
+
+    public static IReadOnlyList<string> VerifyNoGodFacade() =>
+        TypeSafetyRules.CheckNoGodFacade();
 }

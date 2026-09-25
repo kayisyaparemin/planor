@@ -138,6 +138,30 @@ internal static class TypeSafetyRules
         }
     }
 
+    public static IReadOnlyList<string> CheckNoGodFacade()
+    {
+        var violations = new List<string>();
+
+        foreach (var assemblyName in ProductionAssemblies)
+        {
+            var assembly = Assembly.Load(assemblyName);
+            foreach (var type in assembly.GetTypes())
+            {
+                CheckTypeForGodFacadeViolations(type, violations);
+            }
+        }
+
+        return violations;
+    }
+
+    public static void CheckTypeForGodFacadeViolations(Type type, List<string> violations)
+    {
+        if (type.Name == "MizanService" || type.Name.EndsWith("MizanService", StringComparison.Ordinal))
+        {
+            violations.Add($"{type.FullName}: MizanService ve türevleri tanrı cephedir (god facade), var olamaz (Kural M3, Düğüm T7).");
+        }
+    }
+
     private static void CheckAppAsyncVoid(List<string> violations)
     {
         var appDir = Path.Combine(SolutionPaths.SourceDirectory, "Mizan.App");

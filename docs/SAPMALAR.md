@@ -467,3 +467,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A21`, `V3`, `V11`, `PaymentReminderCoordinator`, `MauiProgram.cs` |
 | **Durum** | uygulandı |
 
+### S49 — Tanrı cephe MizanService taşınmaz, ViewModel'ler dar portlara bağlanır (Düğüm T7, Kural M3)
+
+| | |
+|---|---|
+| **Eski** | `MizanService` (515 satır, 2 partial dosya, 40+ metot), `IMizanStore` ve 5 servisi birleştirerek 16 ViewModel'in 11'ine tek kapı olarak hizmet veriyordu. İkincil yapıcısında 16 parametre alıp içeride gizli `new` ile servis dünyası kuruyordu. |
+| **Neden yanlış** | Kural M3 (tanrı cephe yasak), Kural M1 (hesaplayıcı/servis bağımlılığını new'leyemez), Kural K3 (≤ 200 satır) ve Kural K4 (partial yasağı) ihlalidir. 11 ekranın tek bir sınıfa kilitlenmesi ViewModel'lerin izole edilmesini ve test edilebilirliğini engelliyordu. |
+| **Yeni** | `MizanService` bütünüyle elendi (Taşımama hakkı). Üretim kodunda hiçbir `MizanService` veya benzeri god facade sınıfı bulunamaz (`ArchitectureTests.GodFacade_Ve_MizanService_Yasak` ile zorlanır). ViewModel'ler Faz V'te doğrudan ihtiyaç duydukları dar portlara bağlanır. |
+| **Etkiler** | `A22`, `V3`–`V13`, `MauiProgram.cs` |
+| **Durum** | uygulandı |
+
+

@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A21** — dönem iş akışı: `IPeriodWorkflowService` |
+| Son tamamlanan adım | **A22** — cephe `MizanService`: **TAŞINMADI (ELENDİ)** |
 | Sıradaki adım | **A23** — sunum yardımcıları: `CashFlowPeriodDetailPresenter`, `SimulatorInsightService` |
-| Test sayısı | 1009 |
+| Test sayısı | 1011 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A22 — cephe `MizanService`: TAŞINMADI (ELENDİ) (Düğüm T7, Kural M3, S49)
+
+Eski mimaride 16 ViewModel'in 11'ine tek kapı olarak hizmet veren, 515 satırlık ve 2 partial dosyalı tanrı cephe (god facade) `MizanService` ve ikincil yapıcısındaki 16 parametreli gizli `new` mekanizması bütünüyle elendi (**S49**). Kural M3 (tanrı cephe yasak), Kural M1 (hesaplayıcı/servis bağımlılığını new'leyemez), Kural K3 (≤ 200 satır) ve Kural K4 (`partial` yasağı) korundu. ViewModel'lerin Faz V'te doğrudan ihtiyaç duydukları dar portlara (`IPlanReader`, `ICreditCardObligationService`, `IObligationManagementService`, `IIncomePlanService`, `ISimulationWorkflowService`, `IPeriodWorkflowService`, `IPaymentReminderService`, `PeriodProgressService`, `HistoryQueryService`) bağlanacağı kesinleştirildi. `MizanService` veya türevlerinin üretim kodunda yer alması `ArchitectureTests.GodFacade_Ve_MizanService_Yasak` ve ihlal yakalama testiyle kalkan altına alındı. 2 yeni mimari testi eklendi (toplam 1.011 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A21 — dönem iş akışı: `IPeriodWorkflowService`, `IPaymentReminderService`
 

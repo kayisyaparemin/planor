@@ -70,4 +70,19 @@ public sealed class ArchitectureTests
         TypeSafetyRules.CheckTypeForCompositeRepositoryViolations(typeof(Fakes.IFakeCompositeStore), violations);
         Assert.NotEmpty(violations);
     }
+
+    [Fact]
+    public void GodFacade_Ve_MizanService_Yasak()
+    {
+        var violations = ArchitectureRules.VerifyNoGodFacade();
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void GodFacadeKurali_IhlalGordugunde_Yakalayabilmelidir()
+    {
+        var violations = new List<string>();
+        TypeSafetyRules.CheckTypeForGodFacadeViolations(typeof(Fakes.FakeMizanService), violations);
+        Assert.NotEmpty(violations);
+    }
 }
