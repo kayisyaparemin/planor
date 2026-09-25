@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I1** — **temiz şema v1**: 30 tablo, `PRAGMA user_version = 1`, gerçek foreign key'ler |
-| Sıradaki adım | **I2** — depo implementasyonları *(dar port başına ayrı sınıf)* |
-| Test sayısı | 1092 |
+| Son tamamlanan adım | **I2a** — gelir ve kredi depoları: `SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository` |
+| Sıradaki adım | **I2b** — borç planları ve kredi kartı depoları (`SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository`) |
+| Test sayısı | 1108 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I2a — gelir ve kredi depoları: `SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository`
+
+I2 adımının 2.400 satırlık tanrı sınıfı `SqliteMizanStore` elendi; adım büyüklüğü kuralı uyarınca 4 alt adıma bölündü (S54). İlk alt adımda temel gelir, kullanıcı ayarları ve kredi portlarının SQLite somut adaptörleri taşındı (`SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository`). K3 kuralı uyarınca tüm varlıklar tekil dosyalarda oluşturuldu (`SettingsEntity`, `RecurringIncomeEntity`, `IncomeAmountHistoryEntity`, `AdHocIncomeEntity`, `LoanEntity`, `LoanPrepaymentEntity`). Kural 05 gereğince eski yalan söyleyen kolonlar (`StartDate` -> `NextPaymentDate`, `MonthlyInstallment` -> `MonthlyPayment`) düzeltildi, `[Column("...")]` takma adları bütünüyle ayıklandı. Veritabanındaki gerçek yabancı anahtar kısıtı (`FOREIGN KEY ... ON DELETE CASCADE`) sayesinde kredi veya gelir silindiğinde çocuk kayıtların (erken ödemeler, tutar geçmişi) manuel koda gerek kalmadan SQLite tarafından silinmesi kalkan altına alındı. Tarih formatlamalarında `CultureInfo.InvariantCulture` ile kültür bağımsızlığı ve CA1305 tam uyumu sağlandı. 16 yeni birim testi eklendi (toplam 1.108 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I1 — temiz şema v1: 30 tablo, PRAGMA user_version = 1, gerçek foreign key'ler
 

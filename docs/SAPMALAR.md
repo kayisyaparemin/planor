@@ -517,6 +517,17 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `I1`, `I2`, `G1`, `DatabaseSchema`, `SqliteConnectionFactory` |
 | **Durum** | uygulandı |
 
+### S54 — SqliteMizanStore tanrı sınıfı elendi; dar port başına bağımsız SQLite repository sınıfları ve temiz entity eşleyicileri kuruldu
+
+| | |
+|---|---|
+| **Eski** | 2.400 satırlık, 12 partial dosyaya bölünmüş `SqliteMizanStore` tek başına tüm 10 tablo kümesini yönetiyordu. Yabancı anahtarlar kapalı olduğu için ilişkili çocuk kayıtlar kod içinde elle siliniyordu (`DeleteLoanAsync` içinde prepayment silme). Yalan söyleyen kolonlar (`StartDate`, `MonthlyInstallment`, `InstallmentCount`) ve `[Column("...")]` takma adları kullanılıyordu. |
+| **Neden yanlış** | Kural M5 (tanrı arayüz/sınıf yasak), Kural K3 (dosya ≤ 200, metot ≤ 40 satır), Kural K4 (`partial` yasağı) ve Kural 05 (kolon adı yanıltmaz, takma ad yasak). |
+| **Yeni** | 1. **Bağımsız Dar Depolar:** Her dar port kendi bağımsız sınıfına ayrıldı (`SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository` vb.).<br>2. **Otomatik Cascade:** Veritabanında `ON DELETE CASCADE` aktif olduğu için çocuk kayıtlar SQLite motoru tarafından otomatik silinir; manuel silme kodları ayıklandı.<br>3. **Temiz Entity Eşlemesi:** `[Column("...")]` takma adları bütünüyle elendi; entity özellikleri şemadaki sütun adlarıyla birebir aynıdır.<br>4. **Doğrudan Bağlantı Modeli:** Depo sınıfları yapıcısında doğrudan `SQLiteAsyncConnection` alır; ekstra aracı soyutlamalar kaldırıldı.<br>5. **Adım Büyüklüğü Bölünmesi:** I2 adımı, adım büyüklüğü kuralı gereğince 4 odaklı alt adıma (I2a, I2b, I2c, I2d) bölündü. |
+| **Etkiler** | `I2` (`I2a`, `I2b`, `I2c`, `I2d`), `I3`, `Mizan.Infrastructure` |
+| **Durum** | uygulandı |
+
+
 
 
 
