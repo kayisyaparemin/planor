@@ -5,7 +5,7 @@ using Xunit;
 namespace Mizan.Architecture.Tests.Design;
 
 /// <summary>
-/// GK1, GK2, GK3 ve GK8 kurallarını zorlayan tasarım token mimari testleri.
+/// GK1, GK2, GK3, GK6 ve GK8 kurallarını zorlayan tasarım token mimari testleri.
 /// </summary>
 public sealed class DesignTokenTests
 {
@@ -23,12 +23,11 @@ public sealed class DesignTokenTests
 
         var darkDoc = XamlSources.FindDocument("DarkPalette.xaml");
         var lightDoc = XamlSources.FindDocument("LightPalette.xaml");
-
         Assert.True(darkDoc is not null, "DarkPalette.xaml bulunamadı.");
         Assert.True(lightDoc is not null, "LightPalette.xaml bulunamadı.");
 
-        var darkActual = ParseColorsWithOrder(darkDoc.Content);
-        var lightActual = ParseColorsWithOrder(lightDoc.Content);
+        var darkActual = XamlSources.ParseColorsWithOrder(darkDoc.Content);
+        var lightActual = XamlSources.ParseColorsWithOrder(lightDoc.Content);
 
         Assert.Equal(expectedTokens.Count, darkActual.Count);
         Assert.Equal(expectedTokens.Count, lightActual.Count);
@@ -53,7 +52,6 @@ public sealed class DesignTokenTests
         foreach (var doc in docs)
         {
             if (doc.FileName is "DarkPalette.xaml" or "LightPalette.xaml") { continue; }
-
             foreach (var line in doc.Content.Split('\n'))
             {
                 var trimmed = line.Trim();
@@ -61,19 +59,17 @@ public sealed class DesignTokenTests
 
                 if (hexRegex.IsMatch(trimmed))
                 {
-                    failures.Add($"{doc.FileName}: Ham hex renk bulundu -> {trimmed}");
+                    failures.Add($"{doc.FileName}: Ham hex renk -> {trimmed}");
                 }
-
                 foreach (var named in ForbiddenNamedColors)
                 {
                     if (Regex.IsMatch(trimmed, $@"\b{named}\b", RegexOptions.IgnoreCase))
                     {
-                        failures.Add($"{doc.FileName}: Yasaklı adlandırılmış renk '{named}' bulundu -> {trimmed}");
+                        failures.Add($"{doc.FileName}: Yasaklı renk '{named}' -> {trimmed}");
                     }
                 }
             }
         }
-
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
     }
 
@@ -81,11 +77,10 @@ public sealed class DesignTokenTests
     public void TokenAdi_BoyaAdiOlamaz()
     {
         var forbidden = DesignSystemDocument.GetForbiddenTokenNames();
-        var filesToScan = new[] { "DarkPalette.xaml", "LightPalette.xaml", "Styles.xaml" };
         var keyRegex = new Regex(@"x:Key=""(?<key>[A-Za-z0-9_]+)""");
         var failures = new List<string>();
 
-        foreach (var fileName in filesToScan)
+        foreach (var fileName in new[] { "DarkPalette.xaml", "LightPalette.xaml", "Styles.xaml" })
         {
             var doc = XamlSources.FindDocument(fileName);
             if (doc is null) { continue; }
@@ -100,12 +95,11 @@ public sealed class DesignTokenTests
                 {
                     if (forbidden.Contains(word))
                     {
-                        failures.Add($"{fileName}: '{key}' anahtarında boya adı parçası '{word}' bulundu.");
+                        failures.Add($"{fileName}: '{key}' içinde boya adı '{word}' bulundu.");
                     }
                 }
             }
         }
-
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
     }
 
@@ -114,7 +108,6 @@ public sealed class DesignTokenTests
     {
         var validTokens = DesignSystemDocument.GetTypeScale().Select(t => t.Token).ToHashSet();
         validTokens.Add("IconSmall"); validTokens.Add("IconMedium"); validTokens.Add("IconLarge");
-
         var failures = new List<string>();
         var numRegex = new Regex(@"\bFontSize\s*=\s*""(?<val>[0-9]+)""");
         var resRegex = new Regex(@"\bFontSize\s*=\s*""{(?:StaticResource|DynamicResource)\s+(?<val>[A-Za-z0-9_]+)}""");
@@ -124,22 +117,18 @@ public sealed class DesignTokenTests
         foreach (var doc in XamlSources.GetAllDocuments())
         {
             if (doc.FileName is "Tipografi.xaml") { continue; }
-
             foreach (Match m in numRegex.Matches(doc.Content).Concat(setterNumRegex.Matches(doc.Content)))
             {
-                failures.Add($"{doc.FileName}: FontSize sayısal literal taşıyor -> {m.Groups["val"].Value}");
+                failures.Add($"{doc.FileName}: FontSize sayısal literal -> {m.Groups["val"].Value}");
             }
-
             foreach (Match m in resRegex.Matches(doc.Content).Concat(setterResRegex.Matches(doc.Content)))
             {
-                var token = m.Groups["val"].Value;
-                if (!validTokens.Contains(token))
+                if (!validTokens.Contains(m.Groups["val"].Value))
                 {
-                    failures.Add($"{doc.FileName}: Skala dışı FontSize token'ı -> {token}");
+                    failures.Add($"{doc.FileName}: Skala dışı FontSize -> {m.Groups["val"].Value}");
                 }
             }
         }
-
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
     }
 
@@ -154,13 +143,11 @@ public sealed class DesignTokenTests
         foreach (var doc in XamlSources.GetAllDocuments())
         {
             if (doc.FileName is "Olcu.xaml" or "DarkPalette.xaml" or "LightPalette.xaml" or "Tipografi.xaml") { continue; }
-
             foreach (Match m in attrPattern.Matches(doc.Content).Concat(setterPattern.Matches(doc.Content)))
             {
-                failures.Add($"{doc.FileName}: {m.Groups["prop"].Value} özniteliğinde sayısal literal -> {m.Groups["val"].Value}");
+                failures.Add($"{doc.FileName}: {m.Groups["prop"].Value} özniteliğinde literal -> {m.Groups["val"].Value}");
             }
         }
-
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
     }
 
@@ -189,25 +176,47 @@ public sealed class DesignTokenTests
         {
             foreach (Match m in staticRegex.Matches(doc.Content))
             {
-                var name = m.Groups["name"].Value;
-                if (colorTokens.Contains(name))
+                if (colorTokens.Contains(m.Groups["name"].Value))
                 {
-                    failures.Add($"{doc.FileName}: Renk token'ı '{name}' StaticResource ile bağlanamaz; DynamicResource kullanılmalı.");
+                    failures.Add($"{doc.FileName}: '{m.Groups["name"].Value}' DynamicResource olmalı.");
                 }
             }
         }
-
         Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
     }
 
-    private static List<KeyValuePair<string, string>> ParseColorsWithOrder(string content)
+    [Fact]
+    public void Xaml_HamGlif_Iceremez()
     {
-        var list = new List<KeyValuePair<string, string>>();
-        var pattern = new Regex(@"<Color\s+x:Key=""(?<key>[A-Za-z0-9_]+)"">\s*(?<val>#[A-Fa-f0-9]{6,8})\s*</Color>");
-        foreach (Match m in pattern.Matches(content))
+        var failures = new List<string>();
+        var glyphPattern = new Regex(@"[\u2190-\u21FF\u2600-\u27BF\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]|\uD83D[\uDE80-\uDEFF]");
+
+        foreach (var doc in XamlSources.GetAllDocuments())
         {
-            list.Add(new KeyValuePair<string, string>(m.Groups["key"].Value, m.Groups["val"].Value.ToUpperInvariant()));
+            foreach (var line in doc.Content.Split('\n'))
+            {
+                var trimmed = line.Trim();
+                if (trimmed.StartsWith("<!--", StringComparison.Ordinal) && trimmed.EndsWith("-->", StringComparison.Ordinal)) { continue; }
+                if (glyphPattern.IsMatch(trimmed))
+                {
+                    failures.Add($"{doc.FileName}: Ham glif veya simge karakteri bulundu -> {trimmed}");
+                }
+            }
         }
-        return list;
+        Assert.True(failures.Count == 0, string.Join(Environment.NewLine, failures));
+    }
+
+    [Fact]
+    public void Ikonlar_SistemdekiListeyleBirebir()
+    {
+        var iconsPath = Path.Combine(SolutionPaths.SourceDirectory, "Mizan.App", "Icons", "Icons.cs");
+        Assert.True(File.Exists(iconsPath), "src/Mizan.App/Icons/Icons.cs dosyası bulunamadı.");
+
+        var content = File.ReadAllText(iconsPath);
+        var pattern = new Regex(@"public\s+const\s+string\s+(?<name>[A-Za-z0-9_]+)\s*=");
+        var actualIcons = pattern.Matches(content).Select(m => m.Groups["name"].Value).OrderBy(x => x).ToList();
+        var expectedIcons = DesignSystemDocument.GetIconNames().OrderBy(x => x).ToList();
+
+        Assert.Equal(expectedIcons, actualIcons);
     }
 }

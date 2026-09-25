@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **T1** — token katmanı (iki tema) |
-| Sıradaki adım | **T2** — ikon ve marka katmanı |
-| Test sayısı | 1243 |
+| Son tamamlanan adım | **T2** — ikon ve marka katmanı |
+| Sıradaki adım | **T3** — bileşen kitaplığı |
+| Test sayısı | 1249 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### T2 — ikon ve marka katmanı: Material Symbols Rounded statik font, `Icons.cs`, Planör marka yüzeyleri
+
+Material Symbols Rounded statik `.ttf` fontu kaydedildi (`MauiProgram.cs`). `Icons.cs` oluşturularak `docs/TASARIM-SISTEMI.md` § İkonlar tablosundaki 12 ikonun kod noktası (`Menu`, `ChevronRight`, `ArrowBack`, `Close`, `Insights`, `Notifications`, `Check`, `Schedule`, `Settings`, `CreditCard`, `AccountBalance`, `Payments`) tek kaynakta toplandı; eski projedeki buton metinlerine gömülü `→` ve simge karakterleri bütünüyle temizlendi (`I50`, `I51`). Uygulama etiketi `Planör` olarak ayarlandı, `com.mizan.app` ve `Mizan.*` kod adları korundu (`GS6`). İkon ve açılış ekranı zemini `#1E232A` (Backdrop koyu) değerine kenetlendi (`I55`). Geçici sayfa başlığı `Planör` yapıldı (`I52`, `I53`). Altı yeni mimari test eklendi (toplam 1.249 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### T1 — token katmanı: iki tema (`DarkPalette`, `LightPalette`), tip ve ölçü skalası, kontrast kalkanı
 

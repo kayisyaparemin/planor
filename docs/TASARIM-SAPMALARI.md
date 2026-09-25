@@ -108,7 +108,7 @@ daha kullanılmaz.
 | **Neden kod adı kalıyor** | Taşıma sürüyor. `Mizan.sln`'i, `Mizan.*` projelerini, ad alanlarını ve depoyu şimdi yeniden adlandırmak, taşıma protokolünün ortasında yüzlerce dosyaya dokunmak demek. Eski projenin **yarım kalmış altı yeniden adlandırması** tam olarak böyle doğdu. Kullanıcı kod adını hiçbir yerde görmüyor. |
 | **Yeni** | Kullanıcıya görünen her yüzey Planör: uygulama etiketi (`ApplicationTitle`), ikon, açılış ekranı, `Resources/Strings`. **GK11** bunu testle zorluyor: eski ad görünen hiçbir metinde geçemez. Kod tanımlayıcılarında `Mizan` geçmesi hata değildir. |
 | **Bu protokolün dokunmadığı** | `ApplicationId` (`com.mizan.app`) ve `G1` geçiş adımı taşıma planına aittir. Kod adının da değişmesi istenirse bu, taşıma bittikten sonra **tek adımda, tek commit'te** yapılan ayrı bir karardır; yarım yapılmaz. |
-| **Etkiler** | `T2`, tüm V adımları |
+| **Etkiler** | `T2` (uygulandı), tüm V adımları |
 | **Durum** | açık |
 
 ### GS7 — İki tema, tek mekanizma. Konseptin paleti emekli, yerleşimi geçerli

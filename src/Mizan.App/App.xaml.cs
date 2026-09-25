@@ -17,7 +17,7 @@ public partial class App : Microsoft.Maui.Controls.Application
         ApplyPalette(RequestedTheme);
         RequestedThemeChanged += (_, e) => ApplyPalette(e.RequestedTheme);
 
-        MainPage = new ContentPage { Title = "Mizan" };
+        MainPage = new ContentPage { Title = "Planör" };
     }
 
     private void ApplyPalette(AppTheme theme)

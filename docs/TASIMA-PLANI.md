@@ -175,7 +175,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
       `Tipografi.xaml` (7 kademe), `Olcu.xaml` (boşluk, yarıçap, vuruş). `Styles.xaml`
       token'lara geçer, tema sistemi izler (`GS7`). Kurallar **GK1, GK2, GK3, GK8, GK10**
       ve testleri.
-- [ ] **T2** — ikon ve marka katmanı: Material Symbols Rounded statik font, `Icons.cs`
+- [x] **T2** — ikon ve marka katmanı: Material Symbols Rounded statik font, `Icons.cs`
       (12 ikon), üç boyut kademesi; uygulama etiketi `Planör`, Planör ikonu ve açılış
       ekranı. Kod adı `Mizan` kalır (`GS6`). Kurallar **GK6, GK11** ve testleri.
 - [ ] **T3** — bileşen kitaplığı: `Components/` altında 12 `ContentView`, her biri ≤ 200
@@ -236,7 +236,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
-| T | 1 | 6 |
+| T | 2 | 6 |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

@@ -63,6 +63,12 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I47` | Renk token'ları XAML içinde `StaticResource` ile bağlanamaz; tema değişiminde dinamik güncellenmesi için daima `DynamicResource` kullanılır (GK8). | `Mizan.Architecture.Tests.Design.DesignTokenTests.Xaml_RenkTokeni_DynamicResourceIle` | `T1` |
 | `I48` | Tanımlı metin ve yüzey çiftlerinin WCAG 2.1 kontrast oranı her iki temada ayrı ayrı hesaplanır ve belirlenen erişilebilirlik eşiğini (gövde için ≥ 4,5, arayüz/büyük metin için ≥ 3,0) geçer (GK10). | `Mizan.Architecture.Tests.Design.DesignContrastTests.KontrastCiftleri_EsigiGecer` | `T1` |
 | `I49` | WCAG kontrast algoritması bilinen referans değerleri (siyah/beyaz = 21,0, aynı renk = 1,0) deterministik olarak üretir (GK10). | `Mizan.Architecture.Tests.Design.DesignContrastTests.KontrastHesabi_BilinenDegerleriUretir` | `T1` |
+| `I50` | XAML dosyalarında ASCII dışı ham glif, emoji veya ok sembolleri kullanılamaz; tüm simgeler `Icons.cs` üzerinden tip güvenli bağlanır (GK6). | `Mizan.Architecture.Tests.Design.DesignTokenTests.Xaml_HamGlif_Iceremez` | `T2` |
+| `I51` | Arayüzde kullanılan tüm ikonlar `TASARIM-SISTEMI.md` § İkonlar tablosu ile `Icons.cs` sabitlerinde birebir aynıdır; tablodaki 12 ikon harici simge türetilemez (GK6). | `Mizan.Architecture.Tests.Design.DesignTokenTests.Ikonlar_SistemdekiListeyleBirebir` | `T2` |
+| `I52` | Uygulama başlığı (`ApplicationTitle`) `TASARIM-SISTEMI.md` § Marka tablosundaki ürün adı ile (`Planör`) birebir aynıdır (GK11, GS6). | `Mizan.Architecture.Tests.Design.DesignBrandTests.UygulamaAdi_SistemdekiAdla` | `T2` |
+| `I53` | Kullanıcıya görünen hiçbir metin (XAML `Text`, `Title`, `Placeholder` veya `Resources/Strings`), ürünün eski adını (`Mizan`) tam kelime olarak içeremez (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.GorunenMetin_EskiAdiIceremez` | `T2` |
+| `I54` | Eski ad filtreleme algoritması kod adlarını (`Mizan.App`, `clr-namespace:Mizan.Presentation`) asla yakalamazken arayüz başlık ve metinlerini yakalar (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.EskiAdTaramasi_KodAdiniYakalamaz` | `T2` |
+| `I55` | Platform renkleri (uygulama ikonu dolgusu, splash ekranı ve Android `colors.xml` temaları) tasarım sistemi token değerleriyle (`Backdrop` ve `Indicator`) birebir eşleşir (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.PlatformRenkleri_TokenlarlaAyni` | `T2` |
 
 ## Satır eklerken
 

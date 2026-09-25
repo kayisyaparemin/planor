@@ -44,6 +44,20 @@ internal static class XamlSources
 
         return list;
     }
+
+    /// <summary>
+    /// XAML belgesindeki Color öğelerini anahtar ve değer sırasıyla döndürür.
+    /// </summary>
+    public static List<KeyValuePair<string, string>> ParseColorsWithOrder(string content)
+    {
+        var list = new List<KeyValuePair<string, string>>();
+        var pattern = new System.Text.RegularExpressions.Regex(@"<Color\s+x:Key=""(?<key>[A-Za-z0-9_]+)"">\s*(?<val>#[A-Fa-f0-9]{6,8})\s*</Color>");
+        foreach (System.Text.RegularExpressions.Match m in pattern.Matches(content))
+        {
+            list.Add(new KeyValuePair<string, string>(m.Groups["key"].Value, m.Groups["val"].Value.ToUpperInvariant()));
+        }
+        return list;
+    }
 }
 
 /// <summary>
