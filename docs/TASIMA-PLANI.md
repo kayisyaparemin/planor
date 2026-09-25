@@ -120,7 +120,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A25** — ekstre içe aktarma portları: **TAŞINMADI (ELENDİ)** — S21: Otomatik ekstre içe aktarma özelliği bütünüyle elendi
 - [x] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
       *(S52: BackupRetentionRules saf sınıfına ayrıldı, IBackupService dar portu eklendi, S22 uyarınca HasLegacyDatabase elendi)*
-- [ ] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
+- [x] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
 
 ## Faz I — Infrastructure
 
@@ -181,7 +181,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | F | 4 | 4 |
 | D | 24 | 24 |
 | H | 4 | 4 |
-| A | 24 | 25 *(A22 ve A25 taşınmıyor)* |
+| A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 0 | 5 *(I5 taşınmıyor)* |
 | V | 0 | 14 |
 | K | 0 | 4 |

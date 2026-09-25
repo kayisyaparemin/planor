@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A26** — yedekleme: `BackupService`, `IProfileBackupArchive` |
-| Sıradaki adım | **A27** — telemetri portu: `ITelemetryService` |
-| Test sayısı | 1074 |
+| Son tamamlanan adım | **A27** — telemetri portu: `ITelemetryService` |
+| Sıradaki adım | **I1** — **temiz şema v1**: 31 tablo, `PRAGMA user_version`, gerçek foreign key'ler. |
+| Test sayısı | 1081 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A27 — telemetri portu: `ITelemetryService`
+
+Uygulamanın çekirdek ve sunum katmanlarının harici telemetri ve çökme raporlama sağlayıcılarına (Sentry, AppCenter vb.) doğrudan bağımlı olmadan olay (`TrackEvent`), finansal matematik veya invaryant ihlali (`TrackInvariantViolation`), beklenmeyen istisna (`CaptureException`) ve gezinme izi (`AddBreadcrumb`) bildirmesini sağlayan `ITelemetryService` çıkış portu taşındı. Düğüm T9 ve Kural M6 gereğince eski projedeki yanlış konumu (`Services/`) düzeltilerek `Mizan.Application/Abstractions/` altına ve `Mizan.Application.Abstractions` isim alanına alındı; K8 gereğince Türkçe XML dokümantasyonu tamamlandı. Koleksiyon esnekliği için sözlük parametreleri `IReadOnlyDictionary<string, string>?` olarak tanımlandı. Taşıma protokolünün "bir adım tek katmana dokunur" kuralı gözetilerek somut altyapı adaptörleri (`NullTelemetryService`, `SentryTelemetryService`) Faz I'deki I6 adımına bırakıldı; test doğrulamaları için `Mizan.Application.Tests/Fakes` altında `FakeTelemetryService` test çifti oluşturuldu. Faz A (Application) bu adımla bütünüyle tamamlandı. 7 yeni birim testi eklendi (toplam 1.081 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A26 — yedekleme: `BackupService`, `IProfileBackupArchive`
 
