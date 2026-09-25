@@ -133,7 +133,7 @@ Geri kalan her şey bu omurgadan sarkar.
   - [x] **I2c** — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository` *(S54: dar portlar, S20 spekülatif akışlar elendi, foreign key cascade ile güvenli temizlik)*
   - [x] **I2d** — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository` *(S54: atomik transaction mutabakatı, S31 gelir satırları desteği, odaklı mapper/writer ayrımı)*
 - [x] **I3** — profil deposu ve profil başına veritabanı
-- [ ] **I4** — yedekleme arşivi *(düğüm T8: `IProfileFileLayout` portu üzerinden. Eski 480 satır / 3 partial;
+- [x] **I4** — yedekleme arşivi *(düğüm T8: `IProfileFileLayout` portu üzerinden. Eski 480 satır / 3 partial;
       K3/K4 ve belgelerle ~500 satır ve iki iş yeteneği olduğu için bölündü; eskide hiçbir adımda olmayan
       klasör deposu I4c olarak eklendi — S57)*
   - [x] **I4a** — yedek alma: `ProfileBackupArchive` (yazma, parmak izi, son yedek kaydı), `BackupArchiveFormat`,
@@ -143,10 +143,12 @@ Geri kalan her şey bu omurgadan sarkar.
         yedeği, açık mesajla reddedilir; `user_version` denetimi; hep-ya-hiç taşıma; `IProfileBackupArchive` bildirimi)*
         *(S58: sürüm iki uçtan, hazırlık yalnız veritabanlarını taşır, kaydı port yazar; `BackupManifestReader`,
         `BackupDatabaseValidator`, `ProfileImportTransaction`, `BackupWorkDirectory`)*
-  - [ ] **I4c** — yedek klasörü: `FolderBackupStorage`, `IStorageAccess`
+  - [x] **I4c** — yedek klasörü: `FolderBackupStorage`, `IStorageAccess`
         *(Aşama 3 kararı: v2 eskisiyle aynı `Mizan` klasörüne ve aynı `Mizan-yedek-` önekiyle yazarsa iki uygulama
         aynı günün dosyasını birbirinin üzerine yazar, "en yeni 7" temizliği eski uygulamanın yedeklerini — G1'in
         girdisini — siler)*
+        *(S59: ayrım önekte — v2 `Mizan-yedegi-`, onaylı tek sabitlik Application istisnası; klasör deposu bütün
+        dosyaları listeler; `AndroidStorageAccess`, izinler ve klasör adı V0/V13'te)*
 - [x] **I5** — PDF ekstre içe aktarma: **TAŞINMADI (ELENDİ)** — S21: PdfPig ve banka ayrıştırıcıları elendi
 - [ ] **I6** — telemetri adaptörü + PII maskesi
       *(eskinin açığı: maske yalnız `event.Message`'ı kapsıyordu; exception metni, breadcrumb,
@@ -198,7 +200,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | D | 24 | 24 |
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
-| I | 3 | 5 *(I5 taşınmıyor; I4 üç alt adımda, I4a ve I4b tamam)* |
+| I | 4 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı)* |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

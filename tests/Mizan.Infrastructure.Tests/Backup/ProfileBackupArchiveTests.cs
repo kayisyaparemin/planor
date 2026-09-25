@@ -165,7 +165,7 @@ public sealed class ProfileBackupArchiveTests : IDisposable
     public async Task SonYedekKaydi_KaydedileniAynenGeriVerir_GeciciDosyaBirakmaz()
     {
         var arsiv = _kurulum.Arsiv();
-        var kayit = new BackupState(YedekTestKurulumu.Simdi, "Mizan-yedek-2026-09-25.zip", "ABC123");
+        var kayit = new BackupState(YedekTestKurulumu.Simdi, "Mizan-yedegi-2026-09-25.zip", "ABC123");
 
         await arsiv.SaveStateAsync(kayit);
         await arsiv.SaveStateAsync(kayit with { Fingerprint = "DEF456" });
@@ -189,7 +189,7 @@ public sealed class ProfileBackupArchiveTests : IDisposable
         var yeniKok = Path.Combine(_kurulum.Kok, "henuz-yok");
         var depo = new FileSystemProfileRepository(yeniKok);
         var arsiv = new ProfileBackupArchive(depo, depo, new SabitSaat());
-        var kayit = new BackupState(YedekTestKurulumu.Simdi, "Mizan-yedek-2026-09-25.zip", "ABC123");
+        var kayit = new BackupState(YedekTestKurulumu.Simdi, "Mizan-yedegi-2026-09-25.zip", "ABC123");
 
         await arsiv.SaveStateAsync(kayit);
 

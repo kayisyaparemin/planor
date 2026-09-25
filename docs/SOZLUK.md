@@ -274,6 +274,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | yedek veritabanı denetimi | `BackupDatabaseValidator` | Yedekteki veritabanını hazırlığa çıkarıp boyut, bütünlük (`quick_check`) ve `user_version` sınırlarını denetleyen yardımcı (`I38`) |
 | hazırlık klasörü | `.restore-*` | Geri yüklenecek veritabanlarının telefondaki profillere dokunmadan çıkarılıp doğrulandığı geçici klasör; iş bitince silinir (`BackupWorkDirectory`) |
 | geri yükleme işlemi | `ProfileImportTransaction` | Seçilen profilleri hep-ya-hiç ekleyen akış: hazırla → doğrula → önce veri sonra kayıt taşı → gerekirse geri al (`I36`, `S58`) |
+| yedek klasörü | `FolderBackupStorage` | `IBackupStorage`'ın Infrastructure adaptörü: yedekleri uygulama kaldırılınca silinmeyen düz bir klasöre geçici dosya → yerine taşıma ile yazar; klasördeki bütün dosyaları listeler, hangisinin yedek olduğuna `BackupRetentionRules` karar verir (S59) |
+| depolama izni | `IStorageAccess` | Yedek klasörüne yazma izninin platforma özgü kısmı; Android uygulaması uygular (V0/V13), klasör işi onsuz test edilir |
+| yedek dosya öneki | `BackupRetentionRules.FilePrefix` | `Mizan-yedegi-`: bu uygulamanın yedek adlarının başı. Eski uygulamanın öneki `Mizan-yedek-`'tir; iki önek harf büyüklüğü gözetmeden de birbiriyle başlamaz, böylece iki uygulama aynı klasörde birbirinin yedeğine dokunmaz (`I39`, S59) |
 
 ---
 

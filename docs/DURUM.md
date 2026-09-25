@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I4b** — yedeği tanıma ve geri yükleme |
-| Sıradaki adım | **I4c** — yedek klasörü |
-| Test sayısı | 1213 |
+| Son tamamlanan adım | **I4c** — yedek klasörü |
+| Sıradaki adım | **I6** — telemetri adaptörü + PII maskesi |
+| Test sayısı | 1226 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I4c — yedek klasörü: `FolderBackupStorage`, `IStorageAccess`
+
+I4 tamamlandı. `IBackupStorage`'ın somut adaptörü geldi: `FolderBackupStorage` yedeği uygulama kaldırılınca silinmeyen düz bir klasöre yazar. Kopya önce geçici dosyaya yazılıp yerine taşınıyor, yarıda kalırsa aynı günün önceki yedeği bozulmuyor ve geride `.tmp` kalmıyor. Ad klasörün dışını gösteremiyor. İzin sorma Android'e özgü olduğu için `IStorageAccess`'e ayrıldı (eskide aynı dosyadaydı, K3). **S59:** eski uygulama değiştirilemediği ve iki uygulama yan yana kurulacağı için v2'nin yedekleri artık **`Mizan-yedegi-`** önekiyle adlandırılıyor. Aynı önek kalsaydı iki uygulama aynı günün dosyasını ezer, v2'nin "en yeni 7" temizliği eski yedekleri (G1'in girdisini) silerdi (`I39`). Önek harf büyüklüğünden bağımsız ayrışıyor, çünkü Android'in paylaşılan depolaması büyük/küçük harfe duyarsız. Bu tek sabit, onaylı bir katman istisnasıyla Application'da değişti. Klasör deposu artık yalnız `*.zip` değil bütün dosyaları listeliyor; hangisinin yedek olduğuna `BackupRetentionRules` karar veriyor (M7, port belgesi). **Dikkat:** `AndroidStorageAccess`, manifest izinleri (`MANAGE_EXTERNAL_STORAGE`, `WRITE_EXTERNAL_STORAGE`, `requestLegacyExternalStorage`), klasör adı ve DI bağlaması V0/V13'e kaldı. Önekler ayrıldığı için `Mizan` klasörünü paylaşmak güvenli. v2'nin geliştirme ve kararlı sürümü yan yana kurulacaksa aralarında yine klasör ayrımı gerekiyor (eskideki `Mizan Dev`). Klasör yokken bir dosyayı açmak `FileNotFoundException` değil `DirectoryNotFoundException` fırlatıyor; geri yükleme ekranı (V1) ikisini de "dosya bulunamadı" saymalı. Belgelerle birlikte ~120 satır üretim kodu. 13 yeni test eklendi (toplam 1.226 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I4b — yedeği tanıma ve geri yükleme: `ReadSummaryAsync`, `ImportAsync`
 

@@ -11,7 +11,28 @@ public sealed class BackupRetentionRulesTests
     public void FileNameFor_ProducesStandardFormattedZipName()
     {
         var fileName = BackupRetentionRules.FileNameFor(Today);
-        Assert.Equal("Mizan-yedek-2026-09-14.zip", fileName);
+        Assert.Equal("Mizan-yedegi-2026-09-14.zip", fileName);
+    }
+
+    [Fact]
+    public void DosyaAdi_EskiUygulamaninOnekiyleHicbirYondeCakismaz()
+    {
+        // Eski uygulama (com.coinflow.mobile) bu önekle yazar, bu önekle süzer ve en yeni 7'yi tutar;
+        // değiştirilemez (S17). Android'in paylaşılan depolaması harf büyüklüğüne duyarsızdır (S59).
+        const string eskiUygulamaninOneki = "Mizan-yedek-";
+        var yeniAd = BackupRetentionRules.FileNameFor(Today);
+        var eskiAd = eskiUygulamaninOneki + "2026-09-14.zip";
+
+        var v2ninGorduguEskiler = BackupRetentionRules.OnlyMizanBackups(
+        [
+            new StoredBackup(eskiAd, DateTimeOffset.UnixEpoch),
+            new StoredBackup(eskiAd.ToUpperInvariant(), DateTimeOffset.UnixEpoch)
+        ]);
+
+        Assert.Empty(v2ninGorduguEskiler);
+        Assert.False(yeniAd.StartsWith(eskiUygulamaninOneki, StringComparison.OrdinalIgnoreCase));
+        Assert.False(eskiAd.StartsWith(BackupRetentionRules.FilePrefix, StringComparison.OrdinalIgnoreCase));
+        Assert.NotEqual(eskiAd, yeniAd, StringComparer.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -19,18 +40,18 @@ public sealed class BackupRetentionRulesTests
     {
         var files = new StoredBackup[]
         {
-            new("Mizan-yedek-2026-09-14.zip", DateTimeOffset.UtcNow),
+            new("Mizan-yedegi-2026-09-14.zip", DateTimeOffset.UtcNow),
             new("tatil-fotografi.jpg", DateTimeOffset.UtcNow),
             new("notlar.txt", DateTimeOffset.UtcNow),
-            new("Mizan-yedek-2026-09-15.ZIP", DateTimeOffset.UtcNow),
+            new("Mizan-yedegi-2026-09-15.ZIP", DateTimeOffset.UtcNow),
             new("baska-yedek.zip", DateTimeOffset.UtcNow)
         };
 
         var filtered = BackupRetentionRules.OnlyMizanBackups(files).ToArray();
 
         Assert.Equal(2, filtered.Length);
-        Assert.Contains(filtered, file => file.FileName == "Mizan-yedek-2026-09-14.zip");
-        Assert.Contains(filtered, file => file.FileName == "Mizan-yedek-2026-09-15.ZIP");
+        Assert.Contains(filtered, file => file.FileName == "Mizan-yedegi-2026-09-14.zip");
+        Assert.Contains(filtered, file => file.FileName == "Mizan-yedegi-2026-09-15.ZIP");
     }
 
     [Fact]

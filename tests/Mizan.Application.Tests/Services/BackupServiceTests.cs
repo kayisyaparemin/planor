@@ -39,21 +39,57 @@ public sealed class BackupServiceTests
         archive.Fingerprint = "fp-1";
 
         // Önceki eski dosyaları depoya ekle
-        storage.AddFile("Mizan-yedek-2026-09-10.zip", [1, 2, 3], DateTimeOffset.UtcNow.AddDays(-4));
-        storage.AddFile("Mizan-yedek-2026-09-11.zip", [1, 2, 3], DateTimeOffset.UtcNow.AddDays(-3));
+        storage.AddFile("Mizan-yedegi-2026-09-10.zip", [1, 2, 3], DateTimeOffset.UtcNow.AddDays(-4));
+        storage.AddFile("Mizan-yedegi-2026-09-11.zip", [1, 2, 3], DateTimeOffset.UtcNow.AddDays(-3));
 
         var result = await sut.BackUpNowAsync();
 
         Assert.Equal(BackupOutcome.Created, result.Outcome);
         Assert.NotNull(result.State);
-        Assert.Equal("Mizan-yedek-2026-09-14.zip", result.State.FileName);
+        Assert.Equal("Mizan-yedegi-2026-09-14.zip", result.State.FileName);
         Assert.Equal("fp-1", result.State.Fingerprint);
 
         var stored = await storage.ListAsync();
         Assert.Equal(2, stored.Count);
-        Assert.Contains(stored, f => f.FileName == "Mizan-yedek-2026-09-14.zip");
-        Assert.Contains(stored, f => f.FileName == "Mizan-yedek-2026-09-11.zip");
-        Assert.DoesNotContain(stored, f => f.FileName == "Mizan-yedek-2026-09-10.zip");
+        Assert.Contains(stored, f => f.FileName == "Mizan-yedegi-2026-09-14.zip");
+        Assert.Contains(stored, f => f.FileName == "Mizan-yedegi-2026-09-11.zip");
+        Assert.DoesNotContain(stored, f => f.FileName == "Mizan-yedegi-2026-09-10.zip");
+    }
+
+    [Fact]
+    public async Task YedekAl_DepodaEskiUygulamaninYedekleriVarken_OnlaraDokunmaz()
+    {
+        var (sut, archive, storage, profiles) = CreateSut();
+        await profiles.SaveProfileAsync(new UserProfile { Id = Guid.NewGuid(), Name = "Ayşe", CreatedAt = DateTimeOffset.UtcNow });
+        archive.Fingerprint = "fp-1";
+        var simdi = DateTimeOffset.UtcNow;
+        // v2'nin önceki 7 yedeği (7–13 Eylül) ve aynı klasördeki eski uygulamanın daha yeni 8 yedeği;
+        // eskilerden biri bugünün (14 Eylül) tarihini taşıyor.
+        var v2Adlari = Enumerable.Range(7, 7).Select(gun => $"Mizan-yedegi-2026-09-{gun:00}.zip").ToArray();
+        var eskiAdlar = Enumerable.Range(7, 8).Select(gun => $"Mizan-yedek-2026-09-{gun:00}.zip").ToArray();
+        foreach (var (ad, sira) in v2Adlari.Select((ad, sira) => (ad, sira)))
+        {
+            storage.AddFile(ad, [2], simdi.AddDays(-30 + sira));
+        }
+
+        foreach (var (ad, sira) in eskiAdlar.Select((ad, sira) => (ad, sira)))
+        {
+            storage.AddFile(ad, [1], simdi.AddHours(-10 + sira));
+        }
+
+        await sut.BackUpNowAsync();
+
+        var depodakiler = (await storage.ListAsync()).Select(f => f.FileName).ToArray();
+        Assert.All(eskiAdlar, ad => Assert.Contains(ad, depodakiler));
+        foreach (var ad in eskiAdlar)
+        {
+            await using var akis = await storage.OpenReadAsync(ad);
+            Assert.Equal(1, akis.Length);
+            Assert.Equal(1, akis.ReadByte());
+        }
+
+        var listelenen = (await sut.ListBackupsAsync()).Select(f => f.FileName).Order(StringComparer.Ordinal);
+        Assert.Equal([.. v2Adlari.Skip(1), "Mizan-yedegi-2026-09-14.zip"], listelenen);
     }
 
     [Fact]
@@ -63,9 +99,9 @@ public sealed class BackupServiceTests
         await profiles.SaveProfileAsync(new UserProfile { Id = Guid.NewGuid(), Name = "Ayşe", CreatedAt = DateTimeOffset.UtcNow });
         archive.Fingerprint = "fp-same";
 
-        var state = new BackupState(DateTimeOffset.UtcNow, "Mizan-yedek-2026-09-14.zip", "fp-same");
+        var state = new BackupState(DateTimeOffset.UtcNow, "Mizan-yedegi-2026-09-14.zip", "fp-same");
         await archive.SaveStateAsync(state);
-        storage.AddFile("Mizan-yedek-2026-09-14.zip", [1, 2], DateTimeOffset.UtcNow);
+        storage.AddFile("Mizan-yedegi-2026-09-14.zip", [1, 2], DateTimeOffset.UtcNow);
 
         var result = await sut.BackUpIfChangedAsync();
 
@@ -80,7 +116,7 @@ public sealed class BackupServiceTests
         await profiles.SaveProfileAsync(new UserProfile { Id = Guid.NewGuid(), Name = "Ayşe", CreatedAt = DateTimeOffset.UtcNow });
         archive.Fingerprint = "fp-same";
 
-        var state = new BackupState(DateTimeOffset.UtcNow, "Mizan-yedek-2026-09-14.zip", "fp-same");
+        var state = new BackupState(DateTimeOffset.UtcNow, "Mizan-yedegi-2026-09-14.zip", "fp-same");
         await archive.SaveStateAsync(state);
         // Depoda dosya yok (kullanıcı silmiş olabilir)
 
@@ -95,15 +131,15 @@ public sealed class BackupServiceTests
     {
         var (sut, _, storage, _) = CreateSut();
         var at = DateTimeOffset.UtcNow;
-        storage.AddFile("Mizan-yedek-2026-09-10.zip", [1], at.AddDays(-4));
+        storage.AddFile("Mizan-yedegi-2026-09-10.zip", [1], at.AddDays(-4));
         storage.AddFile("tatil-fotografi.jpg", [2], at);
-        storage.AddFile("Mizan-yedek-2026-09-14.zip", [3], at);
+        storage.AddFile("Mizan-yedegi-2026-09-14.zip", [3], at);
 
         var list = await sut.ListBackupsAsync();
 
         Assert.Equal(2, list.Count);
-        Assert.Equal("Mizan-yedek-2026-09-14.zip", list[0].FileName);
-        Assert.Equal("Mizan-yedek-2026-09-10.zip", list[1].FileName);
+        Assert.Equal("Mizan-yedegi-2026-09-14.zip", list[0].FileName);
+        Assert.Equal("Mizan-yedegi-2026-09-10.zip", list[1].FileName);
     }
 
     [Fact]
@@ -144,9 +180,9 @@ public sealed class BackupServiceTests
         var (sut, archive, storage, _) = CreateSut();
         var p1 = new BackupProfile(Guid.NewGuid(), "Ayşe", DateTimeOffset.UtcNow, null);
         archive.ProfilesInArchive.Add(p1);
-        storage.AddFile("Mizan-yedek-2026-09-14.zip", [1, 2, 3], DateTimeOffset.UtcNow);
+        storage.AddFile("Mizan-yedegi-2026-09-14.zip", [1, 2, 3], DateTimeOffset.UtcNow);
 
-        var summary = await sut.RestoreAsync("Mizan-yedek-2026-09-14.zip");
+        var summary = await sut.RestoreAsync("Mizan-yedegi-2026-09-14.zip");
 
         Assert.Single(summary.Profiles);
         Assert.Equal("Ayşe", summary.Profiles[0].Name);

@@ -11,9 +11,11 @@ namespace Mizan.Application.Services;
 public static class BackupRetentionRules
 {
     /// <summary>
-    /// Mizan yedek dosyalarının standart dosya adı öneki.
+    /// Mizan yedek dosyalarının standart dosya adı öneki. Eski uygulamanın <c>Mizan-yedek-</c> önekinden
+    /// harf büyüklüğü gözetmeden de ayrışır: iki uygulama aynı klasörü paylaşsa bile biri diğerinin
+    /// yedeğini ezmez, listelemez, temizlikte silmez (S59, I39).
     /// </summary>
-    public const string FilePrefix = "Mizan-yedek-";
+    public const string FilePrefix = "Mizan-yedegi-";
 
     /// <summary>
     /// Mizan yedek dosyalarının standart dosya uzantısı.
@@ -23,7 +25,7 @@ public static class BackupRetentionRules
     private static readonly CultureInfo TurkishCulture = CultureInfo.GetCultureInfo("tr-TR");
 
     /// <summary>
-    /// Belirtilen takvim tarihi için standart Mizan yedek dosya adını (örn. "Mizan-yedek-2026-09-14.zip") üretir.
+    /// Belirtilen takvim tarihi için standart Mizan yedek dosya adını (örn. "Mizan-yedegi-2026-09-14.zip") üretir.
     /// </summary>
     public static string FileNameFor(DateOnly date) =>
         FilePrefix +
