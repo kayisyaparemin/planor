@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A23a** — dönem ayrıntısı sunumu: `CashFlowPeriodDetailPresenter` |
-| Sıradaki adım | **A23b** — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService` |
-| Test sayısı | 1025 |
+| Son tamamlanan adım | **A23b** — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService` |
+| Sıradaki adım | **A24** — kataloglar: senaryo ve kayıt girişi katalogları |
+| Test sayısı | 1035 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A23b — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService`, `SimulatorProjectionMath`
+
+What-If simülatörü sonuç ekranında (V8) 12 aylık projeksiyonu analiz ederek anlatı içgörüleri (en sıkışık dönem, en yüksek ihtiyaç, gelir karşılama açığı, KMH açığı oluşumu/kapanışı, yükün hafiflemesi), dönem çipleri ve anahtar gösterge metriklerini üreten `SimulatorInsightService`, dönem ihtiyaç matematiğini hesaplayan `SimulatorProjectionMath`, faiz tasarruf/maliyet tablosunu üreten `SimulatorInterestPresenter` ve anlatı derleyicisi `SimulatorTimelineNarrative` taşındı. S50 kararı doğrultusunda sunum katmanına (`Mizan.Presentation`) yerleştirildi. Eski kodun 2 partial dosyası ve ~450 satırlık karmaşık yapısı, K3 (≤ 200 satır) ve K4 (partial yasağı) gereğince dört odaklı sunum sınıfına ayrıldı. Kural M3 yapıcı sınırlarına (≤ 5 parametre) tam uyum sağlandı (`SimulatorInterestRow`'da `IsTotal` init property yapıldı, diğer modeller `required init` ile kuruldu). Domain v2 `EndingBalance` ve `CashFlowPeriod` modelleriyle tam uyumlu çalışır; S18 doğal dönemsellik ilkesine sadıktır; simülasyon girdi metinlerini asla anlatıya yankılamaz (deterministik içgörü). 10 yeni birim testi eklendi (toplam 1.035 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A23a — dönem ayrıntısı sunumu: `CashFlowPeriodDetailPresenter`
 
