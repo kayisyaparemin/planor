@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A20** — yükümlülük yönetimi: `IObligationManagementService` |
-| Sıradaki adım | **A21** — dönem iş akışı: `IPeriodWorkflowService` |
-| Test sayısı | 983 |
+| Son tamamlanan adım | **A21** — dönem iş akışı: `IPeriodWorkflowService` |
+| Sıradaki adım | **A23** — sunum yardımcıları: `CashFlowPeriodDetailPresenter`, `SimulatorInsightService` |
+| Test sayısı | 1009 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A21 — dönem iş akışı: `IPeriodWorkflowService`, `IPaymentReminderService`
+
+Kullanıcının devam eden nakit akış dönemindeki bakiye ve borç ödemesi ara gözlemlerini, dönem sonu mutabakat sihirbazı orkestrasyonunu ve ödeme günü bildirim hatırlatıcılarını yöneten servisler taşındı. Kural M5 (en fazla 10 metot), Kural M3 (en fazla 5 bağımlılık) ve Kural K3 (≤ 200 satır) ihlalleri çözüldü (**S48**): Eski 16 metotlu monolitik `IPeriodWorkflowService` arayüzü ve 353 satırlık servisi, tek sorumluluk ilkesi gereğince iki odaklı kullanım senaryosu portuna ayrıştırıldı: 1) Dönem mutabakatı ve açık dönem gözlemlerini (`ObservedBalance`, `Payments`) 5 dar bağımlılıkla yöneten `PeriodWorkflowService` (`IPeriodWorkflowService`), 2) Hatırlatıcı modunu, bildirim panosunu, kullanıcı yanıtlarını ve ufuktaki (35 gün) yaklaşan vadeleri yöneten `PaymentReminderService` (`IPaymentReminderService`). 35 günlük ufukta beklenen ödemeleri açık plandan ve projeksiyondan derleme sorumluluğu müstakil `PaymentDueCollector` servisine verildi. S20 kararı doğrultusunda gözlem defterinden kapanış taslağı üretilirken spekülatif ara akışlar (`Flows`) boş bırakıldı; S33 gereği ödeme gözlemi son revizyon satırlarını da denetler; dönem başarıyla kapatıldığında geçici gözlem defteri temizlenir (`I21`, `I23`). 26 yeni birim testi eklendi (toplam 1.009 test yeşil, sıfır uyarı, mimari kalkanlar temiz).
 
 ### A20 — yükümlülük yönetimi: `IObligationManagementService`
 
