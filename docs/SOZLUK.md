@@ -264,11 +264,16 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | yedek özeti | `BackupSummary` | Yedek arşivinin oluşturulma zamanını ve içerdiği profil listesini taşıyan sözleşme |
 | son yedek durumu | `BackupState` | Son yedeğin zaman damgasını, dosya adını ve veri parmak izini tutan durum kaydı |
 | yedekleme seçenekleri | `BackupOptions` | Yedekleme çalışma dizini ve saklanacak azami dosya sayısını yapılandıran ayarlar |
-| profil yedek arşivi (adaptör) | `ProfileBackupArchive` | Profilleri zip'e yazan, parmak izini hesaplayan ve son yedek kaydını tutan Infrastructure adaptörü; geri yükleme yarısı I4b'de gelir |
+| profil yedek arşivi (adaptör) | `ProfileBackupArchive` | `IProfileBackupArchive`'in Infrastructure adaptörü: profilleri zip'e yazar, parmak izini hesaplar, son yedek kaydını tutar, yedeği tanır ve profilleri hep-ya-hiç geri yükler |
 | yedek biçimi | `BackupArchiveFormat` | Yedek zip'inin biçim numarası ve girdi adları; disk yerleşiminden bağımsızdır. Biçim 1 eski uygulamanın, biçim 2 bu uygulamanın yedeğidir (S57) |
 | yedek manifesti | `BackupManifest` | Zip'in başındaki içindekiler listesi: biçim, oluşturulma zamanı, şema sürümü ve profiller (`BackupManifestProfile`, verisi olup olmadığıyla) |
 | parmak izi | `Fingerprint` | Bütün profillerin adından ve veritabanı içeriğinden hesaplanan SHA-256; veri değişmedikçe aynı kalır, son açılış tarihi ve dosya zamanı girmez (`I34`) |
 | veritabanı anlık görüntüsü | `SqliteDatabaseSnapshot` | Açık profil yazarken bile tutarlı kopya üreten `VACUUM INTO` işlemi (`I35`) |
+| eski uygulamanın yedeği | `BackupArchiveFormat.LegacyVersion` | Biçim 1 yedek (`com.coinflow.mobile`, şema v17); tanınır ve açık mesajla reddedilir, içe aktarma `G1`'in işidir (`I37`) |
+| manifest okuyucu | `BackupManifestReader` | Yedek zip'ini açıp manifesti denetleyen yardımcı; özet okuma ile geri yükleme aynı denetimden geçer (biçim, şema sürümü, profil listesi) |
+| yedek veritabanı denetimi | `BackupDatabaseValidator` | Yedekteki veritabanını hazırlığa çıkarıp boyut, bütünlük (`quick_check`) ve `user_version` sınırlarını denetleyen yardımcı (`I38`) |
+| hazırlık klasörü | `.restore-*` | Geri yüklenecek veritabanlarının telefondaki profillere dokunmadan çıkarılıp doğrulandığı geçici klasör; iş bitince silinir (`BackupWorkDirectory`) |
+| geri yükleme işlemi | `ProfileImportTransaction` | Seçilen profilleri hep-ya-hiç ekleyen akış: hazırla → doğrula → önce veri sonra kayıt taşı → gerekirse geri al (`I36`, `S58`) |
 
 ---
 

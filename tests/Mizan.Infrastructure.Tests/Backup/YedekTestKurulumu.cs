@@ -1,10 +1,13 @@
 using System.IO.Compression;
+using System.Text;
+using System.Text.Json;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
 using Mizan.Domain.Models;
 using Mizan.Infrastructure.Backup;
 using Mizan.Infrastructure.Persistence;
 using Mizan.Infrastructure.Persistence.Repositories;
+using SQLite;
 
 namespace Mizan.Infrastructure.Tests.Backup;
 
@@ -64,6 +67,92 @@ internal sealed class YedekTestKurulumu : IDisposable
         yedek.Position = 0;
         return yedek;
     }
+
+    /// <summary>Profili açıp kredi adlarını okur ve kapatır; açılış şema kurulumundan geçer.</summary>
+    public async Task<IReadOnlyList<string>> KrediAdlariAsync(Guid profilId)
+    {
+        await Anahtar.OpenAsync(profilId);
+        try
+        {
+            var krediler = await new SqliteLoanRepository(Anahtar.Connection).GetLoansAsync();
+            return krediler.Select(k => k.Name).Order().ToArray();
+        }
+        finally
+        {
+            await Anahtar.CloseAsync();
+        }
+    }
+
+    /// <summary>Profil veritabanının <c>user_version</c> değerini doğrudan değiştirir.</summary>
+    public void SemaSurumunuDegistir(Guid profilId, int surum)
+    {
+        using var baglanti = new SQLiteConnection(Depo.GetDatabasePath(profilId));
+        baglanti.Execute($"PRAGMA user_version = {surum};");
+    }
+
+    /// <summary>Kökte kalmış geri yükleme hazırlık klasörlerini listeler.</summary>
+    public IReadOnlyList<string> HazirlikKlasorleri() => Directory.GetDirectories(Kok, ".restore-*");
+
+    /// <summary>Verilen manifest metni ve girdilerle bir zip akışı kurar; eski ya da elle bozulmuş yedekleri taklit eder.</summary>
+    public static MemoryStream Zip(string? manifest, params (string Ad, byte[] Icerik)[] girdiler)
+    {
+        var akis = new MemoryStream();
+        using (var zip = new ZipArchive(akis, ZipArchiveMode.Create, leaveOpen: true))
+        {
+            var hepsi = manifest is null
+                ? girdiler
+                : girdiler.Prepend(("mizan-backup.json", Encoding.UTF8.GetBytes(manifest)));
+            foreach (var (ad, icerik) in hepsi)
+            {
+                using var yazilan = zip.CreateEntry(ad).Open();
+                yazilan.Write(icerik);
+            }
+        }
+
+        akis.Position = 0;
+        return akis;
+    }
+
+    /// <summary>Yedeği girdi girdi kopyalar; <paramref name="degistir"/> girdinin yeni içeriğini ya da atmak için null döner.</summary>
+    public static MemoryStream Kurcala(MemoryStream yedek, Func<string, byte[], byte[]?> degistir)
+    {
+        var girdiler = new List<(string Ad, byte[] Icerik)>();
+        yedek.Position = 0;
+        using (var zip = new ZipArchive(yedek, ZipArchiveMode.Read, leaveOpen: true))
+        {
+            foreach (var girdi in zip.Entries)
+            {
+                using var okunan = girdi.Open();
+                using var bellek = new MemoryStream();
+                okunan.CopyTo(bellek);
+                var yeni = degistir(girdi.FullName, bellek.ToArray());
+                if (yeni is not null)
+                {
+                    girdiler.Add((girdi.FullName, yeni));
+                }
+            }
+        }
+
+        yedek.Position = 0;
+        return Zip(null, [.. girdiler]);
+    }
+
+    /// <summary>Elle kurulan bir manifestin JSON metni; profiller sabit tarihlerle yazılır.</summary>
+    public static string ManifestMetni(int bicim, int sema, params (Guid Id, string Ad, bool Veri)[] profiller) =>
+        JsonSerializer.Serialize(new
+        {
+            Format = bicim,
+            CreatedAt = Simdi,
+            SchemaVersion = sema,
+            Profiles = profiller.Select(p => new
+            {
+                p.Id,
+                Name = p.Ad,
+                CreatedAt = Simdi,
+                LastOpenedAt = (DateTimeOffset?)null,
+                HasData = p.Veri
+            })
+        });
 
     /// <summary>Yedekteki veritabanı girdisini geçici bir dosyaya çıkarır ve yolunu döner.</summary>
     public string VeritabaniGirdisiniCikar(ZipArchive zip, Guid profilId)

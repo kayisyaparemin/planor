@@ -139,8 +139,10 @@ Geri kalan her şey bu omurgadan sarkar.
   - [x] **I4a** — yedek alma: `ProfileBackupArchive` (yazma, parmak izi, son yedek kaydı), `BackupArchiveFormat`,
         `BackupManifest`, `SqliteDatabaseSnapshot`, `DatabaseContentFingerprint`, `BackupStateFile`
         *(S57: biçim 2, `VACUUM INTO ?`, girdi adı arşiv sabitinden; port I4b'de üstlenilir)*
-  - [ ] **I4b** — yedeği tanıma ve geri yükleme: `ReadSummaryAsync`, `ImportAsync` *(biçim 1 = eski uygulamanın
+  - [x] **I4b** — yedeği tanıma ve geri yükleme: `ReadSummaryAsync`, `ImportAsync` *(biçim 1 = eski uygulamanın
         yedeği, açık mesajla reddedilir; `user_version` denetimi; hep-ya-hiç taşıma; `IProfileBackupArchive` bildirimi)*
+        *(S58: sürüm iki uçtan, hazırlık yalnız veritabanlarını taşır, kaydı port yazar; `BackupManifestReader`,
+        `BackupDatabaseValidator`, `ProfileImportTransaction`, `BackupWorkDirectory`)*
   - [ ] **I4c** — yedek klasörü: `FolderBackupStorage`, `IStorageAccess`
         *(Aşama 3 kararı: v2 eskisiyle aynı `Mizan` klasörüne ve aynı `Mizan-yedek-` önekiyle yazarsa iki uygulama
         aynı günün dosyasını birbirinin üzerine yazar, "en yeni 7" temizliği eski uygulamanın yedeklerini — G1'in
@@ -196,7 +198,7 @@ Geri kalan her şey bu omurgadan sarkar.
 | D | 24 | 24 |
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
-| I | 3 | 5 *(I5 taşınmıyor; I4 üç alt adımda, I4a tamam)* |
+| I | 3 | 5 *(I5 taşınmıyor; I4 üç alt adımda, I4a ve I4b tamam)* |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

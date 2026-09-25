@@ -14,14 +14,10 @@ namespace Mizan.Infrastructure.Backup;
 /// <c>profiles/{id}/mizan.db3</c>. Disk yerleşimini somut depodan değil
 /// <see cref="IProfileFileLayout"/>'tan öğrenir (S55).
 /// </summary>
-/// <remarks>
-/// Bu adımda (I4a) yalnız yedek alma yarısı vardır. <see cref="IProfileBackupArchive"/> sözleşmesini
-/// geri yükleme yarısı (I4b) tamamlandığında üstlenir.
-/// </remarks>
 public sealed class ProfileBackupArchive(
     IProfileRepository profiles,
     IProfileFileLayout layout,
-    IClock clock)
+    IClock clock) : IProfileBackupArchive
 {
     private readonly IProfileRepository _profiles = profiles ?? throw new ArgumentNullException(nameof(profiles));
     private readonly IProfileFileLayout _layout = layout ?? throw new ArgumentNullException(nameof(layout));
@@ -59,8 +55,7 @@ public sealed class ProfileBackupArchive(
         var profiles = await _profiles.GetProfilesAsync(cancellationToken);
 
         // Anlık görüntüler uygulama klasöründe hazırlanır; yarıda kalsa da geride iz bırakmaz.
-        var workDirectory = Path.Combine(_layout.RootDirectory, $".backup-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(workDirectory);
+        var workDirectory = BackupWorkDirectory.Create(_layout.RootDirectory, ".backup-");
         try
         {
             using var zip = new ZipArchive(destination, ZipArchiveMode.Create, leaveOpen: true);
@@ -81,8 +76,33 @@ public sealed class ProfileBackupArchive(
         }
         finally
         {
-            TryDeleteDirectory(workDirectory);
+            BackupWorkDirectory.TryDelete(workDirectory);
         }
+    }
+
+    /// <summary>
+    /// Yedeğin manifestini okuyup denetler ve özetini döner; veritabanlarına dokunmaz, akışı kapatmaz.
+    /// Eski uygulamanın yedeği (biçim 1) burada tanınır ve açık mesajla reddedilir (S57).
+    /// </summary>
+    public async Task<BackupSummary> ReadSummaryAsync(Stream source, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        using var zip = BackupManifestReader.Open(source);
+        return Summary(await BackupManifestReader.ReadAsync(zip, cancellationToken));
+    }
+
+    /// <summary>
+    /// Seçilen profilleri hedef kimlik ve adlarıyla ekler. Hep-ya-hiç çalışır: seçilenlerden biri bozuk,
+    /// tanınmayan ya da daha yeni bir sürümdense veya taşıma yarıda kalırsa hiçbiri eklenmez.
+    /// </summary>
+    public Task ImportAsync(
+        Stream source,
+        IReadOnlyList<ProfileImport> profileImports,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(profileImports);
+        return ProfileImportTransaction.RunAsync(source, profileImports, _profiles, _layout, cancellationToken);
     }
 
     /// <summary>
@@ -141,23 +161,4 @@ public sealed class ProfileBackupArchive(
 
     private string StatePath() =>
         Path.Combine(_layout.RootDirectory, BackupStateFile.FileName);
-
-    private static void TryDeleteDirectory(string path)
-    {
-        try
-        {
-            if (Directory.Exists(path))
-            {
-                Directory.Delete(path, recursive: true);
-            }
-        }
-        catch (IOException)
-        {
-            // Temizlik en iyi çabadır; yedeğin sonucunu değiştirmez.
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // Temizlik en iyi çabadır; yedeğin sonucunu değiştirmez.
-        }
-    }
 }

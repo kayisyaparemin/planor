@@ -14,6 +14,12 @@ internal static class BackupArchiveFormat
     public const int Version = 2;
 
     /// <summary>
+    /// Eski uygulamanın (<c>com.coinflow.mobile</c>) yazdığı yedek biçimi. Bu uygulama onu geri yüklemez,
+    /// yalnız tanıyıp açık mesajla reddeder; içe aktarma ayrı bir iştir (G1).
+    /// </summary>
+    public const int LegacyVersion = 1;
+
+    /// <summary>
     /// Biçimi, tarihi, şema sürümünü ve profil listesini taşıyan manifest girdisinin adı.
     /// </summary>
     public const string ManifestEntryName = "mizan-backup.json";

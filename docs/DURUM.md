@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I4a** — yedek alma |
-| Sıradaki adım | **I4b** — yedeği tanıma ve geri yükleme |
-| Test sayısı | 1183 |
+| Son tamamlanan adım | **I4b** — yedeği tanıma ve geri yükleme |
+| Sıradaki adım | **I4c** — yedek klasörü |
+| Test sayısı | 1213 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I4b — yedeği tanıma ve geri yükleme: `ReadSummaryAsync`, `ImportAsync`
+
+`ProfileBackupArchive` altı metodu tamamladı ve artık `IProfileBackupArchive` portunu üstleniyor; `BackupService` (A26) gerçek arşivle çalışabilir. Tanıma (`ReadSummaryAsync`) veritabanlarına dokunmadan manifesti denetliyor. Biçim 1, yani eski uygulamanın yedeği, şema sürümünden **önce** tanınıyor ve "eski Mizan uygulamasından alınmış" diye reddediliyor; yoksa v17 yüzünden "daha yeni sürüm" denirdi (`I37`, S57 artık uygulandı). Geri yükleme (`ImportAsync`) hep-ya-hiç (`I36`): seçilen bütün veritabanları `.restore-*` hazırlık klasöründe çıkarılıp doğrulanıyor (boyut, `quick_check`, `user_version`), hedeflerden biri varsa hiçbir şey taşınmıyor, taşıma yarıda kalırsa eklenenler geri alınıyor. **S58:** `user_version` iki uçtan denetleniyor; sürüm 0 olan veritabanı açılışta boş profil diye kurulacağı için reddediliyor (`I38`). Somut depo `new`lenmiyor; önce veri, sonra kayıt taşınıyor ki süreç arada ölürse profil verisiyle "Profilim" adıyla kurtarılsın. Eski 3 partial dosya dört yardımcıya bölündü: `BackupManifestReader`, `BackupDatabaseValidator`, `ProfileImportTransaction` ve yazma tarafıyla ortak `BackupWorkDirectory`. Kullanıcıya giden mesajlar da tek yerde toplandı (`BackupRestoreErrors`). **Dikkat:** port belgesi (`Application`) hep-ya-hiç sözünü henüz söylemiyor, adım tek katmanda kaldı. Planda `IProfileFileLayout` için geçen "düğüm T8" etiketi eski `02-NEDEN-BU-YAPI.md`'deki T8 ("Infrastructure iş kuralı hesaplıyor") ile uyuşmuyor. Belgelerle birlikte ~370 satır üretim kodu. 30 yeni test eklendi (toplam 1.213 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I4a — yedek alma: `ProfileBackupArchive`
 
