@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I2b** — borç planları ve kredi kartı depoları: `SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository` |
-| Sıradaki adım | **I2c** — taslak, bildirim ve canlı gözlem depoları (`SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository`) |
-| Test sayısı | 1117 |
+| Son tamamlanan adım | **I2c** — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository` |
+| Sıradaki adım | **I2d** — dönem tarihçesi ve mutabakat deposu (`SqlitePeriodHistoryRepository`) |
+| Test sayısı | 1129 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I2c — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository`
+
+What-If simülasyon taslakları, ödeme hatırlatıcı tercihleri/cevapları ve açık dönemin canlı gözlem defteri adaptörleri taşındı (`SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository`). K3 kuralı uyarınca tüm entity'ler tekil dosyalarda oluşturuldu (`SimulationDraftEntity`, `SimulationDraftConditionEntity`, `PaymentReminderResponseEntity`, `PeriodObservationEntity`, `PeriodObservationPaymentEntity`). S20 kararı uyarınca spekülatif ara nakit akışları (`Flows`) bütünüyle çıkarılarak gözlem defteri yalnız fiilî bakiye ve plan ödemesi gözlemlerine odaklandı. S18 uyarınca yapay tahsis alanları arındırıldı. Hatırlatıcı modunun kaydedilmesi, finansal ayarlara dokunmadan izole `SettingsEntity` üzerinden sağlandı. SQLite `PRAGMA foreign_keys = ON;` ve `ON DELETE CASCADE` kuralı sayesinde taslak veya plan silindiğinde koşulların ve ödemelerin otomatik silindiği kalkan altına alındı. 12 yeni repo testi eklendi (toplam 1.129 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I2b — borç planları ve kredi kartı depoları: `SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository`
 

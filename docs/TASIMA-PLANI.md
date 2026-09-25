@@ -130,7 +130,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [ ] **I2** — depo implementasyonları *(~2.400 satırlık tanrı sınıf yerine dar port başına ayrı sınıf — S54; adım büyüklüğü kuralı uyarınca 4 alt adıma bölündü)*
   - [x] **I2a** — gelir ve kredi depoları: `SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository` *(S54: doğrudan bağlantı, otomatik cascade, takma adsız temiz entity eşlemesi)*
   - [x] **I2b** — borç planları ve kredi kartı depoları: `SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository` *(S54: cascade silme, CreditCardEntityMapper ile temiz haritalama, K3 kuralı korundu)*
-  - [ ] **I2c** — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository`
+  - [x] **I2c** — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository` *(S54: dar portlar, S20 spekülatif akışlar elendi, foreign key cascade ile güvenli temizlik)*
   - [ ] **I2d** — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository`
 - [ ] **I3** — profil deposu ve profil başına veritabanı
 - [ ] **I4** — yedekleme arşivi *(düğüm T8: `IProfileFileLayout` portu üzerinden)*
