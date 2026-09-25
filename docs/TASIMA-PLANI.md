@@ -127,11 +127,11 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **I1** — **temiz şema v1**: 30 tablo, `PRAGMA user_version = 1`, gerçek foreign key'ler.
       *Eski v17'nin 16 yalancı kolonu, 12 ölü kolonu ve hiçbir migration'ı taşınmaz.*
       *(S53: 30 tablo — 29 eski tablo - S18 tahsis - S20 gözlem akışları + S2/S5 gelir geçmişi + S31 plan/revizyon gelir satırları)*
-- [ ] **I2** — depo implementasyonları *(~2.400 satırlık tanrı sınıf yerine dar port başına ayrı sınıf — S54; adım büyüklüğü kuralı uyarınca 4 alt adıma bölündü)*
+- [x] **I2** — depo implementasyonları *(~2.400 satırlık tanrı sınıf yerine dar port başına ayrı sınıf — S54; adım büyüklüğü kuralı uyarınca 4 alt adıma bölündü)*
   - [x] **I2a** — gelir ve kredi depoları: `SqliteUserSettingsRepository`, `SqliteRecurringIncomeRepository`, `SqliteAdHocIncomeRepository`, `SqliteLoanRepository` *(S54: doğrudan bağlantı, otomatik cascade, takma adsız temiz entity eşlemesi)*
   - [x] **I2b** — borç planları ve kredi kartı depoları: `SqliteTemporaryPaymentPlanRepository`, `SqlitePlannedLargeExpenseRepository`, `SqliteCreditCardRepository` *(S54: cascade silme, CreditCardEntityMapper ile temiz haritalama, K3 kuralı korundu)*
   - [x] **I2c** — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository` *(S54: dar portlar, S20 spekülatif akışlar elendi, foreign key cascade ile güvenli temizlik)*
-  - [ ] **I2d** — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository`
+  - [x] **I2d** — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository` *(S54: atomik transaction mutabakatı, S31 gelir satırları desteği, odaklı mapper/writer ayrımı)*
 - [ ] **I3** — profil deposu ve profil başına veritabanı
 - [ ] **I4** — yedekleme arşivi *(düğüm T8: `IProfileFileLayout` portu üzerinden)*
 - [x] **I5** — PDF ekstre içe aktarma: **TAŞINMADI (ELENDİ)** — S21: PdfPig ve banka ayrıştırıcıları elendi

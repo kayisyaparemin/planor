@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I2c** — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository` |
-| Sıradaki adım | **I2d** — dönem tarihçesi ve mutabakat deposu (`SqlitePeriodHistoryRepository`) |
-| Test sayısı | 1129 |
+| Son tamamlanan adım | **I2d** — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository` *(Böylece **I2** bütünüyle tamamlandı)* |
+| Sıradaki adım | **I3** — profil deposu ve profil başına veritabanı |
+| Test sayısı | 1134 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I2d — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository`
+
+Mizan'ın finansal omurgasını oluşturan dondurulmuş dönem planları, finansal durumlar (`FinancialSnapshot`), append-only plan revizyonları (`PeriodPlanRevision`) ve karneleşmiş dönem gerçekleşmelerini (`PeriodActual`) yöneten `SqlitePeriodHistoryRepository` taşındı. 11 yeni SQLite tablo varlığı tekil dosyalarda oluşturuldu (`FinancialSnapshotEntity`, `PeriodPlanSnapshotEntity`, `PeriodPlanPaymentLineEntity`, `PeriodPlanIncomeLineEntity`, `PeriodPlanRevisionEntity`, `PeriodPlanRevisionPaymentLineEntity`, `PeriodPlanRevisionIncomeLineEntity`, `PeriodActualEntity`, `ActualPaymentEntity`, `ActualFlowEntity`, `ActualLivingBreakdownEntity`). K3 boyut limitlerini korumak için dönüşüm ve yazma sorumlulukları odaklı sınıflara ayrıldı (`PeriodPlanEntityMapper`, `PeriodActualEntityMapper`, `PeriodPlanEntityWriter`, `PeriodActualEntityWriter`, `PeriodSettlementWriter`). S31 uyarınca plan ve revizyon gelir satırları desteği eklendi. Dönem kapanışı (`CommitPeriodSettlementAsync`) tüm finansal araç güncellemeleriyle birlikte atomik transaction kalkanı altına alındı. Eski projenin 2.400 satırlık tanrı sınıfı `SqliteMizanStore` böylece bütünüyle temiz dar portlara dönüştürülerek elendi (S54). 5 yeni repo testi eklendi (toplam 1.134 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I2c — taslak, bildirim ve canlı gözlem depoları: `SqliteSimulationDraftRepository`, `SqlitePaymentReminderRepository`, `SqlitePeriodObservationRepository`
 
