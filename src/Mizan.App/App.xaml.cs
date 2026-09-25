@@ -1,11 +1,34 @@
+using Mizan.App.Resources.Styles;
+
 namespace Mizan.App;
 
+/// <summary>
+/// Uygulamanın ana giriş noktası ve tema yönetim kökü.
+/// </summary>
 public partial class App : Microsoft.Maui.Controls.Application
 {
-	public App()
-	{
-		InitializeComponent();
+    /// <summary>
+    /// <see cref="App"/> sınıfının yeni bir örneğini başlatır.
+    /// </summary>
+    public App()
+    {
+        InitializeComponent();
 
-		MainPage = new ContentPage { Title = "Mizan" };
-	}
+        ApplyPalette(RequestedTheme);
+        RequestedThemeChanged += (_, e) => ApplyPalette(e.RequestedTheme);
+
+        MainPage = new ContentPage { Title = "Mizan" };
+    }
+
+    private void ApplyPalette(AppTheme theme)
+    {
+        var dictionaries = Resources.MergedDictionaries;
+        var current = dictionaries.FirstOrDefault(d => d is DarkPalette or LightPalette);
+        if (current is not null)
+        {
+            dictionaries.Remove(current);
+        }
+
+        dictionaries.Add(theme == AppTheme.Light ? new LightPalette() : new DarkPalette());
+    }
 }

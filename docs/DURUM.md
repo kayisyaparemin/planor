@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I6** — telemetri adaptörü (Sentry taşınmadı, S60) |
-| Sıradaki adım | **V0** — kabuk ve altyapı |
-| Test sayısı | 1234 |
+| Son tamamlanan adım | **T1** — token katmanı (iki tema) |
+| Sıradaki adım | **T2** — ikon ve marka katmanı |
+| Test sayısı | 1243 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### T1 — token katmanı: iki tema (`DarkPalette`, `LightPalette`), tip ve ölçü skalası, kontrast kalkanı
+
+Planör paleti `docs/TASARIM-SISTEMI.md`'den birebir transkribe edildi. 23 renk token'ı iki temada (`DarkPalette.xaml`, `LightPalette.xaml`), 7 kademeli tip skalası (`Tipografi.xaml`), 4'ün katı boşluk ve yarıçap (`Olcu.xaml`) tanımlandı. MAUI şablonundan gelen `Colors.xaml` (44 satır) ve `Styles.xaml` (427 satır) silindi; yeni `Styles.xaml` (~134 satır) yalnız token kullanan örtük stillerden ve 7 adlandırılmış stilden oluşuyor. Renkler `{DynamicResource}` ile bağlanarak tema değişiminde dinamik güncellenmesi sağlandı (GK8). Tema sistemi izliyor; palet tek noktadan (`App`) sistem temasını takip ederek değiştiriliyor (`GS7`). Dokuz yeni mimari test (GK1, GK2, GK3, GK8, GK10) eklendi (`I41`–`I49`); kontrast iki temada ayrı ayrı test ediliyor. `GS8` (çelik mavisi gösterge) ve `GS9` (türetilen değerler) kilitlenip `uygulandı` durumuna alındı. 9 yeni test eklendi (toplam 1.243 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I6 — telemetri adaptörü: Sentry taşınmadı, `NullTelemetryService` ve çevrimdışılık kalkanı
 

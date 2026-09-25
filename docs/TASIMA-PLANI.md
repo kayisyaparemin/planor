@@ -171,7 +171,7 @@ okur, Aşama 3 (sapma kararı) tanım eksik ya da yanlışsa `docs/TASARIM-SAPMA
 ⚠️ **Faz T, `V0`'dan önce biter.** Bileşen yoksa ekran yazılamaz, token yoksa bileşen
 yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yürür (10 aşama).
 
-- [ ] **T1** — token katmanı: `DarkPalette.xaml` + `LightPalette.xaml` (23 token × 2 tema),
+- [x] **T1** — token katmanı: `DarkPalette.xaml` + `LightPalette.xaml` (23 token × 2 tema),
       `Tipografi.xaml` (7 kademe), `Olcu.xaml` (boşluk, yarıçap, vuruş). `Styles.xaml`
       token'lara geçer, tema sistemi izler (`GS7`). Kurallar **GK1, GK2, GK3, GK8, GK10**
       ve testleri.
@@ -236,7 +236,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
-| T | 0 | 6 |
+| T | 1 | 6 |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

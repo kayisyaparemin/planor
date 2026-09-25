@@ -136,7 +136,7 @@ daha kullanılmaz.
 | **Turuncu seçilirse** | Yalnız `Indicator` değişir. Koyu: `#E76F3C` (marka; kartta 4,45, grafik yüzeyinde 4,30). Açık: **`#C24E1E`** (türetildi; marka tonu `#DE5B26` açık grafik yüzeyinde 2,93 verip eşiği geçemiyor, `#C24E1E` 3,75). Ayrıca `WarningText` sarıya kaydırılır ki gösterge ile uyarı karışmasın. Başka token değişmez; kontrast tablosunun `Indicator` satırları yeniden hesaplanır. |
 | **Kilit** | `T1`'de kullanıcı onayıyla kilitlenir; kilitlenince `uygulandı`. |
 | **Etkiler** | `T1`, `T2`, `T4` |
-| **Durum** | açık, **kullanıcı kararı bekliyor** |
+| **Durum** | uygulandı |
 
 ### GS9 — Marka tarifinin kapsamadığı değerler türetildi
 
@@ -150,7 +150,7 @@ daha kullanılmaz.
 | **Kaynak ayrımı** | Hangi değerin markadan geldiği, hangisinin türetildiği `docs/v2/04-NEDEN-BU-TASARIM.md` § Planör paleti'nde (eski depoda) tek tek yazılı. |
 | **Kilit** | `T1`'de kullanıcı onayıyla kilitlenir; kilitlenince `uygulandı` ve türetilen değerler nihai sayılır. |
 | **Etkiler** | `T1` |
-| **Durum** | açık |
+| **Durum** | uygulandı |
 
 ---
 

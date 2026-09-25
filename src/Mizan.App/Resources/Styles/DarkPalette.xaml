@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                    x:Class="Mizan.App.Resources.Styles.DarkPalette">
+    <!-- Yüzeyler -->
+    <Color x:Key="Backdrop">#1E232A</Color>
+    <Color x:Key="SurfaceCard">#272D36</Color>
+    <Color x:Key="SurfaceSunken">#13161B</Color>
+    <Color x:Key="SurfaceHero">#2B4C6F</Color>
+    <Color x:Key="SurfaceChart">#233040</Color>
+
+    <!-- Çizgiler -->
+    <Color x:Key="BorderSubtle">#343B46</Color>
+    <Color x:Key="BorderStrong">#7A889B</Color>
+
+    <!-- Aksiyon -->
+    <Color x:Key="ActionFill">#E5E7EB</Color>
+    <Color x:Key="ActionFillPressed">#C3C8D0</Color>
+
+    <!-- Gösterge -->
+    <Color x:Key="Indicator">#6E97C6</Color>
+
+    <!-- Metin -->
+    <Color x:Key="TextPrimary">#F3F4F6</Color>
+    <Color x:Key="TextSecondary">#A7B0BC</Color>
+    <Color x:Key="TextMuted">#7A889B</Color>
+    <Color x:Key="TextOnAction">#1E232A</Color>
+    <Color x:Key="TextOnHero">#F3F4F6</Color>
+
+    <!-- Semantik -->
+    <Color x:Key="PositiveSurface">#1C3A2D</Color>
+    <Color x:Key="PositiveText">#7CC29C</Color>
+    <Color x:Key="NegativeSurface">#46242A</Color>
+    <Color x:Key="NegativeText">#EE9D96</Color>
+    <Color x:Key="WarningSurface">#3B3320</Color>
+    <Color x:Key="WarningText">#DDB968</Color>
+
+    <!-- Karşılaştırma -->
+    <Color x:Key="PlanSurface">#233040</Color>
+    <Color x:Key="ActualSurface">#313843</Color>
+</ResourceDictionary>
