@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I3** — profil deposu ve profil başına veritabanı |
-| Sıradaki adım | **I4** — yedekleme arşivi |
-| Test sayısı | 1163 |
+| Son tamamlanan adım | **I4a** — yedek alma |
+| Sıradaki adım | **I4b** — yedeği tanıma ve geri yükleme |
+| Test sayısı | 1183 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I4a — yedek alma: `ProfileBackupArchive`
+
+I4 (eski 480 satır, 3 partial) K3/K4 ve belgelerle ~500 satır ve iki iş yeteneği olduğu için bölündü: I4a yedek alma, I4b geri yükleme; eskide hiçbir adımda olmayan `FolderBackupStorage` I4c olarak plana girdi. Bu yarı bütün profilleri tek zip'e yazan (`WriteAsync`), veri değişti mi sorusunu cevaplayan (`ComputeFingerprintAsync`) ve son yedeğin kaydını tutan (`Get/SaveStateAsync`) `ProfileBackupArchive`'i getirdi; eski partial'lar bağımlılıksız yardımcılara ayrıldı (`SqliteDatabaseSnapshot`, `DatabaseContentFingerprint`, `BackupStateFile`, `BackupArchiveFormat`). S55 gereği somut depo yerine `IProfileRepository` + `IProfileFileLayout` + `IClock`. **S57:** v2 yedeği **biçim 2** yazar (biçim 1 eski uygulamanın yedeği; I4b açık mesajla reddedecek), şema sürümü `DatabaseConstants`'tan, girdi adı disk sabitinden değil arşiv biçiminden, `VACUUM INTO ?` parametreli; parmak izi içerik tabanlı kaldı ama eski gerekçesi (ayar satırının her açılışta yazılması) v2'de geçersiz olduğu için düzeltildi. Yeni invariantlar: yalnız açmak yeni yedek doğurmaz (`I34`), açık profil yazarken alınan yedek tutarlıdır (`I35`). **Dikkat:** sınıf portu (`IProfileBackupArchive`) henüz bildirmiyor, I4b'de altı metot tamamlanınca bildirecek; I4c'de v2'nin eski uygulamayla aynı `Mizan` klasörüne ve öneke yazmaması kararlaştırılmalı (yoksa eski yedekler silinir). `SOZLUK.md`'nin K9 için andığı `YasakliTerimler_KaynaktaGecemez` testi mimari test projesinde yok — ayrı iş. 20 yeni test eklendi (toplam 1.183 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I3 — profil deposu ve profil başına veritabanı
 

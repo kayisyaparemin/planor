@@ -537,6 +537,17 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `I3`, `Mizan.Infrastructure`, `Mizan.App` |
 | **Durum** | uygulandı |
 
+### S57 — Yedek arşivi biçim 2 ile başlar; eski uygulamanın yedeği biçim numarasıyla ayırt edilir
+
+| | |
+|---|---|
+| **Eski** | `ProfileBackupArchive` (3 partial, 480 satır) manifeste `Format = 1` ve `SqliteMizanStore.CurrentSchemaVersion` (v17) yazıyordu; veritabanı girdisinin adını disk sabitinden (`FileSystemProfileRepository.DatabaseFileName` = `coinflow.db3`) türetiyordu. Manifestteki şema sürümü yazılıyor ama hiç okunmuyordu; geri yüklemede sürüm veritabanının `settings.SchemaVersion` kolonundan okunuyordu. `VACUUM INTO` hedef yolu elle tek tırnak kaçışıyla SQL metnine gömülüyordu. Parmak izi yorumu içerik tabanlı olmayı "store her açılışta ayar satırını aynı değerlerle yeniden yazıyor" diye gerekçelendiriyordu. |
+| **Neden yanlış** | v2 aynı manifest alanlarını biçim 1 ile yazsaydı eski uygulamanın (`com.coinflow.mobile`, şema v17) yedeği v2'nin manifest denetiminden geçer, kullanıcı eski profillerini listede görür, seçer ve "verisi yedekte yok" gibi yanıltıcı bir hata alırdı; manifestteki v17 şema sürümü okunsaydı "daha yeni bir sürümden alınmış" diye **tersini** söylerdi. Girdi adını disk sabitinden türetmek, disk yerleşimi değiştiğinde yedek biçimini sessizce değiştirir. Yazılıp okunmayan alan `S53`'teki ölü kolonla aynı kokudur. Parmak izi gerekçesi v2'de geçersiz: şema sürümü `PRAGMA user_version`'da (`S53`), açılışta ayar satırı yazılmıyor. |
+| **Yeni** | a) v2 yedeği **biçim 2** yazar; biçim 1 eski uygulamanın yedeğidir ve `I4b` onu özet aşamasında "eski uygulamanın yedeği" diye açık mesajla reddeder (içe aktarma `G1`'in işi). b) Parmak izi içerik tabanlı kalır, gerekçesi düzeltilir: dosyanın değişiklik zamanı aynı değeri yeniden kaydetmek, günlük (journal) işlemleri ve dosya kopyalamakla oynar; "değişiklik" kullanıcının verisidir. c) `VACUUM INTO ?` parametre bağlamayla çağrılır. d) Veritabanı girdisinin adı (`profiles/{id:N}/mizan.db3`) arşiv biçiminin kendi sabitidir (`BackupArchiveFormat`), disk sabitine bağlı değildir. e) Manifestteki şema sürümü `DatabaseConstants.CurrentSchemaVersion`'dır ve `I4b`'de özet okunurken erken denetimde kullanılır; asıl otorite veritabanının `user_version`'ıdır. f) Profil yokken yazma eskisi gibi denetlenmez; kural `BackupService`'tedir (`NothingToBackUp`, `A26`). |
+| **Etkiler** | `I4a`, `I4b`, `G1` |
+| **İlgili** | `I4c`: v2 yedeği de depolamanın üstündeki `Mizan` klasörüne ve aynı `Mizan-yedek-` önekiyle yazarsa iki uygulama aynı günün dosyasını birbirinin üzerine yazar, v2'nin "en yeni 7" temizliği eski uygulamanın yedeklerini (G1'in girdisini) siler. Klasör ve önek kararı `I4c`'nin Aşama 3'ündedir. |
+| **Durum** | açık — `I4a` yazma yarısını (a, b, c, d, f), `I4b` okuma yarısını (a, e) uygular |
+
 
 
 

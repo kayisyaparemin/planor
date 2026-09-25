@@ -264,6 +264,11 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | yedek özeti | `BackupSummary` | Yedek arşivinin oluşturulma zamanını ve içerdiği profil listesini taşıyan sözleşme |
 | son yedek durumu | `BackupState` | Son yedeğin zaman damgasını, dosya adını ve veri parmak izini tutan durum kaydı |
 | yedekleme seçenekleri | `BackupOptions` | Yedekleme çalışma dizini ve saklanacak azami dosya sayısını yapılandıran ayarlar |
+| profil yedek arşivi (adaptör) | `ProfileBackupArchive` | Profilleri zip'e yazan, parmak izini hesaplayan ve son yedek kaydını tutan Infrastructure adaptörü; geri yükleme yarısı I4b'de gelir |
+| yedek biçimi | `BackupArchiveFormat` | Yedek zip'inin biçim numarası ve girdi adları; disk yerleşiminden bağımsızdır. Biçim 1 eski uygulamanın, biçim 2 bu uygulamanın yedeğidir (S57) |
+| yedek manifesti | `BackupManifest` | Zip'in başındaki içindekiler listesi: biçim, oluşturulma zamanı, şema sürümü ve profiller (`BackupManifestProfile`, verisi olup olmadığıyla) |
+| parmak izi | `Fingerprint` | Bütün profillerin adından ve veritabanı içeriğinden hesaplanan SHA-256; veri değişmedikçe aynı kalır, son açılış tarihi ve dosya zamanı girmez (`I34`) |
+| veritabanı anlık görüntüsü | `SqliteDatabaseSnapshot` | Açık profil yazarken bile tutarlı kopya üreten `VACUUM INTO` işlemi (`I35`) |
 
 ---
 
