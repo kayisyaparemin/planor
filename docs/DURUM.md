@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A23b** — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService` |
-| Sıradaki adım | **A24** — kataloglar: senaryo ve kayıt girişi katalogları |
-| Test sayısı | 1035 |
+| Son tamamlanan adım | **A24** — kataloglar: senaryo ve kayıt girişi katalogları: `SimulationScenarioCatalog`, `FinancialRecordEntryCatalog` |
+| Sıradaki adım | **A26** — yedekleme: `BackupService`, `IProfileBackupArchive` *(A25 elendi)* |
+| Test sayısı | 1052 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A24 — kataloglar: senaryo ve kayıt girişi katalogları: `SimulationScenarioCatalog`, `FinancialRecordEntryCatalog`
+
+What-If Simülatörü (V10) ve Finansal Yapı (V6) ekranlarında kullanıcının finansal harcama, borçlanma, kredi veya gelir seçeneklerini kart bazlı seçmesini ve motor türlerine çözümlenmesini sağlayan `SimulationScenarioCatalog` ile Finansal Yapı ekranının kayıt giriş seçeneklerini yöneten `FinancialRecordEntryCatalog` taşındı. S51 kararı doğrultusunda eski kodun tek dosyada dörder public tip barındıran monolitik yapısı K3 (tek public tip, ≤ 200 satır) ve K4 (partial yasağı) gereğince 8 ayrı leaf model dosyasına ayrıldı (`ScenarioGroup`, `ScenarioEntryHome`, `ScenarioOption`, `SimulationScenarioCatalog`, `RecordEntryGroup`, `RecordEntryForm`, `RecordEntryOption`, `FinancialRecordEntryCatalog`). Kural M3 yapıcı sınırlarına (≤ 5 parametre) uyum için `ScenarioOption` ve `RecordEntryOption` `required init` özellikleri ile refactor edildi. Yasaklı terim `Salary` ve `Maaş` tamamen ayıklanarak `Income` / `IncomeChange` standartlaştırıldı (S11); yapay tahsis modelleri `PaymentStrategyChange`, `PaymentStrategy` ve `ScenarioEntryHome.Settings` taşınmadı (S18, S45, Taşımama hakkı). A19'daki geçici `SimulationDirectEntryValidator` doğrudan kataloğun `IsDirectEntry` ve `TypeText` metotlarına delege edildi. 17 yeni birim testi eklendi (toplam 1.052 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A23b — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService`, `SimulatorProjectionMath`
 

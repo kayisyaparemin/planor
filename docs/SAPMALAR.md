@@ -485,7 +485,17 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Neden yanlış** | Kural 01 ve 05 gereğince Application katmanı kültür, para formatlama ve ekran metni taşıyamaz. `Mizan.Presentation` MAUI görmeyen ancak sunum modellerini ve formatlamalarını üstlenen doğru katmandır. Ayrıca S18 ile elenen yapay tahsis alanları v2 projeksiyon modelinde zaten mevcut değildir. |
 | **Yeni** | Sunum yardımcıları ve DTO'ları `Mizan.Presentation` katmanına taşındı. Yapay tahsis alanları ve geçiş blokları elendi. `Salary` yerine `Period`, `Savings` yerine `Surplus` kullanıldı. K3/K4 sınırları için tekil leaf tipler kurgulandı; 5'ten fazla özellik taşıyan modellerde M3 sınırına uyuldu. |
 | **Etkiler** | `A23` (`A23a`, `A23b`), `V8`, `V9`, `V10` |
-| **Durum** | uygulandı (A23a tamamlandı, A23b sırada) |
+| **Durum** | uygulandı |
+
+### S51 — Senaryo ve kayıt katalogları yasaklı terimlerden, yapay tahsis kalıntılarından arındırıldı ve tekil dosyalara bölündü
+
+| | |
+|---|---|
+| **Eski** | `SimulationScenarioCatalog.cs` ve `FinancialRecordEntryCatalog.cs` dosyalarında dörder adet public tip tek dosyada toplanmıştı (toplam 242 satır). İçeride `Salary` (`SalaryChange`, `RecordEntryForm.Salary`, `ScenarioEntryHome.SalaryForm`, `"Maaş / gelir değişikliği"`) yasaklı terimleri ve yapay tahsis (`PaymentStrategyChange`, `PaymentStrategy`, `"Gelir kullanım düzeni"`, `ScenarioEntryHome.Settings`) yer alıyordu. |
+| **Neden yanlış** | Kural K3 (bir dosyada tek public tip; dosya ≤ 200, metot ≤ 40 satır) ihlalidir. `Salary` ve `Maaş` `SOZLUK.md` uyarınca yasaklıdır (`S11`). S18 ile yapay tahsis elendiğinden Domain'de `SimulationScenarioType.PaymentStrategyChange` bulunmamaktadır (`S45`). |
+| **Yeni** | 1. Her tip kendi leaf dosyasına ayrıldı (8 ayrı dosya, K3 kuralına tam uyum).<br>2. `Salary` yerine `Income` (`IncomeChange`, `RecordEntryForm.Income`, `ScenarioEntryHome.IncomeForm`) kullanıldı; kullanıcı metinlerindeki "Maaş" ifadeleri temizlendi.<br>3. `PaymentStrategyChange`, `PaymentStrategy` ve `ScenarioEntryHome.Settings` taşınmadı (Taşımama hakkı).<br>4. Kural M3 yapıcı kuralı için `ScenarioOption` ve `RecordEntryOption` `required init` özellikleri ile refactor edildi.<br>5. `SimulationDirectEntryValidator` doğrulaması `SimulationScenarioCatalog.IsDirectEntry` ile ortaklaştırıldı. |
+| **Etkiler** | `A24`, `A19`, `V6`, `V10` |
+| **Durum** | uygulandı |
 
 
 

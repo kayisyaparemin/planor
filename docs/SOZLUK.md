@@ -145,6 +145,14 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | simülasyon taslağı | `SimulationDraft` | Kullanıcının simülatörde kurduğu ve adlandırarak sakladığı varsayımsal koşullar paketi; canlı plana girmez |
 | simülasyon taslak koşulu | `SimulationDraftCondition` | Simülasyon taslağı içerisindeki tekil senaryo isteğini ve açık/kapalı (aktif/pasif) tercihini tutan kayıt |
 | simülasyon taslağı deposu | `ISimulationDraftRepository` | Simülasyon taslaklarının ve bağlı koşullarının kalıcı olarak saklanmasını, listelenmesini ve silinmesini sağlayan veri erişim portu |
+| senaryo grubu | `ScenarioGroup` | Simülasyon senaryo seçeneklerinin arayüzdeki işlevsel üst kümesi (Harcama, Borç, Gelir, Ayar) |
+| senaryo giriş konumu | `ScenarioEntryHome` | Senaryo koşulunun simülatör dışında hangi ekrandan girilebileceğini belirleyen konum |
+| senaryo seçeneği | `ScenarioOption` | Simülatörde veya Finansal Yapı'da sunulan tekil plan türü kartı sözleşmesi |
+| senaryo kataloğu | `SimulationScenarioCatalog` | Simülatör ve Finansal Yapı ekranlarının paylaştığı tekil senaryo seçenekleri kataloğu ve motor türü çözümleyicisi |
+| kayıt giriş grubu | `RecordEntryGroup` | Finansal Yapı ekranında yeni kayıt ekleme kategorileri |
+| kayıt giriş formu | `RecordEntryForm` | Kayıt giriş seçeneğinin hangi form bileşeni üzerinden girileceğini belirten tür |
+| kayıt giriş seçeneği | `RecordEntryOption` | Finansal Yapı ekranında kayıt türü kartı sözleşmesi |
+| kayıt giriş kataloğu | `FinancialRecordEntryCatalog` | Finansal Yapı ekranında kayıt girişi seçenekleri kataloğu |
 
 ## Kredi
 
