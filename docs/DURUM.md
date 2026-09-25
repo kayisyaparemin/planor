@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A22** — cephe `MizanService`: **TAŞINMADI (ELENDİ)** |
-| Sıradaki adım | **A23** — sunum yardımcıları: `CashFlowPeriodDetailPresenter`, `SimulatorInsightService` |
-| Test sayısı | 1011 |
+| Son tamamlanan adım | **A23a** — dönem ayrıntısı sunumu: `CashFlowPeriodDetailPresenter` |
+| Sıradaki adım | **A23b** — simülatör içgörüleri ve faiz kıyaslaması: `SimulatorInsightService` |
+| Test sayısı | 1025 |
 | Şema sürümü | — |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A23a — dönem ayrıntısı sunumu: `CashFlowPeriodDetailPresenter`
+
+Dönem Ayrıntısı (V9) ekranının tek bir nakit akış dönemine ait gelir, zorunlu borç, harcama havuzu, nakit akışı basamakları, faiz kırılımları ve What-If kıyaslama satırlarını üreten `CashFlowPeriodDetailPresenter` ve modelleri (`CashFlowPeriodDetailData`, `DetailMetric`, `DetailPaymentRow`, `DetailComparisonRow`, `DetailDeficitCallout`, `DetailSemanticType`) taşındı. Kural 01 ve 05 gereğince sunum modelleri ve kültürlü para/tarih formatlama mantığı `Mizan.Application` yerine ait olduğu `Mizan.Presentation` katmanına alındı (**S50**). S18 doğal dönemsellik ilkesi doğrultusunda eski yapay tahsis modelleri (`CashFlowAllocationMode`, `Upcoming/Previous`, geçiş bütçeleri ve yapay pencere metinleri) tamamen ayıklandı; `Salary` ve `Savings` yasaklı terimleri `Period` ve `Surplus` olarak düzeltildi (S11, S13). Kural M3 yapıcı sınırlarına tam uyum sağlandı; K3 satır sınırına (195 satır ≤ 200) ve K4 partial yasağına uyuldu. 14 yeni birim testi eklendi (toplam 1.025 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### A22 — cephe `MizanService`: TAŞINMADI (ELENDİ) (Düğüm T7, Kural M3, S49)
 

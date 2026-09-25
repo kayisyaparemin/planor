@@ -477,4 +477,15 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A22`, `V3`–`V13`, `MauiProgram.cs` |
 | **Durum** | uygulandı |
 
+### S50 — Sunum yardımcıları Presentation katmanına taşındı; yapay tahsis ve yasaklı terimler ayıklandı
+
+| | |
+|---|---|
+| **Eski** | `CashFlowPeriodDetailPresenter` ve `SimulatorInsightService` `Mizan.Application` içinde yer alıyor, kültürlü para formatlamaları (`tr-TR`, `N2 TL`) ve ekran metinleri taşıyordu. İçlerinde `SalaryPeriodDetailData`, `SalaryText` (`S11`), `Savings` (`S13`) ve yapay tahsis/geçiş pencereleri (`TransitionCatchUp`, `ForwardFunded`, `PaymentWindowText` — `S18`) bulunuyordu. |
+| **Neden yanlış** | Kural 01 ve 05 gereğince Application katmanı kültür, para formatlama ve ekran metni taşıyamaz. `Mizan.Presentation` MAUI görmeyen ancak sunum modellerini ve formatlamalarını üstlenen doğru katmandır. Ayrıca S18 ile elenen yapay tahsis alanları v2 projeksiyon modelinde zaten mevcut değildir. |
+| **Yeni** | Sunum yardımcıları ve DTO'ları `Mizan.Presentation` katmanına taşındı. Yapay tahsis alanları ve geçiş blokları elendi. `Salary` yerine `Period`, `Savings` yerine `Surplus` kullanıldı. K3/K4 sınırları için tekil leaf tipler kurgulandı; 5'ten fazla özellik taşıyan modellerde M3 sınırına uyuldu. |
+| **Etkiler** | `A23` (`A23a`, `A23b`), `V8`, `V9`, `V10` |
+| **Durum** | uygulandı (A23a tamamlandı, A23b sırada) |
+
+
 
