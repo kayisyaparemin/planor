@@ -46,7 +46,14 @@ Kırmızı varsa incelemeyi durdur, önce bunu raporla.
 - [ ] Hesaplanmış değerin veritabanına yazılması
 - [ ] `[Column("...")]` takma adı
 
-**6. Test** — `rules/04-test.md`
+**6. Terim ve sapma** — `docs/SOZLUK.md`, `docs/SAPMALAR.md`
+- [ ] Yasaklı terim testi (K9) yeşil mi? Kırmızıysa sapma kararı eksik uygulanmış demektir
+- [ ] Yeni bir kavram adlandırılmış ama `SOZLUK.md`'e eklenmemiş mi?
+- [ ] Bu adımı etkileyen bir `S` kaydı vardı da uygulanmamış mı?
+- [ ] Sapma kararı verilmiş ama `SAPMALAR.md`'ye yazılmamış mı?
+- [ ] Bir isim yalan söylüyor mu? (alan adı ile taşıdığı veri uyuşuyor mu)
+
+**7. Test** — `rules/04-test.md`
 - [ ] `Mizan.Architecture.Tests` dışında kaynak dosya okuyan test
 - [ ] Mocking kütüphanesi kullanımı
 - [ ] `Metot_Senaryo_BeklenenDavranis` dışında isim

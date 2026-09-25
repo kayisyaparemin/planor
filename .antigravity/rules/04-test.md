@@ -22,6 +22,31 @@ rahatça `TestFactory.Service()` çağırabiliyordu. Saf hesap çekirdeği bu y�
 Başka herhangi bir test projesinde kaynak dosya okumak, `ArchitectureTests.KaynakTarayanTest_YalnizBuradaOlabilir`
 testini kırar.
 
+## Yasaklı terim testi (K9)
+
+`Mizan.Architecture.Tests` içindeki `YasakliTerimler_KaynaktaGecemez`, `docs/SOZLUK.md`'deki
+yasaklı terimler tablosunu **okur** ve `src/` ile `tests/` altını tarar. Tablo tek kaynak
+olduğu için doküman ile test birbirinden kayamaz.
+
+Tablo `<!-- YASAKLI-TERIMLER:BASLANGIC -->` ve `<!-- YASAKLI-TERIMLER:BITIS -->` işaretleri
+arasındadır. **İşaretler bulunamazsa test kırmızıya düşer** — sessizce devre dışı kalmaz.
+
+**Eşleştirme PascalCase token bazlıdır**, düz metin araması değil. Tanımlayıcı önce büyük harf
+ve alt çizgi sınırlarından parçalara ayrılır, sonra parçalar büyük/küçük harf gözetmeden
+karşılaştırılır. Bu, üç bilinen yanlış pozitifi kendiliğinden eler:
+
+| Görünürde ihlal | Parçalar | Neden temiz |
+|---|---|---|
+| `MigratePeriodPlanRevisionSchemaAsync` | `Migrate·Period·Plan·Revision·Schema·Async` | hiçbiri `maas` değil |
+| `PreviewSettlementAsync` | `Preview·Settlement·Async` | `Preview` ≠ `Review` |
+| `SavingsGoal` | `Savings·Goal` | `Goal` komşuluğu muaf |
+
+Türkçe `maaş` (ş ile) ayrıca düz metin olarak aranır; `ş` harfi yanlış pozitif üretemez.
+
+**Testin kendisinin de testi vardır.** `YasakliTerimRegex_YanlisPozitifUretmez` yukarıdaki üç
+örneği sabitler. Biri eşleştirmeyi gevşetirse o test kırmızıya düşer. Yeni bir yanlış pozitif
+bulduğunda terimi listeden çıkarma — **istisnayı** yaz ve örneği bu teste ekle.
+
 ## Mocking kütüphanesi yasak
 
 Moq, NSubstitute, FakeItEasy — hiçbiri kurulmaz. Sahteler **elle** yazılır ve ilgili test

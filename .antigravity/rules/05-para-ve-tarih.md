@@ -22,8 +22,12 @@ kaymayı engellemek için vardır.
 - `DateTime.Now` hiçbir yerde yok; her zaman `IClock`.
 - Veritabanında tarih `yyyy-MM-dd` metni olarak durur (sıralanabilir ve kültürden bağımsız).
 - Geçmiş yeniden hesaplanmaz. Dondurulmuş bir dönem planı sonradan değişmez.
-- Etkin tarihli (effective-dated) kararlar — maaş, ödeme düzeni, kart ödeme tercihi —
-  **değişmezdir ve üzerine yazılmaz**; yeni bir kayıt eklenir, eskisi tarihçede kalır.
+- Etkin tarihli (effective-dated) kararlar — gelir tutarı, kullanım düzeni, kart ödeme
+  tercihi — **değişmezdir ve üzerine yazılmaz**; yeni bir kayıt eklenir, eskisi tarihçede kalır.
+- **"En son kazanır" kuralı yalnız bir kaydın kendi geçmişinde işler.** İki ayrı gelir akışı
+  birbirini ezmez, **toplanır**. Eski projede bu bir hataydı (`docs/SAPMALAR.md` → S2).
+- Dönem çapası (`PeriodAnchor`) ile gelir tarihi **ayrı** kavramlardır. Biri diğerinden
+  türetilmez.
 
 ## Veritabanı şeması
 

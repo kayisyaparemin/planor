@@ -12,7 +12,7 @@ Mizan.Presentation (net8.0)   ViewModel'ler.  MAUI YOK. Infrastructure YOK.
    │  ├──► Mizan.Application
    │  └──► Mizan.Domain
    │
-Mizan.Infrastructure (net8.0) Adaptörler: SQLite, dosya sistemi, telemetri
+Mizan.Infrastructure (net8.0) Adaptörler: SQLite, dosya sistemi, PDF, Sentry
    │  └──► Mizan.Application
    │
 Mizan.Application (net8.0)    Portlar (arayüzler) + kullanım senaryoları
@@ -30,7 +30,7 @@ Yukarı doğru hiçbir ok yoktur. `Mizan.Presentation` MAUI'ye **referans vereme
 |---|---|---|
 | **Domain** | `record` modeller, enum'lar, saf hesaplayıcılar | NuGet paketi, `async`, dosya/DB, `DateTime.Now`, kültür/format |
 | **Application** | Port arayüzleri (`Abstractions/`), kullanım senaryoları (`Services/`), DTO'lar (`Models/`) | MAUI, SQLite, para/tarih formatlama |
-| **Infrastructure** | Port implementasyonları, SQL, dosya, telemetri | **İş kuralı hesabı** |
+| **Infrastructure** | Port implementasyonları, SQL, dosya, PDF, telemetri | **İş kuralı hesabı** |
 | **Presentation** | `ViewModel`'ler, `AutomationIds`, sunum DTO'ları | MAUI tipi, `Page`, `Shell`, SQLite |
 | **App** | XAML, code-behind, `Platforms/`, `MauiProgram.cs` | İş mantığı, hesap |
 

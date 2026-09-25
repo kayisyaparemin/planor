@@ -1,7 +1,7 @@
 # İş Akışı — Bir Taşıma Adımı
 
 Eski projeden (`C:\Users\kayis\Documents\mizan`) bu repoya bir parça taşırken izlenecek
-protokol. **Yedi aşama vardır ve hiçbiri atlanamaz.**
+protokol. **Sekiz aşama vardır ve hiçbiri atlanamaz.**
 
 Bu protokolün amacı kodu taşımak değil; kodun **sahibi tarafından anlaşılmış olarak** taşınmasını
 sağlamaktır. Birinci Mizan'ın problemi eksik koddu değildi, anlaşılmamış koddu.
@@ -30,10 +30,41 @@ Kullanıcıya Türkçe anlat:
    dokunuyor mu; yeni hâlinde ne değişecek.
 4. **Yeni hâlinde hangi dosyalar oluşacak?** Yol yol liste.
 
-> **Kullanıcı onaylamadan Aşama 3'e geçilmez.** Bu aşama "bilgilendirme" değil, bir kapıdır.
-> Kullanıcı soru sorarsa cevapla ve beklemeye devam et. Onay gelmeden tek satır kod yazma.
+Anlatımı bitirince **durma, Aşama 3'ü de aynı mesajda sun** — ikisi tek bir onay konuşmasıdır.
 
-## Aşama 3 — Sözleşme
+## Aşama 3 — Sapma Kararı  *(DURAKLAMA NOKTASI)*
+
+Eski kodun doğru olduğu varsayılamaz. Bu aşama, "sadakatle taşı" ile "düzelterek taşı"
+arasındaki kararı **açıkça** verdirir. Kararsız geçilemez.
+
+Sırayla kontrol et:
+
+1. **Kayıtlı sapma var mı?** `docs/SAPMALAR.md`'de bu adımı etkileyen bir `S` kaydı var mı?
+   Varsa oku ve uygula — o karar zaten verilmiş, yeniden tartışma.
+2. **Eski kod bu parçayı yanlış mı modellemiş?** İsim değil, **davranış** sor:
+   - Tekil olması gereken bir şey çoğul mu, çoğul olması gereken tekil mi?
+   - Bir kavram başka bir kavrama gereksizce yapışık mı?
+   - Arayüzün kullanıcıya vaat ettiği şeyi motor gerçekten yapıyor mu?
+3. **Yasaklı terim dokunuyor mu?** `docs/SOZLUK.md`'deki yasaklı terim tablosuna bak.
+   Eski koddaki isim yasaklıysa, yeni adı **şimdi** kararlaştır — Aşama 4'te değil.
+4. **Kullanıcının bu adım için ayrıca istediği bir refactor var mı?** Sor.
+
+Sonra üç şıktan **birini** öner ve gerekçelendir:
+
+| Şık | Ne zaman |
+|---|---|
+| **Olduğu gibi taşı** | Eski kod doğru; yalnızca yeni kural kitabına uyarlanacak |
+| **Şu sapmayla taşı** | Eski kod yanlış modellemiş ya da yasaklı terim taşıyor |
+| **Hiç taşıma** | Parça artık gereksiz (ölü kolon, kaldırılmış özellik kalıntısı, eski şema göçü) |
+
+> **Kullanıcı onaylamadan Aşama 4'e geçilmez.** Aşama 2 ve 3 birlikte sunulur, tek bir onay
+> alınır. Kullanıcı soru sorarsa cevapla ve beklemeye devam et. Onay gelmeden tek satır kod yazma.
+
+Yeni bir sapma kararı verildiyse `docs/SAPMALAR.md`'ye **şimdi** yaz — Aşama 8'de değil.
+Sebep: Aşama 4'teki sözleşme doğrudan bu karara dayanacak, ve karar kaydedilmeden yazılan
+bir imza kimsenin hatırlamadığı bir varsayım hâline gelir.
+
+## Aşama 4 — Sözleşme
 
 Önce genel API'yi yaz, gövdeleri boş bırak:
 
@@ -49,7 +80,7 @@ Bu aşamada: tipler, arayüzler, `record`'lar, metot imzaları. İş mantığı 
 Derlenmeli. Burada dur ve sözleşmenin doğru olduğundan emin ol — yanlış bir imza,
 yanlış yazılmış yirmi testten daha pahalıdır.
 
-## Aşama 4 — Kırmızı test
+## Aşama 5 — Kırmızı test
 
 Davranışı tarif eden testleri yaz. Çalıştır. **Kırmızı olduklarını göster.**
 
@@ -59,14 +90,14 @@ Davranışı tarif eden testleri yaz. Çalıştır. **Kırmızı olduklarını g
 - Eski projedeki mevcut testlerden **kopyalama**; onları oku, ama iddiayı yeniden yaz.
   Eski testlerin bir kısmı eski hataları dondurmuş olabilir.
 
-## Aşama 5 — Yeşil
+## Aşama 6 — Yeşil
 
 En yalın implementasyonu yaz. Testler geçsin.
 
 Burada "ileride lazım olur" diye bir şey ekleme. `docs/TASIMA-PLANI.md`'de sonraki adımda
 gelecek olan şey sonraki adımda gelir.
 
-## Aşama 6 — Kalkan
+## Aşama 7 — Kalkan
 
 ```bash
 dotnet build Mizan.sln
@@ -75,13 +106,16 @@ dotnet build Mizan.sln
 dotnet test Mizan.sln
 ```
 
-Hepsi geçmeli: **0 hata, 0 uyarı, tüm testler yeşil.** Mimari testler (K1–K8) dahil.
+Hepsi geçmeli: **0 hata, 0 uyarı, tüm testler yeşil.** Mimari testler (K1–K9) dahil.
 Kapsam eşiği düştüyse test ekle, eşiği düşürme.
+
+Yasaklı terim testi (K9) kırmızıysa, Aşama 3'te verilen sapma kararı eksik uygulanmış demektir.
+Terimi değiştir; testi gevşetme.
 
 Bir mimari test kırmızıya düştüyse: **kuralı esnetme, kodu düzelt.** Kural gerçekten yanlışsa
 kullanıcıya söyle ve kural değişikliğini ayrı bir iş olarak ele al.
 
-## Aşama 7 — Kayıt
+## Aşama 8 — Kayıt
 
 Sırayla:
 
@@ -115,6 +149,12 @@ Adım: D13 — kredi itfası
 
 ## Taşımama hakkı
 
-Eski koddaki her şey taşınmak zorunda değil. Bir parçanın artık gerekmediğini düşünüyorsan
-**taşımadan önce söyle.** Özellikle şunlar adaydır: ölü kolonlar, kullanılmayan ayar bayrakları,
+Eski koddaki her şey taşınmak zorunda değil. Bu, Aşama 3'ün üçüncü şıkkıdır (**hiç taşıma**) ve
+kullanmaktan çekinme. Özellikle şunlar adaydır: ölü kolonlar, kullanılmayan ayar bayrakları,
 eski şema göçleri, `*SourceTests` karşılıkları, kaldırılmış özelliklerin kalıntıları.
+
+## Adım dışında fark edilenler
+
+Bu protokol bir taşıma adımının *içinde* fark edilenleri çözer. Kullanıcı dokümanları okurken
+ya da uygulamayı kullanırken bir hata yakalarsa — yani adım dışında — o iş buraya değil
+`.antigravity/workflows/duzeltme.md` akışına gider.

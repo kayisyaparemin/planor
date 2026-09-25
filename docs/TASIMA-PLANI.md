@@ -15,9 +15,12 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz F — Temel
 
-- [x] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K8'i denetleyen testler.
+- [ ] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K8'i denetleyen testler.
       *Bu adım kasıtlı olarak birincidir: kuralları zorlayan mekanizma, kuralların koruyacağı
       koddan önce ayakta olmalı.*
+      ⚠️ **Geri açıldı:** kural kitabı K9'u (yasaklı terim) listeliyor ama testi yok.
+      `ArchitectureTests.YasakliTerimler_KaynaktaGecemez` ve
+      `ArchitectureTests.YasakliTerimRegex_YanlisPozitifUretmez` yazılmalı.
 - [x] **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
 - [x] **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması
 - [x] **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir
@@ -157,6 +160,35 @@ Geri kalan her şey bu omurgadan sarkar.
       *(eskinin açığı: maske yalnız `event.Message`'ı kapsıyordu; exception metni, breadcrumb,
       extra ve ekran görüntüsü açıkta kalıyordu. `AttachScreenshot` varsayılan olarak kapalı.)*
 
+## Faz T — Tasarım Sistemi (Planör)
+
+`T1`–`T2` tasarım bootstrap'ı ile kuruldu (`docs/v2/05-TASARIM-BOOTSTRAP-PROMPT.md`).
+`T3`–`T6` normal adımlardır ve `.antigravity/workflows/tasima-adimi.md` ile yürür, ama
+kaynak "eski proje" değil, `docs/TASARIM-SISTEMI.md`'dir: Aşama 1 (keşif) sistemdeki tanımı
+okur, Aşama 3 (sapma kararı) tanım eksik ya da yanlışsa `docs/TASARIM-SAPMALARI.md`'ye
+`GS` kaydı yazar.
+
+⚠️ **Faz T, `V0`'dan önce biter.** Bileşen yoksa ekran yazılamaz, token yoksa bileşen
+yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yürür (10 aşama).
+
+- [ ] **T1** — token katmanı: `DarkPalette.xaml` + `LightPalette.xaml` (23 token × 2 tema),
+      `Tipografi.xaml` (7 kademe), `Olcu.xaml` (boşluk, yarıçap, vuruş). `Styles.xaml`
+      token'lara geçer, tema sistemi izler (`GS7`). Kurallar **GK1, GK2, GK3, GK8, GK10**
+      ve testleri.
+- [ ] **T2** — ikon ve marka katmanı: Material Symbols Rounded statik font, `Icons.cs`
+      (12 ikon), üç boyut kademesi; uygulama etiketi `Planör`, Planör ikonu ve açılış
+      ekranı. Kod adı `Mizan` kalır (`GS6`). Kurallar **GK6, GK11** ve testleri.
+- [ ] **T3** — bileşen kitaplığı: `Components/` altında 12 `ContentView`, her biri ≤ 200
+      satır. Yeni bileşen ancak iki ekranda kullanılacaksa doğar.
+- [ ] **T4** — grafik primitifleri: `Charts/` altında 4 `IDrawable`;
+      `Mizan.Presentation/Charts/` altında ham seri tipleri (`ChartPoint`, `ChartSeries`,
+      `ChartThreshold`). Renk çizim anında okunur, tema değişince yeniden çizilir. Kural
+      **GK7** ve testi.
+- [ ] **T5** — durum blokları: `StateBlock` (boş / yükleniyor / hata) + iskelet yükleme
+      deseni.
+- [ ] **T6** — görsel bütçe testleri: **GK4, GK5, GK9.** *(T3–T5 bitmeden yazılamaz;
+      sayım bileşen adlarına dayanıyor.)*
+
 ## Faz V — Ekranlar
 
 - [ ] **V0** — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`,
@@ -199,11 +231,12 @@ Geri kalan her şey bu omurgadan sarkar.
 
 | Faz | Tamamlanan | Toplam |
 |---|---|---|
-| F | 4 | 4 |
+| F | 3 | 4 *(F1 K9 testi için geri açıldı)* |
 | D | 24 | 24 |
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
+| T | 0 | 6 |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |
