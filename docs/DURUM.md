@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I2d** — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository` *(Böylece **I2** bütünüyle tamamlandı)* |
-| Sıradaki adım | **I3** — profil deposu ve profil başına veritabanı |
-| Test sayısı | 1134 |
+| Son tamamlanan adım | **I3** — profil deposu ve profil başına veritabanı |
+| Sıradaki adım | **I4** — yedekleme arşivi |
+| Test sayısı | 1163 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I3 — profil deposu ve profil başına veritabanı
+
+Disk tabanlı profil deposu (`FileSystemProfileRepository`) ve profil başına dinamik veritabanı anahtarlayıcısı (`SqliteProfileStoreSwitch`) taşındı. Her profilin veritabanı `profiles/{guidN}/mizan.db3` yolunda izole yaşar; meta bilgisi `profile.json` dosyasında atomik `.tmp → move` ile saklanır. S55 uyarınca disk yerleşimi `IProfileFileLayout` arayüzüyle soyutlandı; S56 uyarınca eski projedeki tanrı sınıf `ProfileScopedMizanStore` elendi ve yerine `ISqliteConnectionProvider` ile mevcut 11 deponun dinamik bağlantı alması sağlandı. Bozuk veya eksik meta dosyası kurtarma davranışı korundu (veritabanı mevcutsa `DefaultName` ile listelenir). K3 metot limiti aşımı `ReadMetadataAsync` → `RecoverFromDatabase` ayrımıyla giderildi. 29 yeni test eklendi (toplam 1.163 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### I2d — dönem tarihçesi ve mutabakat deposu: `SqlitePeriodHistoryRepository`
 

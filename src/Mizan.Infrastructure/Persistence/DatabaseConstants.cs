@@ -115,4 +115,14 @@ public static class DatabaseConstants
 
     /// <summary>Ödeme günü hatırlatıcı bildirimlerine verilen kullanıcı yanıtları defteri tablosu.</summary>
     public const string TablePaymentReminderResponses = "payment_reminder_responses";
+
+    /// <summary>Uygulama SQLite veritabanı dosya adı.</summary>
+    public const string DatabaseFileName = "mizan.db3";
+
+    /// <summary>Profillerin disk üzerinde toplandığı klasör adı.</summary>
+    public const string ProfilesDirectoryName = "profiles";
+
+    /// <summary>Profil meta bilgilerinin saklandığı dosya adı.</summary>
+    public const string MetadataFileName = "profile.json";
 }
+
