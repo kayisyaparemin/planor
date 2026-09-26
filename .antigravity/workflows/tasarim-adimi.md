@@ -16,8 +16,8 @@ yazılmasını sağlamak. Eski Mizan'ın ekran problemi eksik bilgi değildi, **
 bilgiydi.** Yeni ekranlar Planör'ün ekranlarıdır: yerleşimi konseptten, rengi ve sesi
 markadan alırlar (`docs/TASARIM-SAPMALARI.md` § İki referans, iki otorite).
 
-İki onay kapısı var: **A** (Aşama 2+3+4) ve **B** (Aşama 5). İkisinden de onay almadan kod
-yazılmaz.
+Üç onay kapısı var: **A** (Aşama 2+3+4), **B** (Aşama 5) ve **C** (Aşama 9 — görsel onay).
+A ve B'den onay almadan kod yazılmaz; C'den onay almadan kayıt ve commit yapılmaz.
 
 ---
 
@@ -194,10 +194,10 @@ sebebini söyle.
 ## Aşama 9 — Kalkan
 
 ```bash
-dotnet build Mizan.sln -warnaserror
+dotnet build Mizan.sln -warnaserror -nologo -v q
 ```
 ```bash
-dotnet test Mizan.sln
+dotnet test Mizan.sln -nologo -v q
 ```
 
 Hepsi geçmeli: **0 hata, 0 uyarı, tüm testler yeşil.** Mimari testler (K1–K9) **ve** görsel
@@ -218,29 +218,54 @@ Bir görsel test kırmızıysa:
 **Kuralı esnetme, ekranı düzelt.** Kural gerçekten yanlışsa kullanıcıya söyle; kural
 değişikliği ayrı bir iştir.
 
-Son olarak ekranı **gerçekten gör**: emülatörde aç, ekran görüntüsü al, üç durumu (boş,
-yükleniyor, hata) tek tek göster. Eski projede regresyon betiği yedek koordinata tıklayıp
-sonucu koşulsuz "başarılı" sayıyordu; bu tekrarlanmayacak.
+Kalkan yeşilse uygulamayı emülatörde **aç ve bırak**:
 
-**İki tema:** üç durum koyu temada, dolu hâl ayrıca açık temada. Toplam dört görüntü.
-Temayı emülatörde değiştirmek için:
+```powershell
+./scripts/emulatorde-ac.ps1
+```
 
-```bash
-adb shell cmd uimode night yes
-```
-```bash
-adb shell cmd uimode night no
-```
+Betik çalışan emülatör yoksa `mizan_emulator`'u başlatır, uygulamayı derleyip kurar ve ön
+planda açar. **Bir kez** çalıştırılır; başarısızsa hatayı düzelt ve tekrar çalıştır.
+Başarılıysa emülatör açık kalır ve ajan **emülatöre bir daha dokunmaz**: `adb` ile tıklama,
+`screencap`, UI dökümü, tema değiştirme, görüntü okuma yok. Ajanın emülatörü sürmesi bir ekran
+adımının maliyetinin çoğunu yiyordu. Eski projede regresyon betiği yedek koordinata tıklayıp
+sonucu koşulsuz "başarılı" sayıyordu; ekrana ajanın değil kullanıcının bakması bunu önler.
+
+Sonra kullanıcıya bir **görsel kontrol listesi** bırak:
+
+- **Yol:** ekrana nasıl ulaşılır, tek satır (örn. "Profil seç → Ana sayfa")
+- **Bak:** bu ekrana özgü en fazla beş risk, soru olarak (örn. "PeriodRail çubuğu açık
+  temada zemine karışıyor mu?", "Uzun tutar hero'da taşıyor mu?")
+- **Tema:** dolu hâl koyu ve açık temada. Geçiş: `adb shell cmd uimode night yes` / `no`
 
 Kontrast testi yalnız tablodaki çiftleri görür. İnce bir ayırıcının açık temada kaybolduğunu
-ya da bir öğenin tema değişince eski renkte kaldığını yalnız bu görüntüler gösterir.
+ya da bir öğenin tema değişince eski renkte kaldığını yalnız göz görür.
+
+Boş, yükleniyor ve hata hâlleri her ekranda ayrıca gösterilmez: davranışlarını Aşama 6
+testleri korur, görünüşleri ortak `StateBlock` bileşenindedir. Adım `StateBlock`'a dokunduysa
+ya da ekran kendi durum görünümünü kurduysa, üç hâl de listeye eklenir.
+
+> **ONAY KAPISI C:** Kullanıcı "tamam" demeden Aşama 10'a geçilmez.
+>
+> Sorun bildirilirse **emülatör kapatılmaz.** Ajan hatayı emülatörde kendisi yeniden üretmeye
+> çalışmaz; kullanıcının tarifiyle çalışır, tarif eksikse **bir** soru sorar. Davranış
+> hatasıysa (tür B) önce kırmızı test yazılır; görünüş hatasıysa (tür G) XAML düzeltilir.
+> Sonra Aşama 9'un iki komutu koşulur ve betik tekrar çalıştırılır; betik açık emülatöre
+> birkaç saniyede kurar ve uygulamayı yeniden başlatır. Liste yalnız düzeltilen maddeyle
+> tekrar sunulur.
+>
+> Hata bildirimi (kullanıcı): **ekran · tema · ne gördüm · ne bekliyordum.** İsteğe bağlı
+> olarak kullanıcının kendi aldığı bir ekran görüntüsü eklenebilir; ajan görüntü istemez.
+>
+> Otomatik emülatör regresyonu bu protokolün işi değildir; `K1` ve `K3` adımlarına aittir.
 
 ## Aşama 10 — Kayıt
 
 Sırayla:
 
 1. `docs/TASIMA-PLANI.md` — adımın kutusunu işaretle
-2. `docs/DURUM.md` — "Bu adım ne getirdi" altına 3–6 satır; **bütçe sayımını da yaz**
+2. `docs/DURUM.md` — "Bu adım ne getirdi" altına 3–6 satır; **bütçe sayımını da yaz** ve
+   ekran görüntüsü yolu yerine "Görsel kontrol: kullanıcı onayladı (koyu + açık)."
 3. `docs/EKRAN-KARTLARI.md` — kart tamamlanmış hâliyle (Aşama 5'te yazılmış olmalı)
 4. `docs/TASARIM-SAPMALARI.md` — `GS` kaydı verildiyse (Aşama 4'te yazılmış olmalı)
 5. Yeni invariant doğduysa `docs/INVARYANTLAR.md` — koruyan testin tam adıyla

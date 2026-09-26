@@ -217,7 +217,9 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 - [ ] **K2** — CI: PR kapısı, kapsam eşiği, APK doğrulama *(debug imza reddi, package id,
       versionCode, versionName, label kontrolleri)*
 - [ ] **K3** — Emülatör regresyon betiği *(eskinin açığı: yedek koordinat ile tıklayıp
-      sonucu koşulsuz "başarılı" sayıyordu — bu tekrarlanmayacak)*
+      sonucu koşulsuz "başarılı" sayıyordu — bu tekrarlanmayacak)*. Ekran adımlarında ajan
+      uygulamayı yalnız `scripts/emulatorde-ac.ps1` ile açar, bakmak kullanıcıdadır;
+      otomatik emülatör regresyonunun yeri burasıdır.
 - [ ] **K4** — Sürüm hattı: sürüm notları `CHANGELOG.md`'den okunur, elle `echo` edilmez
 
 ## Faz G — Geçiş

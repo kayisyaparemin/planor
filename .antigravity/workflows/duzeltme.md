@@ -125,7 +125,10 @@ Sonra:
    `TASIMA-PLANI.md` — görsel düzeltmede ayrıca `TASARIM-SAPMALARI.md`, `EKRAN-KARTLARI.md`,
    `TASARIM-SISTEMI.md`.
 3. `dotnet build` + `dotnet test` — 0 hata, 0 uyarı, tümü yeşil.
-4. **Tek commit.** `fix(...)` ya da `docs(...)`; gövdede düzeltmenin türü ve sapma kodu.
+4. Tür **B** ya da **G** ise uygulamayı aç ve bırak: `./scripts/emulatorde-ac.ps1`. Kullanıcı
+   düzeltmeyi kendi gözüyle onaylamadan commit atılmaz. Emülatöre dokunma kuralı
+   `tasarim-adimi.md` Aşama 9 ile aynıdır.
+5. **Tek commit.** `fix(...)` ya da `docs(...)`; gövdede düzeltmenin türü ve sapma kodu.
 
 ```
 fix(sozluk): period definition no longer assumes a salary
