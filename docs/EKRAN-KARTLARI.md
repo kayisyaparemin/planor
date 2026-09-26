@@ -205,6 +205,11 @@ Cumle_        0 / 3     açıklama cümlesi yok
 
 Sayfasız kabuk altyapısı (GK9 istisnası, GS15). Kabuk başlığı, flyout menüsü ve durum çubuğu tonları `docs/TASARIM-SISTEMI.md` § Yüzeyler (`Backdrop`: Koyu `#1E232A`, Açık `#E5E7EB`) ile birebir uyumludur. İkonlar `Icons.cs` üzerinden Material Symbols Rounded fontundan gelir (GK6).
 
+## EK-V1 — Profil seçimi
+
+> Adım V1 ile tamamlandı.
+> Sayfa dosyası: `ProfileSelectionPage.xaml`
+
 ---
 
 ## Doldurulacak kartlar
@@ -212,12 +217,182 @@ Sayfasız kabuk altyapısı (GK9 istisnası, GS15). Kabuk başlığı, flyout me
 Aşağıdaki kartlar ilgili V adımının Aşama 4–5'inde doldurulur. **Boş bir kart, o adımın
 henüz başlamadığını gösterir** — kartı önceden doldurmak, onay kapısını atlamaktır.
 
-### EK-V1 — Profil seçimi
-Konsept karşılığı **yok.** Türetme adayı: `EK-V3`'ün `ListCard` + `NavRow` deseni.
+**Eski hâl:** `ProfileSelectionPage.xaml` 97 satır, 10 `<Label>`, 1 kart (Border), 5 buton, 1 spinner (`ActivityIndicator`).
 
-### EK-V2 — Hatırlatıcı kartı
-Konsept karşılığı **var** (bildirim paneli: "Ödedim / Ertele"). Sayfası olmayan çocuk
-ViewModel; `ReminderCard` bileşeni olarak `EK-V3` içinde görünür.
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Hangi profillerim var ve hangisini açmak istiyorum?" | `Border` içinde 3 etiket (avatar, ad, son açılış) |
+| S2 | "Yeni bir profil oluşturabilir miyim?" | "Yeni Profil" ve "Temiz Başla" butonları |
+| S3 | "Yedekten profillerimi nasıl geri getirebilirim / ekleyebilirim?" | "Yedekten Geri Yükle" ve "Yedekten Ekle" butonları |
+| S4 | "Mevcut bir profilin adını değiştirebilir veya silebilir miyim?" | Liste içi "Düzenle" link butonu + diyalog |
+| S5 | "İlk kurulumda mıyım, yoksa profiller arası geçişte miyim?" | `IsFirstRun` ile açılan karşılama kutusu |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Sayfa başlığı | **Satır** (`PageHeader`) | "PROFİLLER" eyebrow + "Profil Seçimi" başlığı (S1, S5) |
+| Profil listesi | **Kart** (`ListCard`) | Profillerin listelendiği ana kapsayıcı kart (S1) |
+| Profil satırı (Avatar + Ad + Son açılış) | **Satır** (`DataTemplate`) | Dokunulduğunda profili açar (S1) |
+| Profil seçenekleri ("Düzenle") | **Satır** (Aksiyon butonu) | Ad değiştirme veya silme diyaloğunu tetikler (S4) |
+| Yeni profil oluşturma | **Aksiyon** (`ActionFill`) | Listenin altındaki ana buton (S2) |
+| Yedekten profil ekleme | **Aksiyon** (İkincil buton) | Harici veya yerel yedekten profil ekleme (S3) |
+| İlk kurulum karşılama | **Kart** (`StateBlock`) | Profil yokken temiz başla veya yedekten dön kartı (S5) |
+| `MİZAN` üst etiketi | **Çıkar** | GK11 (ürün adı Planör; eski ad yasağı) |
+| Veri izolasyonu uzun açıklaması | **Çıkar** | GK5 cümle bütçesi; bilişsel yükü azaltma |
+| Ham dosya yolu metni | **Çıkar** | Bilişsel yük; dosya seçim akışına devredildi |
+| Spinner (`ActivityIndicator`) | **Çıkar** | GS14 (spinner kesinlikle yasak) |
+| `StatusMessage` etiketi | **Çıkar** | Hata durumu `StateBlock` veya diyalogla yönetilir |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1     profil seçiminde hero rakam yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          1 / 4     profil listesi kartı (ListCard) veya boş durumda StateBlock
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     navrow yok (profil kartı satırları DataTemplate)
+Label         7 / 28    PageHeader (2), DataTemplate [Avatar, İsim, Tarih] (3), StateBlock (2)
+Cumle_        1 / 3     Cumle_ProfilSecimNotu veya Boş durum karşılama cümlesi
+```
+
+### 4. Blok şeması
+
+```
+┌─ PageHeader ─────────────────────────────────────────────┐
+│ Etiket_Profiller       TypeEyebrow / TextSecondary       │  ← S5
+│ Baslik_ProfilSecimi    TypeTitle / TextPrimary           │  ← S1
+└──────────────────────────────────────────────────────────┘
+┌─ ListCard (SurfaceCard / RadiusCard / Padding Space4) ───┐  ← S1
+│ Etiket_MevcutProfiller TypeEyebrow / TextSecondary       │
+│                                                          │
+│ ┌─ Profil Satırı (DataTemplate) ───────────────────────┐ │
+│ │ ┌ Avatar ──┐                                         │ │
+│ │ │ "P"      │  Adı: Ev Bütçesi (TypeSection)          │ │  ← S1
+│ │ │ SurfSunk │  Son açılış: 26 Eyl 2026 (TypeCaption)  │ │
+│ │ └──────────┘  [ Düzenle ] (TypeCaption / Indicator)  │ │  ← S4
+│ └──────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────┘
+┌─ Aksiyon Butonları (Spacing Space3) ─────────────────────┐
+│ [ Aksiyon_YeniProfil       ActionFill / RadiusCard ]     │  ← S2
+│ [ Aksiyon_YedektenEkle     BorderStrong / RadiusCard ]   │  ← S3
+└──────────────────────────────────────────────────────────┘
+│ Cumle_ProfilSecimNotu      TypeCaption / TextSecondary   │  ← S5
+```
+
+Hiç profil yokken (İlk Kurulum / Boş Durum):
+
+```
+┌─ PageHeader ─────────────────────────────────────────────┐
+│ Etiket_Planor          TypeEyebrow / TextSecondary       │  ← S5
+│ Baslik_HosGeldiniz     TypeTitle / TextPrimary           │  ← S5
+└──────────────────────────────────────────────────────────┘
+┌─ StateBlock (SurfaceCard / RadiusCard / Padding Space5) ─┐  ← S5
+│ [AccountBalance]       IconLarge / Indicator             │
+│ Baslik_IlkKurulum      TypeSection / TextPrimary         │
+│ Cumle_IlkKurulum       TypeBody / TextSecondary          │  ← S5
+│                                                          │
+│ [ Aksiyon_TemizBasla       ActionFill / RadiusCard ]     │  ← S2
+│ [ Aksiyon_YedektenYukle    BorderStrong / RadiusCard ]   │  ← S3
+└──────────────────────────────────────────────────────────┘
+```
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | `StateBlock`: `AccountBalance` ikonu + `Cumle_IlkKurulum` ("Temiz bir başlangıç yapabilir veya mevcut bir yedeği geri yükleyebilirsin.") + `Aksiyon_TemizBasla` ve `Aksiyon_YedektenYukle` butonları. |
+| Yükleniyor | İskelet (`SkeletonBlock`): `PageHeader` iskeleti + `ListCard` yüksekliğinde `SurfaceSunken` zeminli kart iskeleti; spinner yok. |
+| Hata | `StateBlock`: `Close` ikonu (`NegativeText`) + `Hata_ProfillerOkunamadi` ("Profiller yüklenemedi.") + `Aksiyon_TekrarDene` butonu. |
+
+### 6. Konsept ilişkisi
+
+Konsept panellerinde profil seçimi ekranı yer almamaktadır (`GS2`). Yerleşim ve bileşenler, `EK-V3`'ün `ListCard` liste kapsayıcısı ile `StateBlock` durum deseni referans alınarak türetilmiştir.
+
+---
+
+## EK-V2 — Hatırlatıcı kartı
+
+> Sayfası yok (çocuk kart, sayfasız çocuk ViewModel). GK9 istisnası: `ReminderCard` bir `*Page` değil (`GS15`).
+> `EK-V3` (Ana Sayfa) içinde ve vadesi gelen/ertelenen aktif ödeme olduğunda görünür.
+
+**Eski hâl:** `PaymentReminderCardView.xaml` (141 satır, 11 `<Label>`, 3 `<Border>`, 3 `<Button>` + FlexLayout içi buton şablonu) ve `PaymentReminderPaidView.xaml` (50 satır, 4 `<Label>`, 2 `<Border>`). Toplam 191 satır, 15 `<Label>`, 5 Border/kart.
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Bugün veya vadesi geçmiş/ertelenmiş, hemen ödemem gereken acil bir yükümlülük var mı?" | 6 etiket + SummaryText + 35 günlük tüm vadeleri döken Upcoming listesi |
+| S2 | "Bu ödemeyi yaptım mı, yoksa daha sonraya mı ertelemek istiyorum?" | Bildirim çubuğu butonları veya kart satırına dokununca açılan onay diyaloğu |
+| S3 | "Yanlışlıkla ödedim veya erteledim dediğim bir işlemi geri alabilir miyim?" | Snoozed (kırmızı kutular) ve Paid (yeşil kutular) listeleri üzerinden |
+| S4 | "Ödeme bildirim tercihim (Kapalı/Rahat/Agresif) ve bildirim iznim açık mı?" | 3 butonluk mod seçici çipler, mod açıklaması ve uyarı kutusu |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Aktif hatırlatıcı başlığı ve vadesi | **Kart** (`ReminderCard.Title`) | S1: Anlık müdahale bekleyen acil ödeme kimliği (`TypeSection`) |
+| Ödeme tutarı ve detay açıklaması | **Kart** (`ReminderCard.Message`) | S1: Tek bakışta okunur tutar ve açıklama (`TypeBody`) |
+| "Ödedim" aksiyonu | **Aksiyon** (`ActionFill`) | S2: Tek dokunuşla borcu kapatma (`PrimaryActionText`) |
+| "Ertele" aksiyonu | **Aksiyon** (`SecondaryButton`) | S2: 3 saat öteleme (`SecondaryActionText`) |
+| Bildirim modu çipleri (Kapalı/Rahat/Agresif) | **Derine** → `EK-V13` | S4: Sistemik ayar; ana sayfa hatırlatıcı kartını meşgul etmemeli |
+| 35 günlük yaklaşan ödemeler listesi | **Derine** → `EK-V3` / `EK-V9` | `ListCard` (kalan ödemeler) zaten bu veriyi sunuyor; mükerrer bilgi |
+| Ertelenenler geçmiş listesi | **Çıkar** | Vadesi gelen ertelenen zaten aktif hatırlatıcı olarak tekrar öne düşer |
+| "Ödediklerin" geçmiş listesi | **Derine** → `EK-V9` | Dönem gerçekleşmesi ve mutabakat ekranında yer alır |
+| "Deneme bildirimi gönder" butonu | **Çıkar** | Geliştirici/test artığı |
+| `StatusMessage` hata etiketi | **Çıkar** | Hata durumu diyalog servisi ile yönetilir |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1     çocuk kartta hero yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          1 / 4     ReminderCard (tekil çocuk kart)
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     navrow yok
+Label         2 / 28    Title (TypeSection), Message (TypeBody)
+Cumle_        1 / 3     Message (vade ve tutar bildirimi ≤ 90 kr)
+```
+
+### 4. Blok şeması
+
+Aktif hatırlatıcı olduğunda (`HasActiveReminder == true`):
+
+```
+┌─ ReminderCard (SurfaceCard / BorderSubtle / RadiusCard / Padding Space4) ──┐
+│ ┌─ Bildirim Başlığı (ColumnDefinitions: Auto, *) ────────────────────────┐ │
+│ │ [Notifications]   IconMedium / Indicator                               │ │  ← S1
+│ │ ┌─ Başlık & Mesaj (VerticalStackLayout, Spacing Space1) ─────────────┐ │ │
+│ │ │ {Title}         TypeSection / TextPrimary                          │ │ │  ← S1
+│ │ │ {Message}       TypeBody / TextSecondary                           │ │ │  ← S1
+│ │ └────────────────────────────────────────────────────────────────────┘ │ │
+│ └────────────────────────────────────────────────────────────────────────┘ │
+│ ┌─ İki Aksiyon Butonu (Grid, ColumnDefinitions: *, *, Spacing Space2) ───┐ │
+│ │ [ Ertele ]        SecondaryButton / RadiusCard                         │ │  ← S2
+│ │ [ Ödedim ]        ActionFill / TextOnAction / RadiusCard               │ │  ← S2
+│ └────────────────────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+Aktif hatırlatıcı olmadığında (`HasActiveReminder == false`):
+Kart görünmezdir (`IsVisible = false`), ana sayfada yer tutmaz.
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Vadesi gelen veya ertelenen aktif bir hatırlatıcı yoksa kart görünmezdir (`IsVisible = false`), yerleşim zıplaması yaratmaz. |
+| Yükleniyor | Çocuk kart bağımsız bir yükleme iskeleti göstermez; ana sayfa (`EK-V3`) genel yükleme iskeletinin (`ScreenState.Loading`) bir parçası olarak değerlendirilir. |
+| Hata | Hatırlatıcı defteri okunamaz veya yanıt kaydedilemezse diyalog uyarısı verilir (`Hata_HatirlaticiGuncellenemedi`), kart ana sayfayı kilitlemez. |
+
+### 6. Konsept ilişkisi
+
+Konsept bildirim panelindeki ("Ödedim / Ertele" aksiyonları) kart deseni doğrudan kaynaktır. Sayfasız çocuk ViewModel'dir (`GS15` istisnası); `ReminderCard` bileşeni olarak `EK-V3` (Ana Sayfa) içine gömülür.
+
+---
+
 
 ### EK-V4 — Kurulum sihirbazı
 Konsept karşılığı **var** (Kurulum 8/8 özeti). Eskide 958 satır / 3 `partial` — adım
@@ -267,9 +442,9 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 
 | Kart | Ekran | Eski `<Label>` | Yeni `<Label>` | Durum |
 |---|---|---:|---:|---|
-| EK-V0 | Kabuk | — | — | ⬜ |
-| EK-V1 | Profil seçimi | 10 | | ⬜ |
-| EK-V2 | Hatırlatıcı | — | | ⬜ |
+| EK-V0 | Kabuk | — | — | ✅ |
+| EK-V1 | Profil seçimi | 10 | 4 | ✅ |
+| EK-V2 | Hatırlatıcı | 15 | 2 | ✅ |
 | EK-V3 | Ana sayfa | 54 | | ⬜ |
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |

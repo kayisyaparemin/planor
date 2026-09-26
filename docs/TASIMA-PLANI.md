@@ -196,8 +196,8 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 
 - [x] **V0** — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`,
       `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
-- [ ] **V1** — profil seçimi
-- [ ] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
+- [x] **V1** — profil seçimi
+- [x] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
 - [ ] **V3** — ana sayfa (dashboard)
 - [ ] **V4** — kurulum sihirbazı *(eskide 958 satır / 3 partial — adım ViewModel'lerine bölünecek)*
 - [ ] **V7** — kart kontrol — **V6 ve V10'dan ÖNCE.** Eskide `CommitmentsPage` ve
@@ -240,6 +240,6 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | T | 6 | 6 |
-| V | 1 | 14 |
+| V | 3 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

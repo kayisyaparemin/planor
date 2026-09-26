@@ -6,15 +6,23 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V0** — kabuk ve altyapı (Faz V) |
-| Sıradaki adım | **V1** — profil seçimi |
-| Test sayısı | 1290 |
+| Son tamamlanan adım | **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)* |
+| Sıradaki adım | **V3** — ana sayfa (dashboard) |
+| Test sayısı | 1315 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V2 — hatırlatıcı kartı: `ReminderCardViewModel`, `ReminderItem`, `IPaymentReminderScheduler`, `InMemoryPaymentReminderScheduler`, `ReminderCard`
+
+Hatırlatıcı kartı Faz V protokolü (`tasarim-adimi.md`) ve onaylanan blok şemasına (`S34`, `GS15`) tam uyumla tamamlandı. Eski projedeki 419 satırlık 2 partial dosyalı, mod seçicisi, 35 günlük takvim listesi ve yeşil/kırmızı rezerv blokları barındıran şişkin yapı temizlendi. Presentation katmanında MAUI'den bağımsız, saf veri sunan odaklı `ReminderCardViewModel` (191 satır, K3 ve K4 uyumlu), `ReminderItem` sunum modeli ve `IPaymentReminderScheduler` portu yazıldı. MAUI katmanında `InMemoryPaymentReminderScheduler` zamanlayıcısı kaydedildi, `ReminderCard.xaml` bileşeni `AutomationIds` (`CardReminder`, `BtnReminderPay`, `BtnReminderSnooze`) ile bağlandı. Bütçe sayımı: Hero 0/1, Kart 1/4 (`ReminderCard`), Grafik 0/1, NavRow 0/5, Label 2/28, Cümle 1/3 (Mesaj ≤ 90 kr). Aktif hatırlatıcı yokken kart sıfır alan kaplar (`IsVisible = false`), yerleşim zıplamaz. 11 yeni sunum testi eklendi (toplam 1.315 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
+
+### V1 — profil seçimi: `ProfileSelectionViewModel`, `ProfileCardMapper`, `AndroidBackupFilePicker`, `ProfileSelectionPage`
+
+Profil seçimi ve ilk kurulum akışı Faz V protokolüne (`tasarim-adimi.md`) tam uyumla tamamlandı. Presentation katmanında MAUI'den bağımsız `ProfileSelectionViewModel`, `ProfileCardMapper`, `IProfileBackupHandler` ve `IBackupFilePicker` portları ile `ProfileCardItem` modeli yazıldı. MAUI katmanında Android yerel `AndroidBackupFilePicker` adaptörü ve onaylanan blok şemasına sadık `ProfileSelectionPage` (136 satır, K1 ve GK1–GK11 uyumlu) hayata geçirildi. Bütçe sayımı: Hero 0/1, Kart 1/4 (`ListCard` veya `StateBlock`), Grafik 0/1, NavRow 0/5, Label 4/28, Cümle 2/3 (`Cumle_IlkKurulum`, `Cumle_ProfilSecimNotu`). Canlı Android emülatöründe 4 durumun tamamı test edilerek ekran görüntüleri kaydedildi (`docs/screenshots/v1-bos-koyu.png`, `v1-yukleniyor-koyu.png`, `v1-dolu-koyu.png`, `v1-dolu-acik.png`). 14 yeni sunum testi eklendi (toplam 1.304 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V0 — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`, `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
 

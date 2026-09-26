@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Mizan.App.Platforms.Android;
 using Mizan.App.Services;
 using Mizan.Application.Abstractions;
+using Mizan.Application.Models;
 using Mizan.Application.Services;
 using Mizan.Domain.Calculations;
 using Mizan.Infrastructure.Backup;
@@ -9,9 +10,11 @@ using Mizan.Infrastructure.Persistence;
 using Mizan.Infrastructure.Persistence.Repositories;
 using Mizan.Infrastructure.Telemetry;
 using Mizan.Infrastructure.Time;
+using Mizan.App.Pages;
 using Mizan.Presentation.Dialogs;
 using Mizan.Presentation.Navigation;
 using Mizan.Presentation.Presenters;
+using Mizan.Presentation.Services;
 using Mizan.Presentation.ViewModels;
 using SQLite;
 
@@ -90,6 +93,8 @@ public static class MauiProgram
             AndroidStorageAccess.FolderPath,
             $"Dahili depolama › {AndroidStorageAccess.FolderName}",
             new AndroidStorageAccess()));
+        services.AddSingleton(new BackupOptions(
+            Path.Combine(FileSystem.CacheDirectory, "backup")));
         services.AddSingleton<IBackupService, BackupService>();
 
         RegisterRepositories(services);
@@ -146,7 +151,16 @@ public static class MauiProgram
         services.AddSingleton<INavigationService, MauiNavigationService>();
         services.AddSingleton<IDialogService, MauiDialogService>();
 
+        services.AddSingleton<IBackupFilePicker, AndroidBackupFilePicker>();
+        services.AddSingleton<IProfileBackupHandler, ProfileBackupHandler>();
+        services.AddSingleton<IPaymentReminderScheduler, InMemoryPaymentReminderScheduler>();
+
         services.AddTransient<AppShellViewModel>();
         services.AddTransient<AppShell>();
+
+        services.AddTransient<ProfileSelectionViewModel>();
+        services.AddTransient<ProfileSelectionPage>();
+
+        services.AddTransient<ReminderCardViewModel>();
     }
 }

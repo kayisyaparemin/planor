@@ -2,9 +2,11 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:automation="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
              x:Class="Mizan.App.Components.ReminderCard"
              x:Name="Root">
-    <Border BackgroundColor="{DynamicResource SurfaceCard}"
+    <Border AutomationId="{x:Static automation:AutomationIds.CardReminder}"
+            BackgroundColor="{DynamicResource SurfaceCard}"
             Stroke="{DynamicResource BorderSubtle}"
             StrokeThickness="{StaticResource StrokeHairline}"
             Padding="{StaticResource CardPadding}">
@@ -37,12 +39,14 @@
             <!-- İki Aksiyon Butonu -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="{StaticResource Space2}">
                 <Button Grid.Column="0"
+                        AutomationId="{x:Static automation:AutomationIds.BtnReminderSnooze}"
                         Text="{Binding SecondaryActionText, Source={x:Reference Root}}"
                         Command="{Binding SecondaryActionCommand, Source={x:Reference Root}}"
                         CommandParameter="{Binding SecondaryActionCommandParameter, Source={x:Reference Root}}"
                         Style="{StaticResource SecondaryButton}" />
 
                 <Button Grid.Column="1"
+                        AutomationId="{x:Static automation:AutomationIds.BtnReminderPay}"
                         Text="{Binding PrimaryActionText, Source={x:Reference Root}}"
                         Command="{Binding PrimaryActionCommand, Source={x:Reference Root}}"
                         CommandParameter="{Binding PrimaryActionCommandParameter, Source={x:Reference Root}}"
