@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **T6** — görsel bütçe testleri (GK4, GK5, GK9) |
-| Sıradaki adım | **V0** — kabuk ve altyapı (Faz V) |
-| Test sayısı | 1280 |
+| Son tamamlanan adım | **V0** — kabuk ve altyapı (Faz V) |
+| Sıradaki adım | **V1** — profil seçimi |
+| Test sayısı | 1290 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V0 — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`, `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
+
+Faz V (Ekranlar) başlatıldı. Sunum ve MAUI katmanlarının ortak omurgası kuruldu. MAUI'den bağımsız `ViewModelBase` (`IsBusy`, `CanInteract`, `ScreenState`), `INavigationService` ve `IDialogService` portları ile merkezi `Routes` ve `AutomationIds` sabitleri tanımlandı. MAUI tarafında UI iş parçacığı güvenli `MauiNavigationService` ve modal yığıtı çözen `MauiDialogService` adaptörleri yazıldı. `AppShell` bileşeni token tabanlı palet, dinamik kaynaklar ve flyout profil başlığıyla oluşturuldu; `AppShellViewModel` ile bağlandı (`GS15` sayfasız kabuk bütçesi korundu). Kompozisyon kökü `MauiProgram`, K3 kuralı uyarınca her biri ≤ 40 satırlık özel kayıt metotlarına bölünerek Domain, Infrastructure, Application ve Presentation servis grafiğini ve `SQLiteAsyncConnection` dinamik sağlayıcı köprüsünü kurdu. Android tarafında depolama izinleri (`AndroidStorageAccess`, `MainActivity`, `ActivityResults`, `AndroidManifest.xml`) bağlandı; GK5 gereği dize kataloğu ve GK11 marka kalkanları (`Strings.json`, `Strings.cs`) doğrulandı. 10 yeni sunum testi eklendi (toplam 1.290 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### T6 — görsel bütçe testleri: `DesignBudgetTests` (GK4, GK5, GK9), `DesignBudgetAnalyzer`, `ScreenCardDocument` ve GS15 kalkanı
 

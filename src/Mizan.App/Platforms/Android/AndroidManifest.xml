@@ -1,9 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 	<!-- allowBackup kapalı: Android'in bulut yedeği profil veritabanlarını Google hesabına
 	     yükler. Kullanıcının verisi cihazdan yalnız kendi aldığı Mizan-yedegi- dosyasıyla çıkar (I40, S60). -->
-	<application android:allowBackup="false" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true"></application>
+	<application android:allowBackup="false"
+	             android:icon="@mipmap/appicon"
+	             android:roundIcon="@mipmap/appicon_round"
+	             android:requestLegacyExternalStorage="true"
+	             android:supportsRtl="true" />
 	<!-- İnternet izni BİLEREK yok: Mizan çevrimdışıdır (I40, S60). Eskide bu izin yalnız
 	     Sentry'nin Android kütüphanesinden geliyordu. Debug derlemesinde hata ayıklayıcı için
 	     .NET onu kendisi ekler; yayın derlemesine girmez. -->
+	<!-- Yedekler depolamanın en üstündeki Mizan klasörüne yazılır (I4c, S59).
+	     Android 11+: MANAGE_EXTERNAL_STORAGE. Android 10 ve altı: klasik izin. -->
+	<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
 </manifest>

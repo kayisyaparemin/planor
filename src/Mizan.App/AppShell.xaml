@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:icons="clr-namespace:Mizan.App.Icons"
+       xmlns:strings="clr-namespace:Mizan.App.Resources"
+       xmlns:automation="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+       xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+       x:Class="Mizan.App.AppShell"
+       x:DataType="vm:AppShellViewModel"
+       FlyoutBehavior="Flyout"
+       Shell.BackgroundColor="{DynamicResource Backdrop}"
+       Shell.ForegroundColor="{DynamicResource TextPrimary}"
+       Shell.TitleColor="{DynamicResource TextPrimary}"
+       Shell.UnselectedColor="{DynamicResource TextSecondary}">
+
+    <Shell.FlyoutHeader>
+        <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                Stroke="Transparent"
+                Padding="{StaticResource Space4}">
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{x:Static strings:Strings.Etiket_Profil}"
+                       AutomationId="{x:Static automation:AutomationIds.FlyoutProfileTitle}"
+                       FontSize="{StaticResource TypeEyebrow}"
+                       TextColor="{DynamicResource TextSecondary}" />
+                <Label Text="{Binding ActiveProfileName}"
+                       AutomationId="{x:Static automation:AutomationIds.FlyoutProfileName}"
+                       FontSize="{StaticResource TypeSection}"
+                       TextColor="{DynamicResource TextPrimary}" />
+            </VerticalStackLayout>
+        </Border>
+    </Shell.FlyoutHeader>
+
+    <FlyoutItem Title="{x:Static strings:Strings.Baslik_AnaSayfa}"
+                Route="dashboard"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemDashboard}">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.Insights}"
+                             Color="{DynamicResource TextSecondary}" />
+        </FlyoutItem.Icon>
+        <ShellContent Title="{x:Static strings:Strings.Baslik_AnaSayfa}"
+                      Route="dashboard-content"
+                      ContentTemplate="{DataTemplate ContentPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="{x:Static strings:Strings.Baslik_GelecekDonemler}"
+                Route="projection"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemProjection}">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.Schedule}"
+                             Color="{DynamicResource TextSecondary}" />
+        </FlyoutItem.Icon>
+        <ShellContent Title="{x:Static strings:Strings.Baslik_GelecekDonemler}"
+                      Route="future-months-content"
+                      ContentTemplate="{DataTemplate ContentPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="{x:Static strings:Strings.Baslik_Simulator}"
+                Route="simulation"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemSimulation}">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.Insights}"
+                             Color="{DynamicResource TextSecondary}" />
+        </FlyoutItem.Icon>
+        <ShellContent Title="{x:Static strings:Strings.Baslik_Simulator}"
+                      Route="simulation-content"
+                      ContentTemplate="{DataTemplate ContentPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
+                Route="commitments"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemCommitments}">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.Payments}"
+                             Color="{DynamicResource TextSecondary}" />
+        </FlyoutItem.Icon>
+        <ShellContent Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
+                      Route="commitments-content"
+                      ContentTemplate="{DataTemplate ContentPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="{x:Static strings:Strings.Baslik_Gecmis}"
+                Route="history"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemHistory}">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.Schedule}"
+                             Color="{DynamicResource TextSecondary}" />
+        </FlyoutItem.Icon>
+        <ShellContent Title="{x:Static strings:Strings.Baslik_Gecmis}"
+                      Route="history-content"
+                      ContentTemplate="{DataTemplate ContentPage}" />
+    </FlyoutItem>
+
+    <FlyoutItem Title="{x:Static strings:Strings.Baslik_Ayarlar}"
+                Route="settings"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemSettings}">
+        <FlyoutItem.Icon>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.Settings}"
+                             Color="{DynamicResource TextSecondary}" />
+        </FlyoutItem.Icon>
+        <ShellContent Title="{x:Static strings:Strings.Baslik_Ayarlar}"
+                      Route="settings-content"
+                      ContentTemplate="{DataTemplate ContentPage}" />
+    </FlyoutItem>
+
+    <MenuItem Text="{x:Static strings:Strings.Aksiyon_ProfilDegistir}"
+              AutomationId="{x:Static automation:AutomationIds.FlyoutItemSwitchProfile}"
+              Command="{Binding SwitchProfileCommand}">
+        <MenuItem.IconImageSource>
+            <FontImageSource FontFamily="MaterialSymbols"
+                             Glyph="{x:Static icons:Icons.ChevronRight}"
+                             Color="{DynamicResource TextSecondary}" />
+        </MenuItem.IconImageSource>
+    </MenuItem>
+
+</Shell>

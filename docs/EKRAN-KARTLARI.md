@@ -128,14 +128,89 @@ panelinden ödünç alındı — orada da kullanılıyor, yani GK'nın "iki ekra
 
 ---
 
+## EK-V0 — Kabuk ve altyapı
+
+> Sayfası yok (kabuk, gezinme, diyalog portları). GK9 istisnası: `AppShell` bir `*Page` değil (`GS15`).
+> Kabuk başlığı, flyout ve durum çubuğu tonları `T1`'de tanımlandı.
+
+**Eski hâl:** `AppShell.cs` 129 satır C#, Service Locator (`IServiceProvider`), XAML yok, statik stil/renk aramaları.
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Uygulamanın ana bölümlerine nasıl geçerim?" | C# FlyoutItem'lar, ServiceLocator factory (6 menü öğesi) |
+| S2 | "Şu an hangi profildeyim ve profiller arasında nasıl geçiş yaparım?" | C# CreateProfileHeader, MenuItem("Profil Değiştir") |
+| S3 | "Geri dönmek veya modalı kapatmak istediğimde ne olur?" | Sayfalara sıkı bağlı INavigationService metotları |
+| S4 | "Uygulama benden onay istediğinde ne görürüm?" | IUserFeedbackService / DisplayAlert |
+| S5 | "İşlem yürütülürken durumun meşgul olduğunu sistem nasıl bilir?" | ViewModelBase içindeki IsBusy ve CanInteract |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğesi | Karar | Gerekçe |
+|---|---|---|
+| Aktif profil adı | **Satır** (`TypeSection`) | FlyoutHeader içinde aktif profilin adı (`TextPrimary`) |
+| "PROFİL" üst etiketi | **Satır** (`TypeEyebrow`) | FlyoutHeader içinde kategori etiketi (`TextSecondary`) |
+| 6 ana gezinme rotası | **Menü Öğesi** (`FlyoutItem`) | Ana Sayfa, 12 Dönem, Simülatör, Finansal Yapı, Geçmiş, Ayarlar |
+| Profil değiştirme aksiyonu | **Aksiyon** (`MenuItem`) | Profil seçim modalını tetikleyen menü aksiyonu |
+| Sayfaya özel modal metotları | **Çıkar** | Rota bazlı genel navigasyona indirgendi |
+| ViewModel'de para formatlama/kültür | **Çıkar** | Saf veri sunulur, formatlama XAML converter'larına aittir (K3, K5) |
+| PDF ekstre içe aktarma bayrakları | **Çıkar** | S21 kararıyla özellik bütünüyle elendi |
+| Sentry ve tanrı depo (IMizanStore) | **Çıkar** | S60 ve S26 kararlarıyla elendi |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1     kabukta hero rakam yok
+Hero yüzey    0 / 1     kabukta hero yüzey yok
+Kart          0 / 4     kabuk bir sayfa değildir (GK9 istisnası)
+Grafik        0 / 1     kabukta grafik yok
+NavRow        0 / 5     kabukta navrow yok (FlyoutItem kullanılır)
+Label         2 / 28    FlyoutHeader: Eyebrow(PROFİL), Section(Profil Adı)
+Cumle_        0 / 3     açıklama cümlesi yok
+```
+
+### 4. Blok şeması
+
+```
+┌─ FlyoutHeader (SurfaceCard / Padding Space4) ────┐  ← S2
+│ Etiket_Profil       TypeEyebrow / TextSecondary  │
+│ {ActiveProfileName} TypeSection / TextPrimary    │
+└──────────────────────────────────────────────────┘
+┌─ FlyoutItem × 6 ─────────────────────────────────┐  ← S1
+│ [Insights]       Ana Sayfa       (//dashboard)   │
+│ [Schedule]       12 Dönem        (//projection)  │
+│ [Insights]       Simülatör       (//simulation)  │
+│ [Payments]       Finansal Yapı   (//commitments) │
+│ [Schedule]       Geçmiş          (//history)     │
+│ [Settings]       Ayarlar         (//settings)    │
+└──────────────────────────────────────────────────┘
+┌─ MenuItem ───────────────────────────────────────┐  ← S2
+│ [ChevronRight]   Profil Değiştir                 │
+└──────────────────────────────────────────────────┘
+┌─ Shell.Chrome (Backdrop, TextPrimary, TextSecondary) ┐  ← S1
+│ TopAppBar / StatusBarStyle                           │
+└──────────────────────────────────────────────────────┘
+```
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Profil yoksa doğrudan profil seçim ve karşılama akışına yönlendirilir (`Routes.ProfileSelection`). |
+| Yükleniyor | Kabuk ilklendirilip profil yüklenirken `ScreenState.Loading` etkindir; menü etkileşimi kilitlenir (`CanInteract == false`). |
+| Hata | Profil veritabanı veya kabuk açılamazsa `ScreenState.Error` durumuyla diyalog uyarısı verilir ve profil seçimine dönülür. |
+
+### 6. Konsept ilişkisi
+
+Sayfasız kabuk altyapısı (GK9 istisnası, GS15). Kabuk başlığı, flyout menüsü ve durum çubuğu tonları `docs/TASARIM-SISTEMI.md` § Yüzeyler (`Backdrop`: Koyu `#1E232A`, Açık `#E5E7EB`) ile birebir uyumludur. İkonlar `Icons.cs` üzerinden Material Symbols Rounded fontundan gelir (GK6).
+
+---
+
 ## Doldurulacak kartlar
 
 Aşağıdaki kartlar ilgili V adımının Aşama 4–5'inde doldurulur. **Boş bir kart, o adımın
 henüz başlamadığını gösterir** — kartı önceden doldurmak, onay kapısını atlamaktır.
-
-### EK-V0 — Kabuk ve altyapı
-Sayfası yok (kabuk, gezinme, diyalog portları). GK9 istisnası: `AppShell` bir `*Page` değil.
-Kabuk başlığı, flyout ve durum çubuğu tonları `T1`'de tanımlandı.
 
 ### EK-V1 — Profil seçimi
 Konsept karşılığı **yok.** Türetme adayı: `EK-V3`'ün `ListCard` + `NavRow` deseni.

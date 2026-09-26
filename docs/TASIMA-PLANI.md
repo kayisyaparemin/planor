@@ -194,7 +194,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 
 ## Faz V — Ekranlar
 
-- [ ] **V0** — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`,
+- [x] **V0** — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`,
       `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
 - [ ] **V1** — profil seçimi
 - [ ] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
@@ -240,6 +240,6 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | T | 6 | 6 |
-| V | 0 | 14 |
+| V | 1 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

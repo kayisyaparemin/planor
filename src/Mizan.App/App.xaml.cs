@@ -17,7 +17,16 @@ public partial class App : Microsoft.Maui.Controls.Application
         ApplyPalette(RequestedTheme);
         RequestedThemeChanged += (_, e) => ApplyPalette(e.RequestedTheme);
 
-        MainPage = new ContentPage { Title = "Planör" };
+        MainPage = new AppShell();
+    }
+
+    /// <summary>
+    /// <see cref="App"/> sınıfının belirtilen kabuk ile yeni bir örneğini başlatır.
+    /// </summary>
+    /// <param name="appShell">Uygulama kabuğu.</param>
+    public App(AppShell appShell) : this()
+    {
+        MainPage = appShell;
     }
 
     private void ApplyPalette(AppTheme theme)
