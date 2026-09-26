@@ -67,4 +67,37 @@ public static class AutomationIds
 
     /// <summary>Hatırlatıcı ertele aksiyon butonu kimliği.</summary>
     public const string BtnReminderSnooze = "btn-reminder-snooze";
+
+    /// <summary>Ana sayfa kapsayıcı kimliği.</summary>
+    public const string PageDashboard = "page-dashboard";
+
+    /// <summary>Bugünkü nakit bakiye giriş alanı kimliği.</summary>
+    public const string InputTodayBalance = "input-today-balance";
+
+    /// <summary>Gözlemi kaydet butonu kimliği.</summary>
+    public const string BtnSaveObservation = "btn-save-observation";
+
+    /// <summary>Bu dönemi kapat butonu kimliği.</summary>
+    public const string BtnClosePeriod = "btn-close-period";
+
+    /// <summary>Ana sayfa ayarlar başlık butonu kimliği.</summary>
+    public const string BtnDashboardSettings = "btn-dashboard-settings";
+
+    /// <summary>Görsel merkez özet kartı kimliği.</summary>
+    public const string CardVisualCenter = "card-visual-center";
+
+    /// <summary>Bütçe oranı halka grafik göstergesi kimliği.</summary>
+    public const string GaugeBudgetRatio = "gauge-budget-ratio";
+
+    /// <summary>Dönem sonu tahmini metin etiketi kimliği.</summary>
+    public const string LblProjectedEnding = "lbl-projected-ending";
+
+    /// <summary>Kalan ödemeler listesi kimliği.</summary>
+    public const string ListRemainingPayments = "list-remaining-payments";
+
+    /// <summary>Ana sayfa öncelikli uyarı bilgi çubuğu kimliği.</summary>
+    public const string BannerDashboardAlert = "banner-dashboard-alert";
+
+    /// <summary>Ana sayfa uyarı aksiyon butonu kimliği.</summary>
+    public const string BtnDashboardAlertAction = "btn-dashboard-alert-action";
 }

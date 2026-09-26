@@ -6,7 +6,7 @@ Bu dosya `rules/03-mvvm.md`'nin üzerine biner: o ViewModel ile sayfa arasındak
 Ürünün adı **Planör**; kod adı `Mizan` kalır (`GS6`). Tanımların tamamı
 `docs/TASARIM-SISTEMI.md`'de. Buradaki on bir kural o tanımların **zorlanma biçimidir.**
 
-## On bir görsel kural
+## On iki görsel kural
 
 | # | Kural | Nasıl zorlanıyor |
 |---|---|---|
@@ -21,8 +21,9 @@ Bu dosya `rules/03-mvvm.md`'nin üzerine biner: o ViewModel ile sayfa arasındak
 | **GK9** | Her sayfanın `docs/EKRAN-KARTLARI.md`'de bir kartı vardır ve kart sayfadaki kartları/grafiği listeler | `DesignBudgetTests.HerSayfanin_EkranKarti_Var` |
 | **GK10** | `docs/TASARIM-SISTEMI.md`'deki kontrast çiftleri **iki temada da** eşiği geçer | `DesignContrastTests.KontrastCiftleri_EsigiGecer` |
 | **GK11** | Görünen ad tek kaynaktan: uygulama etiketi `Planör`, eski ad görünen hiçbir metinde yok; XAML dışındaki platform renkleri token değerleriyle aynı | `DesignBrandTests.UygulamaAdi_SistemdekiAdla`, `DesignBrandTests.GorunenMetin_EskiAdiIceremez`, `DesignBrandTests.PlatformRenkleri_TokenlarlaAyni` |
+| **GK12** | XAML'deki her `{StaticResource X}` tanımlı bir anahtara bakar. XAML çalışma anında yüklendiği için eksik anahtar derlemeyi kırmaz, sayfa açılınca uygulamayı çökertir | `DesignResourceTests.Xaml_StaticResource_TanimliAnahtaraBakar` |
 
-GK1–GK11'i bozan bir şey yazmak zorunda kaldıysan, **kodu değil kuralı tartışmaya aç.**
+GK1–GK12'yi bozan bir şey yazmak zorunda kaldıysan, **kodu değil kuralı tartışmaya aç.**
 Sessizce istisna yapma; kullanıcıya "şu kural şu sebeple engel oluyor, ne yapalım?" diye sor.
 
 Testler `Mizan.Architecture.Tests` içinde yaşar; kaynak dosya metni tarama izni yalnız o
@@ -121,6 +122,7 @@ Ekrandaki metin türüne göre anahtar öneki alır. `Resources/Strings` içinde
 | `Cumle_` | Açıklama cümlesi | **≤ 90 karakter, sayfa başına ≤ 3** |
 | `Aksiyon_` | Buton metni | ≤ 28 karakter |
 | `Bos_` / `Hata_` | Durum metni | ≤ 90 karakter |
+| `Bicim_` | Ham değeri saran şablon (`{0}` yer tutuculu); XAML'de `StringFormat` ile kullanılır | — |
 
 `Cumle_` bütçesi bu kural kitabının kullanıcıya verdiği tek sözdür: **bir ekran üç cümleden
 fazlasını okutmaz.** Eski `MainPage`'de tek bir kartta iki açıklama cümlesi vardı ve ekranda

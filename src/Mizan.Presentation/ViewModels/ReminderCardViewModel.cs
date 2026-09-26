@@ -19,42 +19,39 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
     private readonly IPaymentReminderScheduler _scheduler;
     private readonly IDialogService _dialogService;
     private readonly IClock _clock;
+    private readonly ProfileService _profileService;
 
     /// <summary>Kullanıcının verdiği yanıtlar sebebiyle ödeme durumları değiştiğinde tetiklenir.</summary>
     public event EventHandler? AnswersChanged;
 
-    [ObservableProperty]
-    private ReminderItem? activeReminder;
-
-    [ObservableProperty]
-    private bool hasActiveReminder;
-
-    [ObservableProperty]
-    private string? paymentName;
-
-    [ObservableProperty]
-    private decimal? amount;
-
-    [ObservableProperty]
-    private DateOnly? dueDate;
-
-    [ObservableProperty]
-    private bool isSnoozed;
+    [ObservableProperty] private ReminderItem? activeReminder;
+    [ObservableProperty] private bool hasActiveReminder;
+    [ObservableProperty] private string? paymentName;
+    [ObservableProperty] private decimal? amount;
+    [ObservableProperty] private DateOnly? dueDate;
+    [ObservableProperty] private bool isSnoozed;
 
     /// <summary>Kart başlığı olarak ödeme adını sunar.</summary>
     public string? Title => PaymentName;
+
+    /// <summary>Kart mesajı olarak biçimlendirilmiş tutar ve vade tarihini sunar.</summary>
+    public string Message => Amount.HasValue
+        ? $"{Amount.Value:N0} ₺{(DueDate.HasValue ? $" · {DueDate.Value:dd MMMM}" : string.Empty)}"
+        : string.Empty;
 
     /// <summary>Gerekli bağımlılıklarla çocuk görünüm modelini başlatır.</summary>
     public ReminderCardViewModel(
         IPaymentReminderService reminderService,
         IPaymentReminderScheduler scheduler,
         IDialogService dialogService,
-        IClock clock)
+        IClock clock,
+        ProfileService profileService)
     {
         _reminderService = reminderService ?? throw new ArgumentNullException(nameof(reminderService));
         _scheduler = scheduler ?? throw new ArgumentNullException(nameof(scheduler));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        _profileService = profileService ?? throw new ArgumentNullException(nameof(profileService));
     }
 
     /// <summary>İşletim sistemi bildirim düğmelerinden gelen yanıtları kalıcı deftere işler.</summary>
@@ -75,15 +72,16 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
     }
 
     /// <summary>Profilin hatırlatıcılarını işletim sistemiyle eşitler ve aktif ödemeyi yükler.</summary>
-    public async Task LoadAsync(Guid profileId, CancellationToken cancellationToken = default)
+    public async Task LoadAsync(Guid? profileId = null, CancellationToken cancellationToken = default)
     {
-        await ApplyPendingAnswersAsync(profileId, cancellationToken);
+        var targetProfileId = profileId ?? _profileService.ActiveProfile?.Id ?? Guid.Empty;
+        await ApplyPendingAnswersAsync(targetProfileId, cancellationToken);
 
         var now = _clock.UtcNow.DateTime;
         var today = _clock.Today;
         var board = await _reminderService.GetBoardAsync(now, cancellationToken);
 
-        _scheduler.Schedule(profileId, board.Reminders);
+        _scheduler.Schedule(targetProfileId, board.Reminders);
 
         var urgent = FindUrgentReminder(board, now, today);
         if (urgent is not null)
@@ -175,6 +173,7 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
         DueDate = item.DueDate;
         IsSnoozed = item.IsSnoozed;
         OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Message));
     }
 
     private void ClearActive()
@@ -186,5 +185,6 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
         DueDate = null;
         IsSnoozed = false;
         OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Message));
     }
 }

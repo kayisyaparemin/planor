@@ -20,111 +20,128 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 
 ---
 
-## EK-V3 — Ana sayfa  *(işlenmiş örnek)*
+## EK-V3 — Ana sayfa
 
-> Bu kart, protokolün nasıl doldurulduğunu gösteren referanstır. `V3` adımı çalıştığında
-> Aşama 4–5'te teyit edilir; şu hâli **teklif**, onaylanmış karar değil.
+> Sayfa dosyası: `DashboardPage.xaml`
+> Adım V3 ile tamamlandı (Alternatif B / GS20, Kapı C kararlarıyla).
 
-**Eski hâl:** `MainPage.xaml` 424 satır, **54 `<Label>`**, 5 kart, 6 buton,
-1 geliştirici dökümü.
+**Eski hâl:** `MainPage.xaml` 425 satır, **54 `<Label>`**, 5 kart, 11 buton, 1 geliştirici dökümü.
 
 ### 1. Sorular
 
 | Kod | Soru | Eskide nasıl cevaplanıyordu |
 |---|---|---|
-| S1 | "Bu dönem param yetecek mi?" | PLAN kartı + GİDİŞAT'ın "Dönem sonu" matrisi (8 etiket) |
-| S2 | "Bugün elimde ne var?" | Mevcut tutar kartı (4 etiket, 2 açıklama cümlesi) |
-| S3 | "Bu dönem daha ne ödeyeceğim?" | KALAN kartı (3 + şablon 4 etiket) |
-| S4 | "Plandan saptım mı?" | GİDİŞAT kartı — **dört metin matrisi, ~28 etiket** |
-| S5 | "Nereye gitmem gerekiyor?" | 6 ayrı buton |
+| S1 | "Bu dönem param yetecek mi / dönem sonunda elimde ne kalacak?" | PLAN kartı + GİDİŞAT'ın "Dönem sonu" matrisi (8 etiket) |
+| S2 | "Bugün elimde ne var ve bunu sisteme nasıl işlerim?" | Mevcut tutar kartı (4 etiket, 2 açıklama cümlesi, entry, buton) |
+| S3 | "Bu dönem daha ne ödeyeceğim?" | KALAN kartı (3 + şablon 4 etiket + toplam) |
+| S4 | "Plandan saptım mı, durumum ne?" | GİDİŞAT kartı — **dört metin matrisi, ~28 etiket** |
+| S5 | "Diğer bölümlere nereden giderim?" | 6 ayrı buton |
 
-### 2. Kesme kararları
+### 2. Kesme kararları (GS20 — Alternatif B)
 
-| Bilgi | Karar | Gerekçe |
+| Bilgi / Öğe | Karar | Gerekçe |
 |---|---|---|
-| Dönem sonu projeksiyonu | **Hero rakam** | S1 ekranın asıl sorusu; tek büyük sayı, `TextPrimary` |
-| Mevcut tutar girişi | **Kart** (`HeroInputCard`) | S2 hem soru hem aksiyon; konseptin derin mavi kartı |
-| Plan / gerçek / fark | **Şema** (`ComparisonStrip`) | Dört matrisin yerine üç sayı; **ilişki** asıl cevap |
-| Kalan ödemeler | **Kart** (`ListCard`, ≤ 4 satır + "+N daha") | S3 tarama sorusu, okuma sorusu değil |
-| Dönem ilerlemesi | **Satır** (`PeriodRail`) | Kart değil; başlığın altında tek şerit |
-| Gezinme (4 hedef) | **Satır** (`NavRow`) | 6 butondan 4'e; "dönemi kapat" hero kartın altında |
+| Bütçe doluluk halkası | **Grafik** (`RingGauge`) | S1, S4: Kalan yaşam havuzu / bütçe oranını tek bakışta hissettiren görsel merkez (GK4: 1/1 grafik) |
+| Dönem sonu projeksiyonu | **Hero rakam** | S1 ekranın asıl sorusu; görsel merkez kartında halkanın yanında `HeroFigure`, `TextPrimary` |
+| Kalan bütçe / harcanan | **Satır** (hero'nun altında iki değer) | S1, S4: halkanın gösterdiği oranın tutar karşılığı (Kapı C: "Planlanan" notunun yerine) |
+| Mevcut tutar girişi | **Hero yüzey** (`HeroInputCard`) | S2 hem soru hem aksiyon; çelik mavisi hero kartı |
+| Dönem ilerlemesi | **Satır** (`PeriodRail`) | S1 takvim bağlamı; başlığın altında tek şerit |
+| Kalan ödemeler | **Satır** (ikonlu satır, ≤ 3 satır + "+N ödeme daha" `NavRow`) | S3 tarama sorusu; ağır kart kutusu yerine hafif ikonlu satırlar; taşma dönem ayrıntısına gider |
+| Hatırlatıcı bildirimi | **Kart** (`ReminderCard`) | S3/S1 acil ödeme; çocuk kart, aktif kayıt yoksa görünmez |
+| Öncelikli uyarı / bildirim | **Çıkar** | Kapı C: GK4 `InfoBanner`'ı hero yüzey sayar, `HeroInputCard` ile sınırı aşar; kapanış sinyali "Dönemi Kapat" butonudur |
+| Gezinme (4 hedef) | **Satır** (`NavRow × 4`) | S5 rotalar; 12 Dönem, Geçmiş, Finansal Yapı, Simülatör |
+| Dönemi kapat | **Aksiyon** (`ActionFill`) | S1 dönemi tamamlama aksiyonu |
 | Yaşam gideri 3 kolon | **Derine** → `EK-V9` | Kategori kırılımı dönem ayrıntısının işi |
 | Kredi kartı plan/mevcut tablosu | **Derine** → `EK-V7` | Kart kontrol ekranı zaten bunu gösteriyor |
 | KMH faizi plan/mevcut | **Derine** → `EK-V9` | İkinci seviye ayrıntı |
-| Uyarı listesi (çok kayıtlı) | **Satır** — en fazla **bir** `InfoBanner` | İki uyarı birden gösterilirse ikisi de okunmuyor → `GS4` |
-| "Hesaplama detayı (geliştirme)" | **Çıkar** | Hiçbir soruya bağlanmıyor; hata ayıklama çıktısı |
-| `StatusMessage` alt satırı | **Çıkar** | Hata durumu `StateBlock`'a taşındı |
-| İkinci gözlem açıklaması | **Çıkar** | İki cümle tek cümleye indi (GK5) |
+| "Hesaplama detayı (geliştirme)" | **Çıkar** | GS5 kuralı; hiçbir kullanıcı sorusuna bağlanmıyor |
+| `StatusMessage` hata etiketi | **Çıkar** | Hata durumu `StateBlock` veya diyalogla yönetilir |
+| İkinci gözlem açıklaması | **Çıkar** | GK5 cümle bütçesi; tek net cümle |
 
-### 3. Bütçe
+### 3. Bütçe (Alternatif B — uygulanan)
 
 ```
-Hero rakam    1 / 1     dönem sonu projeksiyonu
+Hero rakam    1 / 1     dönem sonu projeksiyonu (ProjectedEndingBalance)
 Hero yüzey    1 / 1     HeroInputCard
-Kart          3 / 4     HeroInputCard, SummaryCard(plan), ListCard(kalan)
-Grafik        0 / 1     ana sayfada grafik yok — 12 dönem seyri EK-V8'de
-NavRow        4 / 5
-Label        26 / 28    (DataTemplate içindekiler bir kez sayıldı)
-Cumle_        1 / 3     Cumle_GozlemNotu
+Kart          3 / 4     görsel merkez (RingGauge + hero), HeroInputCard, ReminderCard (çocuk)
+Grafik        1 / 1     RingGauge (kalan bütçe oranı halkası)
+NavRow        5 / 5     12 Dönem, Geçmiş, Finansal Yapı, Simülatör + "+N ödeme daha" taşması
+Label        11 / 28    sayfa XAML'inde sayılan (bileşen içleri hariç)
+Cumle_        2 / 3     Cumle_GozlemIpucu, Cumle_AcikDonemYokRehber (boş durum)
 ```
 
-### 4. Blok şeması
+### 4. Blok şeması (Alternatif B)
 
 ```
-┌─ PageHeader ─────────────────────────────────────┐
-│ Etiket_Slogan          TypeEyebrow/TextSecondary │
-│ Baslik_AnaSayfa        TypeTitle      [Settings] │
-└──────────────────────────────────────────────────┘
-┌─ PeriodRail ─────────────────────────────────────┐  ← S1
-│ Dönem adı              TypeSection               │
-│ 4/30 gün · 15 Ekim     TypeCaption               │
-│ ▓▓▓▓░░░░░░░░░          Indicator / RadiusPill    │
-└──────────────────────────────────────────────────┘
-┌─ HeroInputCard         SurfaceHero / RadiusHero ─┐  ← S2
-│ Etiket_MevcutTutar     TypeEyebrow / TextOnHero  │
-│ [ Entry  SurfaceSunken ]  [ Kaydet  ActionFill ] │
-│ Cumle_GozlemNotu       TypeCaption               │
-└──────────────────────────────────────────────────┘
-┌─ SummaryCard           SurfaceCard / RadiusCard ─┐  ← S1
-│ Etiket_Plan            TypeEyebrow               │
-│ Dönem sonu                    41.723  TypeHero   │
-│                               TextPrimary        │
-└──────────────────────────────────────────────────┘
-┌─ ComparisonStrip ────────────────────────────────┐  ← S4
-│ ┌ PLAN ──────┐ ┌ GERÇEK ────┐ ┌ FARK ──────┐     │
-│ │ PlanSurface│ │ActualSurf. │ │Positive/Neg│     │
-│ │ 40.554,84  │ │ 40.554,84  │ │    0,00    │     │
-│ └────────────┘ └────────────┘ └────────────┘     │
-└──────────────────────────────────────────────────┘
-┌─ ListCard ───────────────────────────────────────┐  ← S3
-│ Etiket_Kalan           TypeEyebrow               │
-│ 21 Eyl  giyim                    4.500  ⎫        │
-│ 21 Eyl  giyim                    4.500  ⎬ şablon │
-│ 27 Eyl  Denizbank Deniz            749  ⎭        │
-│ +4 daha                ChevronRight / NavRow     │
-│ Toplam                          11.249  TypeFig. │
-└──────────────────────────────────────────────────┘
-[ Aksiyon_DonemiKapat    ActionFill / RadiusCard ]     ← S1
-┌─ NavRow × 4 ─────────────────────────────────────┐  ← S5
-│ Insights   Önümüzdeki 12 dönem              ›    │
-│ Schedule   Geçmiş dönemler                  ›    │
-│ Payments   Gelir ve ödemelerini yönet       ›    │
-│ Insights   Simülatörü aç                    ›    │
-└──────────────────────────────────────────────────┘
+┌─ PageHeader ─────────────────────────────────────────┐
+│ Etiket_Slogan          TypeEyebrow / TextSecondary   │
+│ Baslik_AnaSayfa        TypeTitle   / TextPrimary     │  [Settings]
+└──────────────────────────────────────────────────────┘
+┌─ PeriodRail ─────────────────────────────────────────┐  ← S1
+│ Dönem adı              TypeSection / TextPrimary     │
+│ 4/30 gün · 15 Ekim     TypeCaption / TextSecondary   │
+│ ▓▓▓▓░░░░░░░░░          Indicator   / RadiusPill      │
+└──────────────────────────────────────────────────────┘
+┌─ Görsel Merkez: Bütçe & Dönem Sonu (SurfaceCard) ────┐  ← S1, S4
+│ ┌─ RingGauge ─┐  Etiket_DonemSonuTahmini  (Eyebrow)  │
+│ │   ╭─────╮   │  41.723 ₺                 (HeroFigure)│
+│ │   │ %68 │   │  KALAN BÜTÇE     HARCANAN  (Caption)  │
+│ │   ╰─────╯   │  6.800 ₺         3.200 ₺   (TypeBody) │
+│ └ 1* sütun, kare ┘  3* sütun                          │
+└──────────────────────────────────────────────────────┘
+┌─ HeroInputCard         SurfaceHero / RadiusHero ─────┐  ← S2
+│ Etiket_MevcutTutar     TypeEyebrow / TextOnHero      │
+│ [ Entry  SurfaceSunken ]  [ Kaydet   ActionFill ]    │
+│ Cumle_GozlemNotu       TypeCaption / TextOnHeroSec.  │
+└──────────────────────────────────────────────────────┘
+┌─ ReminderCard (HasActiveReminder == true) ───────────┐  ← S3
+│ [Notifications]  {Title} (TypeSection)               │
+│                  {Message} (TypeBody)                │
+│ [ Ertele  SecondaryButton ]  [ Ödedim  ActionFill ]  │
+└──────────────────────────────────────────────────────┘
+┌─ Kalan Yükümlülükler (İkonlu Satırlar Deseni) ───────┐  ← S3
+│ Etiket_Kalan           TypeEyebrow / TextSecondary   │
+│ [Payments]   21 Eyl  Giyim                    4.500 ₺│
+│ [Payments]   24 Eyl  Market                   1.200 ₺│
+│ [CreditCard] 27 Eyl  Denizbank                  750 ₺│
+│ +4 ödeme daha (Toplam: 11.249 ₺)  ChevronRight/NavRow│
+└──────────────────────────────────────────────────────┘
+[ Aksiyon_DonemiKapat    ActionFill  / RadiusCard ]       ← S1
+┌─ NavRow × 4 (SurfaceCard / RadiusCard) ──────────────┐  ← S5
+│ [Insights]   Önümüzdeki 12 dönem                ›    │
+│ [Schedule]   Geçmiş dönemler                    ›    │
+│ [Payments]   Finansal yapıyı yönet              ›    │
+│ [Insights]   Simülatörü aç                      ›    │
+└──────────────────────────────────────────────────────┘
+```
+
+Dönem planı henüz yokken veya kurulum tamamlanmamışken (Boş Durum):
+
+```
+┌─ PageHeader ─────────────────────────────────────────┐
+│ Baslik_AnaSayfa        TypeTitle   / TextPrimary     │  [Settings]
+└──────────────────────────────────────────────────────┘
+┌─ StateBlock (Empty) ─────────────────────────────────┐  ← S1
+│ [AccountBalance]                                     │
+│ Cumle_AcikDonemYokRehber                             │
+│ [ Aksiyon_TemizBasla ]  → Onboarding (V4)            │
+└──────────────────────────────────────────────────────┘
 ```
 
 ### 5. Üç durum
 
 | Durum | Görünen |
 |---|---|
-| Boş | `StateBlock`: `Settings` ikonu + `Bos_KurulumYapilmadi` + "Kurulumu tamamla" |
-| Yükleniyor | İskelet: `PeriodRail` + üç kart şekli, `SurfaceSunken` |
-| Hata | `StateBlock`: `Close` ikonu + `Hata_PlanOkunamadi` + "Tekrar dene" |
+| Boş | `StateBlock`: `AccountBalance` ikonu + `Cumle_AcikDonemYokRehber` + `Aksiyon_TemizBasla` (kurulum sihirbazı V4'te bağlanır). |
+| Yükleniyor | Üç `SkeletonBlock` (spinner yok). `LoadAsync` her yüklemede önce `ScreenState.Loading`'e geçer. |
+| Hata | `StateBlock`: `Close` ikonu + `Hata_DashboardYuklenemedi` + `Aksiyon_TekrarDene` (yüklemeyi yeniden çalıştırır). |
+
+Görsel kontrol (Kapı C): boş hâl iki temada onaylandı. Dolu hâl V3'te açık dönem
+oluşturulamadığı için görülemedi; kontrolü V4'ün Kapı C'sine taşındı.
 
 ### 6. Konsept ilişkisi
 
-Konsept panel 1 (Ana Sayfa) birebir kaynak. `ComparisonStrip`, konseptin "Dönem Ayrıntısı"
-panelinden ödünç alındı — orada da kullanılıyor, yani GK'nın "iki ekran" kuralına uyuyor.
+Konsept panel 1 (Ana Sayfa) temel ilham kaynağıdır. `GS20` kararı ile dikey kart blokları sadeleştirilmiş; T4'te üretilen `RingGauge` primitifi bütçe durumunu özetleyen tek görsel merkez olarak konumlandırılmıştır.
 
 ---
 
@@ -445,7 +462,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V0 | Kabuk | — | — | ✅ |
 | EK-V1 | Profil seçimi | 10 | 4 | ✅ |
 | EK-V2 | Hatırlatıcı | 15 | 2 | ✅ |
-| EK-V3 | Ana sayfa | 54 | | ⬜ |
+| EK-V3 | Ana sayfa | 54 | 11 | ✅ |
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | | ⬜ |

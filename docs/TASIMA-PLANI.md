@@ -198,8 +198,10 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
       `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
 - [x] **V1** — profil seçimi
 - [x] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
-- [ ] **V3** — ana sayfa (dashboard)
-- [ ] **V4** — kurulum sihirbazı *(eskide 958 satır / 3 partial — adım ViewModel'lerine bölünecek)*
+- [x] **V3** — ana sayfa (dashboard)
+- [ ] **V4** — kurulum sihirbazı *(eskide 958 satır / 3 partial — adım ViewModel'lerine bölünecek)*.
+      Kapı C'de V3 ana sayfasının **dolu** hâli de iki temada kontrol edilir (V3'te açık dönem
+      oluşturulamadığı için yalnız boş hâl görülebildi).
 - [ ] **V7** — kart kontrol — **V6 ve V10'dan ÖNCE.** Eskide `CommitmentsPage` ve
       `SimulationPage` code-behind'de `CardControlViewModel` örnekliyordu; gizli bağımlılık.
 - [ ] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*

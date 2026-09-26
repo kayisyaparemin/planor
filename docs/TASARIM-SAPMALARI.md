@@ -228,7 +228,17 @@ daha kullanılmaz.
 
 ## Ekran bazlı
 
-> `GS20`+ kayıtları ilgili V adımının Aşama 4'ünde yazılır. Şu an boş olması doğrudur.
+### GS20 — Ana Sayfa: Kart Duvarı Yerine RingGauge Grafik Merkezi ve İkonlu Metrik Satırları
+
+| | |
+|---|---|
+| **Tür** | kasıtlı sadeleştirme |
+| **Konsept** | Konsept Panel 1 (Ana Sayfa) dikeyde sıralı ağır kart blokları (`SummaryCard`, `ComparisonStrip`, `ListCard`, `HeroInputCard`) barındırır; ekran bir "kart duvarı" gibi akar. |
+| **Neden değiştirildi** | Sayfadaki kart sınırlarının ve iç içe kutuların yoğunluğu algısal yükü artırmakta, veriyi taramayı zorlaştırmaktadır. Kullanıcı dönemin durumunu tek bir bakışta hissetmek istemektedir. |
+| **Yeni** | Kart sayısı azaltıldı (≤ 3 kart). Ortada tek bir görsel merkez olarak `RingGauge` (kalan bütçe oranı halkası) + yanındaki `TypeHero` dönem sonu rakamı konumlandırıldı. Kalan ödemeler ağır bir `ListCard` kutusu yerine temiz ikonlu satırlara (`MetricRow` deseni) dönüştürüldü. GK4 gereğince sayfa başına ≤ 1 grafik kuralı tam sağlandı (`RingGauge` 1/1). |
+| **Kapı C kararları** | (1) `InfoBanner` konmadı: GK4 onu hero yüzey sayar ve `HeroInputCard` ile birlikte sınırı (1) aşar; dönem kapanışını "Dönemi Kapat" butonu gösterir. (2) Görsel merkezde "Planlanan: X" notu yerine "Kalan bütçe / Harcanan" ikilisi durur: halka kalan bütçe oranını gösterdiği için yanında kalan tutar okunur. |
+| **Etkiler** | `EK-V3`, `DashboardPage.xaml`, `DashboardViewModel` |
+| **Durum** | uygulandı |
 
 ---
 

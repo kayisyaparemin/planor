@@ -1,4 +1,5 @@
 using Mizan.Application.Models;
+using Mizan.Application.Services;
 using Mizan.Presentation.Tests.Fakes;
 using Mizan.Presentation.ViewModels;
 using Xunit;
@@ -9,18 +10,20 @@ namespace Mizan.Presentation.Tests.ViewModels;
 /// Hatırlatıcı çocuk kartının yükleme, işletim sistemi bildirim senkronizasyonu,
 /// ödedim ve erteleme aksiyonlarını doğrulayan birim testleri.
 /// </summary>
-public sealed class ReminderCardViewModelTests
+public sealed class ReminderCardViewModelTests : IDisposable
 {
     private readonly FakePaymentReminderService _service = new();
     private readonly FakePaymentReminderScheduler _scheduler = new();
     private readonly FakeDialogService _dialog = new();
     private readonly SabitSaat _clock = new(new DateOnly(2026, 9, 27));
+    private readonly ProfileService _profileService;
     private readonly ReminderCardViewModel _viewModel;
     private readonly Guid _profileId = Guid.NewGuid();
 
     public ReminderCardViewModelTests()
     {
-        _viewModel = new ReminderCardViewModel(_service, _scheduler, _dialog, _clock);
+        _profileService = new ProfileService(new FakeProfileRepository(), new FakeProfileStoreSwitch(), _clock);
+        _viewModel = new ReminderCardViewModel(_service, _scheduler, _dialog, _clock, _profileService);
     }
 
     [Fact]
@@ -249,5 +252,10 @@ public sealed class ReminderCardViewModelTests
         Assert.True(_viewModel.HasActiveReminder);
         Assert.Equal("loan-1", _viewModel.ActiveReminder?.DueKey);
         Assert.Equal("Kredi 1", _viewModel.PaymentName);
+    }
+
+    public void Dispose()
+    {
+        _profileService.Dispose();
     }
 }

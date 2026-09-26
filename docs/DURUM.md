@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)* |
-| Sıradaki adım | **V3** — ana sayfa (dashboard) |
-| Test sayısı | 1315 |
+| Son tamamlanan adım | **V3** — ana sayfa (dashboard) |
+| Sıradaki adım | **V4** — kurulum sihirbazı *(Kapı C'de V3 dolu hâli de kontrol edilir)* |
+| Test sayısı | 1327 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V3 — ana sayfa: `DashboardViewModel`, `DashboardRemainingItem`, `IPeriodProgressService`, `DashboardPage`, `ParaConverter`, `TarihConverter`, `HalkaGostergeConverter`
+
+Ana sayfa `GS20` (Alternatif B) ile tamamlandı: `RingGauge` görsel merkezi + dönem sonu hero rakamı, `HeroInputCard` gözlem girişi, `ReminderCard`, en fazla üç kalan ödeme + "+N ödeme daha" taşma satırı (eski: `MainPage.xaml` 425 satır / 54 Label → 233 satır / 11 Label). `DashboardViewModel` (192 satır, 4 bağımlılık) yalnız ham veri sunar; para ve tarih biçimi App'teki üç converter'da, kalıplar yeni `Bicim_` önekiyle `Strings`'te. Yükleniyor ve hata durumları ViewModel'de; code-behind yalnız yüklemeyi tetikler. İki açılış çökmesi giderildi: DI'da beş eksik kayıt (`OpenPeriodLedgerReader` + V3 öncesinden dört) ve olmayan `PrimaryButton` stili — Debug'da `ValidateOnBuild` ve yeni **GK12** testi (`DesignResourceTests.Xaml_StaticResource_TanimliAnahtaraBakar`) bu iki sınıfı artık ilk açılışta / testte yakalar. Kapı C kararları (`GS20`): `InfoBanner` çıkarıldı (GK4 hero yüzey), görsel merkezde "Kalan bütçe / Harcanan". Bütçe sayımı: Hero 1/1, Hero yüzey 1/1, Kart 3/4, Grafik 1/1, NavRow 5/5, Label 11/28, Cümle 2/3. Görsel kontrol: kullanıcı onayladı (koyu + açık) — **yalnız boş hâl**; dolu hâl V4 olmadan açılamadığı için kontrolü V4'ün Kapı C'sine taşındı. Bu adımdan itibaren emülatörü ajan yalnız `scripts/emulatorde-ac.ps1` ile açar. 11 yeni sunum testi + 1 mimari test (toplam 1.327 test yeşil, 0 hata, 0 uyarı).
 
 ### V2 — hatırlatıcı kartı: `ReminderCardViewModel`, `ReminderItem`, `IPaymentReminderScheduler`, `InMemoryPaymentReminderScheduler`, `ReminderCard`
 

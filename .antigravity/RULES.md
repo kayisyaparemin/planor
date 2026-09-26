@@ -43,11 +43,11 @@ istisna yapma; kullanıcıya "şu kural şu sebeple engel oluyor, ne yapalım?" 
 | `workflows/duzeltme.md` | Adım **dışında** bir hata yakalandığında — terim, sapma, doküman, bug, görsel |
 | `agents/mimari-bekci.md` | İnceleme yaparken kullanılacak alt-ajan tarifi |
 
-## On bir görsel kural
+## On iki görsel kural
 
 Ürünün görünen adı **Planör**; kod adı `Mizan` kalır (`docs/TASARIM-SAPMALARI.md` § GS6).
 
-Görsel katmanın kuralları `rules/06-tasarim.md`'de **GK1–GK11** olarak durur ve aynı ilkeye
+Görsel katmanın kuralları `rules/06-tasarim.md`'de **GK1–GK12** olarak durur ve aynı ilkeye
 tabidir: her birinin onu bozan XAML'i kırmızıya düşüren bir testi var.
 
 | # | Kural |
@@ -63,6 +63,7 @@ tabidir: her birinin onu bozan XAML'i kırmızıya düşüren bir testi var.
 | **GK9** | Her sayfanın `docs/EKRAN-KARTLARI.md`'de bir kartı vardır |
 | **GK10** | `docs/TASARIM-SISTEMI.md`'deki kontrast çiftleri iki temada da eşiği geçer |
 | **GK11** | Görünen ad `Planör`; eski ad görünen metinde yok; platform renkleri token'la aynı |
+| **GK12** | Her `{StaticResource X}` tanımlı bir anahtara bakar (eksik anahtar derlemeyi değil açılan sayfayı kırar) |
 
 Tanımların tek kaynağı `docs/TASARIM-SISTEMI.md`'dir ve o dosya **testler tarafından
 okunur** — `docs/SOZLUK.md`'deki yasaklı terim tablosunun okunduğu gibi.

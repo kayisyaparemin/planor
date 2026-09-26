@@ -47,6 +47,9 @@ public static class MauiProgram
 
 #if DEBUG
         builder.Logging.AddDebug();
+
+        // Eksik bir kayıt, sayfa ilk açıldığında değil açılışta ve eksiklerin tamamıyla birlikte patlasın.
+        builder.ConfigureContainer(new DefaultServiceProviderFactory(new ServiceProviderOptions { ValidateOnBuild = true }));
 #endif
 
         return builder.Build();
@@ -60,10 +63,13 @@ public static class MauiProgram
         services.AddSingleton<LoanScheduleCalculator>();
         services.AddSingleton<LoanAmortizationCalculator>();
         services.AddSingleton<LoanPaymentScheduleBuilder>();
+        services.AddSingleton<LoanPrepaymentValidator>();
         services.AddSingleton<InstallmentScheduleCalculator>();
         services.AddSingleton<ScheduledPaymentCalculator>();
         services.AddSingleton<CreditCardStatementCalculator>();
+        services.AddSingleton<CreditCardPaymentPreferenceResolver>();
         services.AddSingleton<CreditCardActualPaymentReconciler>();
+        services.AddSingleton<LoanInstrumentReconciler>();
         services.AddSingleton<MandatoryPaymentCalculator>();
         services.AddSingleton<PeriodObligationGrouper>();
         services.AddSingleton<FinancialProjectionCalculator>();
@@ -128,10 +134,14 @@ public static class MauiProgram
         services.AddSingleton<LoanPayoffService>();
         services.AddSingleton<LoanPayoffAdvisor>();
         services.AddSingleton<HistoryQueryService>();
+        services.AddSingleton<OpenPeriodLedgerReader>();
         services.AddSingleton<PeriodProgressService>();
+        services.AddSingleton<IPeriodProgressService>(sp => sp.GetRequiredService<PeriodProgressService>());
         services.AddSingleton<PeriodSettlementService>();
         services.AddSingleton<IncomePlanReader>();
+        services.AddSingleton<IncomePlanWriter>();
         services.AddSingleton<FinancialInstrumentReader>();
+        services.AddSingleton<FinancialInstrumentWriter>();
         services.AddSingleton<IPlanReader, PlanReader>();
         services.AddSingleton<IPlanChangeRecorder, PlanChangeRecorder>();
         services.AddSingleton<ICreditCardObligationService, CreditCardObligationService>();
@@ -162,5 +172,7 @@ public static class MauiProgram
         services.AddTransient<ProfileSelectionPage>();
 
         services.AddTransient<ReminderCardViewModel>();
+        services.AddTransient<DashboardViewModel>();
+        services.AddTransient<DashboardPage>();
     }
 }

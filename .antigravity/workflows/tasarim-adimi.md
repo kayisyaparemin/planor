@@ -201,7 +201,7 @@ dotnet test Mizan.sln -nologo -v q
 ```
 
 Hepsi geçmeli: **0 hata, 0 uyarı, tüm testler yeşil.** Mimari testler (K1–K9) **ve** görsel
-testler (GK1–GK11) dahil.
+testler (GK1–GK12) dahil.
 
 Bir görsel test kırmızıysa:
 
@@ -214,6 +214,7 @@ Bir görsel test kırmızıysa:
 | `Sayfa_CumleButcesiniAsamaz` | Dördüncü cümle eklenmiş — o cümle sayı veya ikon olmalı |
 | `HerSayfanin_EkranKarti_Var` | Aşama 5'te ekran kartı yazılmamış |
 | `KontrastCiftleri_EsigiGecer` | Token değeri elle değiştirilmiş |
+| `Xaml_StaticResource_TanimliAnahtaraBakar` | Olmayan bir stile/kaynağa bakılıyor; sayfa açılınca uygulama çöker |
 
 **Kuralı esnetme, ekranı düzelt.** Kural gerçekten yanlışsa kullanıcıya söyle; kural
 değişikliği ayrı bir iştir.

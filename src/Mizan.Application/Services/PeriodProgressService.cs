@@ -16,7 +16,7 @@ public sealed class PeriodProgressService(
     IUserSettingsRepository userSettingsRepository,
     ICreditCardRepository creditCardRepository,
     CreditCardStatementCalculator cardStatementCalculator,
-    IClock clock)
+    IClock clock) : IPeriodProgressService
 {
     // Kartın son bilinen ekstresinden açık dönemin vadesine uzanmaya yeten ekstre sayısı.
     private const int ProjectedStatementCount = 6;

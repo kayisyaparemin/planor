@@ -3,6 +3,7 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:icons="clr-namespace:Mizan.App.Icons"
        xmlns:strings="clr-namespace:Mizan.App.Resources"
+       xmlns:pages="clr-namespace:Mizan.App.Pages"
        xmlns:automation="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
        xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
        x:Class="Mizan.App.AppShell"
@@ -40,7 +41,7 @@
         </FlyoutItem.Icon>
         <ShellContent Title="{x:Static strings:Strings.Baslik_AnaSayfa}"
                       Route="dashboard-content"
-                      ContentTemplate="{DataTemplate ContentPage}" />
+                      ContentTemplate="{DataTemplate pages:DashboardPage}" />
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_GelecekDonemler}"
