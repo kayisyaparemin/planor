@@ -210,6 +210,20 @@ daha kullanılmaz.
 | **Etkiler** | `StateBlock`, `SkeletonBlock`, `ScreenState`, tüm V ekranları (`EK-V1` .. `EK-V13`) |
 | **Durum** | uygulandı |
 
+### GS15 — Görsel Bütçe ve Ekran Kartı Doğrulama Kuralları: GK4, GK5 ve GK9 Zorlama Mekanizması
+
+| | |
+|---|---|
+| **Tür** | kasıtlı sadeleştirme / konsept-sapması |
+| **Sorun 1 (GK9 Yaşam Döngüsü)** | GK9 "kartsız sayfa da, sayfası olmayan kart da kırmızıdır" der. Ancak T6 adımında henüz Faz V ekranları (`*Page.xaml`) oluşturulmamıştır; ayrıca `EK-V0` (kabuk) ve `EK-V2` (çocuk kart) `*Page.xaml` gerektirmeyen sayfasız istisnalardır. Tüm kartlar için koşulsuz sayfa dosyası aramak Faz T ve Faz V sırasında yanlış kırmızı üretir. |
+| **Karar 1** | `EK-V0` ve `EK-V2` açık sayfasız istisna olarak tescil edilir. Sayfa → Kart yönü derhal ve katı zorlanır: diskteki her `*Page.xaml` mutlaka `EKRAN-KARTLARI.md`'de tanımlı bir `EK-*` kartına sahip olmalıdır (kartsız sayfa kırmızı). Kart → Sayfa yönü ise Faz V süresince `Bütçe özeti` tablosunda tamamlandı/aktif (`✅`) işaretlenen kartlar üzerinden, Faz V sonunda ise tüm 12 sayfa için zorunlu kılınır. |
+| **Sorun 2 (GK4 `<Label>` Sayımı)** | GK4 tablosunda `<Label>` sınırı "28 - XAML'deki `<Label` sayısı" olarak geçer. `EK-V3` örneğinde bütçe "26 / 28" olarak hesaplanırken, sayfadaki bileşenlerin iç etiketlerinin toplam algısal yükü sayılmıştır; saf XAML düzeyinde ise bileşenler (`<components:SummaryCard/>`) tekil etiket içermez. |
+| **Karar 2** | `DesignBudgetAnalyzer` iki katmanlı denetim uygular: (a) XAML dosyasındaki doğrudan `<Label>` ve `DataTemplate` içi `<Label>` sayısı ≤ 28 olmalıdır. (b) `docs/EKRAN-KARTLARI.md`'deki ilgili kartın Bütçe tablosunda beyan edilen toplam Label sayısı ≤ 28 olmalıdır. Böylece hem XAML şişmesi engellenir hem de ekran kartındaki toplam algısal yük 28 tavanına sadık kalır. |
+| **Sorun 3 (GK5 Cümle Bütçesi)** | GK5 önek ve karakter sınırlarını tanımlamıştır, ancak henüz `src/Mizan.App/Resources/Strings` klasörü mevcut değildir (Faz V başında V0/V1 ile eklenecektir). |
+| **Karar 3** | `DesignBudgetTests.Sayfa_CumleButcesiniAsamaz`, sentetik doğrulama kalkanıyla tüm önek kurallarını (`Etiket_` ≤ 24, `Cumle_` ≤ 90, `Aksiyon_` ≤ 28, `Bos_`/`Hata_` ≤ 90, sayfa başına `Cumle_` ≤ 3) test eder; `Resources/Strings` dizini ve XAML sayfaları diskte oluştuğu andan itibaren gerçek kaynakları otomatik olarak tarar; dizin henüz yoksa güvenli şekilde bekler. |
+| **Etkiler** | `T6`, tüm V ekranları (`EK-V0` .. `EK-V13`), `DesignBudgetTests` |
+| **Durum** | uygulandı |
+
 ---
 
 ## Ekran bazlı

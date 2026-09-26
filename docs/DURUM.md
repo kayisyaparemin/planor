@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **T5** — durum blokları ve iskelet deseni |
-| Sıradaki adım | **T6** — görsel bütçe testleri |
-| Test sayısı | 1274 |
+| Son tamamlanan adım | **T6** — görsel bütçe testleri (GK4, GK5, GK9) |
+| Sıradaki adım | **V0** — kabuk ve altyapı (Faz V) |
+| Test sayısı | 1280 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### T6 — görsel bütçe testleri: `DesignBudgetTests` (GK4, GK5, GK9), `DesignBudgetAnalyzer`, `ScreenCardDocument` ve GS15 kalkanı
+
+Faz T (Tasarım Sistemi) başarıyla tamamlandı. Ekranların gelecekte görsel ve metin obezitesine yakalanmasını önlemek üzere GK4 (sayfa başına ≤ 1 hero rakam, ≤ 1 hero yüzey, ≤ 4 kart, ≤ 1 grafik, ≤ 28 `<Label>`, ≤ 5 `NavRow`), GK5 (cümle bütçesi; `Etiket_` ≤ 24, `Cumle_` ≤ 90 kr ve sayfa başına ≤ 3, `Aksiyon_` ≤ 28, `Bos_`/`Hata_` ≤ 90 kr) ve GK9 (kartsız sayfa kırmızı, ekran kartı zorunluluğu) kurallarını zorlayan `DesignBudgetTests` mimari kalkanı oluşturuldu. `docs/EKRAN-KARTLARI.md` belgesini makine olarak ayrıştıran `ScreenCardDocument` ve XAML sayfalarında görsel bütçe öğelerini sayan `DesignBudgetAnalyzer` yardımcıları yazıldı. `GS15` kararı tescil edilerek sayfasız istisnalar (`EK-V0` AppShell, `EK-V2` ReminderCard) onaylandı, iki yönlü eşleşme ve çift katmanlı etiket sayım kuralları kesinleştirildi. Yeni görsel invaryantlar `I57`, `I58`, `I59` tescillendi. 6 yeni test eklendi (toplam 1.280 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### T5 — durum blokları: `StateBlock` (boş / hata), `SkeletonBlock`, `ScreenState` ve spinner yasağı kalkanı
 

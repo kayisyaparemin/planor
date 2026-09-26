@@ -189,7 +189,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
       **GK7** ve testi (`GS13`).
 - [x] **T5** — durum blokları: `StateBlock` (boş / hata) + `SkeletonBlock` iskelet yükleme
       deseni, `ScreenState` modeli ve spinner yasağı kalkanı (`GS14`).
-- [ ] **T6** — görsel bütçe testleri: **GK4, GK5, GK9.** *(T3–T5 bitmeden yazılamaz;
+- [x] **T6** — görsel bütçe testleri: **GK4, GK5, GK9.** *(T3–T5 bitmeden yazılamaz;
       sayım bileşen adlarına dayanıyor.)*
 
 ## Faz V — Ekranlar
@@ -239,7 +239,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
-| T | 5 | 6 |
+| T | 6 | 6 |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

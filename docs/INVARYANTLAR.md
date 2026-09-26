@@ -70,6 +70,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I54` | Eski ad filtreleme algoritması kod adlarını (`Mizan.App`, `clr-namespace:Mizan.Presentation`) asla yakalamazken arayüz başlık ve metinlerini yakalar (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.EskiAdTaramasi_KodAdiniYakalamaz` | `T2` |
 | `I55` | Platform renkleri (uygulama ikonu dolgusu, splash ekranı ve Android `colors.xml` temaları) tasarım sistemi token değerleriyle (`Backdrop` ve `Indicator`) birebir eşleşir (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.PlatformRenkleri_TokenlarlaAyni` | `T2` |
 | `I56` | Arayüz bileşenlerinde dönen yükleme göstergesi (`ActivityIndicator` / spinner) kullanılamaz; yüklenme durumunda yerleşim zıplamasını önlemek için `SurfaceSunken` zeminli `SkeletonBlock` kullanılır (GS14, § Durumlar). | `Mizan.Architecture.Tests.Design.DesignStateTests.DurumBloklari_Spinner_ActivityIndicator_Yasak` | `T5` |
+| `I57` | Ekranlar görsel bütçeyi aşamaz: sayfa başına en fazla 1 hero rakam, 1 hero yüzey, 4 kart, 1 grafik, 28 `<Label>` ve 5 gezinme satırı (`NavRow`) bulunabilir (GK4). | `Mizan.Architecture.Tests.Design.DesignBudgetTests.Sayfa_GorselButceyiAsamaz` | `T6` |
+| `I58` | Ekranlar cümle bütçesini aşamaz: sayfa başına en fazla 3 açıklama cümlesi (`Cumle_`) bulunabilir; metin anahtarlarının uzunlukları sınırları aşamaz (`Etiket_` ≤ 24, `Cumle_` ≤ 90, `Aksiyon_` ≤ 28, `Bos_`/`Hata_` ≤ 90 karakter) (GK5). | `Mizan.Architecture.Tests.Design.DesignBudgetTests.Sayfa_CumleButcesiniAsamaz` | `T6` |
+| `I59` | Her sayfanın `docs/EKRAN-KARTLARI.md` belgesinde bir kartı (`EK-*`) bulunmak zorundadır; kartsız sayfa oluşturulamaz ve tamamlanan ekran kartlarının 6 zorunlu bölümü (`Sorular`, `Kesme kararları`, `Bütçe`, `Blok şeması`, `Üç durum`, `Konsept ilişkisi`) eksiksiz tanımlanır (GK9, GS15). | `Mizan.Architecture.Tests.Design.DesignBudgetTests.HerSayfanin_EkranKarti_Var` | `T6` |
 
 ## Satır eklerken
 
