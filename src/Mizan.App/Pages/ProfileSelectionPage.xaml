@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.ProfileSelectionPage"
+             x:DataType="vm:ProfileSelectionViewModel"
+             AutomationId="{x:Static auto:AutomationIds.PageProfileSelection}">
+
+    <!-- EK-V1: Profil Seçimi -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space5}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Sayfa Başlığı -->
+            <comp:PageHeader EyebrowText="{x:Static strings:Strings.Etiket_Profiller}"
+                             Title="{x:Static strings:Strings.Baslik_ProfilSecimi}" />
+
+            <!-- İskelet Yükleme Durumu -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 AutomationId="{x:Static auto:AutomationIds.StateLoading}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space5}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space5}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu Liste Durumu -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 AutomationId="{x:Static auto:AutomationIds.ListProfiles}"
+                                 IsVisible="{Binding IsContent}">
+                <comp:ListCard EyebrowText="{x:Static strings:Strings.Etiket_MevcutProfiller}"
+                               ItemsSource="{Binding Profiles}">
+                    <comp:ListCard.ItemTemplate>
+                        <DataTemplate x:DataType="models:ProfileCardItem">
+                            <Grid ColumnDefinitions="Auto, *, Auto"
+                                  ColumnSpacing="{StaticResource Space3}"
+                                  Padding="{StaticResource Space2}">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileSelectionViewModel}}, Path=OpenProfileCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
+
+                                <!-- Profil Avatarı -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="{StaticResource Space6}"
+                                        HeightRequest="{StaticResource Space6}"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        Stroke="Transparent"
+                                        Padding="{StaticResource Space1}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="{StaticResource RadiusPill}" />
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding Initial}"
+                                           FontSize="{StaticResource TypeCaption}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{DynamicResource Indicator}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
+                                </Border>
+
+                                <!-- Profil Bilgileri -->
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="{StaticResource Space1}"
+                                                     VerticalOptions="Center">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="{StaticResource TypeBody}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{DynamicResource TextPrimary}" />
+                                    <Label Text="{Binding Detail}"
+                                           FontSize="{StaticResource TypeCaption}"
+                                           TextColor="{DynamicResource TextSecondary}" />
+                                </VerticalStackLayout>
+
+                                <!-- Düzenle / Seçenekler Butonu -->
+                                <Button Grid.Column="2"
+                                        Text="{x:Static strings:Strings.Aksiyon_Duzenle}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnProfileOptions}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProfileSelectionViewModel}}, Path=ShowProfileOptionsCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        VerticalOptions="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </comp:ListCard.ItemTemplate>
+                </comp:ListCard>
+
+                <!-- Aksiyon Butonları -->
+                <Button Text="{x:Static strings:Strings.Aksiyon_YeniProfil}"
+                        AutomationId="{x:Static auto:AutomationIds.BtnNewProfile}"
+                        Command="{Binding CreateProfileCommand}" />
+
+                <Button Text="{x:Static strings:Strings.Aksiyon_YedektenEkle}"
+                        AutomationId="{x:Static auto:AutomationIds.BtnAddFromBackup}"
+                        Command="{Binding AddFromBackupCommand}"
+                        Style="{StaticResource SecondaryButton}" />
+
+                <!-- Alt Bilgi Notu -->
+                <Label Text="{x:Static strings:Strings.Cumle_ProfilSecimNotu}"
+                       Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="Center"
+                       TextColor="{DynamicResource TextSecondary}" />
+            </VerticalStackLayout>
+
+            <!-- Boş Durum (İlk Kurulum) -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 AutomationId="{x:Static auto:AutomationIds.StateEmpty}"
+                                 IsVisible="{Binding IsEmpty}">
+                <comp:StateBlock CurrentState="Empty"
+                                 IconGlyph="{x:Static icons:Icons.AccountBalance}"
+                                 Message="{x:Static strings:Strings.Cumle_IlkKurulum}"
+                                 ActionText="{x:Static strings:Strings.Aksiyon_TemizBasla}"
+                                 ActionCommand="{Binding CreateProfileCommand}" />
+
+                <Button Text="{x:Static strings:Strings.Aksiyon_YedektenGeriYukle}"
+                        AutomationId="{x:Static auto:AutomationIds.BtnRestore}"
+                        Command="{Binding RestoreFromBackupCommand}"
+                        Style="{StaticResource SecondaryButton}" />
+            </VerticalStackLayout>
+
+            <!-- Hata Durumu -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:Strings.Hata_ProfillerOkunamadi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

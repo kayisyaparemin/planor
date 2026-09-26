@@ -8,9 +8,9 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <styles:DarkPalette />
-                <ResourceDictionary Source="Resources/Styles/Tipografi.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Olcu.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <styles:Tipografi />
+                <styles:Olcu />
+                <styles:Styles />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

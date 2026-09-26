@@ -1,3 +1,5 @@
+using Mizan.App.Pages;
+using Mizan.Presentation.Navigation;
 using Mizan.Presentation.ViewModels;
 
 namespace Mizan.App;
@@ -13,6 +15,7 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
     public AppShell()
     {
         InitializeComponent();
+        RegisterRoutes();
     }
 
     /// <summary>
@@ -22,5 +25,10 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
     public AppShell(AppShellViewModel viewModel) : this()
     {
         BindingContext = viewModel;
+    }
+
+    private static void RegisterRoutes()
+    {
+        Routing.RegisterRoute(Routes.ProfileSelection, typeof(ProfileSelectionPage));
     }
 }

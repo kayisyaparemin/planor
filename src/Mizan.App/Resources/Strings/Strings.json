@@ -6,5 +6,20 @@
   "Baslik_Gecmis": "Geçmiş",
   "Baslik_Ayarlar": "Ayarlar",
   "Etiket_Profil": "PROFİL",
-  "Aksiyon_ProfilDegistir": "Profil Değiştir"
+  "Aksiyon_ProfilDegistir": "Profil Değiştir",
+  "Baslik_ProfilSecimi": "Profil Seçimi",
+  "Etiket_Profiller": "PROFİLLER",
+  "Etiket_MevcutProfiller": "KAYITLI PROFİLLER",
+  "Cumle_ProfilSecimNotu": "Her profil kendi finansal veritabanında izole tutulur.",
+  "Aksiyon_YeniProfil": "Yeni Profil",
+  "Aksiyon_YedektenEkle": "Yedekten Ekle",
+  "Aksiyon_Duzenle": "Düzenle",
+  "Baslik_HosGeldiniz": "Planör'e Hoş Geldin",
+  "Etiket_Planor": "BAŞLANGIÇ",
+  "Baslik_IlkKurulum": "İlk Profilini Kur",
+  "Cumle_IlkKurulum": "Temiz bir başlangıç yapabilir veya mevcut bir yedeği geri yükleyebilirsin.",
+  "Aksiyon_TemizBasla": "Temiz Başla",
+  "Aksiyon_YedektenGeriYukle": "Yedekten Geri Yükle",
+  "Hata_ProfillerOkunamadi": "Profiller yüklenirken bir sorun oluştu.",
+  "Aksiyon_TekrarDene": "Tekrar Dene"
 }

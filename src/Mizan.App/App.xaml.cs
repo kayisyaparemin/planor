@@ -1,4 +1,6 @@
+using Mizan.App.Pages;
 using Mizan.App.Resources.Styles;
+using Mizan.Application.Services;
 
 namespace Mizan.App;
 
@@ -10,23 +12,23 @@ public partial class App : Microsoft.Maui.Controls.Application
     /// <summary>
     /// <see cref="App"/> sınıfının yeni bir örneğini başlatır.
     /// </summary>
-    public App()
+    /// <param name="services">Uygulama servis sağlayıcısı.</param>
+    public App(IServiceProvider services)
     {
         InitializeComponent();
 
         ApplyPalette(RequestedTheme);
         RequestedThemeChanged += (_, e) => ApplyPalette(e.RequestedTheme);
 
-        MainPage = new AppShell();
-    }
-
-    /// <summary>
-    /// <see cref="App"/> sınıfının belirtilen kabuk ile yeni bir örneğini başlatır.
-    /// </summary>
-    /// <param name="appShell">Uygulama kabuğu.</param>
-    public App(AppShell appShell) : this()
-    {
-        MainPage = appShell;
+        var profileService = services.GetRequiredService<ProfileService>();
+        if (profileService.ActiveProfile is null)
+        {
+            MainPage = services.GetRequiredService<ProfileSelectionPage>();
+        }
+        else
+        {
+            MainPage = services.GetRequiredService<AppShell>();
+        }
     }
 
     private void ApplyPalette(AppTheme theme)

@@ -24,6 +24,18 @@ public abstract partial class ViewModelBase : ObservableObject
     /// </summary>
     public bool CanInteract => !IsBusy;
 
+    /// <summary>Ekranın yükleme durumunda olup olmadığını belirtir.</summary>
+    public bool IsLoading => State == ScreenState.Loading;
+
+    /// <summary>Ekranın veri içerik durumunda olup olmadığını belirtir.</summary>
+    public bool IsContent => State == ScreenState.Content;
+
+    /// <summary>Ekranın boş veri durumunda olup olmadığını belirtir.</summary>
+    public bool IsEmpty => State == ScreenState.Empty;
+
+    /// <summary>Ekranın hata durumunda olup olmadığını belirtir.</summary>
+    public bool IsError => State == ScreenState.Error;
+
     /// <summary>
     /// Meşguliyet durumunu ve isteğe bağlı açıklamasını günceller.
     /// </summary>
@@ -37,4 +49,12 @@ public abstract partial class ViewModelBase : ObservableObject
 
     partial void OnIsBusyChanged(bool value) =>
         OnPropertyChanged(nameof(CanInteract));
+
+    partial void OnStateChanged(ScreenState value)
+    {
+        OnPropertyChanged(nameof(IsLoading));
+        OnPropertyChanged(nameof(IsContent));
+        OnPropertyChanged(nameof(IsEmpty));
+        OnPropertyChanged(nameof(IsError));
+    }
 }

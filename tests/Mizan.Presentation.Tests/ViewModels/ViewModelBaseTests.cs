@@ -19,6 +19,10 @@ public sealed class ViewModelBaseTests
         Assert.Empty(vm.BusyMessage);
         Assert.True(vm.CanInteract);
         Assert.Equal(ScreenState.Content, vm.State);
+        Assert.True(vm.IsContent);
+        Assert.False(vm.IsLoading);
+        Assert.False(vm.IsEmpty);
+        Assert.False(vm.IsError);
     }
 
     [Fact]
@@ -60,5 +64,7 @@ public sealed class ViewModelBaseTests
         vm.State = ScreenState.Error;
 
         Assert.Equal(ScreenState.Error, vm.State);
+        Assert.True(vm.IsError);
+        Assert.False(vm.IsContent);
     }
 }

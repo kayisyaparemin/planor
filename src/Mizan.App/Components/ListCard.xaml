@@ -13,7 +13,7 @@
         </Border.StrokeShape>
 
         <VerticalStackLayout Spacing="{StaticResource Space3}">
-            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="{StaticResource Space2}">
                 <Label Grid.Column="0"
                        Text="{Binding EyebrowText, Source={x:Reference Root}}"
                        Style="{StaticResource Eyebrow}" />
@@ -21,6 +21,7 @@
                 <Label Grid.Column="1"
                        Text="{Binding NoteText, Source={x:Reference Root}}"
                        Style="{StaticResource Caption}"
+                       HorizontalTextAlignment="End"
                        IsVisible="{Binding HasNote, Source={x:Reference Root}}" />
             </Grid>
 
