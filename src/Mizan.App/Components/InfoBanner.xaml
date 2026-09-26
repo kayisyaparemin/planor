@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Mizan.App.Components.InfoBanner"
+             x:Name="Root">
+    <Border BackgroundColor="{DynamicResource SurfaceHero}"
+            Stroke="{DynamicResource BorderSubtle}"
+            StrokeThickness="{StaticResource StrokeHairline}"
+            Padding="{StaticResource CardPadding}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+        </Border.StrokeShape>
+
+        <Grid ColumnDefinitions="Auto, *" ColumnSpacing="{StaticResource Space3}">
+            <Label Grid.Column="0"
+                   Text="{Binding IconGlyph, Source={x:Reference Root}}"
+                   FontFamily="MaterialSymbols"
+                   FontSize="{StaticResource IconMedium}"
+                   TextColor="{DynamicResource TextOnHero}"
+                   VerticalTextAlignment="Center"
+                   IsVisible="{Binding HasIcon, Source={x:Reference Root}}" />
+
+            <Label Grid.Column="1"
+                   Text="{Binding Message, Source={x:Reference Root}}"
+                   FontSize="{StaticResource TypeBody}"
+                   TextColor="{DynamicResource TextOnHero}"
+                   VerticalTextAlignment="Center"
+                   LineBreakMode="WordWrap" />
+        </Grid>
+    </Border>
+</ContentView>

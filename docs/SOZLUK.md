@@ -278,6 +278,14 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | depolama izni | `IStorageAccess` | Yedek klasörüne yazma izninin platforma özgü kısmı; Android uygulaması uygular (V0/V13), klasör işi onsuz test edilir |
 | yedek dosya öneki | `BackupRetentionRules.FilePrefix` | `Mizan-yedegi-`: bu uygulamanın yedek adlarının başı. Eski uygulamanın öneki `Mizan-yedek-`'tir; iki önek harf büyüklüğü gözetmeden de birbiriyle başlamaz, böylece iki uygulama aynı klasörde birbirinin yedeğine dokunmaz (`I39`, S59) |
 
+## Tasarım ve Durum Yönetimi
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| ekran durumu | `ScreenState` | Sayfaların ve bileşenlerin sunum durumunu (yükleniyor, içerik, boş veri, hata) temsil eden saf durum modeli (K2) |
+| durum bloğu | `StateBlock` | Boş veri veya hata durumlarını kullanıcıya açıklayıp aksiyon aldıran semantik arayüz bileşeni (GS14) |
+| iskelet bloğu | `SkeletonBlock` | Veri yüklenirken spinner kullanmadan yerleşim zıplamasını önleyen SurfaceSunken zeminli yer tutucu bileşeni (GS14) |
+
 ---
 
 # Yasaklı terimler

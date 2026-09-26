@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             x:Class="Mizan.App.Components.ReminderCard"
+             x:Name="Root">
+    <Border BackgroundColor="{DynamicResource SurfaceCard}"
+            Stroke="{DynamicResource BorderSubtle}"
+            StrokeThickness="{StaticResource StrokeHairline}"
+            Padding="{StaticResource CardPadding}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+        </Border.StrokeShape>
+
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <!-- Başlık ve Bildirim İkonu -->
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="{StaticResource Space2}">
+                <Label Grid.Column="0"
+                       Text="{x:Static icons:Icons.Notifications}"
+                       FontFamily="MaterialSymbols"
+                       FontSize="{StaticResource IconMedium}"
+                       TextColor="{DynamicResource Indicator}"
+                       VerticalTextAlignment="Start" />
+
+                <VerticalStackLayout Grid.Column="1"
+                                     Spacing="{StaticResource Space1}">
+                    <Label Text="{Binding Title, Source={x:Reference Root}}"
+                           Style="{StaticResource SectionTitle}" />
+
+                    <Label Text="{Binding Message, Source={x:Reference Root}}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextSecondary}"
+                           LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- İki Aksiyon Butonu -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="{StaticResource Space2}">
+                <Button Grid.Column="0"
+                        Text="{Binding SecondaryActionText, Source={x:Reference Root}}"
+                        Command="{Binding SecondaryActionCommand, Source={x:Reference Root}}"
+                        CommandParameter="{Binding SecondaryActionCommandParameter, Source={x:Reference Root}}"
+                        Style="{StaticResource SecondaryButton}" />
+
+                <Button Grid.Column="1"
+                        Text="{Binding PrimaryActionText, Source={x:Reference Root}}"
+                        Command="{Binding PrimaryActionCommand, Source={x:Reference Root}}"
+                        CommandParameter="{Binding PrimaryActionCommandParameter, Source={x:Reference Root}}"
+                        BackgroundColor="{DynamicResource ActionFill}"
+                        TextColor="{DynamicResource TextOnAction}" />
+            </Grid>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

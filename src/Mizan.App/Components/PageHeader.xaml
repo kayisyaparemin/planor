@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             x:Class="Mizan.App.Components.PageHeader"
+             x:Name="Root">
+    <VerticalStackLayout Spacing="{StaticResource Space1}">
+        <Label Text="{Binding EyebrowText, Source={x:Reference Root}}"
+               Style="{StaticResource Eyebrow}"
+               IsVisible="{Binding HasEyebrow, Source={x:Reference Root}}" />
+
+        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+            <Label Grid.Column="0"
+                   Text="{Binding Title, Source={x:Reference Root}}"
+                   Style="{StaticResource PageTitle}"
+                   VerticalTextAlignment="Center" />
+
+            <!-- İkon Aksiyonu -->
+            <Label Grid.Column="1"
+                   Text="{Binding ActionIcon, Source={x:Reference Root}}"
+                   FontFamily="MaterialSymbols"
+                   FontSize="{StaticResource IconLarge}"
+                   TextColor="{DynamicResource Indicator}"
+                   VerticalTextAlignment="Center"
+                   HorizontalTextAlignment="Center"
+                   IsVisible="{Binding HasActionIcon, Source={x:Reference Root}}">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ActionCommand, Source={x:Reference Root}}"
+                                          CommandParameter="{Binding ActionCommandParameter, Source={x:Reference Root}}" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Metin Aksiyonu -->
+            <Button Grid.Column="1"
+                    Text="{Binding ActionText, Source={x:Reference Root}}"
+                    Command="{Binding ActionCommand, Source={x:Reference Root}}"
+                    CommandParameter="{Binding ActionCommandParameter, Source={x:Reference Root}}"
+                    Style="{StaticResource SecondaryButton}"
+                    IsVisible="{Binding HasActionText, Source={x:Reference Root}}" />
+        </Grid>
+    </VerticalStackLayout>
+</ContentView>

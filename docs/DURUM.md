@@ -6,15 +6,27 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **T2** — ikon ve marka katmanı |
-| Sıradaki adım | **T3** — bileşen kitaplığı |
-| Test sayısı | 1249 |
+| Son tamamlanan adım | **T5** — durum blokları ve iskelet deseni |
+| Sıradaki adım | **T6** — görsel bütçe testleri |
+| Test sayısı | 1274 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### T5 — durum blokları: `StateBlock` (boş / hata), `SkeletonBlock`, `ScreenState` ve spinner yasağı kalkanı
+
+`docs/TASARIM-SISTEMI.md` § Durumlar ("Spinner yok; yerleşim zıplamaz") uyarınca `StateBlock` içindeki `ActivityIndicator` (spinner) tamamen kaldırıldı (`GS14`). `StateBlock` bileşeni Boş (`Empty`) ve Hata (`Error`) durumlarında semantik ikon, açıklama metni ve aksiyon butonu sunan odaklı yapıya kavuşturuldu; hata durumunda `NegativeText` dinamik kaynağını kullanır. Yüklenme durumunda yerleşimin zıplamasını önlemek üzere `{DynamicResource SurfaceSunken}` zeminli, köşe yuvarlaklığı ve yüksekliği token'lara bağlı `SkeletonBlock` bileşeni oluşturuldu. `Mizan.Presentation` katmanında MAUI'den bağımsız saf `ScreenState` enum'ı (`Loading`, `Content`, `Empty`, `Error`) tanımlandı (K2). Bileşenlerde `ActivityIndicator` kullanımını kesin olarak engelleyen `DesignStateTests` mimari kalkanı ve sunum birim testleri yazıldı. 7 yeni test eklendi (toplam 1.274 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
+
+### T4 — grafik primitifleri: 4 `IDrawable`, Presentation ham seri tipleri, çizim anı tema renkleri ve GK7 kalkanı
+
+`src/Mizan.App/Charts/` altında 4 grafik primitifi (`Sparkline`, `AreaTrend`, `StackedBar`, `RingGauge`) oluşturuldu. Her primitifin XML `<summary>`'sinde cevapladığı soru kural GK7 uyarınca tescil edildi. `src/Mizan.Presentation/Charts/` altında sıfır MAUI bağımlılığıyla ham seri tipleri (`ChartPoint`, `ChartSeries`, `ChartThreshold`, `ChartCategory`) tanımlandı (K2). `GS13` uyarınca `StackedBar` için `ChartCategory` eklendi, `AreaTrend`'e plan/gerçek çift seri ve eşik desteği sağlandı, headless test ortamları için `ChartColorResolver` fallback güvencesi kuruldu. Renkler çizim anında dinamik kaynaklardan okunur (GK8). Kural GK7 ve mimari sınırları denetleyen `DesignChartTests` kalkanı yazıldı. 14 yeni test eklendi (toplam 1.267 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
+
+### T3 — bileşen kitaplığı: `Components/` altında 12 `ContentView`, dinamik tema bağlaması ve mimari kalkan
+
+`docs/TASARIM-SISTEMI.md` § Bileşenler tablosundaki 12 bileşenin tamamı `src/Mizan.App/Components/` altında oluşturuldu (`PageHeader`, `PeriodRail`, `HeroInputCard`, `SummaryCard`, `ListCard`, `ComparisonStrip`, `MetricRow`, `NavRow`, `InfoBanner`, `ChartCard`, `StateBlock`, `ReminderCard`). 12 bileşenin `docs/EKRAN-KARTLARI.md`'deki en az iki ekranda kullanılma şartını sağladığı doğrulandı. Renkler istisnasız `{DynamicResource}` ile bağlandı; `AppThemeBinding` ve ham hex renkler yasaklandı (GK1, GK8). Tipografi skalası (GK2), 4'ün katı ölçüler (GK3) ve `Icons.cs` sabitleri (GK6) korundu. `GS10` (ChartCard container ve StateBlock sorumluluk sınırı), `GS11` (kodda sıfır renk, semantik renklerin dinamik kaynakla yönetimi) ve `GS12` (ListCard ≤ 4 satır sınırı ve taşma yönlendirmesi) tescil edildi. 4 yeni mimari test eklendi (toplam 1.253 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### T2 — ikon ve marka katmanı: Material Symbols Rounded statik font, `Icons.cs`, Planör marka yüzeyleri
 

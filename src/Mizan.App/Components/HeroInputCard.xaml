@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Mizan.App.Components.HeroInputCard"
+             x:Name="Root">
+    <Border BackgroundColor="{DynamicResource SurfaceHero}"
+            Stroke="{DynamicResource BorderSubtle}"
+            StrokeThickness="{StaticResource StrokeHairline}"
+            Padding="{StaticResource CardPadding}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+        </Border.StrokeShape>
+
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <Label Text="{Binding LabelText, Source={x:Reference Root}}"
+                   Style="{StaticResource Eyebrow}"
+                   TextColor="{DynamicResource TextOnHero}" />
+
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+                <Entry Grid.Column="0"
+                       Text="{Binding AmountText, Source={x:Reference Root}, Mode=TwoWay}"
+                       Placeholder="{Binding Placeholder, Source={x:Reference Root}}"
+                       Keyboard="{Binding Keyboard, Source={x:Reference Root}}"
+                       BackgroundColor="{DynamicResource SurfaceSunken}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       PlaceholderColor="{DynamicResource TextSecondary}" />
+
+                <Button Grid.Column="1"
+                        Text="{Binding ActionText, Source={x:Reference Root}}"
+                        Command="{Binding ActionCommand, Source={x:Reference Root}}"
+                        CommandParameter="{Binding ActionCommandParameter, Source={x:Reference Root}}"
+                        BackgroundColor="{DynamicResource ActionFill}"
+                        TextColor="{DynamicResource TextOnAction}" />
+            </Grid>
+
+            <Label Text="{Binding HintText, Source={x:Reference Root}}"
+                   Style="{StaticResource Caption}"
+                   TextColor="{DynamicResource TextOnHero}"
+                   IsVisible="{Binding HasHint, Source={x:Reference Root}}" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

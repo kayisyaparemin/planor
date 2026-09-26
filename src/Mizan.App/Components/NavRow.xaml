@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             x:Class="Mizan.App.Components.NavRow"
+             x:Name="Root">
+    <Grid ColumnDefinitions="Auto, *, Auto"
+          ColumnSpacing="{StaticResource Space3}"
+          Padding="{StaticResource Space3}"
+          MinimumHeightRequest="48">
+        <Grid.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding Command, Source={x:Reference Root}}"
+                                  CommandParameter="{Binding CommandParameter, Source={x:Reference Root}}" />
+        </Grid.GestureRecognizers>
+
+        <!-- Sol İkon -->
+        <Label Grid.Column="0"
+               Text="{Binding IconGlyph, Source={x:Reference Root}}"
+               FontFamily="MaterialSymbols"
+               FontSize="{StaticResource IconMedium}"
+               TextColor="{DynamicResource Indicator}"
+               VerticalTextAlignment="Center"
+               IsVisible="{Binding HasIcon, Source={x:Reference Root}}" />
+
+        <!-- Başlık ve Opsiyonel Alt Başlık -->
+        <VerticalStackLayout Grid.Column="1"
+                             VerticalOptions="Center"
+                             Spacing="{StaticResource Space1}">
+            <Label Text="{Binding Title, Source={x:Reference Root}}"
+                   FontSize="{StaticResource TypeBody}"
+                   TextColor="{DynamicResource TextPrimary}" />
+
+            <Label Text="{Binding Subtitle, Source={x:Reference Root}}"
+                   Style="{StaticResource Caption}"
+                   IsVisible="{Binding HasSubtitle, Source={x:Reference Root}}" />
+        </VerticalStackLayout>
+
+        <!-- Sağ Gezinme Oku (ChevronRight) -->
+        <Label Grid.Column="2"
+               Text="{x:Static icons:Icons.ChevronRight}"
+               FontFamily="MaterialSymbols"
+               FontSize="{StaticResource IconSmall}"
+               TextColor="{DynamicResource Indicator}"
+               VerticalTextAlignment="Center"
+               HorizontalTextAlignment="End" />
+    </Grid>
+</ContentView>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Mizan.App.Components.ComparisonStrip"
+             x:Name="Root">
+    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="{StaticResource Space2}">
+        <!-- PLAN KUTUSU -->
+        <Border Grid.Column="0"
+                BackgroundColor="{DynamicResource PlanSurface}"
+                Stroke="{DynamicResource BorderSubtle}"
+                StrokeThickness="{StaticResource StrokeHairline}"
+                Padding="{StaticResource Space2}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="{StaticResource RadiusChip}" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{Binding PlanTitle, Source={x:Reference Root}}"
+                       Style="{StaticResource Eyebrow}"
+                       TextColor="{DynamicResource TextSecondary}"
+                       HorizontalTextAlignment="Center" />
+
+                <Label Text="{Binding PlanValue, Source={x:Reference Root}}"
+                       Style="{StaticResource Figure}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- GERÇEK KUTUSU -->
+        <Border Grid.Column="1"
+                BackgroundColor="{DynamicResource ActualSurface}"
+                Stroke="{DynamicResource BorderSubtle}"
+                StrokeThickness="{StaticResource StrokeHairline}"
+                Padding="{StaticResource Space2}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="{StaticResource RadiusChip}" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{Binding ActualTitle, Source={x:Reference Root}}"
+                       Style="{StaticResource Eyebrow}"
+                       TextColor="{DynamicResource TextSecondary}"
+                       HorizontalTextAlignment="Center" />
+
+                <Label Text="{Binding ActualValue, Source={x:Reference Root}}"
+                       Style="{StaticResource Figure}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- FARK KUTUSU (Semantik Renkli) -->
+        <Border Grid.Column="2"
+                x:Name="DifferenceBorder"
+                BackgroundColor="{DynamicResource ActualSurface}"
+                Stroke="{DynamicResource BorderSubtle}"
+                StrokeThickness="{StaticResource StrokeHairline}"
+                Padding="{StaticResource Space2}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="{StaticResource RadiusChip}" />
+            </Border.StrokeShape>
+
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{Binding DifferenceTitle, Source={x:Reference Root}}"
+                       Style="{StaticResource Eyebrow}"
+                       TextColor="{DynamicResource TextSecondary}"
+                       HorizontalTextAlignment="Center" />
+
+                <Label x:Name="DifferenceFigureLabel"
+                       Text="{Binding DifferenceValue, Source={x:Reference Root}}"
+                       Style="{StaticResource Figure}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentView>

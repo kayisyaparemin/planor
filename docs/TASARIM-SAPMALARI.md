@@ -152,6 +152,64 @@ daha kullanılmaz.
 | **Etkiler** | `T1` |
 | **Durum** | uygulandı |
 
+### GS10 — ChartCard ve StateBlock'un T3/T4/T5 Sorumluluk Sınırları
+
+| | |
+|---|---|
+| **Tür** | kasıtlı sadeleştirme |
+| **Sorun** | `docs/TASARIM-SISTEMI.md` § Bileşenler tablosunda 12 bileşen sayılmakta ve `ChartCard` (10) ile `StateBlock` (11) burada yer almaktadır. Ancak `docs/TASIMA-PLANI.md`'de T4 adımı 4 adet `IDrawable` grafik primitifini, T5 adımı ise `StateBlock` (boş / yükleniyor / hata) ve iskelet yükleme desenini müstakil adımlar olarak tanımlamaktadır. |
+| **Karar** | 1) `ChartCard`, T3'te grafiğin kendisini (`IDrawable`) üretmez. Başlık, lejant çipi ve grafik yüzeyini (`GraphicsView` veya genel içerik `View`) sarmalayan bir `ContentView` kabuğu olarak tanımlanır. T4 adımında üretilecek 4 `IDrawable` primitifi bu yüzeye bağlanacaktır. 2) `StateBlock`, T3'te üç durumu (`Empty`, `Loading`, `Error`) görsel olarak karşılayan tekil `ContentView` arayüzü olarak tanımlanır. T5 adımında ise sayfa genelinde dinamik iskelet yükleme deseni ve durum makinesi orkestrasyonu derinleştirilecektir. |
+| **Etkiler** | `T3`, `T4`, `T5` |
+| **Durum** | uygulandı |
+
+### GS11 — Bileşenlerde Semantik Renk Yönetimi: Sıfır Kod Renkleri ve Dinamik Kaynak
+
+| | |
+|---|---|
+| **Tür** | marka / kasıtlı sadeleştirme |
+| **Sorun** | `ComparisonStrip`, `MetricRow` ve `InfoBanner` semantik renklere (pozitif, negatif, uyarı, nötr) ihtiyaç duyar. GK8 kuralı uyarınca `AppThemeBinding` yasaktır ve renkler yalnız `{DynamicResource}` ile bağlanabilir. Code-behind içinde renk nesneleri (`Color.FromArgb`) oluşturmak GK1 ve K2 kurallarını bozar. |
+| **Karar** | Bileşenlerin code-behind sınıflarında hiçbir renk kodu ya da `Color` nesnesi yer almaz. Semantik durum bileşene bir enum veya metin (`SemanticType`: `Default`, `Positive`, `Negative`, `Warning`) olarak aktarılır. Bileşenin XAML katmanı `VisualStateManager` veya dinamik `DynamicResource` atamasıyla ilgili tema token'larını (`PositiveText`, `PositiveSurface`, `NegativeText`, `NegativeSurface`, `WarningText`, `WarningSurface`) temaya tam uyumlu şekilde uygular. |
+| **Etkiler** | `ComparisonStrip`, `MetricRow`, `InfoBanner`, `SummaryCard` |
+| **Durum** | uygulandı |
+
+### GS12 — ListCard Satır Kısıtı ve Taşma (Overflow) Bildirimi
+
+| | |
+|---|---|
+| **Tür** | kasıtlı sadeleştirme |
+| **Sorun** | `docs/TASARIM-SISTEMI.md`: "ListCard sınırı 4 satır. Daha fazlası varsa kart '+7 daha' satırı gösterir ve detay sayfasına gider." kuralını koymuştur, ancak bileşenin bu taşmayı nasıl yansıtacağı açık değildir. |
+| **Karar** | `ListCard`, `ItemsSource` ve `ItemTemplate` alırken, 4 satırdan fazla öğe bulunduğunda kartın altında otomatik veya bindable olarak beliren bir taşma satırı (`OverflowText` örn: "+4 daha" ve `OverflowCommand`) sunar. XAML liste sunumu 4 satırla sınırlandırılır; 5. satır yerini detay ekranına yönlendiren `ChevronRight` satırına bırakır. |
+| **Etkiler** | `ListCard`, `EK-V3`, `EK-V6`, `EK-V7`, `EK-V9` |
+| **Durum** | uygulandı |
+
+### GS13 — Grafik Primitiflerinin Veri Sözleşmesi ve Çizim Zamanı Renk Güvenliği
+
+| | |
+|---|---|
+| **Tür** | kasıtlı sadeleştirme / veri-kısıtı |
+| **Sorun 1** | `StackedBar` ("≤ 4 kategori") ve `RingGauge` ("Tek oran 0–1") için `TASARIM-SISTEMI.md`'deki `ChartPoint(DateOnly Date, decimal Value)` modeli yetersizdir. Kategorik dağılım tarih taşımaz, kategori adı (`Label`/`Category`) gerektirir. |
+| **Karar 1** | `Mizan.Presentation/Charts/` altına `ChartCategory(string Key, string Label, decimal Value)` record tipi eklenir. `RingGauge` ise girdisini doğrudan `decimal Ratio` (veya `RingGaugeValue`) olarak alır. |
+| **Sorun 2** | `AreaTrend` tanımında "Tek seri + bir eşik çizgisi" yazmakta, ancak rol-token tablosunda hem `actual` (düz çizgi) hem `planned` (kesikli çizgi) yer almaktadır. |
+| **Karar 2** | `AreaTrend`, ana seriyi (`actual`) zorunlu alırken, opsiyonel bir karşılaştırma serisi (`planned`) ve opsiyonel `ChartThreshold` (eşik çizgisi) destekler; böylece hem tekil trendi hem plan-gerçek seyrini çizebilir. |
+| **Sorun 3** | `IDrawable` sınıfları MAUI yaşam döngüsünde renkleri `Application.Current.Resources`'tan okur. Headless birim testlerinde veya `Application.Current`'ın null olduğu durumlarda çizimin `NullReferenceException` fırlatmaması gerekir. |
+| **Karar 3** | `ChartColorResolver` yardımcısı dinamik kaynakları sorgular; kaynak bulunamazsa sistem token'larının tema kontrast eşiğini geçen standart fallback değerlerine düşer. |
+| **Etkiler** | `T4`, `EK-V8`, `EK-V9`, `EK-V10`, `EK-V12` |
+| **Durum** | uygulandı |
+
+### GS14 — Durum Blokları ve İskelet Deseni: Spinner Yasağı, StateBlock Sorumluluğu ve SkeletonBlock
+
+| | |
+|---|---|
+| **Tür** | konsept-sapması / kasıtlı sadeleştirme |
+| **Sorun 1 (Çelişki)** | `docs/TASARIM-SISTEMI.md` § Bileşenler tablosunda `StateBlock` "Boş / yükleniyor / hata, üç durum tek bileşen" olarak adlandırılmış, T3'te bileşen içine bir `ActivityIndicator` (spinner) konulmuştur. Ancak § Durumlar tablosunda "Yükleniyor: İskelet (kart şekli, SurfaceSunken). Spinner yok; yerleşim zıplamaz." kuralı yer almaktadır. Spinner içeren bir durum bloğu, ekran yerleşiminin zıplamasına neden olur ve tasarım sisteminin temel kuralını çiğner. |
+| **Karar 1** | `StateBlock` içindeki `ActivityIndicator` tamamen kaldırılır. `StateBlock`, ekran ve kart düzeyinde **Boş (`Empty`)** ve **Hata (`Error`)** durumlarını karşılayan odaklı semantik mesaj + tek aksiyon bileşeni olarak sınırlandırılır. |
+| **Sorun 2 (Eksiklik)** | İskelet yükleme deseni için sistemde tanımlı bir XAML yapı taşı bileşeni bulunmamaktadır. |
+| **Karar 2** | `src/Mizan.App/Components/` altına `SkeletonBlock` bileşeni eklenir. `SurfaceSunken` zeminini, sistemin yarıçap token'larını (`RadiusCard`, `RadiusHero`, `RadiusChip`) ve `HeightRequest` değerlerini kullanarak sayfa şemalarındaki kartların ve satırların yerini tutar. § Hareket kuralları uyarınca harici shimmer kütüphaneleri (NuGet) eklenmez; saf token zemin kutusu ile yerleşim zıplaması önlenir. |
+| **Sorun 3 (Presentation Sözleşmesi)** | Faz V ekranlarında ViewModel'lerin MAUI'den bağımsız olarak sayfa durumunu yönetebilmesi için saf bir duruma ihtiyaç vardır. |
+| **Karar 3** | `src/Mizan.Presentation/Models/` altına `ScreenState` enum'ı (`Loading`, `Content`, `Empty`, `Error`) eklenir (K2). |
+| **Etkiler** | `StateBlock`, `SkeletonBlock`, `ScreenState`, tüm V ekranları (`EK-V1` .. `EK-V13`) |
+| **Durum** | uygulandı |
+
 ---
 
 ## Ekran bazlı

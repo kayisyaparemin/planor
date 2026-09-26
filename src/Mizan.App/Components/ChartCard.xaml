@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Mizan.App.Components.ChartCard"
+             x:Name="Root">
+    <Border BackgroundColor="{DynamicResource SurfaceCard}"
+            Stroke="{DynamicResource BorderSubtle}"
+            StrokeThickness="{StaticResource StrokeHairline}"
+            Padding="{StaticResource CardPadding}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+        </Border.StrokeShape>
+
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <!-- Başlık ve Lejant Çipi -->
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+                <Label Grid.Column="0"
+                       Text="{Binding Title, Source={x:Reference Root}}"
+                       Style="{StaticResource SectionTitle}"
+                       VerticalTextAlignment="Center" />
+
+                <Border Grid.Column="1"
+                        BackgroundColor="{DynamicResource SurfaceChart}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource Space1}"
+                        IsVisible="{Binding HasLegend, Source={x:Reference Root}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusChip}" />
+                    </Border.StrokeShape>
+
+                    <Label Text="{Binding LegendText, Source={x:Reference Root}}"
+                           Style="{StaticResource Eyebrow}"
+                           TextColor="{DynamicResource TextSecondary}"
+                           VerticalTextAlignment="Center"
+                           HorizontalTextAlignment="Center" />
+                </Border>
+            </Grid>
+
+            <!-- Grafik Yüzeyi -->
+            <GraphicsView Drawable="{Binding Drawable, Source={x:Reference Root}}"
+                          HeightRequest="{Binding ChartHeight, Source={x:Reference Root}}"
+                          IsVisible="{Binding HasDrawable, Source={x:Reference Root}}" />
+
+            <!-- Alternatif Özel Grafik İçeriği -->
+            <ContentView Content="{Binding ChartContent, Source={x:Reference Root}}"
+                         IsVisible="{Binding HasChartContent, Source={x:Reference Root}}" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

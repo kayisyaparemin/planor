@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Mizan.App.Components.StateBlock"
+             x:Name="Root">
+    <VerticalStackLayout Spacing="{StaticResource Space3}"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center"
+                         Padding="{StaticResource CardPadding}">
+        <Label x:Name="StateIconLabel"
+               Text="{Binding IconGlyph, Source={x:Reference Root}}"
+               FontFamily="MaterialSymbols"
+               FontSize="{StaticResource IconLarge}"
+               TextColor="{DynamicResource TextSecondary}"
+               HorizontalTextAlignment="Center"
+               IsVisible="{Binding HasIcon, Source={x:Reference Root}}" />
+
+        <Label x:Name="StateMessageLabel"
+               Text="{Binding Message, Source={x:Reference Root}}"
+               FontSize="{StaticResource TypeBody}"
+               TextColor="{DynamicResource TextSecondary}"
+               HorizontalTextAlignment="Center"
+               LineBreakMode="WordWrap" />
+
+        <Button x:Name="ActionButton"
+                Text="{Binding ActionText, Source={x:Reference Root}}"
+                Command="{Binding ActionCommand, Source={x:Reference Root}}"
+                CommandParameter="{Binding ActionCommandParameter, Source={x:Reference Root}}"
+                Style="{StaticResource SecondaryButton}"
+                IsVisible="{Binding HasAction, Source={x:Reference Root}}" />
+    </VerticalStackLayout>
+</ContentView>

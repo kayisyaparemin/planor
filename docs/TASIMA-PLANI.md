@@ -178,14 +178,17 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 - [x] **T2** — ikon ve marka katmanı: Material Symbols Rounded statik font, `Icons.cs`
       (12 ikon), üç boyut kademesi; uygulama etiketi `Planör`, Planör ikonu ve açılış
       ekranı. Kod adı `Mizan` kalır (`GS6`). Kurallar **GK6, GK11** ve testleri.
-- [ ] **T3** — bileşen kitaplığı: `Components/` altında 12 `ContentView`, her biri ≤ 200
-      satır. Yeni bileşen ancak iki ekranda kullanılacaksa doğar.
-- [ ] **T4** — grafik primitifleri: `Charts/` altında 4 `IDrawable`;
+- [x] **T3** — bileşen kitaplığı: `Components/` altında 12 `ContentView`, her biri ≤ 200
+      satır. Yeni bileşen ancak iki ekranda kullanılacaksa doğar (`PageHeader`, `PeriodRail`,
+      `HeroInputCard`, `SummaryCard`, `ListCard`, `ComparisonStrip`, `MetricRow`, `NavRow`,
+      `InfoBanner`, `ChartCard`, `StateBlock`, `ReminderCard`). Renkler yalnız `{DynamicResource}`
+      ile bağlanır, iki temada denetlenir (`GS10`, `GS11`, `GS12`).
+- [x] **T4** — grafik primitifleri: `Charts/` altında 4 `IDrawable`;
       `Mizan.Presentation/Charts/` altında ham seri tipleri (`ChartPoint`, `ChartSeries`,
-      `ChartThreshold`). Renk çizim anında okunur, tema değişince yeniden çizilir. Kural
-      **GK7** ve testi.
-- [ ] **T5** — durum blokları: `StateBlock` (boş / yükleniyor / hata) + iskelet yükleme
-      deseni.
+      `ChartThreshold`, `ChartCategory`). Renk çizim anında okunur, tema değişince yeniden çizilir. Kural
+      **GK7** ve testi (`GS13`).
+- [x] **T5** — durum blokları: `StateBlock` (boş / hata) + `SkeletonBlock` iskelet yükleme
+      deseni, `ScreenState` modeli ve spinner yasağı kalkanı (`GS14`).
 - [ ] **T6** — görsel bütçe testleri: **GK4, GK5, GK9.** *(T3–T5 bitmeden yazılamaz;
       sayım bileşen adlarına dayanıyor.)*
 
@@ -236,7 +239,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
-| T | 2 | 6 |
+| T | 5 | 6 |
 | V | 0 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

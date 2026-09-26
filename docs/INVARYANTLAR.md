@@ -69,6 +69,7 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I53` | Kullanıcıya görünen hiçbir metin (XAML `Text`, `Title`, `Placeholder` veya `Resources/Strings`), ürünün eski adını (`Mizan`) tam kelime olarak içeremez (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.GorunenMetin_EskiAdiIceremez` | `T2` |
 | `I54` | Eski ad filtreleme algoritması kod adlarını (`Mizan.App`, `clr-namespace:Mizan.Presentation`) asla yakalamazken arayüz başlık ve metinlerini yakalar (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.EskiAdTaramasi_KodAdiniYakalamaz` | `T2` |
 | `I55` | Platform renkleri (uygulama ikonu dolgusu, splash ekranı ve Android `colors.xml` temaları) tasarım sistemi token değerleriyle (`Backdrop` ve `Indicator`) birebir eşleşir (GK11). | `Mizan.Architecture.Tests.Design.DesignBrandTests.PlatformRenkleri_TokenlarlaAyni` | `T2` |
+| `I56` | Arayüz bileşenlerinde dönen yükleme göstergesi (`ActivityIndicator` / spinner) kullanılamaz; yüklenme durumunda yerleşim zıplamasını önlemek için `SurfaceSunken` zeminli `SkeletonBlock` kullanılır (GS14, § Durumlar). | `Mizan.Architecture.Tests.Design.DesignStateTests.DurumBloklari_Spinner_ActivityIndicator_Yasak` | `T5` |
 
 ## Satır eklerken
 

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             x:Class="Mizan.App.Components.ListCard"
+             x:Name="Root">
+    <Border BackgroundColor="{DynamicResource SurfaceCard}"
+            Stroke="{DynamicResource BorderSubtle}"
+            StrokeThickness="{StaticResource StrokeHairline}"
+            Padding="{StaticResource CardPadding}">
+        <Border.StrokeShape>
+            <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+        </Border.StrokeShape>
+
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+                <Label Grid.Column="0"
+                       Text="{Binding EyebrowText, Source={x:Reference Root}}"
+                       Style="{StaticResource Eyebrow}" />
+
+                <Label Grid.Column="1"
+                       Text="{Binding NoteText, Source={x:Reference Root}}"
+                       Style="{StaticResource Caption}"
+                       IsVisible="{Binding HasNote, Source={x:Reference Root}}" />
+            </Grid>
+
+            <!-- Liste Satırları (En fazla 4 satır) -->
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding ItemsSource, Source={x:Reference Root}}"
+                                 BindableLayout.ItemTemplate="{Binding ItemTemplate, Source={x:Reference Root}}"
+                                 Spacing="{StaticResource Space2}" />
+
+            <!-- Taşma Satırı (+N daha -> detay) -->
+            <Grid ColumnDefinitions="*, Auto"
+                  ColumnSpacing="{StaticResource Space2}"
+                  IsVisible="{Binding HasOverflow, Source={x:Reference Root}}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OverflowCommand, Source={x:Reference Root}}"
+                                          CommandParameter="{Binding OverflowCommandParameter, Source={x:Reference Root}}" />
+                </Grid.GestureRecognizers>
+
+                <Label Grid.Column="0"
+                       Text="{Binding OverflowText, Source={x:Reference Root}}"
+                       Style="{StaticResource Caption}"
+                       TextColor="{DynamicResource Indicator}"
+                       VerticalTextAlignment="Center" />
+
+                <Label Grid.Column="1"
+                       Text="{x:Static icons:Icons.ChevronRight}"
+                       FontFamily="MaterialSymbols"
+                       FontSize="{StaticResource IconSmall}"
+                       TextColor="{DynamicResource Indicator}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+
+            <!-- Toplam Alanı -->
+            <VerticalStackLayout Spacing="{StaticResource Space2}"
+                                 IsVisible="{Binding HasTotal, Source={x:Reference Root}}">
+                <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                         Color="{DynamicResource BorderSubtle}" />
+
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+                    <Label Grid.Column="0"
+                           Text="{Binding TotalText, Source={x:Reference Root}}"
+                           Style="{StaticResource Caption}"
+                           VerticalTextAlignment="Center" />
+
+                    <Label Grid.Column="1"
+                           Text="{Binding TotalValue, Source={x:Reference Root}}"
+                           Style="{StaticResource Figure}"
+                           TextColor="{DynamicResource TextPrimary}"
+                           VerticalTextAlignment="Center"
+                           HorizontalTextAlignment="End" />
+                </Grid>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>
