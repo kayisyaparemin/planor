@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Mizan'ı Android emülatöründe derleyip kurar, açar ve emülatörü açık bırakır.
 
@@ -49,7 +49,8 @@ foreach ($tool in "adb", "emulator", "dotnet") {
 $serial = Get-RunningEmulator
 if ($null -eq $serial) {
     Write-Host "Emülatör başlatılıyor: $Avd" -ForegroundColor Cyan
-    Start-Process -FilePath (Get-Command emulator).Source -ArgumentList "-avd", $Avd
+    $emuPath = (Get-Command emulator).Source
+    $null = Invoke-CimMethod -ClassName Win32_Process -MethodName Create -Arguments @{ CommandLine = "`"$emuPath`" -avd $Avd" }
 }
 
 # 2. Açılışı bekle

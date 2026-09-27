@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V3** — ana sayfa (dashboard) |
-| Sıradaki adım | **V4** — kurulum sihirbazı *(Kapı C'de V3 dolu hâli de kontrol edilir)* |
-| Test sayısı | 1327 |
+| Son tamamlanan adım | **V4** — kurulum sihirbazı (onboarding) |
+| Sıradaki adım | **V7** — kart kontrol |
+| Test sayısı | 1342 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V4 — kurulum sihirbazı: `OnboardingViewModel`, `OnboardingDraftBuilder`, `OnboardingPlanWriter`, `OnboardingService`, `OnboardingPage`, `Step1..8Views`
+
+Kurulum sihirbazı 8 adımlı temiz bir form mimarisine (`ContentView` tabanlı `Step1PeriodView`..`Step8SummaryView`) ve odaklı `OnboardingViewModel`'e kavuşturuldu (eski: `OnboardingPage.xaml` 452 satır / 77 Label, 886 satır / 3 partial ViewModel → 120 satır sayfa + 8 hafif bileşen, 199 satır tek ViewModel). M3 kuralı (≤ 5 bağımlılık) uyarınca depolar `OnboardingPlanWriter` altında toplandı; `OnboardingService` 5 parametreyle M3 sınırında tutuldu. Kullanıcı geri bildirimi ve onaylı kararlarla: Adım 3'e kart borcunu doğrudan nakit akışına katan "Güncel Borç" alanı eklendi (ekstre/asgari karmaşası kullanıcıya sorulmadan otomatik bağlandı); Adım 7'deki nakit bakiye ilk dondurulan açık döneme `PeriodObservation` olarak kaydedilerek ana sayfa göstergelerinin tire kalması engellendi; `RingGauge` %100 dolulukta tam daire çizimine kavuşturuldu. Bütçe sayımı: Hero 0/1, Kart 2/4 (Form + Özet), Grafik 0/1, NavRow 0/5, Label 17/28, Cümle 2/3. Görsel kontrol: kullanıcı onayladı (koyu + açık; V3 ana sayfasının dolu hâli dahil). 15 yeni test eklendi (toplam 1.342 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V3 — ana sayfa: `DashboardViewModel`, `DashboardRemainingItem`, `IPeriodProgressService`, `DashboardPage`, `ParaConverter`, `TarihConverter`, `HalkaGostergeConverter`
 

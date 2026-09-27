@@ -61,10 +61,12 @@ public sealed class PeriodProgressService(
         IReadOnlyList<CreditCard> cards,
         CashFlowPeriod period,
         decimal carryInterestRate) =>
-        cards.ToDictionary(
-            card => card.Id,
-            card => _cardStatementCalculator
-                .Project(card, ProjectedStatementCount, useProjectionFallback: true, carryInterestRate: carryInterestRate)
-                .Where(x => period.Contains(x.PaymentDueDate))
-                .Sum(x => x.Payment ?? 0m));
+        cards
+            .Where(card => card.IsActive && card.BalanceAsOfDate != default)
+            .ToDictionary(
+                card => card.Id,
+                card => _cardStatementCalculator
+                    .Project(card, ProjectedStatementCount, useProjectionFallback: true, carryInterestRate: carryInterestRate)
+                    .Where(x => period.Contains(x.PaymentDueDate))
+                    .Sum(x => x.Payment ?? 0m));
 }

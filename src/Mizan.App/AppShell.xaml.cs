@@ -30,5 +30,6 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
     private static void RegisterRoutes()
     {
         Routing.RegisterRoute(Routes.ProfileSelection, typeof(ProfileSelectionPage));
+        Routing.RegisterRoute(Routes.Onboarding, typeof(OnboardingPage));
     }
 }

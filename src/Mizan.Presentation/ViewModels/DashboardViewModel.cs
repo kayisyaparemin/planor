@@ -78,8 +78,9 @@ public sealed partial class DashboardViewModel : ViewModelBase
             await _reminders.LoadAsync();
             State = ScreenState.Content;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[DashboardViewModel ERROR] {ex}");
             // Okuma hatası ekranda StateBlock (Hata) olarak görünür; "Tekrar dene" bu komutu yeniden çalıştırır.
             State = ScreenState.Error;
         }

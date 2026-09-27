@@ -62,6 +62,19 @@ public sealed class FinancialInstrumentWriter(
     }
 
     /// <summary>
+    /// Kredi sözleşmesi kayıtlarını kaydeder.
+    /// </summary>
+    public async Task WriteLoansAsync(
+        IEnumerable<Loan> loans,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var loan in loans)
+        {
+            await _loanRepository.UpsertLoanAsync(loan, cancellationToken);
+        }
+    }
+
+    /// <summary>
     /// Krediye ait erken/ara ödeme kayıtlarını kaydeder.
     /// </summary>
     public async Task WriteLoanPrepaymentsAsync(

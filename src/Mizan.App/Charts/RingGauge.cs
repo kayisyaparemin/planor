@@ -48,9 +48,15 @@ public sealed class RingGauge : IDrawable
         var clampedRatio = Math.Clamp((float)Ratio, 0f, 1f);
         if (clampedRatio <= 0f) { return; }
 
-        var sweepAngle = clampedRatio * 360f;
         canvas.StrokeColor = ChartColorResolver.ResolveColor("Indicator");
 
+        if (clampedRatio >= 0.999f)
+        {
+            canvas.DrawEllipse(x, y, size, size);
+            return;
+        }
+
+        var sweepAngle = clampedRatio * 360f;
         // Tepeden (saat 12 pozisyonu: -90 derece) başlayarak saat yönünde çizer
         canvas.DrawArc(x, y, size, size, -90f, -90f + sweepAngle, false, false);
     }

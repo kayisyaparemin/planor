@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:Mizan.App.Resources"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.Onboarding.Steps.Step7BalanceView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <Border>
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <Label Text="{x:Static res:OnboardingStrings.Etiket_MevcutBakiye}"
+                   Style="{StaticResource Eyebrow}" />
+            <Entry Text="{Binding CurrentBalance}"
+                   Keyboard="Numeric"
+                   Placeholder="Örn. 25000" />
+            <Label Text="Tüm hesaplarındaki ve cebindeki toplam nakit paran (eksi bakiye girilebilir)."
+                   Style="{StaticResource Caption}" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

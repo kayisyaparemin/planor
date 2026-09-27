@@ -411,10 +411,213 @@ Konsept bildirim panelindeki ("Ödedim / Ertele" aksiyonları) kart deseni doğr
 ---
 
 
-### EK-V4 — Kurulum sihirbazı
-Konsept karşılığı **var** (Kurulum 8/8 özeti). Eskide 958 satır / 3 `partial` — adım
-ViewModel'lerine bölünecek. Her adım kendi ekran kartını almaz; **tek kart, sekiz blok
-şeması.** Sapma `S6`, `S9` geçerli.
+## EK-V4 — Kurulum sihirbazı
+
+> Sayfa dosyası: `OnboardingPage.xaml`
+> Konsept karşılığı: Kurulum (8/8 özeti) paneli.
+> Eski hâl: `OnboardingPage.xaml` 452 satır, **77 `<Label>`**, 20 `<Button>`, 10 `<Border>`, 25 `<Entry>`, 2 spinner.
+> Eski ViewModel: 886 satır / 3 `partial` dosya (`OnboardingViewModel`, `Cards`, `Obligations`).
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Planör'ü kullanmaya nereden ve nasıl başlayacağım?" | Intro adımı (3 buton) + 8 form adımı; geliştiriciye özel örnek doldur butonu ekrandaydı. |
+| S2 | "Dönemim ne zaman başlar, bugünkü param ve serbest yaşam havuzum nedir?" | Adım 1 (dönem günü + yapay tahsis picker'ı), Adım 6 (yaşam gideri), Adım 7 (mevcut bakiye). |
+| S3 | "Düzenli gelirlerim neler ve ne zaman yatar?" | Adım 2: Tek gelir geçmişi (`SalaryScheduleEntry`), ödeme günü yoktu; ikinci gelir girilince ilki siliniyordu (`S2`). |
+| S4 | "Hangi borç ve kredi yükümlülüklerim var?" | Adım 3 (Kartlar + PDF yükleme + 14 alan), Adım 4 (Krediler), Adım 5 (Yaklaşan ödemeler). |
+| S5 | "Girdiğim kurulum bilgileri doğru mu, planımı başlatabilir miyim?" | Adım 8: 7 satırlık döküm + "Mizan'ı Başlat" butonu. |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Adım başlığı ve sayacı | **Satır** (`PageHeader` deseni) | S1: "Adım 2/8" (`TypeEyebrow`) + "Gelirlerin" (`TypeTitle`) + [Atla] (`TextSecondary`) |
+| İlerleme çubuğu | **Satır** (`ProgressBar`) | S1: % ilerleme görseli (`Indicator`, `RadiusPill`) |
+| Adım rehber cümlesi | **Satır** (`TypeCaption`) | S1: Tek satır rehber açıklama (GK5: ≤ 90 karakter) |
+| Aktif adım form kutusu | **Kart** (`SurfaceCard`) | S2–S4: İlgili adımın giriş alanları ve ekleme aksiyonu (GK4: ≤ 4 kart) |
+| Eklenen kayıtlar listesi | **Satır** (`DataTemplate` satırları) | S3–S4: İsim + Tutar + [Sil] aksiyonu içeren hafif liste |
+| Son adım kontrol özeti | **Kart** (`SurfaceCard`) | S5: Kompakt 7 metrik satırı (`MetricRow` deseni) |
+| "Planör'ü Başlat" | **Aksiyon** (`ActionFill`) | S5: Kurulumu tamamlayan birincil buton |
+| Alt navigasyon çubuğu | **Satır** (`Backdrop` zemin) | [Geri] (`SecondaryButton`) + [Devam] (`ActionFill`) butonları |
+| "Örnek Veriyle Doldur" butonu | **Çıkar** | Geliştirici artığı |
+| PDF ekstre yükleme alanı | **Çıkar** | `S21` kararı |
+| Yapay tahsis seçim alanı | **Çıkar** | `S18` kararı |
+| Kart gelişmiş ödeme stratejileri | **Çıkar** | `V7` / `V13` ekranlarına devredildi |
+| Spinner (`ActivityIndicator`) | **Çıkar** | `GS14` kuralı |
+| `StatusMessage` hata etiketleri | **Çıkar** | Hatalar diyalog servisiyle yönetilir |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1     kurulum sihirbazında hero rakam yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          2 / 4     form kartı (SurfaceCard), son adım özet kartı (SurfaceCard)
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     navrow yok (adım adımlama kullanılır)
+Label        17 / 28    sayfada ve adım formlarında tanımlı etiketler (+1 etiket: Güncel Borç)
+Cumle_        2 / 3     Cumle_AdimAciklama, Cumle_KurulumNotu (her biri ≤ 90 kr)
+```
+
+### 4. Blok şeması
+
+Genel Sayfa Düzeni:
+
+```
+┌─ PageHeader (Header Alanı) ───────────────────────────────────┐
+│ Etiket_AdimSayaci (TypeEyebrow, TextSecondary)                │  ← S1
+│ Baslik_Adim (TypeTitle, TextPrimary)    [ Aksiyon_Atla ]      │  ← S1
+└───────────────────────────────────────────────────────────────┘
+┌─ İlerleme Çubuğu (ProgressBar, Indicator, RadiusPill) ────────┐  ← S1
+└───────────────────────────────────────────────────────────────┘
+│ Cumle_AdimRehberi (TypeCaption, TextSecondary)                │  ← S1
+
+[ Aktif Adım Bloğu — 1..8'den biri ]
+
+┌─ Alt Navigasyon Çubuğu (SurfaceCard / StrokeHairline) ────────┐  ← S1
+│ [ Aksiyon_Geri  SecondaryButton ]  [ Aksiyon_Devam ActionFill]│
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 1 — Dönem Çapası:
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_DonemGunu         TypeEyebrow / TextSecondary          │  ← S2
+│ [ Entry_DonemGunu        SurfaceSunken / RadiusCard ] (1–31)  │  ← S2
+│ Cumle_DonemGunuRehber    TypeCaption / TextSecondary          │  ← S2
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 2 — Düzenli Gelirler:
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_GelirAdi          TypeEyebrow / TextSecondary          │  ← S3
+│ [ Entry_GelirAdi         SurfaceSunken / RadiusCard ]         │  ← S3
+│ Etiket_AylikNetTutar     TypeEyebrow / TextSecondary          │  ← S3
+│ [ Entry_AylikNetTutar    SurfaceSunken / RadiusCard ]         │  ← S3
+│ ┌─ İki Sütun (Spacing Space2) ──────────────────────────────┐ │
+│ │ Etiket_OdemeGunu (1–31)       Etiket_GecerlilikTarihi     │ │  ← S3
+│ │ [ Entry_OdemeGunu ]           [ DatePicker ]              │ │  ← S3
+│ └───────────────────────────────────────────────────────────┘ │
+│ [ Aksiyon_GelirEkle      SecondaryButton / RadiusCard ]       │  ← S3
+│ ┌─ Eklenen Gelirler (DataTemplate) ─────────────────────────┐ │
+│ │ [Payments]  Maaş · Her ayın 15'i         45.000 ₺  [Sil]  │ │  ← S3
+│ └───────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 3 — Kredi Kartları:
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_KartAdi           TypeEyebrow / TextSecondary          │  ← S4
+│ [ Entry_KartAdi          SurfaceSunken / RadiusCard ]         │  ← S4
+│                                                               │
+│ Etiket_Banka             TypeEyebrow / TextSecondary          │  ← S4
+│ [ Entry_Banka            SurfaceSunken / RadiusCard ]         │  ← S4
+│                                                               │
+│ ┌─ İki Sütun (Spacing Space2) ──────────────────────────────┐ │
+│ │ Etiket_Limit                  Etiket_GuncelBorc           │ │  ← S4
+│ │ [ Entry_Limit ]               [ Entry_GuncelBorc (±/0) ]  │ │  ← S4
+│ │                                                           │ │
+│ │ Etiket_KesimGunu (1–31)       Etiket_SonOdemeGunu (1–31)  │ │  ← S4
+│ │ [ Entry_KesimGunu ]           [ Entry_SonOdemeGunu ]      │ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+│                                                               │
+│ [ Aksiyon_KartEkle       SecondaryButton / RadiusCard ]       │  ← S4
+│ ┌─ Eklenen Kartlar (DataTemplate) ──────────────────────────┐ │
+│ │ [CreditCard]  Bonus · Kesim: 12 · Vade: 22   Borç: 15.000 │ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 4 — Krediler:
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_KrediAdi          TypeEyebrow / TextSecondary          │  ← S4
+│ [ Entry_KrediAdi         SurfaceSunken / RadiusCard ]         │  ← S4
+│ ┌─ İki Sütun (Spacing Space2) ──────────────────────────────┐ │
+│ │ Etiket_Banka                  Etiket_AylikTaksit          │ │  ← S4
+│ │ [ Entry_Banka ]               [ Entry_AylikTaksit ]       │ │  ← S4
+│ │ Etiket_TaksitGunu (1–31)      Etiket_KalanTaksitSayisi    │ │  ← S4
+│ │ [ Entry_TaksitGunu ]          [ Entry_KalanTaksitSayisi ] │ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+│ Etiket_KalanAnapara (İsteğe bağlı)                            │  ← S4
+│ [ Entry_KalanAnapara     SurfaceSunken / RadiusCard ]         │  ← S4
+│ [ Aksiyon_KrediEkle      SecondaryButton / RadiusCard ]       │  ← S4
+│ ┌─ Eklenen Krediler (DataTemplate) ─────────────────────────┐ │
+│ │ [AccountBalance] Konut Kredisi · 18 taksit  12.500 ₺ [Sil]│ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 5 — Yaklaşan Ödemeler:
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_OdemeAdi          TypeEyebrow / TextSecondary          │  ← S4
+│ [ Entry_OdemeAdi         SurfaceSunken / RadiusCard ]         │  ← S4
+│ ┌─ İki Sütun (Spacing Space2) ──────────────────────────────┐ │
+│ │ Etiket_OdemeTutari            Etiket_OdemeTarihi          │ │  ← S4
+│ │ [ Entry_OdemeTutari ]         [ DatePicker ]              │ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+│ ┌─ Taksit / Tekrar Seçeneği (İsteğe bağlı) ─────────────────┐ │
+│ │ Etiket_TaksitSayisi (Boşsa tek seferlik)                  │ │  ← S4
+│ │ [ Entry_TaksitSayisi ]                                    │ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+│ [ Aksiyon_OdemeEkle      SecondaryButton / RadiusCard ]       │  ← S4
+│ ┌─ Eklenen Ödemeler (DataTemplate) ─────────────────────────┐ │
+│ │ [Payments]  Sigorta Poliçesi · 15 Eki       4.200 ₺  [Sil]│ │  ← S4
+│ └───────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 6 — Serbest Yaşam Gideri:
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_YasamGideri       TypeEyebrow / TextSecondary          │  ← S2
+│ [ Entry_YasamGideri      SurfaceSunken / RadiusCard ]         │  ← S2
+│ Cumle_YasamGideriRehber  TypeCaption / TextSecondary          │  ← S2
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 7 — Mevcut Bakiye (Açılış Durumu):
+```
+┌─ FormCard (SurfaceCard / RadiusCard / Padding Space4) ────────┐
+│ Etiket_MevcutBakiye      TypeEyebrow / TextSecondary          │  ← S2
+│ [ Entry_MevcutBakiye     SurfaceSunken / RadiusCard ] (±)     │  ← S2
+│ Cumle_MevcutBakiyeRehber TypeCaption / TextSecondary          │  ← S2
+└───────────────────────────────────────────────────────────────┘
+```
+
+#### Adım 8 — Özet ve Başlatma (Konsept 8/8):
+```
+┌─ SummaryCard / ReviewCard (SurfaceCard / RadiusCard) ─────────┐  ← S5
+│ Etiket_KurulumOzeti      TypeEyebrow / TextSecondary          │
+│ Baslik_IlkPlanHazir      TypeSection / TextPrimary            │
+│ ───────────────────────────────────────────────────────────── │
+│ Dönem Çapası             Her ayın 15'i          (MetricRow)   │  ← S2
+│ Düzenli Gelirler         1 akış · 45.000 ₺      (MetricRow)   │  ← S3
+│ Kredi Kartları           1 kart · Borç: 15.000 ₺(MetricRow)   │  ← S4
+│ Krediler                 1 kredi · 12.500 ₺     (MetricRow)   │  ← S4
+│ Planlı Ödemeler          1 ödeme · 4.200 ₺      (MetricRow)   │  ← S4
+│ Yaşam Gideri Havuzu      15.000 ₺               (MetricRow)   │  ← S2
+│ Açılış Bakiyesi          18.400 ₺               (MetricRow)   │  ← S2
+└───────────────────────────────────────────────────────────────┘
+┌─ Başlatma Aksiyonu ───────────────────────────────────────────┐  ← S5
+│ [ Aksiyon_PlanoruBaslat   ActionFill / TextOnAction ]         │
+└───────────────────────────────────────────────────────────────┘
+```
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Sihirbaz adımları varsayılan olarak boş form alanlarıyla açılır; kullanıcı zorunlu olmayan adımları doğrudan "Atla" veya "Devam" ile geçebilir. |
+| Yükleniyor | Kurulum başlatıldığında `ScreenState.Loading` etkindir; butonlar kilitlenir, spinner gösterilmez (`GS14`). |
+| Hata | Kurulum kaydedilirken bir hata oluşursa `IDialogService` üzerinden kullanıcı diliyle hata uyarısı verilir (`Hata_KurulumKaydedilemedi`). |
+
+### 6. Konsept ilişkisi
+
+Konsept panellerindeki *Kurulum (8/8 özeti)* paneli doğrudan referanstır. 8 adımlı ilerleme çubuğu, temiz kart kutusu ve 8. adımdaki metrik özet dökümü konsept yerleşimiyle birebir uyumludur. Paletteki sarı/lacivert renkler emekli edilmiş olup Planör marka token'ları (`ActionFill`, `SurfaceCard`, `Indicator`) kullanılmıştır (`GS7`).
 
 ### EK-V7 — Kart kontrol
 Konsept karşılığı **yok.** `V6` ve `V10`'dan önce gelir. `EK-V3`'ten devralınan yükler:

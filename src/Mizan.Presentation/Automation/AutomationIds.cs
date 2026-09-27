@@ -100,4 +100,31 @@ public static class AutomationIds
 
     /// <summary>Ana sayfa uyarı aksiyon butonu kimliği.</summary>
     public const string BtnDashboardAlertAction = "btn-dashboard-alert-action";
+
+    /// <summary>Kurulum sihirbazı sayfası kimliği.</summary>
+    public const string PageOnboarding = "page-onboarding";
+
+    /// <summary>Kurulum sonraki adım butonu kimliği.</summary>
+    public const string BtnOnboardingNext = "btn-onboarding-next";
+
+    /// <summary>Kurulum önceki adım butonu kimliği.</summary>
+    public const string BtnOnboardingBack = "btn-onboarding-back";
+
+    /// <summary>Kurulum adımı atla butonu kimliği.</summary>
+    public const string BtnOnboardingSkip = "btn-onboarding-skip";
+
+    /// <summary>Kurulumu tamamlayıp Planör'ü başlatma butonu kimliği.</summary>
+    public const string BtnOnboardingStart = "btn-onboarding-start";
+
+    /// <summary>Kurulumda gelir ekleme butonu kimliği.</summary>
+    public const string BtnOnboardingAddIncome = "btn-onboarding-add-income";
+
+    /// <summary>Kurulumda kart ekleme butonu kimliği.</summary>
+    public const string BtnOnboardingAddCard = "btn-onboarding-add-card";
+
+    /// <summary>Kurulumda kredi ekleme butonu kimliği.</summary>
+    public const string BtnOnboardingAddLoan = "btn-onboarding-add-loan";
+
+    /// <summary>Kurulumda harcama/ödeme ekleme butonu kimliği.</summary>
+    public const string BtnOnboardingAddExpense = "btn-onboarding-add-expense";
 }

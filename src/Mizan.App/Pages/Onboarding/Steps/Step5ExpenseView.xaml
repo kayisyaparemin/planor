@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:onb="clr-namespace:Mizan.Presentation.Onboarding.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.Onboarding.Steps.Step5ExpenseView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <Border>
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{x:Static res:OnboardingStrings.Etiket_OdemeAdi}"
+                       Style="{StaticResource Eyebrow}" />
+                <Entry Text="{Binding ExpenseName}"
+                       Placeholder="Örn. Sigorta Poliçesi, Aidat" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{x:Static res:OnboardingStrings.Etiket_OdemeTutari}"
+                       Style="{StaticResource Eyebrow}" />
+                <Entry Text="{Binding ExpenseAmount}"
+                       Keyboard="Numeric"
+                       Placeholder="Örn. 4200" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                <Label Text="{x:Static res:OnboardingStrings.Etiket_TaksitSayisi}"
+                       Style="{StaticResource Eyebrow}" />
+                <Entry Text="{Binding ExpenseInstallments}"
+                       Keyboard="Numeric"
+                       Placeholder="Boş bırakılırsa tek seferlik" />
+            </VerticalStackLayout>
+
+            <Button Text="{x:Static res:OnboardingStrings.Aksiyon_OdemeEkle}"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding AddExpenseCommand}"
+                    AutomationId="{x:Static auto:AutomationIds.BtnOnboardingAddExpense}" />
+
+            <!-- Eklenen Ödemeler Listesi -->
+            <VerticalStackLayout Spacing="{StaticResource Space2}"
+                                 BindableLayout.ItemsSource="{Binding DraftExpenses}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="onb:OnboardingDraftItem">
+                        <Border BackgroundColor="{DynamicResource SurfaceSunken}"
+                                Padding="{StaticResource Space2}">
+                            <Grid ColumnDefinitions="*,Auto,Auto"
+                                  ColumnSpacing="{StaticResource Space2}">
+                                <VerticalStackLayout Grid.Column="0">
+                                    <Label Text="{Binding Title}"
+                                           Style="{StaticResource SectionTitle}" />
+                                    <Label Text="{Binding Subtitle}"
+                                           Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                                       Style="{StaticResource Figure}"
+                                       VerticalOptions="Center" />
+                                <Button Grid.Column="2"
+                                        Text="{x:Static res:OnboardingStrings.Aksiyon_Sil}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OnboardingViewModel}}, Path=RemoveExpenseCommand}"
+                                        CommandParameter="{Binding .}"
+                                        VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

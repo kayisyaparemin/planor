@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:res="clr-namespace:Mizan.App.Resources"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.Onboarding.Steps.Step8SummaryView"
+             x:DataType="vm:OnboardingViewModel">
+
+    <Border>
+        <VerticalStackLayout Spacing="{StaticResource Space3}">
+            <Label Text="{x:Static res:OnboardingStrings.Baslik_KurulumOzet}"
+                   Style="{StaticResource SectionTitle}" />
+
+            <!-- Özet Metrik Satırları (MetricRow Bileşeni ile) -->
+            <VerticalStackLayout Spacing="{StaticResource Space2}">
+                <comp:MetricRow LabelText="Dönem Çapası"
+                                ValueText="{Binding Summary.PeriodDay, StringFormat='Her ayın {0}. günü'}" />
+                <comp:MetricRow LabelText="Düzenli Gelirler"
+                                ValueText="{Binding Summary.IncomeTotal, Converter={StaticResource Para}}" />
+                <comp:MetricRow LabelText="Kredi Kartları Borcu"
+                                ValueText="{Binding Summary.CardDebtTotal, Converter={StaticResource Para}}" />
+                <comp:MetricRow LabelText="Aylık Kredi Taksitleri"
+                                ValueText="{Binding Summary.LoanPaymentTotal, Converter={StaticResource Para}}" />
+                <comp:MetricRow LabelText="Planlanan Harcamalar"
+                                ValueText="{Binding Summary.ExpenseTotal, Converter={StaticResource Para}}" />
+                <comp:MetricRow LabelText="Serbest Yaşam Havuzu"
+                                ValueText="{Binding Summary.VariableExpenseAllowance, Converter={StaticResource Para}}" />
+                <comp:MetricRow LabelText="Açılış Nakit Bakiyesi"
+                                ValueText="{Binding Summary.CurrentBalance, Converter={StaticResource Para}}" />
+            </VerticalStackLayout>
+
+            <Label Text="{x:Static res:OnboardingStrings.Cumle_KurulumNotu}"
+                   Style="{StaticResource Caption}" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

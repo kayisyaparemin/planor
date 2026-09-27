@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:steps="clr-namespace:Mizan.App.Pages.Onboarding.Steps"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.OnboardingPage"
+             x:DataType="vm:OnboardingViewModel"
+             Shell.FlyoutBehavior="Disabled"
+             Shell.NavBarIsVisible="False"
+             AutomationId="{x:Static auto:AutomationIds.PageOnboarding}">
+
+    <!-- EK-V4: Kurulum Sihirbazı (OnboardingPage.xaml) -->
+    <Grid RowDefinitions="Auto,*,Auto"
+          RowSpacing="{StaticResource Space3}"
+          Padding="{StaticResource PagePadding}">
+
+        <!-- Üst Başlık, İlerleme ve Hızlı Aksiyon -->
+        <VerticalStackLayout Grid.Row="0"
+                             Spacing="{StaticResource Space2}">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0"
+                                     Spacing="{StaticResource Space1}">
+                    <Label Text="{Binding StepCounter}"
+                           Style="{StaticResource Eyebrow}" />
+                    <Label Text="{Binding StepTitle}"
+                           Style="{StaticResource PageTitle}" />
+                </VerticalStackLayout>
+                <Button Grid.Column="1"
+                        Text="{x:Static res:OnboardingStrings.Aksiyon_Atla}"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding SkipCommand}"
+                        IsVisible="{Binding CanGoNext}"
+                        AutomationId="{x:Static auto:AutomationIds.BtnOnboardingSkip}"
+                        VerticalOptions="Center" />
+            </Grid>
+
+            <ProgressBar Progress="{Binding StepProgress}"
+                         HeightRequest="{StaticResource Space1}" />
+
+            <Label Text="{Binding StepLead}"
+                   Style="{StaticResource Caption}" />
+        </VerticalStackLayout>
+
+        <!-- Adım Görünümleri (1..8) -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="{StaticResource Space3}">
+
+                <!-- Adım 1: Dönem Çapası -->
+                <steps:Step1PeriodView IsVisible="False">
+                    <steps:Step1PeriodView.Triggers>
+                        <DataTrigger TargetType="steps:Step1PeriodView" Binding="{Binding StepIndex}" Value="1">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step1PeriodView.Triggers>
+                </steps:Step1PeriodView>
+
+                <!-- Adım 2: Düzenli Gelirler -->
+                <steps:Step2IncomeView IsVisible="False">
+                    <steps:Step2IncomeView.Triggers>
+                        <DataTrigger TargetType="steps:Step2IncomeView" Binding="{Binding StepIndex}" Value="2">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step2IncomeView.Triggers>
+                </steps:Step2IncomeView>
+
+                <!-- Adım 3: Kredi Kartları -->
+                <steps:Step3CardView IsVisible="False">
+                    <steps:Step3CardView.Triggers>
+                        <DataTrigger TargetType="steps:Step3CardView" Binding="{Binding StepIndex}" Value="3">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step3CardView.Triggers>
+                </steps:Step3CardView>
+
+                <!-- Adım 4: Krediler -->
+                <steps:Step4LoanView IsVisible="False">
+                    <steps:Step4LoanView.Triggers>
+                        <DataTrigger TargetType="steps:Step4LoanView" Binding="{Binding StepIndex}" Value="4">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step4LoanView.Triggers>
+                </steps:Step4LoanView>
+
+                <!-- Adım 5: Yaklaşan Ödemeler -->
+                <steps:Step5ExpenseView IsVisible="False">
+                    <steps:Step5ExpenseView.Triggers>
+                        <DataTrigger TargetType="steps:Step5ExpenseView" Binding="{Binding StepIndex}" Value="5">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step5ExpenseView.Triggers>
+                </steps:Step5ExpenseView>
+
+                <!-- Adım 6: Yaşam Gideri -->
+                <steps:Step6LivingView IsVisible="False">
+                    <steps:Step6LivingView.Triggers>
+                        <DataTrigger TargetType="steps:Step6LivingView" Binding="{Binding StepIndex}" Value="6">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step6LivingView.Triggers>
+                </steps:Step6LivingView>
+
+                <!-- Adım 7: Mevcut Nakit Bakiye -->
+                <steps:Step7BalanceView IsVisible="False">
+                    <steps:Step7BalanceView.Triggers>
+                        <DataTrigger TargetType="steps:Step7BalanceView" Binding="{Binding StepIndex}" Value="7">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step7BalanceView.Triggers>
+                </steps:Step7BalanceView>
+
+                <!-- Adım 8: Özet ve Başlatma -->
+                <steps:Step8SummaryView IsVisible="False">
+                    <steps:Step8SummaryView.Triggers>
+                        <DataTrigger TargetType="steps:Step8SummaryView" Binding="{Binding StepIndex}" Value="8">
+                            <Setter Property="IsVisible" Value="True" />
+                        </DataTrigger>
+                    </steps:Step8SummaryView.Triggers>
+                </steps:Step8SummaryView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Alt Gezinme Butonları -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="{StaticResource Space3}">
+            <Button Grid.Column="0"
+                    Text="{x:Static res:OnboardingStrings.Aksiyon_Geri}"
+                    Style="{StaticResource SecondaryButton}"
+                    Command="{Binding BackCommand}"
+                    IsVisible="{Binding CanGoBack}"
+                    AutomationId="{x:Static auto:AutomationIds.BtnOnboardingBack}" />
+
+            <!-- 1..7 Adımlarında Devam Butonu -->
+            <Button Grid.Column="1"
+                    Text="{x:Static res:OnboardingStrings.Aksiyon_Devam}"
+                    Command="{Binding NextCommand}"
+                    IsVisible="{Binding CanGoNext}"
+                    AutomationId="{x:Static auto:AutomationIds.BtnOnboardingNext}" />
+
+            <!-- 8. Adımda Planörü Başlat Butonu -->
+            <Button Grid.Column="1"
+                    Text="{x:Static res:OnboardingStrings.Aksiyon_PlanoruBaslat}"
+                    Command="{Binding StartPlanorCommand}"
+                    IsVisible="{Binding IsReviewStep}"
+                    AutomationId="{x:Static auto:AutomationIds.BtnOnboardingStart}" />
+        </Grid>
+
+    </Grid>
+</ContentPage>

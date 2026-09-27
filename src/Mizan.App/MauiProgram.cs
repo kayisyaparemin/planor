@@ -151,6 +151,8 @@ public static class MauiProgram
         services.AddSingleton<IPeriodWorkflowService, PeriodWorkflowService>();
         services.AddSingleton<IPaymentReminderService, PaymentReminderService>();
         services.AddSingleton<IIncomePlanService, IncomePlanService>();
+        services.AddSingleton<OnboardingPlanWriter>();
+        services.AddSingleton<IOnboardingService, OnboardingService>();
     }
 
     private static void RegisterPresentationAndAppServices(IServiceCollection services)
@@ -174,5 +176,8 @@ public static class MauiProgram
         services.AddTransient<ReminderCardViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<DashboardPage>();
+
+        services.AddTransient<OnboardingViewModel>();
+        services.AddTransient<OnboardingPage>();
     }
 }
