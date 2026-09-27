@@ -127,4 +127,58 @@ public static class AutomationIds
 
     /// <summary>Kurulumda harcama/ödeme ekleme butonu kimliği.</summary>
     public const string BtnOnboardingAddExpense = "btn-onboarding-add-expense";
+
+    /// <summary>Kart kontrol sayfası kimliği.</summary>
+    public const string PageCardControl = "page-card-control";
+
+    /// <summary>Sol menüdeki geçici kart kontrol öğesi kimliği (S61; V6'da kalkar).</summary>
+    public const string FlyoutItemCardControl = "flyout-item-card-control";
+
+    /// <summary>Kart kontrol başlığındaki kart seçme ikonu kimliği.</summary>
+    public const string BtnSelectCard = "btn-select-card";
+
+    /// <summary>Sıradaki vadede ödenecek tutar (hero) kimliği.</summary>
+    public const string LblNextPayment = "lbl-next-payment";
+
+    /// <summary>Sıradaki ödeme: asgari seçeneği kimliği.</summary>
+    public const string BtnPaymentModeMinimum = "btn-payment-mode-minimum";
+
+    /// <summary>Sıradaki ödeme: tamamı seçeneği kimliği.</summary>
+    public const string BtnPaymentModeFull = "btn-payment-mode-full";
+
+    /// <summary>Sıradaki ödeme: özel tutar seçeneği kimliği.</summary>
+    public const string BtnPaymentModeCustom = "btn-payment-mode-custom";
+
+    /// <summary>Sıradaki ödeme: özel tutar giriş alanı kimliği.</summary>
+    public const string InputPaymentCustomAmount = "input-payment-custom-amount";
+
+    /// <summary>Sıradaki ödeme: özel tutarı kaydet butonu kimliği.</summary>
+    public const string BtnSavePaymentCustomAmount = "btn-save-payment-custom-amount";
+
+    /// <summary>Ekstre giriş / düzenleme formunu açan buton kimliği.</summary>
+    public const string BtnStatementEntry = "btn-statement-entry";
+
+    /// <summary>Sonraki ödemeler listesi kimliği.</summary>
+    public const string ListUpcomingPayments = "list-upcoming-payments";
+
+    /// <summary>Kartın varsayılan ödeme şekli satırı kimliği.</summary>
+    public const string NavDefaultPayment = "nav-default-payment";
+
+    /// <summary>Ekstre giriş formu: ekstre tutarı alanı kimliği.</summary>
+    public const string InputStatementAmount = "input-statement-amount";
+
+    /// <summary>Ekstre giriş formu: asgari ödeme alanı kimliği.</summary>
+    public const string InputStatementMinimum = "input-statement-minimum";
+
+    /// <summary>Ekstre giriş formu: kesim tarihi seçici kimliği.</summary>
+    public const string PickerStatementDate = "picker-statement-date";
+
+    /// <summary>Ekstre giriş formu: son ödeme tarihi seçici kimliği.</summary>
+    public const string PickerStatementDueDate = "picker-statement-due-date";
+
+    /// <summary>Ekstre giriş formu: kaydet butonu kimliği.</summary>
+    public const string BtnSaveStatement = "btn-save-statement";
+
+    /// <summary>Ekstre giriş formu: vazgeç butonu kimliği.</summary>
+    public const string BtnCancelStatement = "btn-cancel-statement";
 }

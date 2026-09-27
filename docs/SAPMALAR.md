@@ -588,6 +588,16 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `V2`, `V3`, `V13`, `EK-V2`, `EK-V3` |
 | **Durum** | uygulandı |
 
+### S61 — Kart kontrol: elle ekstre girişi korunur; geçmiş, döküm ve harcama girişi ekrandan çıkar
+
+| | |
+|---|---|
+| **Eski** | `CardControlPage.xaml` (491 satır, 73 `<Label>`) ve `CardControlViewModel` (866 satır, 3 partial). Kart `LoadAsync(cardId)` içinde `Single` ile aranıyordu; bulunamazsa istisna fırlıyordu. Ekranda kesilmiş ekstre (PDF'den içe aktarma veya elle giriş taslağı), ekstre ödeme kararı, ödeme tercihi geçmişi, "Devreden • finansman • bilinen yeni harcama" döküm cümlesi, 6 gelecek ekstrenin her satırında üç düğme, gelecek kart harcamaları formu (ekle / sil / kaydet), kartın varsayılan ödeme şekli ve "karar vermediğin ekstrelerde varsayım" vardı. Sayfa yalnız `CommitmentsPage` ve `SimulationPage`'ten kart kimliğiyle açılıyordu. |
+| **Neden yanlış** | a) Kart bulunamayınca sayfa çöküyordu (profil değişince ya da kart silinince). b) Ödeme tercihi geçmişi ve döküm cümlesi hiçbir kullanıcı sorusuna bağlanmıyor (`EK-V7` Aşama 4). c) Gelecek harcamalar kartın **tanımına** aittir; kart kontrolünde bir karar değil veri girişidir. d) V7'nin ilk denemesi `S21`'i "ekstre girişi yok" diye okuyup elle girişi de çıkardı; kurulumda eklenen kartlar ekstresiz yazıldığı için ödeme kararı hiç görünmedi. `S21` yalnız PDF'den okumayı eledi. |
+| **Yeni** | 1) Ekranın merkezi **sıradaki ödemedir**: kesilmiş ekstre varsa onun, yoksa kartın döngüsünden hesaplanan tahmini ekstrenin vadesi ve tutarı. Asgari / Tamamı / Özel kararı iki durumda da verilir: kesilmiş ekstrede ekstrenin planına, tahminde o vadeye özel plana yazılır (`SetStatementPaymentModeAsync`, `SaveCreditCardPaymentPlanAsync`). Eskide karar yalnız kesilmiş ekstrede veriliyordu. 2) Kararın bedeli görünür: ödeme ekstreden azsa devreden tutar ve sonraki ekstreye binen faiz tek satırda. 3) Elle ekstre girişi kalır: tutar, asgari, kesim ve son ödeme tarihi; PDF yok (`S21`). Yeni ekstrenin ödeme şekli kartın varsayılanından başlar (Asgari → Asgari, Tamamı → Tamamı, Sabit tutar → Özel, Her ekstrede sor → Asgari). 4) Sayfa kimliksiz açılırsa en yakın ödemesi olan kart açılır; hiçbirinde ödeme yoksa ilk kart, kart yoksa boş durum. Kimlik bulunamazsa çökme yok. 5) Tutar ve tarih kuralları tek yerde, `CreditCardValidator`'da kalır; ekran ihlali diyalogla gösterir. 6) Ödeme tercihi geçmişi, döküm cümlesi ve toplam borç / limit çubuğu ekrandan çıkar; limit tek satıra iner. Tarihçe kaydı ve veri değişmez. 7) Gelecek harcama girişi `V6`'ya, kart düzenlemenin yanına taşınır. 8) `V6` gelene kadar ekran sol menüdeki **geçici** bir öğeyle açılır; `V6` bu öğeyi kaldırır ve sayfayı `Routes.CardControl` + `cardId` ile açar. |
+| **Etkiler** | `V7`, `V6`, `EK-V7` |
+| **Durum** | uygulandı (V7: 1–6); 7 ve 8 `V6`'da açık |
+
 
 
 

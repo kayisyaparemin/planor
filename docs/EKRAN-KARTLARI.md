@@ -619,9 +619,130 @@ Genel Sayfa Düzeni:
 
 Konsept panellerindeki *Kurulum (8/8 özeti)* paneli doğrudan referanstır. 8 adımlı ilerleme çubuğu, temiz kart kutusu ve 8. adımdaki metrik özet dökümü konsept yerleşimiyle birebir uyumludur. Paletteki sarı/lacivert renkler emekli edilmiş olup Planör marka token'ları (`ActionFill`, `SurfaceCard`, `Indicator`) kullanılmıştır (`GS7`).
 
-### EK-V7 — Kart kontrol
-Konsept karşılığı **yok.** `V6` ve `V10`'dan önce gelir. `EK-V3`'ten devralınan yükler:
-kredi kartı plan/mevcut tablosu.
+## EK-V7 — Kart kontrol
+
+> Sayfa dosyası: `CardControlPage.xaml`
+> Adım **V7** ile tamamlandı (Kapı C onaylı). Davranış kararları: `S61`. İlk tasarım (V7a:
+> borç/limit + ekstre kartı) Kapı C'de "cevap vermiyor" diye geri döndü; ekranın merkezi sıradaki
+> ödeme oldu. Kapı C'de açılan sistem işleri: `T7` (başlık aksiyonunun anlaşılırlığı), `T8`
+> (diyalog tasarımı).
+
+**Eski hâl:** `CardControlPage.xaml` 491 satır, **73 `<Label>`**, 10 `<Border>`, 30 `<Button>`, 2 spinner;
+`CardControlViewModel` 866 satır / 3 `partial`.
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Bu karttan sıradaki ödemede ne kadar çıkacak, nasıl ödeyeceğim?" | Yalnız kesilmiş ekstre varsa: "Bu Ekstreyi Nasıl Ödeyeceksin?" kutusu, 4 etiket + 3 segment; ekstre yoksa cevap yoktu |
+| S2 | "Asgari ödersem ne olur?" | "Devreden • finansman • yeni harcama" döküm cümlesi (tek satır, 3 tutar) |
+| S3 | "Sonraki aylarda bu kart ne kadar ödetecek?" | "Sonraki Ekstre" kutusu 5 etiket + 6 satır × (3 etiket + 3 düğme) |
+| S4 | "Ayrı karar vermediğim ekstreler nasıl ödenir?" | "GENEL" açılır paneli: iki kutu, 8 etiket, 5 düğme |
+| S5 | "Kartta ne kadar yer kaldı?" | Üst kutu: toplam borç + limit, 4 etiket |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Sıradaki vadede ödenecek tutar | **Hero rakam** | S1; kesilmiş ekstre yoksa tahmini ekstreden |
+| Vade tarihi + "tahmini" / "kesilmiş ekstre" işareti | **Satır** (hero kartında) | S1 bağlamı |
+| Asgari / Tamamı / Özel seçici | **Satır** (hero kartında) | S1 kararın kendisi; seçili olan `ActionFill` |
+| Ekstre tutarı · asgari | **Satır** (hero kartında, tek satır) | S1 bağlamı |
+| Devreden tutar + sonraki ekstreye binen faiz | **Satır** (yalnız devir varsa) | S2 kararın bedeli |
+| Elle ekstre girişi | **Kart** (hero kartının giriş hâli) | S1 tahmini gerçeğe çevirir; `S21` yalnız PDF'yi eledi |
+| Sonraki ödemeler | **Kart** (`ListCard`, ≤ 4 satır) | S3; satıra dokununca o vade için karar (`GS12`) |
+| Kartın varsayılan ödeme şekli + varsayım | **Satır** (`NavRow` → diyalog) | S4 |
+| Limit · kullanılabilir | **Satır** (en altta, tek satır) | S5 bağlam |
+| Banka · kesim günü · son ödeme günü | **Satır** (başlık altı) | kartın döngüsü |
+| Kart değiştirme | **Aksiyon** (başlık ikonu, yalnız > 1 kart) | Hangi kart açık; kimliksiz açılışta en yakın ödemesi olan kart |
+| Toplam borç, limit çubuğu | **Çıkar** | Kapı C: hiçbir kararı beslemiyor |
+| Gelecek kart harcamaları formu | **Derine** → `EK-V6` | Kartın tanımına ait veri girişi (`S61`) |
+| Ödeme tercihi geçmişi | **Çıkar** | Soruya bağlanmıyor; tarihçe kaydı değişmez |
+| "Sonraki Ekstre" ayrı kutusu | **Çıkar** | Sonraki ödemelerin ilk satırıyla aynı bilgi |
+| PDF'den içe aktarma | **Çıkar** | `S21` |
+| "Kart Bilgilerini Düzenle" düğmesi | **Çıkar** | `EK-V6`'nın işi |
+| Satır başına 3 düğme (18 düğme) | **Çıkar** | Satıra dokunma + diyalog |
+| Spinner, `StatusMessage` | **Çıkar** | `GS14`; hatalar diyalogla |
+
+### 3. Bütçe
+
+```
+Hero rakam    1 / 1     sıradaki vadede ödenecek tutar
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          2 / 4     sıradaki ödeme kartı (ödeme / ödeme yok / giriş), sonraki ödemeler ListCard
+Grafik        0 / 1     grafik yok
+NavRow        1 / 5     varsayılan ödeme şekli
+Label        23 / 28    19 etiket + 4 <Label.Text> öğesi (analizci onları da sayar); DataTemplate içi bir kez
+Cumle_        2 / 3     Cumle_OdemeYok, Cumle_VadeKarari
+```
+
+### 4. Blok şeması
+
+```
+┌─ PageHeader ─────────────────────────────────────────────────────────┐
+│ Etiket_KrediKarti          TypeEyebrow / TextSecondary                │
+│ {CardName}                 TypeTitle / TextPrimary       [CreditCard] │  ikon yalnız > 1 kart
+└───────────────────────────────────────────────────────────────────────┘
+  Akbank · Kesim 25 · Son ödeme 5            Caption (Bicim_KartDongusu)
+┌─ Sıradaki ödeme kartı (Border SurfaceCard / RadiusCard) ──────────────┐
+│ Etiket_SiradakiOdeme                        (Eyebrow)                  │
+│ ── Hâl A: ödeme var ──                                                │
+│ 5 Ekim  (Figure)                  tahmini | kesilmiş ekstre (Caption)  │  ← S1
+│ 26.747 ₺                                    (HeroFigure)               │  ← S1
+│ Ekstre 26.747 ₺ · asgari 5.349 ₺            (Caption, Bicim_EkstreAsgari) │
+│ [ Asgari ] [ Tamamı ] [ Özel ]      seçili: ActionFill / TextOnAction  │  ← S1
+│ (Özel'e basılınca) [ tutar Entry ] [ Aksiyon_Kaydet ]                  │
+│ 21.398 ₺ sonraki ekstreye devreder, ~1.070 ₺ faiz biner.  (Caption)    │  ← S2 yalnız devir varsa
+│ [ Aksiyon_EkstreyiGir | Aksiyon_EkstreyiDuzenle   SecondaryButton ]    │  ← S1
+│ ── Hâl B: önümüzdeki ödeme yok ──                                     │
+│ Cumle_OdemeYok                              (Caption)                  │
+│ [ Aksiyon_EkstreyiGir               SecondaryButton ]                 │
+│ ── Hâl C: ekstre girişi / düzenleme ──                                │
+│ Etiket_EkstreTutari [Entry]         Etiket_AsgariOdeme [Entry]         │
+│ Etiket_KesimTarihi  [DatePicker]    Etiket_SonOdemeTarihi [DatePicker] │
+│ [ Aksiyon_Kaydet  ActionFill ]      [ Aksiyon_Vazgec  Secondary ]      │
+└───────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_SonrakiOdemeler ────────────────────────────────────┐  ← S3
+│ [Schedule]  5 Kasım  (TypeBody)                    17.866 ₺  (Figure)  │
+│             Tamamı · kartın varsayılanı             (Caption)          │
+│   … en fazla 4 satır, tutarı sıfır olan vadeler atlanır;               │
+│   dokun → "5 Kasım ödemesi": Asgari / Tamamı / Kartın varsayılanına dön│
+└───────────────────────────────────────────────────────────────────────┘
+  Cumle_VadeKarari                          (Caption)                     ← S3
+┌─ NavRow ──────────────────────────────────────────────────────────────┐  ← S4
+│ [Settings]  Baslik_VarsayilanOdeme · Tamamı                        ›   │
+│   dokun → Asgari / Tamamı / Her ekstrede sor;                         │
+│   "Her ekstrede sor" → ikinci diyalog: karar yokken Asgari / Tamamı    │
+└───────────────────────────────────────────────────────────────────────┘
+  Limit 600.000 ₺ · kullanılabilir 575.767 ₺   (Caption, Bicim_LimitSatiri) ← S5
+```
+
+Uygulama notları:
+- Sıradaki ödeme = kesilmiş ekstre, yoksa tutarı sıfırdan büyük ilk tahmini ekstre. Karar
+  verilmemişse (kart "her ekstrede sor", varsayım devrede) hiçbir seçenek seçili görünmez.
+- Asgari / Tamamı kararı kesilmiş ekstrede ekstrenin planına, tahminde o vadeye özel plana
+  yazılır; Özel tutar tahminde sabit tutarlı vade planıdır (asgarinin altına inemez, alan kuralı).
+- Yeni ekstrenin ödeme şekli kartın varsayılanından başlar (`S61`); giriş formunun tarihleri
+  sıradaki vadeden dolar.
+- Tutar ve tarih kuralları `CreditCardValidator`'dadır; ihlal diyalogla gösterilir.
+- Yeni bileşen yok. App'e üç converter gelir: `TarihSecici` (`DateOnly` ↔ `DatePicker`), ödeme
+  kuralı satırı ve varsayılan ödeme şekli metni.
+- Sol menüdeki "Kart Kontrol" öğesi **geçicidir** (`S61`): kendi `AutomationId`'si ve
+  `card-control` ile çakışmayan rotası (`cards`) vardır; `V6` kaldırır.
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Profilde kart yoksa `StateBlock` (Boş, `CreditCard` ikonu, `Bos_KartYok`); aksiyon yok, kart `EK-V6`'dan eklenir. |
+| Yükleniyor | Üç `SkeletonBlock`; spinner yok (`GS14`). |
+| Hata | Okuma hatasında `StateBlock` (Hata, `Hata_KartYuklenemedi`, `Aksiyon_TekrarDene` → yükle); kaydetme hatasında diyalog, ekran olduğu gibi kalır. |
+
+### 6. Konsept ilişkisi
+
+Konsept karşılığı **yok** (`GS2`). Türetme kaynağı `EK-V3`: hero rakam + bağlam satırları,
+`ListCard`, `NavRow`, `StateBlock`, `SkeletonBlock`. Giriş formu `EK-V4` Adım 3'ün form
+satırlarından (`Eyebrow` + `Entry`, `Grid *,*`). Renk ve ses Planör marka token'larından (`GS7`).
 
 ### EK-V6 — Finansal yapı
 Konsept karşılığı **yok.** Eskide 1.344 satır / 6 `partial`, **86 `<Label>`** — en kalabalık
@@ -669,7 +790,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | | ⬜ |
-| EK-V7 | Kart kontrol | 73 | | ⬜ |
+| EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
 | EK-V10 | Simülatör | 64 | | ⬜ |

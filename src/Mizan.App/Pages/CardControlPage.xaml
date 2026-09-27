@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.CardControlPage"
+             x:DataType="vm:CardControlViewModel"
+             AutomationId="{x:Static auto:AutomationIds.PageCardControl}">
+
+    <!-- EK-V7: Kart kontrol -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Başlık; kart seçme ikonu yalnız birden çok kart varken -->
+            <comp:PageHeader EyebrowText="{x:Static strings:CardControlStrings.Etiket_KrediKarti}"
+                             Title="{Binding CardName}"
+                             ActionCommand="{Binding SelectCardCommand}"
+                             AutomationId="{x:Static auto:AutomationIds.BtnSelectCard}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding HasMultipleCards}" Value="True">
+                        <Setter Property="ActionIcon" Value="{x:Static icons:Icons.CreditCard}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space4}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu içerik -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Kartın döngüsü: banka · kesim günü · son ödeme günü -->
+                <Label Style="{StaticResource Caption}">
+                    <Label.Text>
+                        <MultiBinding StringFormat="{x:Static strings:CardControlStrings.Bicim_KartDongusu}">
+                            <Binding Path="BankName" />
+                            <Binding Path="StatementClosingDay" />
+                            <Binding Path="PaymentDueDay" />
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+
+                <!-- Sıradaki ödeme kartı: A ödeme · B ödeme yok · C ekstre girişi -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <Label Text="{x:Static strings:CardControlStrings.Etiket_SiradakiOdeme}"
+                               Style="{StaticResource Eyebrow}" />
+
+                        <!-- A: S1 ne kadar ve nasıl, S2 bedeli -->
+                        <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                             IsVisible="{Binding IsPaymentView}">
+                            <Grid ColumnDefinitions="*, Auto"
+                                  ColumnSpacing="{StaticResource Space2}">
+                                <Label Text="{Binding NextPayment.DueDate, Converter={StaticResource Tarih}}"
+                                       Style="{StaticResource Figure}" />
+                                <Label Grid.Column="1"
+                                       Text="{x:Static strings:CardControlStrings.Etiket_KesilmisEkstre}"
+                                       Style="{StaticResource Caption}"
+                                       VerticalTextAlignment="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding NextPayment.IsEstimate}" Value="True">
+                                            <Setter Property="Text" Value="{x:Static strings:CardControlStrings.Etiket_Tahmini}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
+
+                            <Label Text="{Binding NextPayment.PaymentAmount, Converter={StaticResource Para}}"
+                                   Style="{StaticResource HeroFigure}"
+                                   AutomationId="{x:Static auto:AutomationIds.LblNextPayment}" />
+
+                            <Label Style="{StaticResource Caption}">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{x:Static strings:CardControlStrings.Bicim_EkstreAsgari}">
+                                        <Binding Path="NextPayment.StatementBalance" Converter="{StaticResource Para}" />
+                                        <Binding Path="NextPayment.MinimumPayment" Converter="{StaticResource Para}" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+
+                            <!-- Seçili olan ActionFill, diğerleri SecondaryButton; karar yoksa hiçbiri seçili değil -->
+                            <Grid ColumnDefinitions="*, *, *"
+                                  ColumnSpacing="{StaticResource Space2}">
+                                <Button Text="{x:Static strings:CardControlStrings.Aksiyon_Asgari}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding NextPayment.SetMinimumCommand}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnPaymentModeMinimum}">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding NextPayment.IsMinimumSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource ActionFill}" />
+                                            <Setter Property="BorderColor" Value="{DynamicResource ActionFill}" />
+                                            <Setter Property="TextColor" Value="{DynamicResource TextOnAction}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                                <Button Grid.Column="1"
+                                        Text="{x:Static strings:CardControlStrings.Aksiyon_Tamami}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding NextPayment.SetFullCommand}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnPaymentModeFull}">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding NextPayment.IsFullSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource ActionFill}" />
+                                            <Setter Property="BorderColor" Value="{DynamicResource ActionFill}" />
+                                            <Setter Property="TextColor" Value="{DynamicResource TextOnAction}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                                <Button Grid.Column="2"
+                                        Text="{x:Static strings:CardControlStrings.Aksiyon_Ozel}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding NextPayment.OpenCustomAmountCommand}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnPaymentModeCustom}">
+                                    <Button.Triggers>
+                                        <DataTrigger TargetType="Button" Binding="{Binding NextPayment.IsCustomSelected}" Value="True">
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource ActionFill}" />
+                                            <Setter Property="BorderColor" Value="{DynamicResource ActionFill}" />
+                                            <Setter Property="TextColor" Value="{DynamicResource TextOnAction}" />
+                                        </DataTrigger>
+                                    </Button.Triggers>
+                                </Button>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*, Auto"
+                                  ColumnSpacing="{StaticResource Space2}"
+                                  IsVisible="{Binding NextPayment.IsCustomAmountOpen}">
+                                <Entry Text="{Binding NextPayment.CustomAmountInput}"
+                                       Placeholder="{x:Static strings:CardControlStrings.YerTutucu_OzelTutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:AutomationIds.InputPaymentCustomAmount}" />
+                                <Button Grid.Column="1"
+                                        Text="{x:Static strings:CardControlStrings.Aksiyon_Kaydet}"
+                                        Command="{Binding NextPayment.SaveCustomAmountCommand}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnSavePaymentCustomAmount}" />
+                            </Grid>
+
+                            <!-- S2: kararın bedeli, yalnız ödeme ekstreden azsa -->
+                            <Label Style="{StaticResource Caption}"
+                                   IsVisible="{Binding NextPayment.HasCarry}">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{x:Static strings:CardControlStrings.Bicim_DevirBedeli}">
+                                        <Binding Path="NextPayment.CarriedAmount" Converter="{StaticResource Para}" />
+                                        <Binding Path="NextPayment.NextInterest" Converter="{StaticResource Para}" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <!-- B: önümüzdeki ödeme yok -->
+                        <Label Text="{x:Static strings:CardControlStrings.Cumle_OdemeYok}"
+                               Style="{StaticResource Caption}"
+                               IsVisible="{Binding IsNoPaymentView}" />
+
+                        <!-- A ve B: tahmini gerçeğe çeviren ekstre girişi -->
+                        <Button Text="{x:Static strings:CardControlStrings.Aksiyon_EkstreyiGir}"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding StartStatementEntryCommand}"
+                                AutomationId="{x:Static auto:AutomationIds.BtnStatementEntry}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding HasStatement}" Value="True">
+                                    <Setter Property="Text" Value="{x:Static strings:CardControlStrings.Aksiyon_EkstreyiDuzenle}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Button" Binding="{Binding Entry.IsOpen}" Value="True">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+
+                        <!-- C: ekstre girişi / düzenleme; alanlar doğrudan Grid hücrelerinde -->
+                        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                             IsVisible="{Binding Entry.IsOpen}">
+                            <Grid ColumnDefinitions="*, *"
+                                  RowDefinitions="Auto, Auto, Auto, Auto"
+                                  ColumnSpacing="{StaticResource Space2}"
+                                  RowSpacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:CardControlStrings.Etiket_EkstreTutari}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Label Grid.Column="1"
+                                       Text="{x:Static strings:CardControlStrings.Etiket_AsgariOdeme}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Grid.Row="1"
+                                       Text="{Binding Entry.AmountInput}"
+                                       Placeholder="{x:Static strings:CardControlStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:AutomationIds.InputStatementAmount}" />
+                                <Entry Grid.Row="1"
+                                       Grid.Column="1"
+                                       Text="{Binding Entry.MinimumInput}"
+                                       Placeholder="{x:Static strings:CardControlStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:AutomationIds.InputStatementMinimum}" />
+                                <Label Grid.Row="2"
+                                       Text="{x:Static strings:CardControlStrings.Etiket_KesimTarihi}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Label Grid.Row="2"
+                                       Grid.Column="1"
+                                       Text="{x:Static strings:CardControlStrings.Etiket_SonOdemeTarihi}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <DatePicker Grid.Row="3"
+                                            Date="{Binding Entry.StatementDate, Converter={StaticResource TarihSecici}}"
+                                            Format="dd.MM.yyyy"
+                                            BackgroundColor="{DynamicResource SurfaceSunken}"
+                                            TextColor="{DynamicResource TextPrimary}"
+                                            FontSize="{StaticResource TypeBody}"
+                                            AutomationId="{x:Static auto:AutomationIds.PickerStatementDate}" />
+                                <DatePicker Grid.Row="3"
+                                            Grid.Column="1"
+                                            Date="{Binding Entry.DueDate, Converter={StaticResource TarihSecici}}"
+                                            Format="dd.MM.yyyy"
+                                            BackgroundColor="{DynamicResource SurfaceSunken}"
+                                            TextColor="{DynamicResource TextPrimary}"
+                                            FontSize="{StaticResource TypeBody}"
+                                            AutomationId="{x:Static auto:AutomationIds.PickerStatementDueDate}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*, *"
+                                  ColumnSpacing="{StaticResource Space2}">
+                                <Button Text="{x:Static strings:CardControlStrings.Aksiyon_Kaydet}"
+                                        Command="{Binding Entry.SaveCommand}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnSaveStatement}" />
+                                <Button Grid.Column="1"
+                                        Text="{x:Static strings:CardControlStrings.Aksiyon_Vazgec}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding Entry.CancelCommand}"
+                                        AutomationId="{x:Static auto:AutomationIds.BtnCancelStatement}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S3: sonraki ödemeler; satıra dokununca o vade için karar -->
+                <VerticalStackLayout Spacing="{StaticResource Space2}"
+                                     IsVisible="{Binding Upcoming.HasItems}">
+                    <comp:ListCard EyebrowText="{x:Static strings:CardControlStrings.Etiket_SonrakiOdemeler}"
+                                   ItemsSource="{Binding Upcoming.Items}"
+                                   AutomationId="{x:Static auto:AutomationIds.ListUpcomingPayments}">
+                        <comp:ListCard.ItemTemplate>
+                            <DataTemplate x:DataType="models:UpcomingPaymentItem">
+                                <Grid ColumnDefinitions="Auto, *, Auto"
+                                      ColumnSpacing="{StaticResource Space3}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CardControlViewModel}}, Path=Upcoming.DecideCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                    <Label Text="{x:Static icons:Icons.Schedule}"
+                                           FontFamily="MaterialSymbols"
+                                           FontSize="{StaticResource IconMedium}"
+                                           TextColor="{DynamicResource Indicator}"
+                                           VerticalTextAlignment="Center" />
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="{StaticResource Space1}"
+                                                         VerticalOptions="Center">
+                                        <Label Text="{Binding DueDate, Converter={StaticResource Tarih}}" />
+                                        <Label Text="{Binding ., Converter={StaticResource OdemeKurali}}"
+                                               Style="{StaticResource Caption}" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding PaymentAmount, Converter={StaticResource Para}}"
+                                           Style="{StaticResource Figure}"
+                                           VerticalTextAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </comp:ListCard.ItemTemplate>
+                    </comp:ListCard>
+                    <Label Text="{x:Static strings:CardControlStrings.Cumle_VadeKarari}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+
+                <!-- S4: ayrı karar verilmeyen ekstreler -->
+                <comp:NavRow IconGlyph="{x:Static icons:Icons.Settings}"
+                             Title="{x:Static strings:CardControlStrings.Baslik_VarsayilanOdeme}"
+                             Subtitle="{Binding Upcoming.DefaultRule, Converter={StaticResource VarsayilanOdeme}}"
+                             Command="{Binding Upcoming.ChangeDefaultCommand}"
+                             AutomationId="{x:Static auto:AutomationIds.NavDefaultPayment}" />
+
+                <!-- S5: limit, tek satır -->
+                <Label Style="{StaticResource Caption}">
+                    <Label.Text>
+                        <MultiBinding StringFormat="{x:Static strings:CardControlStrings.Bicim_LimitSatiri}">
+                            <Binding Path="Limit" Converter="{StaticResource Para}" />
+                            <Binding Path="AvailableLimit" Converter="{StaticResource Para}" />
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+            </VerticalStackLayout>
+
+            <!-- Boş: profilde kart yok -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.CreditCard}"
+                             Message="{x:Static strings:CardControlStrings.Bos_KartYok}"
+                             IsVisible="{Binding IsEmpty}" />
+
+            <!-- Hata: okuma başarısız -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:CardControlStrings.Hata_KartYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

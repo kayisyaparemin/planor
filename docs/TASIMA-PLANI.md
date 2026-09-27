@@ -192,6 +192,18 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 - [x] **T6** — görsel bütçe testleri: **GK4, GK5, GK9.** *(T3–T5 bitmeden yazılamaz;
       sayım bileşen adlarına dayanıyor.)*
 
+Faz V sırasında kullanıcı geri bildiriminden doğan sistem işleri. Ekran içinde değil,
+bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satırı):
+
+- [ ] **T7** — başlık aksiyonunun anlaşılırlığı: `PageHeader`'daki tek başına ikon (ilk
+      kullanım: `EK-V7` kart değiştirme) dokunulabilir olduğunu belli etmiyor; kullanıcı
+      kartını nereden değiştireceğini ilk bakışta bulamadı. İkon + kısa metin ya da seçici
+      görünümü gibi, her ekranda aynı çalışacak bir çözüm. *(V7 Kapı C)*
+- [ ] **T8** — diyalogların tasarımı: `IDialogService` seçim ve uyarıları Android'in düz
+      sistem diyaloğuyla açıyor (kart seçme, vade kararı, varsayılan ödeme şekli). Planör
+      token'larıyla çizilmiş, hareketli (örn. alttan açılan sayfa, geçiş animasyonu) bir
+      diyalog; `MauiDialogService` arkasında, ViewModel'ler değişmeden. *(V7 Kapı C)*
+
 ## Faz V — Ekranlar
 
 - [x] **V0** — kabuk ve altyapı: `ViewModelBase`, `INavigationService`, `IDialogService`,
@@ -201,9 +213,14 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 - [x] **V3** — ana sayfa (dashboard)
 - [x] **V4** — kurulum sihirbazı *(eskide 958 satır / 3 partial — 8 ContentView adımı + OnboardingPlanWriter ile daraltıldı)*.
       Kapı C'de V3 ana sayfasının **dolu** hâli de iki temada kontrol edildi ve onaylandı.
-- [ ] **V7** — kart kontrol — **V6 ve V10'dan ÖNCE.** Eskide `CommitmentsPage` ve
+- [x] **V7** — kart kontrol — **V6 ve V10'dan ÖNCE.** Eskide `CommitmentsPage` ve
       `SimulationPage` code-behind'de `CardControlViewModel` örnekliyordu; gizli bağımlılık.
-- [ ] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*
+      Tek adım (`S61`, `EK-V7`): sıradaki ödeme ve kararı, kararın bedeli, sonraki ödemeler,
+      varsayılan ödeme şekli, elle ekstre girişi. Sol menüde **geçici** giriş. *(Önce V7a/V7b
+      diye bölünmüştü; V7a tek başına ekranın cevabını vermediği için Kapı C'de birleştirildi.)*
+- [ ] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
+      `S61`'den devralınanlar: gelecek kart harcaması girişi ve sol menüdeki geçici
+      "Kart Kontrol" öğesinin kaldırılması (kart satırı `Routes.CardControl` + `cardId` açar).
 - [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*
 - [ ] **V8** — 12 dönem
 - [ ] **V9** — dönem ayrıntısı
@@ -242,7 +259,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
 | H | 4 | 4 |
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
-| T | 6 | 6 |
-| V | 4 | 14 |
+| T | 6 | 8 *(T7, T8 V7 Kapı C'de açıldı)* |
+| V | 5 | 14 |
 | K | 0 | 4 |
 | G | 0 | 1 |

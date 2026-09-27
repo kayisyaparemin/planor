@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V4** — kurulum sihirbazı (onboarding) |
-| Sıradaki adım | **V7** — kart kontrol |
-| Test sayısı | 1342 |
+| Son tamamlanan adım | **V7** — kart kontrol |
+| Sıradaki adım | **V6** — finansal yapı |
+| Test sayısı | 1396 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V7 — kart kontrol: `CardControlViewModel`, `NextPaymentViewModel`, `UpcomingPaymentsViewModel`, `StatementEntryViewModel`, `CardControlPage`
+
+Kart kontrol sayfası "sıradaki ödeme" etrafında yeniden kuruldu (eski: `CardControlPage.xaml` 491 satır / 73 Label, 866 satır / 3 partial ViewModel → 314 satır sayfa / 19 Label, dört odaklı ViewModel: 189 + 194 + 154 + 153 satır, 5 bağımlılık). İlk ajan denemesi toplam borç ve limit gösterip elle ekstre girişini de çıkarmıştı (`S21` yanlış okunmuştu); sayfa boş görünüyordu. Kapı C'de iki kez geri döndü, V7a/V7b bölünmesi kaldırıldı. Son hâl (`S61`): sıradaki vade ve tutar (kesilmiş ekstre yoksa tahmini); Asgari / Tamamı / Özel kararı iki durumda da (tahminde vadeye özel plan); kararın bedeli (devir + sonraki faiz); en fazla 4 sonraki ödeme ve satırdan vade kararı; varsayılan ödeme şekli; elle ekstre girişi. Toplam borç ve limit çubuğu çıktı, limit tek satıra indi; kimliksiz açılışta en yakın ödemesi olan kart açılır. Tutar girişindeki "5.000 → 5 ₺" hatası düzeltildi (`I60`); varsayım karar gibi gösterilmez (`I61`). Testler sahte depo üstünde gerçek `CreditCardObligationService` ile çalışır. **Dikkat:** sol menüdeki "Kart Kontrol" geçicidir, `V6` kaldırır; gelecek kart harcaması girişi `V6`'ya kaldı. Kapı C'de `emulatorde-ac.ps1` paketi sıfırdan kurdu ve emülatördeki profiller silindi (FastDeploy "complete uninstall"; cihazdaki sürüm büyük ihtimalle başka ortamda imzalanmıştı), yedekten geri yüklendi; betiğe emniyet eklenmesi ayrı iş olarak bekliyor. Kullanıcı geri bildiriminden `T7` (başlık aksiyonunun anlaşılırlığı) ve `T8` (diyalog tasarımı) plana eklendi. Bütçe: Hero 1/1, Hero yüzey 0/1, Kart 2/4, Grafik 0/1, NavRow 1/5, Label 23/28 (19 + 4 `<Label.Text>`), Cümle 2/3. Görsel kontrol: kullanıcı onayladı. 54 yeni sunum testi (toplam 1.396 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V4 — kurulum sihirbazı: `OnboardingViewModel`, `OnboardingDraftBuilder`, `OnboardingPlanWriter`, `OnboardingService`, `OnboardingPage`, `Step1..8Views`
 

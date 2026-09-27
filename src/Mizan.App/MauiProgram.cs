@@ -179,5 +179,8 @@ public static class MauiProgram
 
         services.AddTransient<OnboardingViewModel>();
         services.AddTransient<OnboardingPage>();
+
+        services.AddTransient<CardControlViewModel>();
+        services.AddTransient<CardControlPage>();
     }
 }

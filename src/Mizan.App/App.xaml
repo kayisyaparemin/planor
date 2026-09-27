@@ -17,6 +17,9 @@
             <conv:ParaConverter x:Key="Para" />
             <conv:TarihConverter x:Key="Tarih" />
             <conv:HalkaGostergeConverter x:Key="HalkaGosterge" />
+            <conv:TarihSeciciConverter x:Key="TarihSecici" />
+            <conv:OdemeKuraliConverter x:Key="OdemeKurali" />
+            <conv:VarsayilanOdemeConverter x:Key="VarsayilanOdeme" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

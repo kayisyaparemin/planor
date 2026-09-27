@@ -13,6 +13,11 @@ public sealed class FakeDialogService : IDialogService
     public bool NextConfirmResponse { get; set; } = true;
     public string? NextChooseResponse { get; set; }
 
+    /// <summary>Art arda seçimler için sıra; boşsa <see cref="NextChooseResponse"/> kullanılır.</summary>
+    public Queue<string?> ChooseResponses { get; } = new();
+
+    public string[]? LastChooseOptions { get; private set; }
+
     public Task ShowAlertAsync(string title, string message, string button = "Tamam")
     {
         LastAlertTitle = title;
@@ -32,6 +37,7 @@ public sealed class FakeDialogService : IDialogService
 
     public Task<string?> ChooseAsync(string title, string cancel, string? destruction, params string[] options)
     {
-        return Task.FromResult(NextChooseResponse);
+        LastChooseOptions = options;
+        return Task.FromResult(ChooseResponses.Count > 0 ? ChooseResponses.Dequeue() : NextChooseResponse);
     }
 }
