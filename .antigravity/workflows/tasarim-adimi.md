@@ -232,6 +232,12 @@ Başarılıysa emülatör açık kalır ve ajan **emülatöre bir daha dokunmaz*
 adımının maliyetinin çoğunu yiyordu. Eski projede regresyon betiği yedek koordinata tıklayıp
 sonucu koşulsuz "başarılı" sayıyordu; ekrana ajanın değil kullanıcının bakması bunu önler.
 
+Betik kurulumdan önce profilleri repo dışına yedekler (`Belgeler\planor-emulator-yedek\emulator\otomatik`,
+en yeni 10). .NET'in kurulum görevi cihazdaki sürüm uyumsuzsa paketi sessizce kaldırıp yeniden
+kurar ve bütün veri silinir (V7 Kapı C). Betik bunu ilk kurulum zamanından anlar, profilleri geri
+yükler ve **sarı uyarı** basar; uyarıyı gördüysen kullanıcıya söyle. Elle geri yükleme:
+`./scripts/emulatorde-ac.ps1 -GeriYukle <tar>`.
+
 Sonra kullanıcıya bir **görsel kontrol listesi** bırak:
 
 - **Yol:** ekrana nasıl ulaşılır, tek satır (örn. "Profil seç → Ana sayfa")
