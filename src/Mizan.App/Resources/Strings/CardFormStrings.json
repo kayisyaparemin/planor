@@ -13,5 +13,13 @@
   "YerTutucu_Gun": "1–31",
   "Aksiyon_Kaydet": "Kaydet",
   "Aksiyon_Vazgec": "Vazgeç",
-  "Hata_KartYuklenemedi": "Kart bilgileri okunamadı."
+  "Hata_KartYuklenemedi": "Kart bilgileri okunamadı.",
+  "Etiket_GelecekHarcamalar": "GELECEK HARCAMALAR",
+  "Aksiyon_GelecekHarcamaEkle": "Gelecek harcama ekle",
+  "Etiket_Aciklama": "AÇIKLAMA",
+  "YerTutucu_Aciklama": "Örn. Telefon",
+  "Etiket_AylikTutar": "AYLIK TUTAR",
+  "Etiket_TaksitSayisi": "TAKSİT SAYISI",
+  "Etiket_IlkTaksitTarihi": "İLK TAKSİT TARİHİ",
+  "Aksiyon_Ekle": "Ekle"
 }

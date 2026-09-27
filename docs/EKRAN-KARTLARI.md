@@ -888,7 +888,7 @@ Konsept karşılığı **yok** (`GS2`). Türetme kaynağı `EK-V7`'nin "Sonraki 
 > Sayfa dosyası: `CardFormPage.xaml`
 > Adım **V6b** iki alt adımda: `V6b1` kartın tanımı + "Ekle" / "Düzenle", `V6b2` gelecek kart
 > harcamaları. Kapı A ve B ortak (bütün sayfa), Kapı C her alt adımda ayrı. Davranış kararları: `S63`.
-> **V6b1 tamamlandı** (Kapı C onaylı, koyu + açık); `V6b2` açık.
+> **V6b tamamlandı:** `V6b1` ve `V6b2` ayrı Kapı C'lerle onaylandı (koyu + açık).
 > Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
 > gövdesi olarak okunur.
 
@@ -1007,6 +1007,10 @@ Uygulama notları:
   çocuk `CardDefinitionViewModel`'dedir (200 satır sınırı). `V6b2` harcamaları ikinci bir çocukla
   ekler. Form kimlikleri `RecordFormAutomationIds`'te (`AutomationIds` dosya sınırında); kimlik
   testleri ad alanındaki bütün sınıfları birlikte denetler.
+- `V6b2` uygulaması: harcamalar ikinci çocuk `CardChargesViewModel`'de (liste, taşma, giriş, silme,
+  değişiklik izleme); sayfa ViewModel'i yüklemede doldurur, kaydederken kartla birlikte yazar.
+  Satır şablonu `ContentPage.Resources`'ta (`HarcamaSatiri`): `ListCard.ItemTemplate` iç içe
+  yazılırsa bütçe analizcisi onu da kart sayar.
 
 ### 5. Üç durum
 
@@ -1064,7 +1068,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
-| EK-V6b | Kart formu | 28 | 6 | ✅ V6b1 (harcamalar V6b2) |
+| EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |

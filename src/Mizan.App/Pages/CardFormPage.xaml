@@ -5,15 +5,42 @@
              xmlns:icons="clr-namespace:Mizan.App.Icons"
              xmlns:strings="clr-namespace:Mizan.App.Resources"
              xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
              xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
              x:Class="Mizan.App.Pages.CardFormPage"
              x:DataType="vm:CardFormViewModel"
              AutomationId="{x:Static auto:RecordFormAutomationIds.PageCardForm}">
 
-    <!-- EK-V6b: Kart formu (V6b1 — kartın tanımı). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <!-- EK-V6b: Kart formu (V6b1 kartın tanımı, V6b2 gelecek harcamalar). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
     <Shell.BackButtonBehavior>
         <BackButtonBehavior Command="{Binding CancelCommand}" />
     </Shell.BackButtonBehavior>
+
+    <ContentPage.Resources>
+        <!-- Gelecek harcama satırı: açıklama · tarih · tutar; dokununca silme sorulur (S63-5) -->
+        <DataTemplate x:Key="HarcamaSatiri"
+                      x:DataType="models:CardChargeRow">
+            <Grid ColumnDefinitions="*, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CardFormViewModel}}, Path=Charges.SelectCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding Description}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding PostingDate, Converter={StaticResource Tarih}}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Spacing="{StaticResource Space4}"
@@ -103,7 +130,86 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- S1: kaydet kartı yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <!-- S2: gelecek harcamalar; ≤ 4 satır, fazlası yerinde açılır (GS21) -->
+                <comp:ListCard EyebrowText="{x:Static strings:CardFormStrings.Etiket_GelecekHarcamalar}"
+                               ItemsSource="{Binding Charges.Items}"
+                               ItemTemplate="{StaticResource HarcamaSatiri}"
+                               OverflowText="{Binding Charges.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Charges.ExpandCommand}"
+                               IsVisible="{Binding Charges.HasItems}"
+                               AutomationId="{x:Static auto:RecordFormAutomationIds.ListCardCharges}" />
+
+                <!-- S3: giriş kapalıyken yalnız aksiyon görünür -->
+                <Button Text="{x:Static strings:CardFormStrings.Aksiyon_GelecekHarcamaEkle}"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding Charges.OpenEntryCommand}"
+                        AutomationId="{x:Static auto:RecordFormAutomationIds.BtnOpenCardCharge}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding Charges.IsEntryOpen}" Value="True">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!-- S3: harcama girişi; aylık tutar × taksit sayısı, ilk taksit en erken bugün (S63-5) -->
+                <Border IsVisible="{Binding Charges.IsEntryOpen}">
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_Aciklama}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Charges.DescriptionInput}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Aciklama}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputChargeDescription}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              RowDefinitions="Auto, Auto"
+                              ColumnSpacing="{StaticResource Space2}"
+                              RowSpacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_AylikTutar}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Grid.Column="1"
+                                   Text="{x:Static strings:CardFormStrings.Etiket_TaksitSayisi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Grid.Row="1"
+                                   Text="{Binding Charges.AmountInput}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Tutar}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputChargeAmount}" />
+                            <Entry Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding Charges.CountInput}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputChargeCount}" />
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_IlkTaksitTarihi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <DatePicker Date="{Binding Charges.FirstDate, Converter={StaticResource TarihSecici}}"
+                                        MinimumDate="{Binding Charges.MinimumDate, Converter={StaticResource TarihSecici}}"
+                                        Format="dd.MM.yyyy"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:RecordFormAutomationIds.PickerChargeFirstDate}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <Button Text="{x:Static strings:CardFormStrings.Aksiyon_Ekle}"
+                                    Command="{Binding Charges.AddCommand}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.BtnAddCardCharge}" />
+                            <Button Grid.Column="1"
+                                    Text="{x:Static strings:CardFormStrings.Aksiyon_Vazgec}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding Charges.CancelEntryCommand}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelCardCharge}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S1: kaydet kartı ve harcamaları yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
                 <Grid ColumnDefinitions="*, *"
                       ColumnSpacing="{StaticResource Space2}">
                     <Button Text="{x:Static strings:CardFormStrings.Aksiyon_Kaydet}"

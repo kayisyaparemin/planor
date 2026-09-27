@@ -33,4 +33,28 @@ public static class RecordFormAutomationIds
 
     /// <summary>Kart formu: vazgeç butonu kimliği.</summary>
     public const string BtnCancelCard = "btn-cancel-card";
+
+    /// <summary>Kart formu: gelecek harcamalar listesi kimliği.</summary>
+    public const string ListCardCharges = "list-card-charges";
+
+    /// <summary>Kart formu: harcama giriş bloğunu açan buton kimliği.</summary>
+    public const string BtnOpenCardCharge = "btn-open-card-charge";
+
+    /// <summary>Kart formu: harcama açıklaması girişi kimliği.</summary>
+    public const string InputChargeDescription = "input-charge-description";
+
+    /// <summary>Kart formu: harcama aylık tutarı girişi kimliği.</summary>
+    public const string InputChargeAmount = "input-charge-amount";
+
+    /// <summary>Kart formu: taksit sayısı girişi kimliği.</summary>
+    public const string InputChargeCount = "input-charge-count";
+
+    /// <summary>Kart formu: ilk taksit tarihi seçicisi kimliği.</summary>
+    public const string PickerChargeFirstDate = "picker-charge-first-date";
+
+    /// <summary>Kart formu: harcamayı listeye ekleyen buton kimliği.</summary>
+    public const string BtnAddCardCharge = "btn-add-card-charge";
+
+    /// <summary>Kart formu: harcama girişinden vazgeçen buton kimliği.</summary>
+    public const string BtnCancelCardCharge = "btn-cancel-card-charge";
 }

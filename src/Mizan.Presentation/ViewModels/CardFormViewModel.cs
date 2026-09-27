@@ -44,13 +44,17 @@ public sealed partial class CardFormViewModel : ViewModelBase
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        Charges = new CardChargesViewModel(dialogService, clock);
     }
 
     /// <summary>Kartın tanımı: ad, banka, limit, kesim ve son ödeme günü, güncel borç.</summary>
     public CardDefinitionViewModel Fields { get; } = new();
 
-    /// <summary>Form açıldığından beri bir alan değişti mi.</summary>
-    public bool HasChanges => Fields.HasChanges;
+    /// <summary>Karta henüz yansımamış gelecek harcamalar (taksitler).</summary>
+    public CardChargesViewModel Charges { get; }
+
+    /// <summary>Form açıldığından beri bir alan ya da harcama listesi değişti mi.</summary>
+    public bool HasChanges => Fields.HasChanges || Charges.HasChanges;
 
     /// <summary>Kimlik verilmezse boş yeni kart formu, verilirse o kartın düzenlemesi açılır.</summary>
     [RelayCommand]
@@ -71,6 +75,7 @@ public sealed partial class CardFormViewModel : ViewModelBase
 
             IsEditing = _card is not null;
             Fields.Fill(_card);
+            Charges.Load(_card?.Charges ?? []);
             State = ScreenState.Content;
         }
         catch (Exception ex)
@@ -106,7 +111,7 @@ public sealed partial class CardFormViewModel : ViewModelBase
         SetBusy(true);
         try
         {
-            await _cardService.SaveCreditCardAsync(card!);
+            await _cardService.SaveCreditCardAsync(card! with { Charges = Charges.ToCharges() });
             await _navigationService.NavigateBackAsync();
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)

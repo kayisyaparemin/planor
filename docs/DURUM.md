@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6b1** — kart formu: kartın tanımı, ekle / düzenle |
-| Sıradaki adım | **V6b2** — kart formuna gelecek kart harcamaları |
-| Test sayısı | 1468 |
+| Son tamamlanan adım | **V6b** — kart formu (V6b1 kartın tanımı + V6b2 gelecek kart harcamaları) |
+| Sıradaki adım | **V6c** — kredi formu: ekle / düzenle + faiz ve bugün kapatma bedeli + planlı erken ödemeler |
+| Test sayısı | 1492 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6b2 — gelecek kart harcamaları: `CardChargesViewModel`, `CardChargeRow`; V6b kapandı
+
+Kart kontrolden devralınan gelecek harcama girişi (`S61`-7) kart formuna geldi (eski: `CommitmentsPage` 4 + `CardControlPage` 6 etiketlik iki ayrı form → tek bölüm, 7 etiket). Liste tarihe göre sıralı, 4 satırdan fazlası "+N daha" ile yerinde açılır (`GS21`); satıra dokunmak silmeyi sorar. Giriş: açıklama (zorunlu), aylık tutar × taksit sayısı (1–120), ilk taksit tarihi (en erken bugün); taksitli giriş her ay aynı tutarla "Açıklama (i/N)" kayıtları üretir, ay sonu günleri kenetlenir (`I65`). Harcamalar kartla birlikte kaydedilir; yalnız harcama değişse de kaydetmeden çıkış onayı sorulur. Satır şablonu sayfa kaynaklarında: `ListCard.ItemTemplate` iç içe yazılsa bütçe analizcisi ikinci kart sayardı. **Dikkat:** açık dönemin içine tarihlenen taksit ana sayfa tahmininde görünmez (`I16`/`I24`, `S63`-9), kart kontrolde görünür; V4 kurulum hataları ve GK9 harf ekli kart anahtarı V6b1'deki gibi açık. Bütçe (sayfanın tamamı): Hero 0/1, Hero yüzey 0/1, Kart 3/4, Grafik 0/1, NavRow 0/5, Label 13/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 24 yeni sunum testi (toplam 1.492 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V6b1 — kart formu: `CardFormViewModel`, `CardDefinitionViewModel`, `CardFormPage`; Finansal Yapı'da "Ekle" ve "Düzenle"
 

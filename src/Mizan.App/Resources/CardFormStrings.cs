@@ -52,4 +52,28 @@ public static class CardFormStrings
 
     /// <summary>Düzenlenecek kart okunamadığında görünen metin.</summary>
     public const string Hata_KartYuklenemedi = "Kart bilgileri okunamadı.";
+
+    /// <summary>Gelecek kart harcamaları listesinin etiketi.</summary>
+    public const string Etiket_GelecekHarcamalar = "GELECEK HARCAMALAR";
+
+    /// <summary>Harcama giriş bloğunu açan aksiyon.</summary>
+    public const string Aksiyon_GelecekHarcamaEkle = "Gelecek harcama ekle";
+
+    /// <summary>Harcama açıklaması alanının etiketi.</summary>
+    public const string Etiket_Aciklama = "AÇIKLAMA";
+
+    /// <summary>Harcama açıklaması alanının yer tutucusu.</summary>
+    public const string YerTutucu_Aciklama = "Örn. Telefon";
+
+    /// <summary>Taksit başına aylık tutar alanının etiketi.</summary>
+    public const string Etiket_AylikTutar = "AYLIK TUTAR";
+
+    /// <summary>Taksit sayısı alanının etiketi.</summary>
+    public const string Etiket_TaksitSayisi = "TAKSİT SAYISI";
+
+    /// <summary>İlk taksitin karta yansıyacağı gün alanının etiketi.</summary>
+    public const string Etiket_IlkTaksitTarihi = "İLK TAKSİT TARİHİ";
+
+    /// <summary>Girilen harcamayı listeye ekleyen aksiyon.</summary>
+    public const string Aksiyon_Ekle = "Ekle";
 }

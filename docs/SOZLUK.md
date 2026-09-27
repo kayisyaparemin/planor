@@ -219,6 +219,8 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kararın bedeli | `CarriedAfterPayment` + sonraki `CarryInterest` | Ödeme ekstreden azsa sonraki ekstreye devreden tutar ve ona binen faiz (EK-V7 S2) |
 | güncel borç | `CarriedBalance` + `UnbilledSpending` | Ekstresi kesilmemiş kartın şu anki borcu. Kart formunda değiştirilirse faizsiz dönem içi harcama olarak yazılır (S63-4, I63) |
 | kart formu | `CardFormViewModel` | Kartı ekleyen ya da düzenleyen sayfa; kaydedilmemiş değişiklikte çıkmadan önce onay sorar (EK-V6b) |
+| gelecek kart harcamaları | `CardChargesViewModel` | Kart formunda karta henüz yansımamış taksitlerin listesi ve girişi; aylık tutar × taksit sayısı, kartla birlikte kaydedilir (S63-5) |
+| harcama satırı | `CardChargeRow` | Gelecek kart harcamalarından birinin ham satırı: açıklama, karta yansıyacağı gün, tutar |
 | kartın tanımı | `CardDefinitionViewModel` | Kart formundaki ad, banka, limit, kesim ve son ödeme günü, güncel borç; ekstre ve ödeme kararları dışında kalan her şey (S63-2) |
 | kart ödemesi mutabakatçısı | `CreditCardActualPaymentReconciler` | Dönem kapanışında kredi kartına yapılan fiili ödemeyi hazır ekstre projeksiyonundan düşüp kalan anaparayı bir sonraki döneme devreden saf hesaplayıcı |
 

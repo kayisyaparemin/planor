@@ -349,6 +349,58 @@ public sealed class CardFormViewModelTests
         Assert.True(_navigation.NavigateBackCalled);
     }
 
+    [Fact]
+    public async Task Load_KartinHarcamalariListeyeGelir()
+    {
+        var card = Add(Card("Bonus") with { Charges = [new CardCharge { Description = "Telefon (3/12)", PostingDate = new DateOnly(2026, 11, 5), Amount = 2000m }] });
+
+        await _viewModel.LoadAsync(card.Id);
+
+        Assert.Equal("Telefon (3/12)", Assert.Single(_viewModel.Charges.Items).Description);
+        Assert.False(_viewModel.HasChanges);
+    }
+
+    [Fact]
+    public async Task Save_HarcamaEklenipSilinince_KartlaBirlikteYazilir()
+    {
+        var old = new CardCharge { Description = "Tatil", PostingDate = new DateOnly(2026, 12, 1), Amount = 5000m };
+        var card = Add(Card("Bonus") with { Charges = [old] });
+        await _viewModel.LoadAsync(card.Id);
+        _dialog.NextChooseResponse = "Sil";
+        await _viewModel.Charges.SelectCommand.ExecuteAsync(_viewModel.Charges.Items[0]);
+        _viewModel.Charges.OpenEntryCommand.Execute(null);
+        _viewModel.Charges.DescriptionInput = "Telefon";
+        _viewModel.Charges.AmountInput = "2.000";
+        _viewModel.Charges.CountInput = "2";
+        _viewModel.Charges.FirstDate = new DateOnly(2026, 11, 5);
+        await _viewModel.Charges.AddCommand.ExecuteAsync(null);
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        var saved = _repository.Cards[card.Id];
+        Assert.Equal(["Telefon (1/2)", "Telefon (2/2)"], saved.Charges.Select(c => c.Description));
+        Assert.All(saved.Charges, c => Assert.Equal(card.Id, c.CreditCardId));
+        Assert.True(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Cancel_YalnizHarcamaEklendiyse_OnaySorar()
+    {
+        var card = Add(Card("Bonus"));
+        await _viewModel.LoadAsync(card.Id);
+        _viewModel.Charges.OpenEntryCommand.Execute(null);
+        _viewModel.Charges.DescriptionInput = "Telefon";
+        _viewModel.Charges.AmountInput = "2000";
+        await _viewModel.Charges.AddCommand.ExecuteAsync(null);
+        _dialog.NextConfirmResponse = false;
+
+        await _viewModel.CancelCommand.ExecuteAsync(null);
+
+        Assert.True(_viewModel.HasChanges);
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.False(_navigation.NavigateBackCalled);
+    }
+
     private CreditCard Add(CreditCard card)
     {
         _repository.Cards[card.Id] = card;
