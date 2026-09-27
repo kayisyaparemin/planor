@@ -181,7 +181,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
     /// <summary>Geçmiş dönemler sayfasına yönlendirir.</summary>
     [RelayCommand] public Task OpenHistoryAsync() => _navigationService.NavigateToAsync(Routes.History);
     /// <summary>Finansal yapı sayfasına yönlendirir.</summary>
-    [RelayCommand] public Task OpenCommitmentsAsync() => _navigationService.NavigateToAsync(Routes.Commitments);
+    [RelayCommand] public Task OpenFinancialStructureAsync() => _navigationService.NavigateToAsync(Routes.FinancialStructure);
     /// <summary>What-If simülatörü sayfasına yönlendirir.</summary>
     [RelayCommand] public Task OpenSimulationAsync() => _navigationService.NavigateToAsync(Routes.Simulation);
     /// <summary>Ayarlar sayfasına yönlendirir.</summary>

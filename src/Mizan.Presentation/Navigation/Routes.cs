@@ -15,7 +15,7 @@ public static class Routes
     public const string Simulation = "//simulation";
 
     /// <summary>Finansal yapı (yükümlülükler ve gelirler) sayfası rotası.</summary>
-    public const string Commitments = "//commitments";
+    public const string FinancialStructure = "//financial-structure";
 
     /// <summary>Geçmiş dönemler sayfası rotası.</summary>
     public const string History = "//history";
@@ -28,6 +28,9 @@ public static class Routes
 
     /// <summary>Kredi kartı kontrol detay sayfası rotası.</summary>
     public const string CardControl = "card-control";
+
+    /// <summary>Kart kontrol sayfasına hangi kartın açılacağını taşıyan sorgu parametresi.</summary>
+    public const string CardIdParameter = "cardId";
 
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";

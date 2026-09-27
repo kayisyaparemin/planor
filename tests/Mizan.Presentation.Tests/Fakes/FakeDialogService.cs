@@ -17,6 +17,10 @@ public sealed class FakeDialogService : IDialogService
     public Queue<string?> ChooseResponses { get; } = new();
 
     public string[]? LastChooseOptions { get; private set; }
+    public string? LastChooseTitle { get; private set; }
+    public string? LastChooseDestruction { get; private set; }
+    public int ConfirmCount { get; private set; }
+    public string? LastConfirmMessage { get; private set; }
 
     public Task ShowAlertAsync(string title, string message, string button = "Tamam")
     {
@@ -27,6 +31,8 @@ public sealed class FakeDialogService : IDialogService
 
     public Task<bool> ConfirmAsync(string title, string message, string accept = "Evet", string cancel = "Hayır")
     {
+        ConfirmCount++;
+        LastConfirmMessage = message;
         return Task.FromResult(NextConfirmResponse);
     }
 
@@ -38,6 +44,8 @@ public sealed class FakeDialogService : IDialogService
     public Task<string?> ChooseAsync(string title, string cancel, string? destruction, params string[] options)
     {
         LastChooseOptions = options;
+        LastChooseTitle = title;
+        LastChooseDestruction = destruction;
         return Task.FromResult(ChooseResponses.Count > 0 ? ChooseResponses.Dequeue() : NextChooseResponse);
     }
 }

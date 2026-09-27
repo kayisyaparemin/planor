@@ -1,0 +1,16 @@
+{
+  "Etiket_Gelirler": "GELİRLER",
+  "Etiket_Kartlar": "KARTLAR",
+  "Etiket_Krediler": "KREDİLER",
+  "Etiket_Odemeler": "ÖDEMELER",
+  "Bicim_HerAyGunu": "Her ayın {0}. günü",
+  "Bicim_TekSeferlik": "Tek seferlik · {0}",
+  "Bicim_SiradakiOdeme": "Sıradaki ödeme {0}",
+  "Etiket_OdemeYok": "Önümüzdeki ödeme yok",
+  "Bicim_KrediBaglami": "{0} taksit kaldı · sonraki {1}",
+  "Bicim_PlanBaglami": "{0} ödeme kaldı · sonraki {1}",
+  "Etiket_PlanOdemesiYok": "Ödemesi yok",
+  "Bicim_FazlaKayit": "+{0} daha",
+  "Bos_KayitYok": "Henüz gelir, kart, kredi ya da ödeme kaydın yok.",
+  "Hata_YapiYuklenemedi": "Finansal yapı okunamadı."
+}

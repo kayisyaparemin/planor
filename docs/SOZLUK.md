@@ -153,6 +153,10 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kayıt giriş formu | `RecordEntryForm` | Kayıt giriş seçeneğinin hangi form bileşeni üzerinden girileceğini belirten tür |
 | kayıt giriş seçeneği | `RecordEntryOption` | Finansal Yapı ekranında kayıt türü kartı sözleşmesi |
 | kayıt giriş kataloğu | `FinancialRecordEntryCatalog` | Finansal Yapı ekranında kayıt girişi seçenekleri kataloğu |
+| finansal yapı | `FinancialStructure` | Plana giren gelir, kart, kredi ve ödemelerin dört gruplu listesi; ekranın, rotanın ve görünüm modelinin tek adı (eski `Commitments` adı kalktı, `S62`-8) |
+| kayıt satırı | `FinancialRecordRow` | Finansal Yapı listesinde bir kaydın ham satırı: tür, ad, tutar, sıradaki tarih; metin üretmez |
+| kayıt türü | `FinancialRecordKind` | Finansal Yapı satırının hangi kayıttan geldiği (düzenli gelir, tek seferlik gelir, kart, kredi, ödeme planı, büyük harcama) |
+| kayıt silici | `FinancialRecordRemover` | Silinen kaydı türüne göre doğru dar yazma portuna yönlendiren birleştirici |
 
 ## Kredi
 

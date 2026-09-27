@@ -202,7 +202,7 @@
                     <comp:NavRow IconGlyph="{x:Static icons:Icons.Payments}"
                                  Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
                                  Subtitle="{x:Static strings:Strings.Etiket_OdemePlanOzet}"
-                                 Command="{Binding OpenCommitmentsCommand}" />
+                                 Command="{Binding OpenFinancialStructureCommand}" />
 
                     <comp:NavRow IconGlyph="{x:Static icons:Icons.Insights}"
                                  Title="{x:Static strings:Strings.Baslik_NavSimulator}"

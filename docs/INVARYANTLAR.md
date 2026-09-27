@@ -75,6 +75,7 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I59` | Her sayfanın `docs/EKRAN-KARTLARI.md` belgesinde bir kartı (`EK-*`) bulunmak zorundadır; kartsız sayfa oluşturulamaz ve tamamlanan ekran kartlarının 6 zorunlu bölümü (`Sorular`, `Kesme kararları`, `Bütçe`, `Blok şeması`, `Üç durum`, `Konsept ilişkisi`) eksiksiz tanımlanır (GK9, GS15). | `Mizan.Architecture.Tests.Design.DesignBudgetTests.HerSayfanin_EkranKarti_Var` | `T6` |
 | `I60` | Kartta girilen tutar Türkçe biçimle okunur: "5.000" beş bin, "18.200,50" on sekiz bin iki yüz lira elli kuruştur. Klavye yalnız nokta veriyorsa üçlü gruba uymayan noktalı giriş ("5000.50") ondalık sayılır; hiçbir giriş sessizce binde birine ya da bin katına dönmez. | `Mizan.Presentation.Tests.ViewModels.StatementEntryViewModelTests.Save_TutarHemVirgulHemNoktaOndalikliOkunur` | `V7` |
 | `I61` | Kart için ödeme kararı verilmemişse (kart "her ekstrede sor", hesap varsayımla ilerliyor) kart kontrol ekranında hiçbir ödeme seçeneği seçili görünmez; varsayım karar gibi gösterilmez. | `Mizan.Presentation.Tests.ViewModels.NextPaymentViewModelTests.KararYoksa_HicbirSecenekSeciliDegil_VarsayimTutariGosterilir` | `V7` |
+| `I62` | Finansal Yapı'da bir kartın satır tutarı, kart kontrol ekranının sıradaki ödeme (hero) rakamıyla aynı hesaptan gelir: kesilmiş ekstre yoksa tahmini ekstrenin ödemesi. İki ekran aynı kart için farklı sayı göstermez. | `Mizan.Presentation.Tests.Services.FinancialRecordRowBuilderIncomeCardTests.Build_KartTutari_KartKontrolunSiradakiOdemesidir` | `V6a` |
 
 ## Satır eklerken
 

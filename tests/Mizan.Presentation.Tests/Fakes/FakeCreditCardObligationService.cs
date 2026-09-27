@@ -51,8 +51,13 @@ internal sealed class FakeCreditCardObligationService(FakeCreditCardRepository? 
         return Task.CompletedTask;
     }
 
-    public Task DeleteCreditCardAsync(Guid id, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public List<Guid> DeletedCardIds { get; } = [];
+
+    public Task DeleteCreditCardAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        DeletedCardIds.Add(id);
+        return Task.CompletedTask;
+    }
 
     public Task SaveCreditCardPaymentPlanAsync(
         Guid creditCardId,

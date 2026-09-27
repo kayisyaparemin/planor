@@ -71,16 +71,17 @@
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
-                Route="commitments"
-                AutomationId="{x:Static automation:AutomationIds.FlyoutItemCommitments}">
+                Route="financial-structure"
+                AutomationId="{x:Static automation:AutomationIds.FlyoutItemFinancialStructure}">
         <FlyoutItem.Icon>
             <FontImageSource FontFamily="MaterialSymbols"
                              Glyph="{x:Static icons:Icons.Payments}"
                              Color="{DynamicResource TextSecondary}" />
         </FlyoutItem.Icon>
+        <!-- Kart kontrol buradan açılır: kart satırı → "Ödemeyi yönet" (S61-8, S62-9) -->
         <ShellContent Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
-                      Route="commitments-content"
-                      ContentTemplate="{DataTemplate ContentPage}" />
+                      Route="financial-structure-content"
+                      ContentTemplate="{DataTemplate pages:FinancialStructurePage}" />
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_Gecmis}"
@@ -94,20 +95,6 @@
         <ShellContent Title="{x:Static strings:Strings.Baslik_Gecmis}"
                       Route="history-content"
                       ContentTemplate="{DataTemplate ContentPage}" />
-    </FlyoutItem>
-
-    <!-- S61: geçici giriş. V6'da kart satırı Routes.CardControl + cardId ile açar ve bu öğe kalkar. -->
-    <FlyoutItem Title="{x:Static strings:CardControlStrings.Baslik_KartKontrol}"
-                Route="cards"
-                AutomationId="{x:Static automation:AutomationIds.FlyoutItemCardControl}">
-        <FlyoutItem.Icon>
-            <FontImageSource FontFamily="MaterialSymbols"
-                             Glyph="{x:Static icons:Icons.CreditCard}"
-                             Color="{DynamicResource TextSecondary}" />
-        </FlyoutItem.Icon>
-        <ShellContent Title="{x:Static strings:CardControlStrings.Baslik_KartKontrol}"
-                      Route="cards-content"
-                      ContentTemplate="{DataTemplate pages:CardControlPage}" />
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_Ayarlar}"

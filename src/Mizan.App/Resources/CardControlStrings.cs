@@ -8,9 +8,6 @@ namespace Mizan.App.Resources;
 /// </summary>
 public static class CardControlStrings
 {
-    /// <summary>Sol menüdeki geçici kart kontrol öğesinin başlığı (S61).</summary>
-    public const string Baslik_KartKontrol = "Kart Kontrol";
-
     /// <summary>Sayfa başlığının üstündeki etiket.</summary>
     public const string Etiket_KrediKarti = "KREDİ KARTI";
 

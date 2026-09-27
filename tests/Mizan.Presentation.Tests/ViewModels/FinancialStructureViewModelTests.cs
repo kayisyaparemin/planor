@@ -1,0 +1,171 @@
+using Mizan.Domain.Calculations;
+using Mizan.Domain.Models;
+using Mizan.Presentation.Models;
+using Mizan.Presentation.Navigation;
+using Mizan.Presentation.Services;
+using Mizan.Presentation.Tests.Fakes;
+using Mizan.Presentation.ViewModels;
+using Xunit;
+using static Mizan.Presentation.Tests.Services.FinancialStructureData;
+
+namespace Mizan.Presentation.Tests.ViewModels;
+
+/// <summary>
+/// Finansal Yapı ekranının yükleme durumları ve satır diyaloğu: kartta ödemeyi yönetme, her türde
+/// onaylı silme, silme hatasında listenin korunması (EK-V6, S62-3).
+/// </summary>
+public sealed class FinancialStructureViewModelTests
+{
+    private readonly FakePlanReader _reader = new();
+    private readonly FakeObligationManagementService _obligations = new();
+    private readonly FakeNavigationService _navigation = new();
+    private readonly FakeDialogService _dialog = new();
+    private readonly FinancialStructureViewModel _viewModel;
+
+    public FinancialStructureViewModelTests()
+    {
+        var remover = new FinancialRecordRemover(new FakeCreditCardObligationService(), _obligations, new FakeIncomePlanService());
+        var builder = new FinancialRecordRowBuilder(new CreditCardStatementCalculator(), new IncomeResolver(), new SabitSaat(Today));
+        _viewModel = new FinancialStructureViewModel(_reader, builder, remover, _navigation, _dialog);
+    }
+
+    [Fact]
+    public async Task Load_KayitYoksa_BosDurumaDuser()
+    {
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(ScreenState.Empty, _viewModel.State);
+        Assert.False(_viewModel.IsBusy);
+    }
+
+    [Fact]
+    public async Task Load_OkumaHatasinda_HataDurumunaDuser()
+    {
+        _reader.ReadException = new InvalidOperationException("disk");
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(ScreenState.Error, _viewModel.State);
+        Assert.False(_viewModel.IsBusy);
+    }
+
+    [Fact]
+    public async Task Load_DortGrupDolarIcerikDurumunaGecer()
+    {
+        var (income, histories) = Income("Gelir", 15, true, (45000m, new DateOnly(2026, 1, 1)));
+        _reader.Plan = new FinancialPlan
+        {
+            RecurringIncomes = [income], IncomeHistories = histories, CreditCards = [Card("Axess", carried: 4000m)],
+            Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))], PlannedLargeExpenses = [Expense("Tatil", 30000m, new DateOnly(2027, 7, 12))]
+        };
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(ScreenState.Content, _viewModel.State);
+        Assert.Equal("Gelir", Assert.Single(_viewModel.Incomes.Items).Name);
+        Assert.Equal("Axess", Assert.Single(_viewModel.Cards.Items).Name);
+        Assert.Equal("İhtiyaç", Assert.Single(_viewModel.Loans.Items).Name);
+        Assert.Equal("Tatil", Assert.Single(_viewModel.Payments.Items).Name);
+    }
+
+    [Fact]
+    public async Task SelectRecord_Kart_OdemeyiYonetVeSilSunar()
+    {
+        var card = await LoadWith(new FinancialPlan { CreditCards = [Card("Axess", carried: 4000m)] }, vm => vm.Cards);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(card);
+
+        Assert.Equal("Axess", _dialog.LastChooseTitle);
+        Assert.Equal(["Ödemeyi yönet"], _dialog.LastChooseOptions);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_OdemeyiYonet_KartKontroluKartKimligiyleAcar()
+    {
+        var card = await LoadWith(new FinancialPlan { CreditCards = [Card("Axess", carried: 4000m)] }, vm => vm.Cards);
+        _dialog.NextChooseResponse = "Ödemeyi yönet";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(card);
+
+        Assert.Equal(Routes.CardControl, _navigation.LastNavigatedRoute);
+        Assert.Equal(card.Id.ToString(), _navigation.LastParameters?[Routes.CardIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
+    public async Task SelectRecord_KartDisindakiKayit_YalnizSilSunar()
+    {
+        var loan = await LoadWith(new FinancialPlan { Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))] }, vm => vm.Loans);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(loan);
+
+        Assert.Equal("İhtiyaç", _dialog.LastChooseTitle);
+        Assert.Empty(_dialog.LastChooseOptions!);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_SilOnaylaninca_KaydiSilerVeListeyiYeniler()
+    {
+        var loan = await LoadWith(new FinancialPlan { Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))] }, vm => vm.Loans);
+        _reader.Plan = new FinancialPlan();
+        _dialog.NextChooseResponse = "Sil";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(loan);
+
+        Assert.Equal([loan.Id], _obligations.DeletedLoanIds);
+        Assert.Contains("İhtiyaç", _dialog.LastConfirmMessage);
+        Assert.Equal(2, _reader.ReadCount);
+        Assert.Empty(_viewModel.Loans.Items);
+        Assert.Equal(ScreenState.Empty, _viewModel.State);
+    }
+
+    [Fact]
+    public async Task SelectRecord_SilOnaylanmazsa_HicbirSeySilinmez()
+    {
+        var loan = await LoadWith(new FinancialPlan { Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))] }, vm => vm.Loans);
+        _dialog.NextChooseResponse = "Sil";
+        _dialog.NextConfirmResponse = false;
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(loan);
+
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.Empty(_obligations.DeletedLoanIds);
+        Assert.Equal(1, _reader.ReadCount);
+    }
+
+    [Fact]
+    public async Task SelectRecord_Vazgecilirse_NeGezinirNeSorar()
+    {
+        var card = await LoadWith(new FinancialPlan { CreditCards = [Card("Axess", carried: 4000m)] }, vm => vm.Cards);
+        _dialog.NextChooseResponse = null;
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(card);
+
+        Assert.Null(_navigation.LastNavigatedRoute);
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
+    public async Task SelectRecord_SilmeHatasinda_UyariVerirListeOlduguGibiKalir()
+    {
+        var loan = await LoadWith(new FinancialPlan { Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))] }, vm => vm.Loans);
+        _obligations.DeleteException = new InvalidOperationException("Kredi silinemedi.");
+        _dialog.NextChooseResponse = "Sil";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(loan);
+
+        Assert.NotNull(_dialog.LastAlertTitle);
+        Assert.Equal("Kredi silinemedi.", _dialog.LastAlertMessage);
+        Assert.Equal(ScreenState.Content, _viewModel.State);
+        Assert.Single(_viewModel.Loans.Items);
+    }
+
+    private async Task<FinancialRecordRow> LoadWith(FinancialPlan plan, Func<FinancialStructureViewModel, FinancialRecordGroup> group)
+    {
+        _reader.Plan = plan;
+        await _viewModel.LoadAsync();
+        return Assert.Single(group(_viewModel).Items);
+    }
+}

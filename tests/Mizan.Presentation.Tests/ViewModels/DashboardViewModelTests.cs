@@ -182,8 +182,8 @@ public sealed class DashboardViewModelTests : IDisposable
         await _viewModel.OpenHistoryAsync();
         Assert.Equal(Routes.History, _navigation.LastNavigatedRoute);
 
-        await _viewModel.OpenCommitmentsAsync();
-        Assert.Equal(Routes.Commitments, _navigation.LastNavigatedRoute);
+        await _viewModel.OpenFinancialStructureAsync();
+        Assert.Equal(Routes.FinancialStructure, _navigation.LastNavigatedRoute);
 
         await _viewModel.OpenSimulationAsync();
         Assert.Equal(Routes.Simulation, _navigation.LastNavigatedRoute);

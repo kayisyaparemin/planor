@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V7** — kart kontrol |
-| Sıradaki adım | **V6** — finansal yapı |
-| Test sayısı | 1396 |
+| Son tamamlanan adım | **V6a** — finansal yapı listesi |
+| Sıradaki adım | **V6b** — kart formu + gelecek kart harcamaları |
+| Test sayısı | 1433 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6a — finansal yapı listesi: `FinancialStructureViewModel`, `FinancialRecordGroup`, `FinancialRecordRowBuilder`, `FinancialRecordRemover`, `FinancialStructurePage`
+
+En büyük eski ekran (eski: `CommitmentsPage.xaml` 450 satır / 86 Label, 1.344 satır / 6 partial ViewModel) Aşama 1'de beş alt adıma bölündü (`S62`); bu adım yalnız listeyi getirdi (139 satır sayfa / 4 Label, 131 + 60 satır ViewModel, 5 bağımlılık). Dört grup (Gelirler, Kartlar, Krediler, Ödemeler), yalnız plana giren kayıtlar; kart satırının tutarı kart kontrolün sıradaki ödemesiyle aynı hesap (`I62`). Satıra dokunmak tek diyalog açar: kartta "Ödemeyi yönet" (kart kontrol + `cardId`), her türde onaylı "Sil". Grupta 4'ten fazla satır varsa "+N daha" grubu yerinde açar (`GS21`). Geçici "Kart Kontrol" menü öğesi kalktı (`S61`-8); `Commitments` adı `FinancialStructure` oldu. Kapı B'de başlık üstü etiket kullanıcı isteğiyle çıktı. Kalkanda iki düzeltme: satır kaydı M3 için 5 parametreye indi; `ListCard.Triggers` bütçe analizcisinde kart sayıldığı için taşma metni converter'a geçti. **Dikkat:** formlar (`V6b` kart + gelecek kart harcamaları, `V6c` kredi, `V6d` gelir, `V6e` ödeme) ve "Ekle" henüz yok; adım dışı iki iş ayrı oturumda (kurulum taslağı hataları, profil değişiminden sonra eski SQLite bağlantısı şüphesi). Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 4/4, Grafik 0/1, NavRow 0/5, Label 4/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 37 yeni sunum testi (toplam 1.433 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V7 — kart kontrol: `CardControlViewModel`, `NextPaymentViewModel`, `UpcomingPaymentsViewModel`, `StatementEntryViewModel`, `CardControlPage`
 

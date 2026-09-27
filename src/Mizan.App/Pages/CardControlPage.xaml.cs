@@ -1,15 +1,15 @@
+using Mizan.Presentation.Navigation;
 using Mizan.Presentation.ViewModels;
 
 namespace Mizan.App.Pages;
 
 /// <summary>
 /// Kesilmiş ekstrenin vadede nasıl ve ne kadar ödeneceğini, kartın borç ve limit durumunu
-/// sunan kart kontrol sayfası (EK-V7). V6'dan <c>cardId</c> sorgu parametresiyle, V6 gelene
-/// kadar sol menüdeki geçici öğeden açılır (S61).
+/// sunan kart kontrol sayfası (EK-V7). Finansal Yapı'daki kart satırından
+/// <see cref="Routes.CardIdParameter"/> ile açılır (S61-8, S62-9).
 /// </summary>
 public partial class CardControlPage : ContentPage, IQueryAttributable
 {
-    private const string CardIdQueryKey = "cardId";
     private readonly CardControlViewModel _viewModel;
     private Guid? _requestedCardId;
 
@@ -23,7 +23,7 @@ public partial class CardControlPage : ContentPage, IQueryAttributable
     /// <summary>Gezinmeyle gelen kart kimliğini bir sonraki yüklemeye saklar.</summary>
     public void ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        _requestedCardId = query.TryGetValue(CardIdQueryKey, out var raw) && Guid.TryParse(raw?.ToString(), out var id)
+        _requestedCardId = query.TryGetValue(Routes.CardIdParameter, out var raw) && Guid.TryParse(raw?.ToString(), out var id)
             ? id
             : null;
     }

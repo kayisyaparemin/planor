@@ -240,6 +240,17 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V3`, `DashboardPage.xaml`, `DashboardViewModel` |
 | **Durum** | uygulandı |
 
+### GS21 — Finansal Yapı: ListCard taşması detay sayfasına değil, grubun kendisine açılır
+
+| | |
+|---|---|
+| **Tür** | kasıtlı sadeleştirme |
+| **Konsept** | Konsept paneli yok (`GS2`). `GS12` ve `docs/TASARIM-SISTEMI.md`: `ListCard` en fazla 4 satır gösterir; fazlası "+N daha" satırıyla **detay sayfasına** gider. |
+| **Neden değiştirildi** | Finansal Yapı'nın dört grubu (Gelirler, Kartlar, Krediler, Ödemeler) için gidilecek bir detay ekranı yok; "tüm krediler" diye ayrı bir sayfa, aynı satırları ikinci kez gösterirdi. Gerçek veride (iki telefon profili) grup başına en fazla 3 kayıt var; taşma nadirdir ve yalnız bu ekranın kendi listesidir. |
+| **Yeni** | Grupta 4'ten fazla kayıt varsa ilk 4 satır ve "+N daha" satırı görünür; dokununca o grup yerinde bütün satırlarıyla açılır. `ListCard` bileşeni değişmez: taşma satırındaki `ChevronRight` kalır, komut ViewModel'deki genişletme komutudur. |
+| **Etkiler** | `EK-V6`, `FinancialStructurePage.xaml`, `FinancialRecordGroup`; `GS12` (yalnız bu ekran için istisna) |
+| **Durum** | uygulandı (`V6a`; taşma metni `FazlaKayitConverter` ile, gizli satır yoksa boş) |
+
 ---
 
 ## Konsept otorite değildir

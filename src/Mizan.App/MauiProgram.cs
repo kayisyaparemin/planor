@@ -182,5 +182,10 @@ public static class MauiProgram
 
         services.AddTransient<CardControlViewModel>();
         services.AddTransient<CardControlPage>();
+
+        services.AddTransient<FinancialRecordRowBuilder>();
+        services.AddTransient<FinancialRecordRemover>();
+        services.AddTransient<FinancialStructureViewModel>();
+        services.AddTransient<FinancialStructurePage>();
     }
 }

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.FinancialStructurePage"
+             x:DataType="vm:FinancialStructureViewModel"
+             AutomationId="{x:Static auto:AutomationIds.PageFinancialStructure}">
+
+    <!-- EK-V6: Finansal yapı (V6a — liste) -->
+    <ContentPage.Resources>
+        <!-- Dört grubun ortak satırı: ad · bağlam · tutar · ›; dokununca tek diyalog (S62-3) -->
+        <DataTemplate x:Key="KayitSatiri"
+                      x:DataType="models:FinancialRecordRow">
+            <Grid ColumnDefinitions="*, Auto, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FinancialStructureViewModel}}, Path=SelectRecordCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding Name}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding ., Converter={StaticResource KayitBaglami}}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       IsVisible="{Binding HasAmount}"
+                       VerticalTextAlignment="Center" />
+                <Label Grid.Column="2"
+                       Text="{x:Static icons:Icons.ChevronRight}"
+                       FontFamily="MaterialSymbols"
+                       FontSize="{StaticResource IconSmall}"
+                       TextColor="{DynamicResource Indicator}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <comp:PageHeader Title="{x:Static strings:Strings.Baslik_FinansalYapi}" />
+
+            <!-- Yükleniyor -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: dört grup, boş grup görünmez; taşma grubun kendisinde açılır (GS21) -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S1, S2, S3 -->
+                <comp:ListCard EyebrowText="{x:Static strings:FinancialStructureStrings.Etiket_Gelirler}"
+                               ItemsSource="{Binding Incomes.Items}"
+                               ItemTemplate="{StaticResource KayitSatiri}"
+                               OverflowText="{Binding Incomes.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Incomes.ExpandCommand}"
+                               IsVisible="{Binding Incomes.HasItems}"
+                               AutomationId="{x:Static auto:AutomationIds.ListStructureIncomes}" />
+
+                <!-- S1, S2, S3: kartta "Ödemeyi yönet" kart kontrolü açar -->
+                <comp:ListCard EyebrowText="{x:Static strings:FinancialStructureStrings.Etiket_Kartlar}"
+                               ItemsSource="{Binding Cards.Items}"
+                               ItemTemplate="{StaticResource KayitSatiri}"
+                               OverflowText="{Binding Cards.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Cards.ExpandCommand}"
+                               IsVisible="{Binding Cards.HasItems}"
+                               AutomationId="{x:Static auto:AutomationIds.ListStructureCards}" />
+
+                <!-- S1, S2, S3 -->
+                <comp:ListCard EyebrowText="{x:Static strings:FinancialStructureStrings.Etiket_Krediler}"
+                               ItemsSource="{Binding Loans.Items}"
+                               ItemTemplate="{StaticResource KayitSatiri}"
+                               OverflowText="{Binding Loans.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Loans.ExpandCommand}"
+                               IsVisible="{Binding Loans.HasItems}"
+                               AutomationId="{x:Static auto:AutomationIds.ListStructureLoans}" />
+
+                <!-- S1, S2, S3: ödeme planları ve planlı büyük harcamalar birlikte -->
+                <comp:ListCard EyebrowText="{x:Static strings:FinancialStructureStrings.Etiket_Odemeler}"
+                               ItemsSource="{Binding Payments.Items}"
+                               ItemTemplate="{StaticResource KayitSatiri}"
+                               OverflowText="{Binding Payments.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Payments.ExpandCommand}"
+                               IsVisible="{Binding Payments.HasItems}"
+                               AutomationId="{x:Static auto:AutomationIds.ListStructurePayments}" />
+            </VerticalStackLayout>
+
+            <!-- Boş: hiç kayıt yok -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.AccountBalance}"
+                             Message="{x:Static strings:FinancialStructureStrings.Bos_KayitYok}"
+                             IsVisible="{Binding IsEmpty}" />
+
+            <!-- Hata: okuma başarısız -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:FinancialStructureStrings.Hata_YapiYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

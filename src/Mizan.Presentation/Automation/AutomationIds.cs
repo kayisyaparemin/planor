@@ -24,7 +24,7 @@ public static class AutomationIds
     public const string FlyoutItemSimulation = "flyout-item-simulation";
 
     /// <summary>Flyout menüsü finansal yapı öğesi kimliği.</summary>
-    public const string FlyoutItemCommitments = "flyout-item-commitments";
+    public const string FlyoutItemFinancialStructure = "flyout-item-financial-structure";
 
     /// <summary>Flyout menüsü geçmiş öğesi kimliği.</summary>
     public const string FlyoutItemHistory = "flyout-item-history";
@@ -131,9 +131,6 @@ public static class AutomationIds
     /// <summary>Kart kontrol sayfası kimliği.</summary>
     public const string PageCardControl = "page-card-control";
 
-    /// <summary>Sol menüdeki geçici kart kontrol öğesi kimliği (S61; V6'da kalkar).</summary>
-    public const string FlyoutItemCardControl = "flyout-item-card-control";
-
     /// <summary>Kart kontrol başlığındaki kart seçme ikonu kimliği.</summary>
     public const string BtnSelectCard = "btn-select-card";
 
@@ -181,4 +178,19 @@ public static class AutomationIds
 
     /// <summary>Ekstre giriş formu: vazgeç butonu kimliği.</summary>
     public const string BtnCancelStatement = "btn-cancel-statement";
+
+    /// <summary>Finansal yapı sayfası kimliği.</summary>
+    public const string PageFinancialStructure = "page-financial-structure";
+
+    /// <summary>Finansal yapı: gelirler listesi kimliği.</summary>
+    public const string ListStructureIncomes = "list-structure-incomes";
+
+    /// <summary>Finansal yapı: kartlar listesi kimliği.</summary>
+    public const string ListStructureCards = "list-structure-cards";
+
+    /// <summary>Finansal yapı: krediler listesi kimliği.</summary>
+    public const string ListStructureLoans = "list-structure-loans";
+
+    /// <summary>Finansal yapı: ödemeler listesi kimliği.</summary>
+    public const string ListStructurePayments = "list-structure-payments";
 }

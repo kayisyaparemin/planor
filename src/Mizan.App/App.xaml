@@ -20,6 +20,8 @@
             <conv:TarihSeciciConverter x:Key="TarihSecici" />
             <conv:OdemeKuraliConverter x:Key="OdemeKurali" />
             <conv:VarsayilanOdemeConverter x:Key="VarsayilanOdeme" />
+            <conv:KayitBaglamiConverter x:Key="KayitBaglami" />
+            <conv:FazlaKayitConverter x:Key="FazlaKayit" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

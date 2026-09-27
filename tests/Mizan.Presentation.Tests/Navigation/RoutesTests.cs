@@ -12,7 +12,7 @@ public sealed class RoutesTests
         Assert.StartsWith("//", Routes.Dashboard);
         Assert.StartsWith("//", Routes.Projection);
         Assert.StartsWith("//", Routes.Simulation);
-        Assert.StartsWith("//", Routes.Commitments);
+        Assert.StartsWith("//", Routes.FinancialStructure);
         Assert.StartsWith("//", Routes.History);
         Assert.StartsWith("//", Routes.Settings);
     }

@@ -744,9 +744,142 @@ Konsept karşılığı **yok** (`GS2`). Türetme kaynağı `EK-V3`: hero rakam +
 `ListCard`, `NavRow`, `StateBlock`, `SkeletonBlock`. Giriş formu `EK-V4` Adım 3'ün form
 satırlarından (`Eyebrow` + `Entry`, `Grid *,*`). Renk ve ses Planör marka token'larından (`GS7`).
 
-### EK-V6 — Finansal yapı
-Konsept karşılığı **yok.** Eskide 1.344 satır / 6 `partial`, **86 `<Label>`** — en kalabalık
-ekran. Aşama 1'de **bölünme önerisi zorunlu**; tek adımda 28 etikete inmesi beklenmiyor.
+## EK-V6 — Finansal yapı
+
+> Sayfa dosyası: `FinancialStructurePage.xaml`
+> Liste adım **V6a** ile tamamlandı (Kapı C onaylı, koyu + açık). Davranış kararları: `S62`; taşma: `GS21`. Formlar ayrı
+> sayfalardır ve `V6b`–`V6e`'de gelir; her biri bu listeye "Ekle" seçeneği ve satır
+> diyaloğuna "Düzenle" ekler. Form sayfalarının kartları kendi adımlarında yazılır.
+
+**Eski hâl:** `CommitmentsPage.xaml` 450 satır, **86 `<Label>`**, 19 buton, 22 `Entry`, 11 seçici,
+6 `Border`, 2 spinner; `CommitmentsViewModel` 1.344 satır / 6 `partial`.
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Planıma neler giriyor; gelirim, kartlarım, kredilerim, ödemelerim eksiksiz mi?" | 5 bölüm başlığı + 10 boş durum etiketi + şablonlarda ad ve tutar, ~25 etiket |
+| S2 | "Her kayıt bana ne kadar tutuyor, sıradaki ne zaman?" | Şablon alt satırları (6 etiket); kartta ekstre yoksa "—" |
+| S3 | "Bu kaydı nasıl silerim, kartın ödemesine nasıl giderim?" | Satır başına 1–2 düğme (Kartı Aç / Düzenle / Sil), şablonlarda 7 düğme |
+| S4 | "Yeni bir şeyi nereden eklerim?" | "+ Ekle" + satır içi form (~49 etiket) — **`V6b`–`V6e`'de cevaplanır** |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Gelirler, Kartlar, Krediler, Ödemeler grupları | **Kart** (4 × `ListCard`) | S1; boş grup görünmez |
+| Satır: ad · bağlam · tutar · › | **Satır** (tek paylaşılan şablon) | S1, S2 |
+| Satır aksiyonu (kart kontrol, sil; sonra düzenle) | **Satır** (dokun → diyalog) | S3; eskideki 7 düğme şablonu kalkar |
+| Kredi faizi, bugün kapatma bedeli, planlı erken ödemeler | **Derine** → `V6c` | İkinci seviye ayrıntı |
+| Kart ekstre / asgari dökümü, kesim günleri, ödeme kuralı | **Çıkar** | `EK-V7`'de var |
+| Kartta "Limit • Güncel borç" | **Çıkar** | `EK-V7` Kapı C: hiçbir kararı beslemiyor |
+| Grup toplamları | **Çıkar** | Tarihleri farklı kalemleri toplamak yanıltır; dönem toplamı `EK-V3` / `EK-V9`'un işi |
+| "3 gelir • 2 kart…" sayım satırı, 10 boş durum etiketi | **Çıkar** | Liste kendisi cevap; boş grup gizli |
+| Başlık üstü etiket ("FİNANSAL KAYITLAR") | **Çıkar** | Kapı B: başlık ve grup adları zaten söylüyor; ikinci ad kafa karıştırır |
+| Spinner, `StatusMessage`, `BusyMessage` | **Çıkar** | `GS14`; hata diyalogla |
+| PDF ekstre okuma, ilk ödeme düzeni penceresi | **Çıkar** | `S21`; `S18`, `D10` |
+| "+ Ekle" seçici ve satır içi formlar | **Derine** → `V6b`–`V6e` | S4; her tür kendi sayfasında |
+| Ortak senaryo formu | **Derine** → `V10` | `S62`-7 |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1     hero yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          4 / 4     Gelirler, Kartlar, Krediler, Ödemeler (ListCard)
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     NavRow yok
+Label         4 / 28    tek satır şablonu: ad, bağlam, tutar, › (dört ListCard aynı şablonu kullanır)
+Cumle_        0 / 3     açıklama cümlesi yok
+```
+
+### 4. Blok şeması
+
+```
+┌─ PageHeader ──────────────────────────────────────────────────────┐
+│ Baslik_FinansalYapi         TypeTitle   / TextPrimary              │  üst etiket yok; aksiyon yok (V6b: Ekle)
+└────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_Gelirler ────────────────────────────────────────┐  ← S1, S2, S3
+│ Gelir                    TypeBody / TextPrimary      45.000 ₺   ›  │
+│ Her ayın 15. günü        Caption (Bicim_HerAyGunu)   Figure        │
+│ Yıl sonu primi                                       20.000 ₺   ›  │
+│ Tek seferlik · 20 Aralık Caption (Bicim_TekSeferlik)               │
+└────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_Kartlar ─────────────────────────────────────────┐  ← S1, S2, S3
+│ Bonus                                                26.747 ₺   ›  │
+│ Sıradaki ödeme 5 Ekim    Caption (Bicim_SiradakiOdeme)             │
+│ Axess                                                           ›  │  ödeme yoksa tutar gizli
+│ Önümüzdeki ödeme yok     Caption (Etiket_OdemeYok)                 │
+└────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_Krediler ────────────────────────────────────────┐  ← S1, S2, S3
+│ İhtiyaç kredisi                                       7.500 ₺   ›  │
+│ 12 taksit kaldı · sonraki 15 Ekim   Caption (Bicim_KrediBaglami)   │
+└────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_Odemeler ────────────────────────────────────────┐  ← S1, S2, S3
+│ Okul taksidi                                          4.000 ₺   ›  │
+│ 3 ödeme kaldı · sonraki 20 Ekim     Caption (Bicim_PlanBaglami)    │
+│ Tatil                                                30.000 ₺   ›  │
+│ Tek seferlik · 12 Temmuz                                           │
+│   … en fazla 4 satır; fazlası varsa:                               │
+│ +2 daha                  OverflowText (Bicim_FazlaKayit)        ›  │  GS21: grubu yerinde açar
+└────────────────────────────────────────────────────────────────────┘
+```
+
+Satır şablonu — sayfada **bir kez** tanımlanır (`ContentPage.Resources`, `x:DataType` =
+`FinancialRecordRow`), dört `ListCard` aynı şablonu kullanır:
+
+```
+Grid  "*, Auto, Auto"  ColumnSpacing Space3        dokun → SelectRecordCommand (satır)
+├─ VerticalStackLayout  Spacing Space1
+│    Label  Name                      TypeBody / TextPrimary
+│    Label  ., KayitBaglami           Caption
+├─ Label  Amount, Para                Figure            IsVisible = HasAmount
+└─ Label  Icons.ChevronRight          IconSmall / Indicator
+```
+
+Satır diyaloğu (`IDialogService`, `T8` gelene kadar sistem diyaloğu):
+
+```
+Kart        → ChooseAsync(ad, "Vazgeç", "Sil", "Ödemeyi yönet")
+Diğerleri   → ChooseAsync(ad, "Vazgeç", "Sil")                 V6b–V6e: + "Düzenle"
+Ödemeyi yönet → Routes.CardControl + cardId
+Sil         → ConfirmAsync("Kaydı sil", "{ad} ve ona bağlı kayıtlar kalıcı olarak silinecek.",
+                           "Sil", "Vazgeç") → türüne göre sil → listeyi yeniden yükle
+```
+
+Uygulama notları:
+- Listede yalnız **plana giren** kayıtlar durur (`S62`-5): aktif gelir; bugün ve sonrası tek
+  seferlik gelir; aktif kart; taksiti kalmış aktif kredi; tamamlanmamış ödeme planı;
+  `Planned` durumundaki büyük harcama. Taksiti hiç olmayan plan tutarsız satır olarak
+  (bağlam "Ödemesi yok", tutar gizli) görünür ve silinebilir.
+- Satır verileri ham: gelir → bugün geçerli tutar (yoksa ilk ileri tarihli tutar) ve ayın günü;
+  tek seferlik gelir → tutar ve tarih; kart → sıradaki ödeme tutarı ve vadesi (`EK-V7` hero'suyla
+  aynı hesap, ekstre yoksa tahmini); kredi → aylık taksit, kalan taksit, sonraki ödeme tarihi;
+  plan → sıradaki taksit tutarı, kalan ödeme sayısı, sıradaki tarih; büyük harcama → tutar ve tarih.
+- Grup içi sıra: gelirler ayın gününe, tek seferlikler tarihe göre (düzenliler önce); kartlar
+  sıradaki ödeme tarihine (ödemesi olmayan sonda); krediler ve ödemeler sıradaki tarihe göre.
+- Ad boşsa banka adı kullanılır (kart, kredi).
+- Metin App'teki `KayitBaglamiConverter`'da kurulur (V7'nin `OdemeKuraliConverter` deseni);
+  ViewModel metin üretmez.
+- Yeni bileşen yok. `ListCard` değişmez (`GS21`). App'e iki converter gelir: `KayitBaglamiConverter`
+  (bağlam satırı) ve `FazlaKayitConverter` (gizli satır yoksa boş taşma metni). Taşma metni
+  `ListCard.Triggers` ile bağlanmaz: bütçe analizcisi özellik etiketini de kart sayar.
+- Sol menüdeki geçici "Kart Kontrol" öğesi ve `cards` rotası kalkar; "Finansal Yapı" menü
+  öğesi bu sayfayı açar. `Routes.Commitments` → `Routes.FinancialStructure` (`S62`-8).
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Hiçbir grupta satır yoksa `StateBlock` (Boş, `AccountBalance` ikonu, `Bos_KayitYok`); aksiyon yok, `V6b`'den sonra başlıktaki "Ekle" kullanılır. |
+| Yükleniyor | Üç `SkeletonBlock`; spinner yok (`GS14`). |
+| Hata | Okuma hatasında `StateBlock` (Hata, `Close` ikonu, `Hata_YapiYuklenemedi`, `Aksiyon_TekrarDene` → yükle); silme hatasında diyalog, liste olduğu gibi kalır. |
+
+### 6. Konsept ilişkisi
+
+Konsept karşılığı **yok** (`GS2`). Türetme kaynağı `EK-V7`'nin "Sonraki ödemeler" satırı
+(ad/tarih + `Caption` bağlam + `Figure` tutar) ve `EK-V3`'ün kalan ödeme satırları; `StateBlock`,
+`SkeletonBlock`. Taşma davranışı `GS21`. Renk ve ses Planör marka token'larından (`GS7`).
 
 ### EK-V5 — İlk düzen seçimi
 Konsept karşılığı **yok.** `V6`'ya dayanır.
@@ -789,7 +922,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V3 | Ana sayfa | 54 | 11 | ✅ |
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |
-| EK-V6 | Finansal yapı | 86 | | ⬜ |
+| EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
