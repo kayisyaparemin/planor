@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6b** — kart formu (V6b1 kartın tanımı + V6b2 gelecek kart harcamaları) |
-| Sıradaki adım | **V6c** — kredi formu: ekle / düzenle + faiz ve bugün kapatma bedeli + planlı erken ödemeler |
-| Test sayısı | 1492 |
+| Son tamamlanan adım | **V6c1** — kredi formu: kredinin tanımı, ekle / düzenle |
+| Sıradaki adım | **V6c2** — faiz ve bugün kapatma bedeli: kalan anapara + bankanın kapatma tutarı, canlı "Bugün kapatırsan" kartı |
+| Test sayısı | 1526 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6c1 — kredi formu: `LoanFormViewModel`, `LoanDefinitionViewModel`, `LoanFormPage`; Finansal Yapı'da "Ekle → Kredi" ve "Düzenle"
+
+Eski satır içi kredi formu (`CommitmentsPage.xaml` kredi bölümü 35 satır / 11 Label, ortak alanlarla 14; 9 giriş) ayrı sayfaya indi: 140 satır / 6 Label; ViewModel 138 + 92 satır (5 bağımlılık, alanlar çocuk ViewModel'de). V6c Aşama 1'de ~800 satır çıktığı için üçe bölündü (`S64`, `EK-V6c`); Kapı A ve B ortak, bu adım kredinin tanımını getirdi: ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi, kredi türü. Ödeme günü sorulmaz, tarihten çözülür; kayıtlı gün ay sonu kenetlenmesiyle uyumluysa korunur (`I66`). Düzenleme `with` ile kurulur: anapara, güncel kapatma tutarı, aktiflik ve küçülmüş son taksit korunur, bayat kapatma tutarı düşer (`I67`; eski düzenleme son taksiti ve aktifliği kaybediyordu). Kredi türü seçicisi ham `LoanKind` taşır, görünen ad ve geri çeviri `KrediTuruConverter`'da. **Dikkat:** kurulum (`V4`) krediyi sonraki taksit tarihi = kurulum günü ile yazıyor ve anapara sormuyor (`S64`-f, kurulum düzeltme oturumuna); formda yalnız kapatma tutarı kayıtlıyken taksit bilgisi değişip tutarla uyuşmazsa kayıt diyalogla reddedilir, düzeltme alanı `V6c2`'de gelir. Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 1/4, Grafik 0/1, NavRow 0/5, Label 6/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 34 yeni sunum testi (toplam 1.526 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V6b2 — gelecek kart harcamaları: `CardChargesViewModel`, `CardChargeRow`; V6b kapandı
 

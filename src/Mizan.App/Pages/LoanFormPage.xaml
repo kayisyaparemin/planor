@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.LoanFormPage"
+             x:DataType="vm:LoanFormViewModel"
+             AutomationId="{x:Static auto:RecordFormAutomationIds.PageLoanForm}">
+
+    <!-- EK-V6c: Kredi formu (V6c1 kredinin tanımı). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S1: yeni kredi ya da düzenleme -->
+            <comp:PageHeader Title="{x:Static strings:LoanFormStrings.Baslik_YeniKredi}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding IsEditing}" Value="True">
+                        <Setter Property="Title" Value="{x:Static strings:LoanFormStrings.Baslik_KrediyiDuzenle}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: kredinin tanımı + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S1: form kartı; ödeme günü sonraki taksit tarihinden çözülür (S64-2) -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_KrediAdi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.Name}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_KrediAdi}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputLoanName}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_Banka}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.Bank}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_Banka}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputLoanBank}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              RowDefinitions="Auto, Auto"
+                              ColumnSpacing="{StaticResource Space2}"
+                              RowSpacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_AylikTaksit}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Grid.Column="1"
+                                   Text="{x:Static strings:LoanFormStrings.Etiket_KalanTaksit}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Grid.Row="1"
+                                   Text="{Binding Fields.PaymentInput}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_Tutar}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputLoanPayment}" />
+                            <Entry Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding Fields.CountInput}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_TaksitSayisi}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputLoanCount}" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, *"
+                              RowDefinitions="Auto, Auto"
+                              ColumnSpacing="{StaticResource Space2}"
+                              RowSpacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_SonrakiTaksit}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Grid.Column="1"
+                                   Text="{x:Static strings:LoanFormStrings.Etiket_KrediTuru}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <!-- Geçmiş tarih serbest: dönem kapanışı tarihi ilerletir (S64-2) -->
+                            <DatePicker Grid.Row="1"
+                                        Date="{Binding Fields.NextPaymentDate, Converter={StaticResource TarihSecici}}"
+                                        Format="dd.MM.yyyy"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:RecordFormAutomationIds.PickerLoanNextDate}" />
+                            <!-- Ham LoanKind; görünen ad ve geri çeviri KrediTuruConverter'da -->
+                            <Picker Grid.Row="1"
+                                    Grid.Column="1"
+                                    ItemsSource="{Binding Fields.Kinds, Converter={StaticResource KrediTuru}}"
+                                    SelectedItem="{Binding Fields.Kind, Converter={StaticResource KrediTuru}}"
+                                    Title="{x:Static strings:LoanFormStrings.Etiket_KrediTuru}"
+                                    BackgroundColor="{DynamicResource SurfaceSunken}"
+                                    TextColor="{DynamicResource TextPrimary}"
+                                    TitleColor="{DynamicResource TextSecondary}"
+                                    FontSize="{StaticResource TypeBody}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.PickerLoanKind}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S1: kaydet krediyi yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:LoanFormStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnSaveLoan}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:LoanFormStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelLoan}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek kredi okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:LoanFormStrings.Hata_KrediYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding RetryCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

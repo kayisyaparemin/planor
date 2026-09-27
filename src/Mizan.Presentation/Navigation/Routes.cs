@@ -35,6 +35,12 @@ public static class Routes
     /// <summary>Kart ekleme / düzenleme formu rotası; <see cref="CardIdParameter"/> verilirse düzenleme.</summary>
     public const string CardForm = "card-form";
 
+    /// <summary>Kredi ekleme / düzenleme formu rotası; <see cref="LoanIdParameter"/> verilirse düzenleme.</summary>
+    public const string LoanForm = "loan-form";
+
+    /// <summary>Kredi formunun hangi krediyi düzenleyeceğini taşıyan sorgu parametresi.</summary>
+    public const string LoanIdParameter = "loanId";
+
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";
 

@@ -186,6 +186,8 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | erken kapama danışmanı | `LoanPayoffAdvisor` | Ufuktaki her taksit gününü deneyip projeksiyonu kapamalı/kapamasız koşturarak krediyi hangi gün kapatmanın güvenli ve kazançlı olduğunu bulan uygulama servisi |
 | erken kapama önerisi | `LoanPayoffAdvice` | Bir kredi için önerilen (en erken) ve en kârlı kapatma günü, kapatma bedeli, faiz tasarrufu ve net kazanç |
 | erken kapama öneri durumu | `LoanPayoffAdviceStatus` | Önerinin sonucu: önerilir, güvenli ay yok, kazandırmaz, anapara gerekli, zaten kapanıyor |
+| kredi formu | `LoanFormViewModel` | Krediyi ekleyen ya da düzenleyen sayfa; kaydedilmemiş değişiklikte çıkmadan önce onay sorar (EK-V6c) |
+| kredinin tanımı | `LoanDefinitionViewModel` | Kredi formundaki ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi ve kredi türü; ödeme günü tarihten çözülür (S64-2, I66) |
 | net kazanç | `NetGain` | Kapatmanın 12. dönem sonu bakiye farkı ile ufuk sonrasında ödenmeyecek taksitlerin toplamı; kapatma parasının açık faizi maliyeti içindedir |
 | banka kapatma tutarı | `EarlyClosureAmount` | Bankanın belirli bir gün için bildirdiği erken kapama tutarı; kaydedildiğinde kalan anaparanın otoritesidir (I25) |
 

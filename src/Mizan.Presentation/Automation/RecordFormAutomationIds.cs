@@ -57,4 +57,31 @@ public static class RecordFormAutomationIds
 
     /// <summary>Kart formu: harcama girişinden vazgeçen buton kimliği.</summary>
     public const string BtnCancelCardCharge = "btn-cancel-card-charge";
+
+    /// <summary>Kredi formu sayfası kimliği.</summary>
+    public const string PageLoanForm = "page-loan-form";
+
+    /// <summary>Kredi formu: kredi adı girişi kimliği.</summary>
+    public const string InputLoanName = "input-loan-name";
+
+    /// <summary>Kredi formu: banka girişi kimliği.</summary>
+    public const string InputLoanBank = "input-loan-bank";
+
+    /// <summary>Kredi formu: aylık taksit girişi kimliği.</summary>
+    public const string InputLoanPayment = "input-loan-payment";
+
+    /// <summary>Kredi formu: kalan taksit sayısı girişi kimliği.</summary>
+    public const string InputLoanCount = "input-loan-count";
+
+    /// <summary>Kredi formu: sonraki taksit tarihi seçicisi kimliği.</summary>
+    public const string PickerLoanNextDate = "picker-loan-next-date";
+
+    /// <summary>Kredi formu: kredi türü seçicisi kimliği.</summary>
+    public const string PickerLoanKind = "picker-loan-kind";
+
+    /// <summary>Kredi formu: kaydet butonu kimliği.</summary>
+    public const string BtnSaveLoan = "btn-save-loan";
+
+    /// <summary>Kredi formu: vazgeç butonu kimliği.</summary>
+    public const string BtnCancelLoan = "btn-cancel-loan";
 }

@@ -1,0 +1,20 @@
+{
+  "Baslik_YeniKredi": "Yeni Kredi",
+  "Baslik_KrediyiDuzenle": "Krediyi Düzenle",
+  "Etiket_KrediAdi": "KREDİ ADI",
+  "Etiket_Banka": "BANKA",
+  "Etiket_AylikTaksit": "AYLIK TAKSİT",
+  "Etiket_KalanTaksit": "KALAN TAKSİT",
+  "Etiket_SonrakiTaksit": "SONRAKİ TAKSİT",
+  "Etiket_KrediTuru": "KREDİ TÜRÜ",
+  "Etiket_TurIhtiyac": "İhtiyaç / taşıt",
+  "Etiket_TurKonutSabit": "Konut, sabit",
+  "Etiket_TurKonutDegisken": "Konut, değişken",
+  "YerTutucu_KrediAdi": "Örn. İhtiyaç kredisi",
+  "YerTutucu_Banka": "Örn. Ziraat Bankası",
+  "YerTutucu_Tutar": "0",
+  "YerTutucu_TaksitSayisi": "Örn. 24",
+  "Aksiyon_Kaydet": "Kaydet",
+  "Aksiyon_Vazgec": "Vazgeç",
+  "Hata_KrediYuklenemedi": "Kredi bilgileri okunamadı."
+}

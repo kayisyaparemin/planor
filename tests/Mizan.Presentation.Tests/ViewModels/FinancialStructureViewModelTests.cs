@@ -100,7 +100,7 @@ public sealed class FinancialStructureViewModelTests
 
         await _viewModel.AddCommand.ExecuteAsync(null);
 
-        Assert.Equal(["Kredi kartı"], _dialog.LastChooseOptions);
+        Assert.Equal(["Kredi kartı", "Kredi"], _dialog.LastChooseOptions);
         Assert.Null(_dialog.LastChooseDestruction);
         Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
         Assert.Null(_navigation.LastParameters);
@@ -131,13 +131,50 @@ public sealed class FinancialStructureViewModelTests
     }
 
     [Fact]
-    public async Task SelectRecord_KartDisindakiKayit_YalnizSilSunar()
+    public async Task Add_KrediSecilince_KrediFormunuKimliksizAcar()
+    {
+        _dialog.NextChooseResponse = "Kredi";
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.Equal(Routes.LoanForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task SelectRecord_Kredi_DuzenleVeSilSunar()
     {
         var loan = await LoadWith(new FinancialPlan { Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))] }, vm => vm.Loans);
 
         await _viewModel.SelectRecordCommand.ExecuteAsync(loan);
 
         Assert.Equal("İhtiyaç", _dialog.LastChooseTitle);
+        Assert.Equal(["Düzenle"], _dialog.LastChooseOptions);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_KrediDuzenle_KrediFormunuKrediKimligiyleAcar()
+    {
+        var loan = await LoadWith(new FinancialPlan { Loans = [Loan("İhtiyaç", new DateOnly(2026, 10, 15))] }, vm => vm.Loans);
+        _dialog.NextChooseResponse = "Düzenle";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(loan);
+
+        Assert.Equal(Routes.LoanForm, _navigation.LastNavigatedRoute);
+        Assert.Equal(loan.Id.ToString(), _navigation.LastParameters?[Routes.LoanIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
+    public async Task SelectRecord_KartVeKrediDisindakiKayit_YalnizSilSunar()
+    {
+        var expense = await LoadWith(
+            new FinancialPlan { PlannedLargeExpenses = [Expense("Tatil", 30000m, new DateOnly(2027, 7, 12))] }, vm => vm.Payments);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(expense);
+
+        Assert.Equal("Tatil", _dialog.LastChooseTitle);
         Assert.Empty(_dialog.LastChooseOptions!);
         Assert.Equal("Sil", _dialog.LastChooseDestruction);
     }
