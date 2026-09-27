@@ -23,6 +23,7 @@
             <conv:KayitBaglamiConverter x:Key="KayitBaglami" />
             <conv:FazlaKayitConverter x:Key="FazlaKayit" />
             <conv:KrediTuruConverter x:Key="KrediTuru" />
+            <conv:YuzdeConverter x:Key="Yuzde" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -188,6 +188,8 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | erken kapama öneri durumu | `LoanPayoffAdviceStatus` | Önerinin sonucu: önerilir, güvenli ay yok, kazandırmaz, anapara gerekli, zaten kapanıyor |
 | kredi formu | `LoanFormViewModel` | Krediyi ekleyen ya da düzenleyen sayfa; kaydedilmemiş değişiklikte çıkmadan önce onay sorar (EK-V6c) |
 | kredinin tanımı | `LoanDefinitionViewModel` | Kredi formundaki ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi ve kredi türü; ödeme günü tarihten çözülür (S64-2, I66) |
+| faiz kartı | `LoanPayoffViewModel` | Kredi formunda kalan anapara ve bankanın kapatma tutarını alıp bugün kapatmanın bedelini, içindeki ücreti, kurtulunacak faizi ve aylık faizi canlı gösteren bölüm (S64-4, S64-9) |
+| kredi önizlemesi | `PreviewLoan` / `LoanPayoffService.Preview` | Krediyi kaydetmeden, kaydın kurallarıyla çözen hesap: kayıt kabul edecekse kaydedilecek hâlin bugünkü görünümü, reddedecekse null (I68) |
 | net kazanç | `NetGain` | Kapatmanın 12. dönem sonu bakiye farkı ile ufuk sonrasında ödenmeyecek taksitlerin toplamı; kapatma parasının açık faizi maliyeti içindedir |
 | banka kapatma tutarı | `EarlyClosureAmount` | Bankanın belirli bir gün için bildirdiği erken kapama tutarı; kaydedildiğinde kalan anaparanın otoritesidir (I25) |
 

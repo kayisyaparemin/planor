@@ -97,6 +97,31 @@ public sealed class ObligationManagementServiceTests
         Assert.Equal("Kredi planı değişti", _changeRecorder.RecordedTriggers[0]);
     }
 
+    [Fact]
+    public async Task PreviewLoan_KaydetmedenKaydinKurallariylaCozer()
+    {
+        var sut = CreateSut();
+        var loan = TenInstallmentLoan() with { EarlyClosureAmount = 80_000m };
+
+        var overview = sut.PreviewLoan(loan);
+
+        Assert.NotNull(overview);
+        Assert.Equal(LoanRateSource.BankQuote, overview.Analysis.Amortization!.Source);
+        Assert.Equal(new DateOnly(2026, 9, 25), overview.Loan.EarlyClosureAmountAsOf);
+        Assert.Empty(await _loanRepository.GetLoansAsync());
+        Assert.Empty(_changeRecorder.RecordedTriggers);
+    }
+
+    [Fact]
+    public void PreviewLoan_KayitReddedecekse_NullDoner()
+    {
+        var sut = CreateSut();
+
+        var overview = sut.PreviewLoan(TenInstallmentLoan() with { RemainingDebt = 80_000m, EarlyClosureAmount = 150_000m });
+
+        Assert.Null(overview);
+    }
+
     [Theory]
     [InlineData(0)]
     [InlineData(-500)]
@@ -363,6 +388,15 @@ public sealed class ObligationManagementServiceTests
         Assert.Single(_changeRecorder.RecordedTriggers);
         Assert.Equal("Büyük ödeme planı değişti", _changeRecorder.RecordedTriggers[0]);
     }
+
+    private static Loan TenInstallmentLoan() => new()
+    {
+        Name = "Konut Kredisi",
+        MonthlyPayment = 10_000m,
+        PaymentDay = 15,
+        NextPaymentDate = new DateOnly(2026, 10, 15),
+        RemainingInstallmentCount = 10
+    };
 
     private sealed class FakePlanChangeRecorder : IPlanChangeRecorder
     {

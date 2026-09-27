@@ -57,6 +57,17 @@ public sealed class LoanPayoffService(
     }
 
     /// <summary>
+    /// Krediyi <see cref="PrepareForSave"/>'in kurallarıyla, hata fırlatmadan değerlendirir: kayıt
+    /// kabul edecekse kaydedilecek hâlinin bugünkü görünümünü, reddedecekse null döner. Kayıt ile
+    /// canlı faiz kartı aynı kuralı paylaşır; bankanın tutarı uyuşmazsa anaparaya düşülmez (S64-9).
+    /// </summary>
+    public LoanPayoffOverview? Preview(Loan loan)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+        return Prepare(loan, out var prepared) is null ? Describe(prepared) : null;
+    }
+
+    /// <summary>
     /// Krediyi kaydetmeden önce doğrular. Bankanın kapatma tutarı verilmişse otoritedir:
     /// tarihsizse bugünle damgalanır, kalan anapara ondan geri çözülür ve
     /// <see cref="Loan.RemainingDebt"/>'e yazılır.
@@ -65,24 +76,7 @@ public sealed class LoanPayoffService(
     public Loan PrepareForSave(Loan loan)
     {
         ArgumentNullException.ThrowIfNull(loan);
-        if (loan.EarlyClosureAmount is null or <= 0m)
-        {
-            return ValidatePrincipal(loan with { EarlyClosureAmount = null, EarlyClosureAmountAsOf = null });
-        }
-
-        // Tarih sorulmaz: banka tutarı yalnız görüldüğü gün geçerlidir ve kullanıcı onu gördüğü
-        // gün girer. Daha önce kaydedilmiş, değişmemiş tutar kendi tarihini taşır.
-        var quoted = loan with { EarlyClosureAmountAsOf = loan.EarlyClosureAmountAsOf ?? _clock.Today };
-        EnsureQuoteDateIsUsable(quoted);
-
-        if (_amortizationCalculator.Analyze(quoted).Amortization is not { Source: LoanRateSource.BankQuote } amortization)
-        {
-            throw new InvalidOperationException(
-                "Bu kapatma tutarı taksit tutarı ve kalan taksit sayısıyla uyuşmuyor. " +
-                "Tutarı ve taksit bilgilerini kontrol et.");
-        }
-
-        return quoted with { RemainingDebt = amortization.Principal };
+        return Prepare(loan, out var prepared) is { } error ? throw new InvalidOperationException(error) : prepared;
     }
 
     private IEnumerable<PlannedLoanPrepayment> DescribePrepayments(Loan loan, IReadOnlyList<LoanPrepayment> prepayments)
@@ -97,47 +91,76 @@ public sealed class LoanPayoffService(
                 replay.IgnoredBecauseUnquotable));
     }
 
-    private void EnsureQuoteDateIsUsable(Loan loan)
+    // Kaydın tek kuralı: kabul ederse kaydedilecek hâli verir ve null döner, etmezse kredi
+    // değişmeden kalır ve kullanıcıya gösterilecek mesaj döner.
+    private string? Prepare(Loan loan, out Loan prepared)
+    {
+        prepared = loan;
+        if (loan.EarlyClosureAmount is null or <= 0m)
+        {
+            prepared = loan with { EarlyClosureAmount = null, EarlyClosureAmountAsOf = null };
+            return PrincipalError(prepared);
+        }
+
+        // Tarih sorulmaz: banka tutarı yalnız görüldüğü gün geçerlidir ve kullanıcı onu gördüğü
+        // gün girer. Daha önce kaydedilmiş, değişmemiş tutar kendi tarihini taşır.
+        var quoted = loan with { EarlyClosureAmountAsOf = loan.EarlyClosureAmountAsOf ?? _clock.Today };
+        if (QuoteDateError(quoted) is { } dateError)
+        {
+            return dateError;
+        }
+
+        if (_amortizationCalculator.Analyze(quoted).Amortization is not { Source: LoanRateSource.BankQuote } amortization)
+        {
+            return "Bu kapatma tutarı taksit tutarı ve kalan taksit sayısıyla uyuşmuyor. " +
+                   "Tutarı ve taksit bilgilerini kontrol et.";
+        }
+
+        prepared = quoted with { RemainingDebt = amortization.Principal };
+        return null;
+    }
+
+    private string? QuoteDateError(Loan loan)
     {
         var asOf = loan.EarlyClosureAmountAsOf!.Value;
         var today = _clock.Today;
         if (asOf > today)
         {
-            throw new InvalidOperationException("Kapatma tutarının tarihi bugünden sonra olamaz.");
+            return "Kapatma tutarının tarihi bugünden sonra olamaz.";
         }
 
         var previousDue = LoanAmortizationCalculator.PreviousDueDate(loan);
         if (asOf >= previousDue)
         {
-            return;
+            return null;
         }
 
         // Bugünün tutarı bile son ödenen taksitten eskiyse sorun tutarda değil, sonraki ödeme
         // tarihindedir: bir aydan fazla ileride girilmiş, son taksit gelecekte görünüyor.
-        throw new InvalidOperationException(asOf == today
+        return asOf == today
             ? $"Sonraki ödeme tarihi ({loan.NextPaymentDate.ToString(MessageDateFormat, CultureInfo.InvariantCulture)}) bugünden bir aydan " +
               "fazla ileride; bu durumda son ödenen taksit bugünden sonra görünüyor ve kapatma tutarı " +
               "hesaplanamıyor. Sonraki ödeme tarihini kontrol et."
             : $"Kayıtlı kapatma tutarı son ödenen taksitten ({previousDue.ToString(MessageDateFormat, CultureInfo.InvariantCulture)}) önce " +
-              "alınmış. Bankadan bugünkü tutarı gir.");
+              "alınmış. Bankadan bugünkü tutarı gir.";
     }
 
-    private Loan ValidatePrincipal(Loan loan)
+    private string? PrincipalError(Loan loan)
     {
         if (loan.RemainingDebt is null)
         {
-            return loan;
+            return null;
         }
 
         return _amortizationCalculator.Analyze(loan).Issue switch
         {
-            LoanAnalysisIssue.PrincipalNotBelowInstallments => throw new InvalidOperationException(
+            LoanAnalysisIssue.PrincipalNotBelowInstallments =>
                 "Kalan anapara, kalan taksitlerin toplamından küçük olmalı. Bankanın gösterdiği kalan borç " +
-                "taksitlerin toplamıysa bu alanı boş bırakıp kapatma tutarını gir."),
-            LoanAnalysisIssue.ImplausibleRate => throw new InvalidOperationException(
+                "taksitlerin toplamıysa bu alanı boş bırakıp kapatma tutarını gir.",
+            LoanAnalysisIssue.ImplausibleRate =>
                 "Bu anaparayla kredinin aylık faizi gerçekçi olmayan bir değere çıkıyor. " +
-                "Kalan anaparayı ya da bankanın kapatma tutarını kontrol et."),
-            _ => loan
+                "Kalan anaparayı ya da bankanın kapatma tutarını kontrol et.",
+            _ => null
         };
     }
 }

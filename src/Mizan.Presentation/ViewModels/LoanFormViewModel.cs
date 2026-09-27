@@ -11,7 +11,8 @@ namespace Mizan.Presentation.ViewModels;
 /// <summary>
 /// Kredi formunun görünüm modelidir: krediyi ekler ya da düzenler, kaydedip listeye döner,
 /// kaydedilmemiş değişiklikte çıkmadan önce onay sorar. Kredinin tanımı
-/// <see cref="LoanDefinitionViewModel"/> çocuğundadır (EK-V6c, S64).
+/// <see cref="LoanDefinitionViewModel"/>, faiz ve bugün kapatma bedeli <see cref="LoanPayoffViewModel"/>
+/// çocuğundadır (EK-V6c, S64).
 /// </summary>
 public sealed partial class LoanFormViewModel : ViewModelBase
 {
@@ -44,13 +45,20 @@ public sealed partial class LoanFormViewModel : ViewModelBase
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        Payoff = new LoanPayoffViewModel(_obligationService);
+
+        // Faiz kartı canlıdır: tanımdaki her değişiklik kartı formun o anki taslağıyla yeniden çözer.
+        Fields.PropertyChanged += (_, _) => Payoff.Refresh(Fields.Draft(_loan));
     }
 
     /// <summary>Kredinin tanımı: ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi, tür.</summary>
     public LoanDefinitionViewModel Fields { get; } = new();
 
-    /// <summary>Form açıldığından beri bir alan değişti mi.</summary>
-    public bool HasChanges => Fields.HasChanges;
+    /// <summary>Faiz kartı: kalan anapara, bankanın kapatma tutarı ve bugün kapatmanın bedeli.</summary>
+    public LoanPayoffViewModel Payoff { get; }
+
+    /// <summary>Form açıldığından beri bir alan ya da faiz kartındaki bir tutar değişti mi.</summary>
+    public bool HasChanges => Fields.HasChanges || Payoff.HasChanges;
 
     /// <summary>Kimlik verilmezse boş yeni kredi formu, verilirse o kredinin düzenlemesi açılır.</summary>
     [RelayCommand]
@@ -71,6 +79,8 @@ public sealed partial class LoanFormViewModel : ViewModelBase
 
             IsEditing = _loan is not null;
             Fields.Fill(_loan, _clock.Today);
+            Payoff.Fill(_loan);
+            Payoff.Refresh(Fields.Draft(_loan));
             State = ScreenState.Content;
         }
         catch (Exception ex)
@@ -97,16 +107,22 @@ public sealed partial class LoanFormViewModel : ViewModelBase
             return;
         }
 
-        if (Fields.TryBuild(_loan, out var loan) is { } error)
+        if (Fields.TryBuild(_loan, out var defined) is { } error)
         {
             await _dialogService.ShowAlertAsync(SaveFailedTitle, error);
+            return;
+        }
+
+        if (Payoff.TryApply(defined!, out var loan) is { } amountError)
+        {
+            await _dialogService.ShowAlertAsync(SaveFailedTitle, amountError);
             return;
         }
 
         SetBusy(true);
         try
         {
-            await _obligationService.SaveLoanAsync(loan!);
+            await _obligationService.SaveLoanAsync(loan);
             await _navigationService.NavigateBackAsync();
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)

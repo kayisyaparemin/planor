@@ -1,3 +1,4 @@
+using Mizan.Application.Models;
 using Mizan.Domain.Models;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Tests.Fakes;
@@ -8,7 +9,8 @@ namespace Mizan.Presentation.Tests.ViewModels;
 
 /// <summary>
 /// Kredi formu: yeni kredi ve düzenleme, ödeme gününün sonraki taksit tarihinden çözülmesi, formun
-/// dokunmadığı alanların korunması, bayat kapatma tutarının düşmesi ve kaydetmeden çıkış onayı (EK-V6c, S64).
+/// dokunmadığı alanların korunması, bayat kapatma tutarının düşmesi, faiz kartının forma bağlanması ve
+/// kaydetmeden çıkış onayı (EK-V6c, S64).
 /// </summary>
 public sealed class LoanFormViewModelTests
 {
@@ -205,6 +207,107 @@ public sealed class LoanFormViewModelTests
         Assert.Equal(150000m, saved.RemainingDebt);
     }
 
+    [Fact]
+    public async Task Save_TarihDegisipBayatlayanKapatmaTutari_SessizceDusmez()
+    {
+        var loan = Add(Loan() with
+        {
+            RemainingDebt = 150000m, EarlyClosureAmount = 152000m, EarlyClosureAmountAsOf = new DateOnly(2026, 9, 20)
+        });
+        await _viewModel.LoadAsync(loan.Id);
+        _viewModel.Fields.NextPaymentDate = new DateOnly(2026, 11, 15);
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        // Görünen tutar silinmez; kayıt servisi bayat tutarı mesajıyla reddeder (S64-10).
+        var saved = Assert.Single(_service.SavedLoans);
+        Assert.Equal(152000m, saved.EarlyClosureAmount);
+        Assert.Equal(new DateOnly(2026, 9, 20), saved.EarlyClosureAmountAsOf);
+    }
+
+    [Fact]
+    public async Task Save_FaizKartiTutarlari_KrediyleYazilir()
+    {
+        await FillNewLoan();
+        _viewModel.Payoff.ClosureInput = "150.000";
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        var saved = Assert.Single(_service.SavedLoans);
+        Assert.Equal(150000m, saved.EarlyClosureAmount);
+        Assert.Null(saved.EarlyClosureAmountAsOf);
+    }
+
+    [Fact]
+    public async Task Save_GecersizTutar_UyariVerirKaydetmez()
+    {
+        await FillNewLoan();
+        _viewModel.Payoff.PrincipalInput = "yüz bin";
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        Assert.Contains("Kalan anapara", _dialog.LastAlertMessage, StringComparison.Ordinal);
+        Assert.Empty(_service.SavedLoans);
+        Assert.False(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Load_FaizKarti_KredidenDoldurulurVeCozulur()
+    {
+        _service.Preview = Resolved;
+        var loan = Add(Loan() with { RemainingDebt = 150000m });
+
+        await _viewModel.LoadAsync(loan.Id);
+
+        Assert.Equal("150000", _viewModel.Payoff.PrincipalInput);
+        Assert.True(_viewModel.Payoff.IsResolved);
+        Assert.Equal(150000m, LastDraft().RemainingDebt);
+    }
+
+    [Fact]
+    public async Task FormDegisince_FaizKarti_YenidenCozulur()
+    {
+        _service.Preview = Resolved;
+        var loan = Add(Loan() with { RemainingDebt = 150000m });
+        await _viewModel.LoadAsync(loan.Id);
+
+        _viewModel.Fields.PaymentInput = "8.000";
+        _viewModel.Fields.Kind = LoanKind.HousingFixed;
+
+        var draft = LastDraft();
+        Assert.Equal(8000m, draft.MonthlyPayment);
+        Assert.Equal(LoanKind.HousingFixed, draft.Kind);
+        Assert.Equal(150000m, draft.RemainingDebt);
+    }
+
+    [Fact]
+    public async Task FaizKarti_AdYokkenDeTaksitBilgisiyleCozulur()
+    {
+        _service.Preview = Resolved;
+        await _viewModel.LoadAsync(null);
+        _viewModel.Fields.PaymentInput = "7.500";
+        _viewModel.Fields.CountInput = "24";
+
+        _viewModel.Payoff.PrincipalInput = "148000";
+
+        Assert.True(_viewModel.Payoff.IsResolved);
+        Assert.Equal(7500m, LastDraft().MonthlyPayment);
+    }
+
+    [Fact]
+    public async Task FaizKarti_TaksitBilgisiGecersizse_Cozulmez()
+    {
+        _service.Preview = Resolved;
+        await _viewModel.LoadAsync(null);
+        _viewModel.Payoff.PrincipalInput = "148000";
+
+        _viewModel.Fields.CountInput = "0";
+
+        Assert.False(_viewModel.Payoff.IsResolved);
+        Assert.False(_viewModel.Payoff.IsMismatch);
+        Assert.False(_viewModel.Payoff.NeedsAmount);
+    }
+
     [Theory]
     [InlineData("  ", "7500", "24")]
     [InlineData("Taşıt", "", "24")]
@@ -322,6 +425,44 @@ public sealed class LoanFormViewModelTests
         Assert.False(_viewModel.HasChanges);
         Assert.Equal(0, _dialog.ConfirmCount);
         Assert.True(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Cancel_FaizKartindaTutarDegisirse_DegisiklikSayilir()
+    {
+        var loan = Add(Loan() with { RemainingDebt = 150000m });
+        await _viewModel.LoadAsync(loan.Id);
+        _viewModel.Payoff.ClosureInput = "152000";
+        _dialog.NextConfirmResponse = false;
+
+        await _viewModel.CancelCommand.ExecuteAsync(null);
+
+        Assert.True(_viewModel.HasChanges);
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.False(_navigation.NavigateBackCalled);
+    }
+
+    // Faizi çözülmüş görünüm; sayılar yalnız hâli belirler, kartın ayrıntıları LoanPayoffViewModelTests'te.
+    private static LoanPayoffOverview? Resolved(Loan loan)
+    {
+        var amortization = new LoanAmortization
+        {
+            MonthlyRate = 0.0279m, Principal = 148000m, RemainingInstallments = loan.RemainingInstallmentCount,
+            MonthlyPayment = loan.MonthlyPayment, FinalPayment = loan.MonthlyPayment,
+            PreviousDueDate = new DateOnly(2026, 9, 15), Source = LoanRateSource.RemainingPrincipal
+        };
+        var quote = new LoanPayoffQuote
+        {
+            Date = Today, Principal = 148000m, AccruedInterest = 741m, InstallmentsRemoved = 24, RemovedInstallmentTotal = 180000m
+        };
+        return new LoanPayoffOverview(loan, new LoanAnalysis(loan, amortization, LoanAnalysisIssue.None), quote);
+    }
+
+    // Faiz kartının önizlemeye verdiği son taslak; hiç önizleme yapılmadıysa test burada düşer.
+    private Loan LastDraft()
+    {
+        Assert.NotEmpty(_service.PreviewedLoans);
+        return _service.PreviewedLoans[^1];
     }
 
     private static Loan Loan() => new()

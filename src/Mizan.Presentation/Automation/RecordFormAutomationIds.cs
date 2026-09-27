@@ -79,6 +79,12 @@ public static class RecordFormAutomationIds
     /// <summary>Kredi formu: kredi türü seçicisi kimliği.</summary>
     public const string PickerLoanKind = "picker-loan-kind";
 
+    /// <summary>Kredi formu: faiz kartındaki kalan anapara girişi kimliği.</summary>
+    public const string InputLoanPrincipal = "input-loan-principal";
+
+    /// <summary>Kredi formu: faiz kartındaki bankanın kapatma tutarı girişi kimliği.</summary>
+    public const string InputLoanClosureAmount = "input-loan-closure-amount";
+
     /// <summary>Kredi formu: kaydet butonu kimliği.</summary>
     public const string BtnSaveLoan = "btn-save-loan";
 

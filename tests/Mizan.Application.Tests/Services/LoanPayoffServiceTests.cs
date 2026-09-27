@@ -218,6 +218,85 @@ public sealed class LoanPayoffServiceTests
     }
 
     [Fact]
+    public void Preview_AnaparasiGecerliKredi_BugunKapatmaninDokumunuVerir()
+    {
+        var service = CreateService(Today);
+
+        var overview = service.Preview(ReferenceLoan());
+
+        Assert.NotNull(overview);
+        Assert.Equal(LoanRateSource.RemainingPrincipal, overview.Analysis.Amortization!.Source);
+        var quote = Assert.IsType<LoanPayoffQuote>(overview.Today);
+        Assert.Equal(100_000m, quote.Principal);
+        Assert.True(quote.InterestSaving > 0m);
+    }
+
+    [Fact]
+    public void Preview_TarihsizBankaTutari_BugunleDegerlendirilirBedelTutaraDoner()
+    {
+        var service = CreateService(Today);
+
+        var overview = service.Preview(ReferenceLoan() with { RemainingDebt = null, EarlyClosureAmount = 101_000m });
+
+        Assert.NotNull(overview);
+        Assert.Equal(Today, overview.Loan.EarlyClosureAmountAsOf);
+        Assert.Equal(LoanRateSource.BankQuote, overview.Analysis.Amortization!.Source);
+        Assert.InRange(overview.Today!.Amount, 100_999.99m, 101_000.01m);
+    }
+
+    [Theory]
+    [InlineData(120_000)]
+    [InlineData(50_000)]
+    public void Preview_BankaTutariUyusmazken_AnaparayaDusmezNullDoner(int closureAmount)
+    {
+        var service = CreateService(Today);
+        var loan = ReferenceLoan() with { EarlyClosureAmount = closureAmount };
+
+        var overview = service.Preview(loan);
+
+        // Describe aynı krediyi anaparadan çözer; kayıt ise reddeder. Önizleme kaydın yanında durur (S64-9).
+        Assert.NotNull(service.Describe(loan with { EarlyClosureAmountAsOf = Today }).Today);
+        Assert.Null(overview);
+    }
+
+    [Fact]
+    public void Preview_SonOdenenTaksittenOnceAlinmisTutar_NullDoner()
+    {
+        var service = CreateService(Today);
+
+        var overview = service.Preview(ReferenceLoan() with
+        {
+            EarlyClosureAmount = 101_000m, EarlyClosureAmountAsOf = PreviousDueDate.AddDays(-1)
+        });
+
+        Assert.Null(overview);
+    }
+
+    [Theory]
+    [InlineData(120_000)]
+    [InlineData(50_000)]
+    public void Preview_KayittaReddedilecekAnapara_NullDoner(int principal)
+    {
+        var service = CreateService(Today);
+
+        var overview = service.Preview(ReferenceLoan() with { RemainingDebt = principal });
+
+        Assert.Null(overview);
+    }
+
+    [Fact]
+    public void Preview_AnaparaVeTutarYok_TeklifsizGorunumDoner()
+    {
+        var service = CreateService(Today);
+
+        var overview = service.Preview(ReferenceLoan() with { RemainingDebt = null });
+
+        Assert.NotNull(overview);
+        Assert.Null(overview.Today);
+        Assert.Equal(LoanAnalysisIssue.MissingPrincipal, overview.Analysis.Issue);
+    }
+
+    [Fact]
     public void DescribePrepayments_PlanliOdemeler_OGunkuTutarlariylaTarihSirasinaGoreListelenir()
     {
         var service = CreateService(Today);

@@ -53,6 +53,33 @@ public static class LoanFormStrings
     /// <summary>Kalan taksit sayısı alanının yer tutucusu.</summary>
     public const string YerTutucu_TaksitSayisi = "Örn. 24";
 
+    /// <summary>Faiz kartında kalan anapara alanının etiketi.</summary>
+    public const string Etiket_KalanAnapara = "KALAN ANAPARA";
+
+    /// <summary>Faiz kartında bankanın bugünkü kapatma tutarı alanının etiketi; girilirse otoritedir (I25).</summary>
+    public const string Etiket_KapatmaTutari = "BANKANIN KAPATMA TUTARI";
+
+    /// <summary>Faiz kartı: bugün kapatmanın toplam bedeli satırı.</summary>
+    public const string Etiket_BugunKapatirsan = "Bugün kapatırsan";
+
+    /// <summary>Faiz kartı: bedelin içindeki yasal erken ödeme ücreti satırı (sabit faizli konut).</summary>
+    public const string Etiket_ErkenOdemeUcreti = "Erken ödeme ücreti";
+
+    /// <summary>Faiz kartı: kapatınca ödenmeyecek faiz satırı.</summary>
+    public const string Etiket_KurtulacaginFaiz = "Kurtulacağın faiz";
+
+    /// <summary>Faiz kartı: çözülen aylık faiz satırı.</summary>
+    public const string Etiket_AylikFaiz = "Aylık faiz (vergi dahil)";
+
+    /// <summary>Faiz kartındaki iki tutar alanının yer tutucusu.</summary>
+    public const string YerTutucu_IstegeBagli = "İsteğe bağlı";
+
+    /// <summary>Faiz kartı: geçerli tutar girilmemişken gösterilen cümle.</summary>
+    public const string Cumle_FaizIcinTutarGir = "Faizi görmek için kalan anaparayı ya da bankanın kapatma tutarını gir.";
+
+    /// <summary>Faiz kartı: girilen tutarla faiz çözülemediğinde (kayıt reddedecekken) gösterilen cümle.</summary>
+    public const string Cumle_TutarUyusmuyor = "Bu tutar taksitlerle uyuşmuyor; tutarı ve taksit bilgilerini kontrol et.";
+
     /// <summary>Krediyi kaydedip listeye dönen aksiyon.</summary>
     public const string Aksiyon_Kaydet = "Kaydet";
 

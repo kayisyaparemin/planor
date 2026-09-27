@@ -10,7 +10,7 @@
              x:DataType="vm:LoanFormViewModel"
              AutomationId="{x:Static auto:RecordFormAutomationIds.PageLoanForm}">
 
-    <!-- EK-V6c: Kredi formu (V6c1 kredinin tanımı). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <!-- EK-V6c: Kredi formu (V6c1 kredinin tanımı, V6c2 faiz kartı). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
     <Shell.BackButtonBehavior>
         <BackButtonBehavior Command="{Binding CancelCommand}" />
     </Shell.BackButtonBehavior>
@@ -36,7 +36,7 @@
                 <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
             </VerticalStackLayout>
 
-            <!-- Dolu: kredinin tanımı + kaydet / vazgeç -->
+            <!-- Dolu: kredinin tanımı + faiz kartı + kaydet / vazgeç -->
             <VerticalStackLayout Spacing="{StaticResource Space4}"
                                  IsVisible="{Binding IsContent}">
 
@@ -110,6 +110,55 @@
                                     FontSize="{StaticResource TypeBody}"
                                     AutomationId="{x:Static auto:RecordFormAutomationIds.PickerLoanKind}" />
                         </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S2: faiz kartı; formun o anki değerlerinden kaydın kurallarıyla canlı çözülür (S64-9) -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_KalanAnapara}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Payoff.PrincipalInput}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_IstegeBagli}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputLoanPrincipal}" />
+                        </VerticalStackLayout>
+
+                        <!-- İkisi birlikte girilirse kapatma tutarı otoritedir (I25) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_KapatmaTutari}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Payoff.ClosureInput}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_IstegeBagli}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputLoanClosureAmount}" />
+                        </VerticalStackLayout>
+
+                        <!-- Hâl A: faiz çözüldü; satırlar önem sırasında, kapatılacak taksit yoksa yalnız aylık faiz (S64-11) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space2}"
+                                             IsVisible="{Binding Payoff.IsResolved}">
+                            <comp:MetricRow LabelText="{x:Static strings:LoanFormStrings.Etiket_BugunKapatirsan}"
+                                            ValueText="{Binding Payoff.PayoffAmount, Converter={StaticResource Para}}"
+                                            IsVisible="{Binding Payoff.HasPayoff}" />
+                            <comp:MetricRow LabelText="{x:Static strings:LoanFormStrings.Etiket_ErkenOdemeUcreti}"
+                                            ValueText="{Binding Payoff.Fee, Converter={StaticResource Para}}"
+                                            IsVisible="{Binding Payoff.HasFee}" />
+                            <comp:MetricRow LabelText="{x:Static strings:LoanFormStrings.Etiket_KurtulacaginFaiz}"
+                                            ValueText="{Binding Payoff.InterestSaving, Converter={StaticResource Para}}"
+                                            Semantic="Positive"
+                                            IsVisible="{Binding Payoff.HasInterestSaving}" />
+                            <comp:MetricRow LabelText="{x:Static strings:LoanFormStrings.Etiket_AylikFaiz}"
+                                            ValueText="{Binding Payoff.MonthlyRate, Converter={StaticResource Yuzde}}" />
+                        </VerticalStackLayout>
+
+                        <!-- Hâl B: geçerli tutar yok · Hâl C: tutar kayıtta reddedilecek; aynı anda biri -->
+                        <Label Text="{x:Static strings:LoanFormStrings.Cumle_FaizIcinTutarGir}"
+                               Style="{StaticResource Caption}"
+                               IsVisible="{Binding Payoff.NeedsAmount}" />
+                        <Label Text="{x:Static strings:LoanFormStrings.Cumle_TutarUyusmuyor}"
+                               Style="{StaticResource Caption}"
+                               IsVisible="{Binding Payoff.IsMismatch}" />
                     </VerticalStackLayout>
                 </Border>
 

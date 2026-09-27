@@ -1,11 +1,13 @@
 using Mizan.Application.Abstractions;
+using Mizan.Application.Models;
 using Mizan.Domain.Models;
 
 namespace Mizan.Presentation.Tests.Fakes;
 
 /// <summary>
-/// Kredi, ödeme planı ve büyük harcama yazma portunun sahtesi: kaydedilen kredileri ve silinen
-/// kimlikleri tutar, istenirse kaydetmede ya da silmede hata fırlatır.
+/// Kredi, ödeme planı ve büyük harcama yazma portunun sahtesi: kaydedilen kredileri, silinen
+/// kimlikleri ve önizlenen taslakları tutar, istenirse kaydetmede ya da silmede hata fırlatır;
+/// önizlemenin cevabı testten verilir.
 /// </summary>
 internal sealed class FakeObligationManagementService : IObligationManagementService
 {
@@ -15,6 +17,18 @@ internal sealed class FakeObligationManagementService : IObligationManagementSer
     public List<Guid> DeletedLargeExpenseIds { get; } = [];
     public Exception? SaveException { get; set; }
     public Exception? DeleteException { get; set; }
+
+    /// <summary>Önizlemeye verilen taslaklar, sırayla.</summary>
+    public List<Loan> PreviewedLoans { get; } = [];
+
+    /// <summary>Önizlemenin cevabı; varsayılan "kayıt reddeder" (null).</summary>
+    public Func<Loan, LoanPayoffOverview?> Preview { get; set; } = _ => null;
+
+    public LoanPayoffOverview? PreviewLoan(Loan loan)
+    {
+        PreviewedLoans.Add(loan);
+        return Preview(loan);
+    }
 
     public Task SaveLoanAsync(Loan loan, CancellationToken cancellationToken = default)
     {

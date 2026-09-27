@@ -1,4 +1,5 @@
 using Mizan.Application.Abstractions;
+using Mizan.Application.Models;
 using Mizan.Domain.Calculations;
 using Mizan.Domain.Models;
 
@@ -46,6 +47,17 @@ public sealed class ObligationManagementService(
 
         await _loanRepository.UpsertLoanAsync(prepared, cancellationToken);
         await _planChangeRecorder.RecordChangeAsync(LoanChangeTrigger, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public LoanPayoffOverview? PreviewLoan(Loan loan)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+
+        // SaveLoanAsync'in taksit ve gün kapısı; reddedeceği krediyi önizleme de çözmez.
+        return loan.MonthlyPayment > 0m && loan.RemainingInstallmentCount >= 1 && loan.PaymentDay is >= 1 and <= 31
+            ? _loanPayoffService.Preview(loan)
+            : null;
     }
 
     /// <inheritdoc />

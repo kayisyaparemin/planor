@@ -1035,7 +1035,9 @@ giriş bloğu ve Kaydet / Vazgeç düzeni `EK-V7` Hâl C'den, harcama satırı v
 > kapatma bedeli, `V6c3` planlı erken ödemeler. Kapı A ve B ortak (bütün sayfa), Kapı C her alt
 > adımda ayrı. Davranış kararları: `S64`.
 > **V6c1 tamamlandı** (Kapı C onaylı, koyu + açık): form kartı, Kaydet / Vazgeç, Finansal Yapı'da
-> "Ekle → Kredi" ve kredi satırında "Düzenle". `V6c2` ve `V6c3` açık.
+> "Ekle → Kredi" ve kredi satırında "Düzenle".
+> **V6c2 tamamlandı** (Kapı C onaylı, koyu + açık): faiz kartı — kalan anapara ve bankanın kapatma
+> tutarı, canlı bedel / ücret / kurtulunan faiz / aylık faiz (`S64`-9–11, `I68`, `I69`). `V6c3` açık.
 > Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
 > gövdesi olarak okunur (`EK-V6b` ile aynı).
 
@@ -1103,20 +1105,23 @@ Cumle_        2 / 3     Cumle_FaizIcinTutarGir, Cumle_TutarUyusmuyor (aynı anda
 │ Etiket_SonrakiTaksit         Etiket_KrediTuru                      │  ← S1
 │ [ DatePicker dd.MM.yyyy ]    [ Picker  İhtiyaç / taşıt ▾ ]         │
 └────────────────────────────────────────────────────────────────────┘
-┌─ Faiz kartı (Border SurfaceCard / RadiusCard / CardPadding) ───────┐  V6c2
-│ Etiket_KalanAnapara          Eyebrow                               │  ← S2
-│ [ Entry Numeric  "İsteğe bağlı" ]                  tam genişlik    │
-│ Etiket_KapatmaTutari         Eyebrow  ("Bankanın kapatma tutarı")  │  ← S2
-│ [ Entry Numeric  "İsteğe bağlı" ]                  tam genişlik    │
-│ ── Hâl A: faiz çözüldü ──                                          │
-│ MetricRow  Etiket_AylikFaiz     "Aylık faiz (vergi dahil)"  %2,79  │  ← S2  Yuzde
-│ MetricRow  Etiket_BugunKapatirsan                        150.230 ₺ │  ← S2  Para
-│ MetricRow  Etiket_ErkenOdemeUcreti  yalnız ücret > 0       1.489 ₺ │  ← S2  (konut, sabit faiz)
-│ MetricRow  Etiket_KurtulacaginFaiz  Semantic=Positive     33.770 ₺ │  ← S2
-│ ── Hâl B: anapara da kapatma tutarı da yok, ya da tanım eksik ──   │
-│ Cumle_FaizIcinTutarGir       Caption                               │
-│ ── Hâl C: girilen tutar taksitlerle uyuşmuyor ──                   │
-│ Cumle_TutarUyusmuyor         Caption                               │
+┌─ Faiz kartı (Border SurfaceCard / RadiusCard / CardPadding) ───────┐  V6c2 · Payoff çocuğu
+│ Etiket_KalanAnapara          Eyebrow  "KALAN ANAPARA"              │  ← S2
+│ [ Entry Numeric  YerTutucu_IstegeBagli "İsteğe bağlı" ] tam gen.   │  Payoff.PrincipalInput
+│ Etiket_KapatmaTutari         Eyebrow  "BANKANIN KAPATMA TUTARI"    │  ← S2
+│ [ Entry Numeric  YerTutucu_IstegeBagli "İsteğe bağlı" ] tam gen.   │  Payoff.ClosureInput
+│ ── Hâl A: faiz çözüldü (IsResolved) ──                             │
+│ MetricRow  Etiket_BugunKapatirsan  "Bugün kapatırsan"   150.230 ₺  │  ← S2  Para · yalnız HasPayoff
+│ MetricRow  Etiket_ErkenOdemeUcreti "Erken ödeme ücreti"   1.489 ₺  │  ← S2  Para · yalnız HasFee (ücret > 0)
+│ MetricRow  Etiket_KurtulacaginFaiz "Kurtulacağın faiz"   33.770 ₺  │  ← S2  Para · Semantic=Positive · yalnız HasInterestSaving (> 0)
+│ MetricRow  Etiket_AylikFaiz  "Aylık faiz (vergi dahil)"     %2,79  │  ← S2  Yuzde · her zaman
+│ ── Hâl B: geçerli tutar yok (NeedsAmount) ──                       │
+│ Cumle_FaizIcinTutarGir       Caption / TextSecondary               │  ← S2
+│   "Faizi görmek için kalan anaparayı ya da bankanın kapatma tutarını gir."
+│ ── Hâl C: tutar var, taksit bilgisi tam, faiz çözülemedi (IsMismatch) ──
+│ Cumle_TutarUyusmuyor         Caption / TextSecondary               │  ← S2
+│   "Bu tutar taksitlerle uyuşmuyor; tutarı ve taksit bilgilerini kontrol et."
+│ ── Tutar var ama aylık taksit / kalan taksit geçersiz: yalnız iki giriş ──
 └────────────────────────────────────────────────────────────────────┘
 ┌─ ListCard  Etiket_ErkenOdemeler ───────────────────────────────────┐  V6c3 · ← S3 · yalnız kayıt varsa
 │ Tamamen kapatma          TypeBody / TextPrimary     152.410 ₺      │
@@ -1160,9 +1165,20 @@ Uygulama notları:
   (`ItemDisplayBinding`). Alan yarım genişlik olduğu için adlar kısa: "İhtiyaç / taşıt", "Konut, sabit",
   "Konut, değişken" (başlık zaten "Kredi türü"; sabit / değişken faizin türüdür). `DatePicker` ve `Picker` renkleri `EK-V6b`'deki `DatePicker` gibi satır içi
   `DynamicResource` (`SurfaceSunken`, `TextPrimary`) ile bağlanır.
-- Faiz kartı (`V6c2`): formun her değişikliğinde sessizce kurulan krediden `LoanPayoffService`
-  ile hesaplanır; kapatma tutarı değiştiyse bugünün tarihiyle değerlendirilir. Aylık faiz yüzde
-  olarak `YuzdeConverter`'la yazılır. Hâl B / C ayrımı: tutar girilmiş ama faiz çözülemiyorsa C.
+- Faiz kartı (`V6c2`): `LoanPayoffViewModel` çocuğu (`LoanFormViewModel.Payoff`); formun ya da iki
+  tutarın her değişikliğinde taslak krediden `IObligationManagementService.PreviewLoan` ile
+  hesaplanır (`S64`-9: kaydın kurallarıyla, hata fırlatmadan; kayıt reddedecekse null). Kapatma
+  tutarı değiştiyse tarihsiz gider, servis bugünle damgalar; değişmediyse kendi tarihini taşır.
+  Taslağa ad gerekmez; aylık taksit > 0 ve kalan taksit ≥ 1 yeter. Aylık faiz `YuzdeConverter`'la
+  ("%2,79"). ViewModel ham veri sunar: `MonthlyRate`, `PayoffAmount`, `Fee`, `InterestSaving`
+  (`decimal?`) ve `IsResolved`, `HasPayoff`, `HasFee`, `HasInterestSaving`, `NeedsAmount`,
+  `IsMismatch` (`bool`). Satır sırası önem sırasıdır: bedel, içindeki ücret, kurtulunan faiz,
+  aylık faiz. Kapatılacak taksit yoksa yalnız aylık faiz (`S64`-11).
+- Açılışta yalnız bir tutar dolu gelir (`S64`-4): kapatma tutarı güncelse o, değilse kalan anapara.
+  Kaydet: kapatma tutarı geçerliyse o yazılır (kalan anaparayı servis tutardan çözer); yalnız
+  anapara varsa o; ikisi boşsa ikisi de temizlenir. Geçersiz tutar ("abc", 0, eksi) diyalogla
+  reddedilir. Bayat tutarı düşürme `LoanDefinitionViewModel`'den bu çocuğa taşınır (`S64`-10).
+  `HasChanges` iki tutarı da sayar.
 - Erken ödeme satırı (`V6c3`) ham veri taşır (`LoanPrepaymentRow`: kimlik, şekil, tarih, tutar);
   şekil metni `ErkenOdemeTuruConverter`'da. Satır şablonu `ContentPage.Resources`'ta (`EK-V6b` notu:
   iç içe `ListCard.ItemTemplate` bütçe analizcisinde ikinci kart sayılır). "Ekle" girişi formun o
@@ -1228,7 +1244,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
-| EK-V6c | Kredi formu | 14 | 6 | ✅ V6c1 (V6c2, V6c3 açık; sayfanın tamamı 16) |
+| EK-V6c | Kredi formu | 14 | 10 | ✅ V6c1 + V6c2 (V6c3 açık; sayfanın tamamı 16) |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |

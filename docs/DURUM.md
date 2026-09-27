@@ -6,15 +6,22 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6c1** — kredi formu: kredinin tanımı, ekle / düzenle |
-| Sıradaki adım | **V6c2** — faiz ve bugün kapatma bedeli: kalan anapara + bankanın kapatma tutarı, canlı "Bugün kapatırsan" kartı |
-| Test sayısı | 1526 |
+| Son tamamlanan adım | **V6c2** — kredi formu: faiz ve bugün kapatma bedeli |
+| Sıradaki adım | **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki) |
+| Test sayısı | 1572 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6c2 — faiz kartı: `LoanPayoffViewModel`, `PreviewLoan`, `YuzdeConverter`
+
+Eskide faiz ve kapatma bedeli ancak kaydedip listeye dönünce, satır başına iki satırlık tek cümleyle görünüyordu; formdaki anapara / kapatma bölümü 2 giriş ve 5 Label'dı (iki yardım cümlesi, tarih notu). Şimdi kredi formunda faiz kartı var: kalan anapara ve bankanın kapatma tutarı (isteğe bağlı, açılışta yalnız biri dolu), altında canlı "Bugün kapatırsan", erken ödeme ücreti (> 0 ise), kurtulacağın faiz (> 0 ise) ve aylık faiz; faiz çözülemezse iki cümleden biri. Sayfa 189 satır / 10 Label; faiz kartı çocuk ViewModel'de (151 satır), form ViewModel'i 5 bağımlılıkta kaldı.
+Karar (`S64`-9): canlı kart kaydın kurallarıyla çalışır. `PrepareForSave` hata fırlatmayan tek bir çekirdeğe (`Prepare`) indi; kayıt ve `LoanPayoffService.Preview` onu paylaşır, form `IObligationManagementService.PreviewLoan` ile çağırır (port 7 → 8 metot). `Describe` bankanın tutarı uyuşmazken anaparaya düşüyordu; önizleme düşmez (`I68`).
+Bayat kapatma tutarı (`S64`-10): açılışta bayatsa gösterilmez ve kaydedince düşer (`I67` daraldı); form açıkken tarih değişikliğiyle bayatlarsa artık sessizce silinmez, kayıt servisin mesajıyla reddeder (`I69`). Düşürme `LoanDefinitionViewModel`'den faiz kartına taşındı.
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 2/4, Grafik 0/1, NavRow 0/5, Label 10/28, Cümle 2/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 46 yeni test (10 Application, 36 sunum; toplam 1.572 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V6c1 — kredi formu: `LoanFormViewModel`, `LoanDefinitionViewModel`, `LoanFormPage`; Finansal Yapı'da "Ekle → Kredi" ve "Düzenle"
 

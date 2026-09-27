@@ -242,7 +242,7 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
         Kapı A ve B ortak, Kapı C her alt adımda ayrı.
     - [x] **V6c1** — `LoanFormPage`: kredinin tanımı (ad, banka, aylık taksit, kalan taksit, sonraki
           taksit tarihi, kredi türü), ekle / düzenle; Finansal Yapı "Ekle"de "Kredi", kredi satırında "Düzenle"
-    - [ ] **V6c2** — faiz ve bugün kapatma bedeli: kalan anapara + bankanın kapatma tutarı, canlı
+    - [x] **V6c2** — faiz ve bugün kapatma bedeli: kalan anapara + bankanın kapatma tutarı, canlı
           "Bugün kapatırsan" kartı
     - [ ] **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki)
   - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
@@ -286,6 +286,6 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | T | 6 | 8 *(T7, T8 V7 Kapı C'de açıldı)* |
-| V | 5 | 14 *(V6 sekiz alt adımda: V6a, V6b1, V6b2, V6c1 tamam)* |
+| V | 5 | 14 *(V6 sekiz alt adımda: V6a, V6b1, V6b2, V6c1, V6c2 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

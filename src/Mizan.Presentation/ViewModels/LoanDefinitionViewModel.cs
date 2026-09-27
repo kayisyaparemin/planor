@@ -59,10 +59,21 @@ public sealed partial class LoanDefinitionViewModel : ObservableObject
         return error;
     }
 
+    /// <summary>
+    /// Faiz kartı için taslak kredi: ad gerekmez, aylık taksit ve kalan taksit geçerliyse kurulur,
+    /// değilse null (S64-9).
+    /// </summary>
+    public Loan? Draft(Loan? existing) =>
+        StatementEntryViewModel.TryParseAmount(PaymentInput, out var payment) && payment > 0m &&
+        int.TryParse(CountInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var count) && count >= 1
+            ? Build(existing, payment, count, ResolvePaymentDay(existing))
+            : null;
+
+    // Anapara ve kapatma tutarı faiz kartının işidir (LoanPayoffViewModel); burada olduğu gibi kalır.
     private Loan Build(Loan? existing, decimal payment, int count, int day)
     {
         var sameSchedule = existing is not null && existing.MonthlyPayment == payment && existing.RemainingInstallmentCount == count;
-        var loan = (existing ?? new Loan()) with
+        return (existing ?? new Loan()) with
         {
             Name = Name.Trim(),
             Bank = Bank.Trim(),
@@ -73,11 +84,6 @@ public sealed partial class LoanDefinitionViewModel : ObservableObject
             Kind = Kind,
             FinalPaymentAmount = sameSchedule ? existing!.FinalPaymentAmount : null
         };
-
-        // S64-4: son ödenen taksitten önce alınmış kapatma tutarı artık geçerli değil; eskisi gibi düşer.
-        return loan.EarlyClosureAmountAsOf is { } asOf && asOf < LoanAmortizationCalculator.PreviousDueDate(loan)
-            ? loan with { EarlyClosureAmount = null, EarlyClosureAmountAsOf = null }
-            : loan;
     }
 
     // S64-2: gün tarihin günüdür; kayıtlı gün o ayda aynı tarihe kenetleniyorsa (31 → 30 Eylül) korunur.
