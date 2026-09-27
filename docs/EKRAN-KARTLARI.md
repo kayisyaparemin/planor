@@ -770,7 +770,7 @@ satırlarından (`Eyebrow` + `Entry`, `Grid *,*`). Renk ve ses Planör marka tok
 | Gelirler, Kartlar, Krediler, Ödemeler grupları | **Kart** (4 × `ListCard`) | S1; boş grup görünmez |
 | Satır: ad · bağlam · tutar · › | **Satır** (tek paylaşılan şablon) | S1, S2 |
 | Satır aksiyonu (kart kontrol, sil; sonra düzenle) | **Satır** (dokun → diyalog) | S3; eskideki 7 düğme şablonu kalkar |
-| Kredi faizi, bugün kapatma bedeli, planlı erken ödemeler | **Derine** → `V6c` | İkinci seviye ayrıntı |
+| Kredi faizi, bugün kapatma bedeli, planlı erken ödemeler | **Derine** → `V6c` | İkinci seviye ayrıntı; planlı erken ödemeler sonradan elendi (`S65`) |
 | Kart ekstre / asgari dökümü, kesim günleri, ödeme kuralı | **Çıkar** | `EK-V7`'de var |
 | Kartta "Limit • Güncel borç" | **Çıkar** | `EK-V7` Kapı C: hiçbir kararı beslemiyor |
 | Grup toplamları | **Çıkar** | Tarihleri farklı kalemleri toplamak yanıltır; dönem toplamı `EK-V3` / `EK-V9`'un işi |
@@ -1031,20 +1031,22 @@ giriş bloğu ve Kaydet / Vazgeç düzeni `EK-V7` Hâl C'den, harcama satırı v
 ## EK-V6c — Kredi formu
 
 > Sayfa dosyası: `LoanFormPage.xaml`
-> Adım **V6c** üç alt adımda: `V6c1` kredinin tanımı + "Ekle" / "Düzenle", `V6c2` faiz ve bugün
-> kapatma bedeli, `V6c3` planlı erken ödemeler. Kapı A ve B ortak (bütün sayfa), Kapı C her alt
-> adımda ayrı. Davranış kararları: `S64`.
+> Adım **V6c** üç alt adıma bölünmüştü: `V6c1` kredinin tanımı + "Ekle" / "Düzenle", `V6c2` faiz ve
+> bugün kapatma bedeli, `V6c3` planlı erken ödemeler. Kapı A ve B ortak (bütün sayfa), Kapı C her alt
+> adımda ayrı. Davranış kararları: `S64`, `S65`.
 > **V6c1 tamamlandı** (Kapı C onaylı, koyu + açık): form kartı, Kaydet / Vazgeç, Finansal Yapı'da
 > "Ekle → Kredi" ve kredi satırında "Düzenle".
 > **V6c2 tamamlandı** (Kapı C onaylı, koyu + açık): faiz kartı — kalan anapara ve bankanın kapatma
-> tutarı, canlı bedel / ücret / kurtulunan faiz / aylık faiz (`S64`-9–11, `I68`, `I69`). `V6c3` açık.
+> tutarı, canlı bedel / ücret / kurtulunan faiz / aylık faiz (`S64`-9–11, `I68`, `I69`).
+> **V6c3 taşınmadı** (`S65`, V6c3 Kapı A kullanıcı kararı): ürünün planlı erken ödeme özelliği yok;
+> erken ödeme listesi ve giriş bloğu çıktı. **Kart tamamlandı**; sayfa `V6c2`'deki hâliyle son hâlidir.
 > Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
 > gövdesi olarak okunur (`EK-V6b` ile aynı).
 
 **Eski hâl:** `CommitmentsPage.xaml` kredi formu bölümü 35 satır, **11 `<Label>`** (ortak başlık,
 açıklama ve ad alanıyla 14), 9 giriş; Krediler bölümünde satır başına faiz / kapatma cümlesi ve
 erken ödeme satırları (4 etiket + not cümlesi + Sil); erken ödeme girişi `ScenarioConditionFormView`
-içinde ~7 etiket, 5 giriş. ViewModel: `CommitmentsViewModel.Loans` (120 satır), `.Operations`
+içinde 8 etiket, 6 giriş. ViewModel: `CommitmentsViewModel.Loans` (120 satır), `.Operations`
 (kredi ve erken ödeme satırları, silme), `ScenarioConditionForm` (403 satır / 2 dosya, ortak).
 
 ### 1. Sorular
@@ -1053,22 +1055,23 @@ içinde ~7 etiket, 5 giriş. ViewModel: `CommitmentsViewModel.Loans` (120 satır
 |---|---|---|
 | S1 | "Kredimi nasıl eklerim; taksit, kalan taksit ve sonraki ödemeyi nasıl düzeltirim?" | 14 etiket, 9 giriş; ödeme günü ve tarih ayrı iki alan |
 | S2 | "Bu kredinin faizi ne; bugün kapatırsam ne öderim, ne kadar faizden kurtulurum?" | Listede satır başına tek etiketlik iki satırlık cümle; formda 3 yardım cümlesi |
-| S3 | "Planlı erken ödemelerim neler, o gün ne kadar ödeyeceğim?" | Krediler listesinde ayrı satırlar: 4 etiket + not cümlesi + Sil |
-| S4 | "Yeni bir erken ödeme ya da kapamayı nasıl planlarım?" | "+ Ekle" → ortak senaryo formu (~7 etiket, 5 giriş) ya da simülatör |
+| ~~S3~~ | ~~"Planlı erken ödemelerim neler, o gün ne kadar ödeyeceğim?"~~ — **elendi** (`S65`) | Krediler listesinde ayrı satırlar: 4 etiket + not cümlesi + Sil |
+| ~~S4~~ | ~~"Yeni bir erken ödeme ya da kapamayı nasıl planlarım?"~~ — **elendi** (`S65`) | "+ Ekle" → ortak senaryo formu (8 etiket, 6 giriş) ya da simülatör |
+
+S3 ve S4 V6c3 Kapı A'da çıktı: ürünün planlı erken ödeme özelliği yok; kredi motoru bu bilgiyi
+arkada hesaplayıp faiz kartında (`S2`) ve `V8`'deki öneride sunar.
 
 ### 2. Kesme kararları
 
 | Bilgi / Öğe | Karar | Gerekçe |
 |---|---|---|
 | Ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi, kredi türü | **Satır** (form kartı: `Eyebrow` + giriş, `Grid *,*`) | S1 · `V6c1` |
-| Kaydet / Vazgeç | **Aksiyon** (`ActionFill` / `SecondaryButton`) | S1 · kredi ve erken ödemeleri birlikte yazar; değişiklik varsa çıkış onayı |
+| Kaydet / Vazgeç | **Aksiyon** (`ActionFill` / `SecondaryButton`) | S1 · krediyi yazar; değişiklik varsa çıkış onayı |
 | Finansal Yapı "Ekle"de "Kredi", kredi satırında "Düzenle" | **Aksiyon / Satır** (mevcut diyaloglara seçenek) | `EK-V6` S3, S4 · `V6c1` |
 | Kalan anapara, bankanın kapatma tutarı | **Satır** (faiz kartında) | S2 · `V6c2` · ikisi de isteğe bağlı |
 | Aylık faiz, bugün ödenecek, erken ödeme ücreti, kurtulunacak faiz | **Kart** (faiz kartı, `MetricRow`'lar, canlı) | S2 · `V6c2` |
 | Faiz hesaplanamadığında ne yapmalı | **Satır** (faiz kartında tek `Cumle_`, iki varyant) | S2 · `V6c2` |
-| Planlı erken ödemeler (şekil · tarih · o günkü tutar) | **Kart** (`ListCard`, ≤ 4 satır + "+N daha" yerinde, `GS21`) | S3 · `V6c3` |
-| Erken ödeme girişi (tarih, şekil, ara ödemede tutar) | **Kart** ("Erken ödeme planla" ile açılan giriş bloğu) | S4 · `V6c3` |
-| Erken ödemeyi silme | **Satır** (dokun → diyalog → Sil) | S3 · `V6c3` |
+| Planlı erken ödemeler, girişi ve silmesi | **Çıkar** | `S65` · V6c3 Kapı A: ürünün böyle bir özelliği yok |
 | Ayrı "Ödeme günü" alanı | **Çıkar** | Tarihten çözülür (`S64`-2) |
 | Form açıklaması, 3 yardım cümlesi, "kayıtlı tutar şu tarihli" notu | **Çıkar** | Faiz kartının tepkisi ve hata diyaloğu yeter |
 | "banka tutarından" kaynak işareti, kalan anapara satırı | **Çıkar** | Kararı değiştirmiyor; anapara giriş alanıyla aynı bilgi |
@@ -1082,10 +1085,10 @@ içinde ~7 etiket, 5 giriş. ViewModel: `CommitmentsViewModel.Loans` (120 satır
 ```
 Hero rakam    0 / 1     hero yok
 Hero yüzey    0 / 1     hero yüzey yok
-Kart          4 / 4     form kartı (V6c1), faiz kartı (V6c2), erken ödemeler ListCard + giriş bloğu (V6c3); analizci yalnız ListCard'ı sayar
+Kart          2 / 4     form kartı (V6c1), faiz kartı (V6c2); ikisi de Border, analizci saymaz
 Grafik        0 / 1     grafik yok
 NavRow        0 / 5     NavRow yok
-Label        16 / 28    form 6 (V6c1) + faiz kartı 4 (V6c2) + satır şablonu 3 + giriş 3 (V6c3); DataTemplate içi bir kez
+Label        10 / 28    form 6 (V6c1) + faiz kartı 4 (V6c2)
 Cumle_        2 / 3     Cumle_FaizIcinTutarGir, Cumle_TutarUyusmuyor (aynı anda biri görünür)
 ```
 
@@ -1123,22 +1126,7 @@ Cumle_        2 / 3     Cumle_FaizIcinTutarGir, Cumle_TutarUyusmuyor (aynı anda
 │   "Bu tutar taksitlerle uyuşmuyor; tutarı ve taksit bilgilerini kontrol et."
 │ ── Tutar var ama aylık taksit / kalan taksit geçersiz: yalnız iki giriş ──
 └────────────────────────────────────────────────────────────────────┘
-┌─ ListCard  Etiket_ErkenOdemeler ───────────────────────────────────┐  V6c3 · ← S3 · yalnız kayıt varsa
-│ Tamamen kapatma          TypeBody / TextPrimary     152.410 ₺      │
-│ 15 Mart                  Caption (Tarih)            Figure         │
-│ Ara ödeme · vade kısalır                             50.000 ₺      │  tutar hesaplanamıyorsa "—"
-│ 15 Ocak                                                            │
-│   … en fazla 4 satır, tarihe göre; fazlası: +N daha (GS21)          │
-│   dokun → ChooseAsync(şekil, "Vazgeç", "Sil")                       │
-└────────────────────────────────────────────────────────────────────┘
-[ Aksiyon_ErkenOdemePlanla             SecondaryButton ]                 V6c3 · ← S4 · giriş kapalıyken
-┌─ Giriş bloğu (Border SurfaceCard / RadiusCard / CardPadding) ──────┐  V6c3 · ← S4 · açıkken
-│ Etiket_OdemeTarihi           Etiket_OdemeSekli                     │
-│ [ DatePicker ≥ bugün ]       [ Picker  Tamamen kapat ▾ ]           │
-│ Etiket_AnaparadanDusecek     Eyebrow   yalnız ara ödemede          │
-│ [ Entry Numeric ]                                                  │
-│ [ Aksiyon_Ekle  ActionFill ]  [ Aksiyon_Vazgec  SecondaryButton ]  │
-└────────────────────────────────────────────────────────────────────┘
+  (V6c3'ün erken ödeme ListCard'ı ve giriş bloğu burada olacaktı — S65 ile elendi)
 [ Aksiyon_Kaydet  ActionFill ]     [ Aksiyon_Vazgec  SecondaryButton ]    V6c1 · ← S1 · Grid *,*
   Vazgeç / geri oku / geri tuşu → değişiklik varsa
     ConfirmAsync("Kaydetmeden çık", "Yaptığın değişiklikler kaydedilmeyecek.", "Çık", "Kal")
@@ -1156,7 +1144,7 @@ Kredi satırı → ChooseAsync(ad, "Vazgeç", "Sil", "Düzenle")
 Uygulama notları:
 - Sayfa `Routes.LoanForm` (`loan-form`) ile itilir; kaydedince `NavigateBackAsync`. Vazgeç, Shell
   geri oku (`BackButtonBehavior`) ve cihazın geri tuşu aynı `CancelCommand`'a gider (`EK-V6b` deseni).
-  "Değişiklik" formun yüklendiği andaki değerlerle karşılaştırılır (`V6c3`'te erken ödeme listesi dahil).
+  "Değişiklik" formun yüklendiği andaki değerlerle karşılaştırılır.
 - Düzenleme yüklenen kredinin üstüne `with` ile kurulur (`S64`-3). Ödeme günü sonraki taksit
   tarihinin günüdür; kayıtlı gün o ayda aynı tarihe kenetleniyorsa korunur (`S64`-2).
 - Tutar girişi V7'nin Türkçe okuyucusuyla (`I60`). Ad boş, taksit ≤ 0, kalan taksit < 1 → diyalog;
@@ -1179,26 +1167,21 @@ Uygulama notları:
   anapara varsa o; ikisi boşsa ikisi de temizlenir. Geçersiz tutar ("abc", 0, eksi) diyalogla
   reddedilir. Bayat tutarı düşürme `LoanDefinitionViewModel`'den bu çocuğa taşınır (`S64`-10).
   `HasChanges` iki tutarı da sayar.
-- Erken ödeme satırı (`V6c3`) ham veri taşır (`LoanPrepaymentRow`: kimlik, şekil, tarih, tutar);
-  şekil metni `ErkenOdemeTuruConverter`'da. Satır şablonu `ContentPage.Resources`'ta (`EK-V6b` notu:
-  iç içe `ListCard.ItemTemplate` bütçe analizcisinde ikinci kart sayılır). "Ekle" girişi formun o
-  anki kredisine göre `LoanPrepaymentValidator` ile doğrular; Kaydet hepsini Application'da yeniden
-  doğrular ve tek kayıtta yazar.
-- Yeni bileşen yok. Yeni converter: `KrediTuruConverter` (`V6c1`), `YuzdeConverter` (`V6c2`),
-  `ErkenOdemeTuruConverter` (`V6c3`).
+- Planlı erken ödemeler bu sayfada yok (`S65`). Kredinin kayıtlı erken ödemeleri (yalnız simülatörden
+  doğabilir, `V10`) form tarafından gösterilmez ve dokunulmaz.
+- Yeni bileşen yok. Yeni converter: `KrediTuruConverter` (`V6c1`), `YuzdeConverter` (`V6c2`).
 
 ### 5. Üç durum
 
 | Durum | Görünen |
 |---|---|
-| Boş | Yeni kredi: form boş alanlarla açılır (sonraki taksit bir ay sonrası, tür İhtiyaç / taşıt); faiz kartında `Cumle_FaizIcinTutarGir`; erken ödeme yoksa `ListCard` gizli, yalnız "Erken ödeme planla" görünür. StateBlock yok. |
+| Boş | Yeni kredi: form boş alanlarla açılır (sonraki taksit bir ay sonrası, tür İhtiyaç / taşıt); faiz kartında `Cumle_FaizIcinTutarGir`. StateBlock yok. |
 | Yükleniyor | Düzenlemede üç `SkeletonBlock`; spinner yok (`GS14`). Yeni kredide yükleme yok. |
 | Hata | Kredi okunamazsa `StateBlock` (Hata, `Close` ikonu, `Hata_KrediYuklenemedi`, `Aksiyon_TekrarDene` → yükle). Kredi bulunamazsa diyalog ve geri dönüş. Kaydetme hatasında diyalog; form olduğu gibi kalır. |
 
 ### 6. Konsept ilişkisi
 
-Konsept karşılığı **yok** (`GS2`). Form, erken ödeme `ListCard`'ı, giriş bloğu ve Kaydet / Vazgeç
-düzeni `EK-V6b`'den; faiz kartındaki `MetricRow` satırları `EK-V3`'ten (`GS20`); kararın bedelini
+Konsept karşılığı **yok** (`GS2`). Form ve Kaydet / Vazgeç düzeni `EK-V6b`'den; faiz kartındaki `MetricRow` satırları `EK-V3`'ten (`GS20`); kararın bedelini
 gösterme fikri `EK-V7`'den. Renk ve ses Planör marka token'larından (`GS7`).
 
 ### EK-V5 — İlk düzen seçimi
@@ -1244,7 +1227,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
-| EK-V6c | Kredi formu | 14 | 10 | ✅ V6c1 + V6c2 (V6c3 açık; sayfanın tamamı 16) |
+| EK-V6c | Kredi formu | 14 | 10 | ✅ V6c1 + V6c2 (V6c3 elendi, `S65`) |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
