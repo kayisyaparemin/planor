@@ -234,6 +234,10 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
           kart satırında "Düzenle"
     - [x] **V6b2** — aynı sayfaya gelecek kart harcamaları (`S61`-7): açıklama, aylık tutar ×
           taksit sayısı, ilk taksit tarihi; liste ve silme
+    - [ ] **Takip** — taksitli harcamanın bütün taksitlerini tek seferde silme; bugün her ay tek
+          tek siliniyor *(V6b2 sonrası kullanıcı isteği; `duzeltme.md`, büyük ihtimalle tür K: taksitler
+          birbirine bağlı saklanmıyor, `CardCharge`'ta grup kimliği yok; "Açıklama (i/N)" adına
+          dayanmak eski veride tutmaz)*
   - [ ] **V6c** — kredi formu: ekle / düzenle + faiz ve bugün kapatma bedeli + planlı erken ödemeler
   - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
