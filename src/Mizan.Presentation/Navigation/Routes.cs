@@ -32,6 +32,9 @@ public static class Routes
     /// <summary>Kart kontrol sayfasına hangi kartın açılacağını taşıyan sorgu parametresi.</summary>
     public const string CardIdParameter = "cardId";
 
+    /// <summary>Kart ekleme / düzenleme formu rotası; <see cref="CardIdParameter"/> verilirse düzenleme.</summary>
+    public const string CardForm = "card-form";
+
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";
 

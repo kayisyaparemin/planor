@@ -76,8 +76,45 @@ public sealed class FinancialStructureViewModelTests
         await _viewModel.SelectRecordCommand.ExecuteAsync(card);
 
         Assert.Equal("Axess", _dialog.LastChooseTitle);
-        Assert.Equal(["Ödemeyi yönet"], _dialog.LastChooseOptions);
+        Assert.Equal(["Ödemeyi yönet", "Düzenle"], _dialog.LastChooseOptions);
         Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_KartDuzenle_KartFormunuKartKimligiyleAcar()
+    {
+        var card = await LoadWith(new FinancialPlan { CreditCards = [Card("Axess", carried: 4000m)] }, vm => vm.Cards);
+        _dialog.NextChooseResponse = "Düzenle";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(card);
+
+        Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
+        Assert.Equal(card.Id.ToString(), _navigation.LastParameters?[Routes.CardIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
+    public async Task Add_KrediKartiSecilince_KartFormunuKimliksizAcar()
+    {
+        _dialog.NextChooseResponse = "Kredi kartı";
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.Equal(["Kredi kartı"], _dialog.LastChooseOptions);
+        Assert.Null(_dialog.LastChooseDestruction);
+        Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task Add_Vazgecilirse_Gezinmez()
+    {
+        _dialog.NextChooseResponse = null;
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.NotNull(_dialog.LastChooseOptions);
+        Assert.Null(_navigation.LastNavigatedRoute);
     }
 
     [Fact]

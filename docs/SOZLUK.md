@@ -217,6 +217,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kart ekstre hesaplayıcısı | `CreditCardStatementCalculator` | Kredi kartı ekstre döngülerini, dönem içi harcamaları, asgari ödemeleri ve devreden bakiye üzerindeki carry faizini simüle eden saf projeksiyon motoru |
 | sıradaki ödeme | `NextPaymentViewModel.FindPaymentIndex` | Kartın kesilmiş ekstresi; yoksa tutarı sıfırdan büyük ilk tahmini ekstresi. Kart kontrol ekranının merkezi; kararı tahminde vadeye özel plana yazılır (EK-V7, S61) |
 | kararın bedeli | `CarriedAfterPayment` + sonraki `CarryInterest` | Ödeme ekstreden azsa sonraki ekstreye devreden tutar ve ona binen faiz (EK-V7 S2) |
+| güncel borç | `CarriedBalance` + `UnbilledSpending` | Ekstresi kesilmemiş kartın şu anki borcu. Kart formunda değiştirilirse faizsiz dönem içi harcama olarak yazılır (S63-4, I63) |
+| kart formu | `CardFormViewModel` | Kartı ekleyen ya da düzenleyen sayfa; kaydedilmemiş değişiklikte çıkmadan önce onay sorar (EK-V6b) |
+| kartın tanımı | `CardDefinitionViewModel` | Kart formundaki ad, banka, limit, kesim ve son ödeme günü, güncel borç; ekstre ve ödeme kararları dışında kalan her şey (S63-2) |
 | kart ödemesi mutabakatçısı | `CreditCardActualPaymentReconciler` | Dönem kapanışında kredi kartına yapılan fiili ödemeyi hazır ekstre projeksiyonundan düşüp kalan anaparayı bir sonraki döneme devreden saf hesaplayıcı |
 
 ## Vadeli ve Geçici Borç Planı

@@ -49,7 +49,11 @@
         <VerticalStackLayout Spacing="{StaticResource Space4}"
                              Padding="{StaticResource PagePadding}">
 
-            <comp:PageHeader Title="{x:Static strings:Strings.Baslik_FinansalYapi}" />
+            <!-- S4: "Ekle" kayıt türünü sorar (S63-1) -->
+            <comp:PageHeader Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
+                             ActionText="{x:Static strings:FinancialStructureStrings.Aksiyon_Ekle}"
+                             ActionCommand="{Binding AddCommand}"
+                             AutomationId="{x:Static auto:AutomationIds.BtnStructureAdd}" />
 
             <!-- Yükleniyor -->
             <VerticalStackLayout Spacing="{StaticResource Space3}"

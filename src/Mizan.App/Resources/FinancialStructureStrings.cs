@@ -49,4 +49,7 @@ public static class FinancialStructureStrings
 
     /// <summary>Okuma hatasında görünen metin.</summary>
     public const string Hata_YapiYuklenemedi = "Finansal yapı okunamadı.";
+
+    /// <summary>Başlıktaki aksiyon: eklenecek kayıt türünü sorar (S63-1).</summary>
+    public const string Aksiyon_Ekle = "Ekle";
 }

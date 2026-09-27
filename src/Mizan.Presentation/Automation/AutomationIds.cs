@@ -193,4 +193,7 @@ public static class AutomationIds
 
     /// <summary>Finansal yapı: ödemeler listesi kimliği.</summary>
     public const string ListStructurePayments = "list-structure-payments";
+
+    /// <summary>Finansal yapı: başlıktaki ekle aksiyonu kimliği.</summary>
+    public const string BtnStructureAdd = "btn-structure-add";
 }

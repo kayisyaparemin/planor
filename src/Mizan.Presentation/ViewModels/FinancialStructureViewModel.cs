@@ -9,14 +9,17 @@ namespace Mizan.Presentation.ViewModels;
 
 /// <summary>
 /// Finansal Yapı ekranının görünüm modelidir: plana giren kayıtları dört grupta sunar ve satıra
-/// dokununca tek diyalogla kart kontrolü açar ya da kaydı siler (EK-V6, S62). Formlar ayrı
-/// sayfalardır ve V6b–V6e'de gelir.
+/// dokununca tek diyalogla kart kontrolü ya da kart formunu açar veya kaydı siler (EK-V6, S62).
+/// Başlıktaki "Ekle" kayıt türünü sorar; formlar ayrı sayfalardır (kart: S63, diğerleri V6c–V6e).
 /// </summary>
 public sealed partial class FinancialStructureViewModel : ViewModelBase
 {
     private const string CancelText = "Vazgeç";
     private const string DeleteText = "Sil";
     private const string ManagePaymentText = "Ödemeyi yönet";
+    private const string EditText = "Düzenle";
+    private const string AddTitle = "Ne eklemek istiyorsun?";
+    private const string CreditCardText = "Kredi kartı";
     private const string DeleteConfirmTitle = "Kaydı sil";
     private const string DeleteFailedTitle = "Kayıt silinemedi";
     private const string UnexpectedErrorMessage = "Kayıt silinirken bir sorun oluştu. Tekrar dene.";
@@ -61,7 +64,17 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
         SetBusy(false);
     }
 
-    /// <summary>Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme, her türde silme.</summary>
+    /// <summary>Eklenebilecek kayıt türlerini sorar ve seçilen türün formunu açar (S63-1).</summary>
+    [RelayCommand]
+    private async Task AddAsync()
+    {
+        if (await _dialogService.ChooseAsync(AddTitle, CancelText, null, CreditCardText) == CreditCardText)
+        {
+            await _navigationService.NavigateToAsync(Routes.CardForm);
+        }
+    }
+
+    /// <summary>Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme ve düzenleme, her türde silme.</summary>
     [RelayCommand]
     private async Task SelectRecordAsync(FinancialRecordRow? row)
     {
@@ -70,12 +83,12 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
             return;
         }
 
-        string[] options = row.Kind == FinancialRecordKind.CreditCard ? [ManagePaymentText] : [];
+        string[] options = row.Kind == FinancialRecordKind.CreditCard ? [ManagePaymentText, EditText] : [];
         var choice = await _dialogService.ChooseAsync(row.Name, CancelText, DeleteText, options);
-        if (choice == ManagePaymentText)
+        if (choice is ManagePaymentText or EditText)
         {
             var parameters = new Dictionary<string, object> { [Routes.CardIdParameter] = row.Id };
-            await _navigationService.NavigateToAsync(Routes.CardControl, parameters);
+            await _navigationService.NavigateToAsync(choice == EditText ? Routes.CardForm : Routes.CardControl, parameters);
         }
         else if (choice == DeleteText)
         {

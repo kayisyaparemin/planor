@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.CardFormPage"
+             x:DataType="vm:CardFormViewModel"
+             AutomationId="{x:Static auto:RecordFormAutomationIds.PageCardForm}">
+
+    <!-- EK-V6b: Kart formu (V6b1 — kartın tanımı). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S1: yeni kart ya da düzenleme -->
+            <comp:PageHeader Title="{x:Static strings:CardFormStrings.Baslik_YeniKart}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding IsEditing}" Value="True">
+                        <Setter Property="Title" Value="{x:Static strings:CardFormStrings.Baslik_KartiDuzenle}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: kartın tanımı + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S1, S4: form kartı -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_KartAdi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.Name}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_KartAdi}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputCardName}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_Banka}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.Bank}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Banka}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputCardBank}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_Limit}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.LimitInput}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Tutar}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputCardLimit}" />
+                        </VerticalStackLayout>
+
+                        <!-- S4: yalnız kesilmiş ekstresi olmayan kartta; faizsiz harcama olarak yazılır (S63-4) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding Fields.ShowsDebt}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_GuncelBorc}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.DebtInput}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Tutar}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputCardDebt}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              RowDefinitions="Auto, Auto"
+                              ColumnSpacing="{StaticResource Space2}"
+                              RowSpacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:CardFormStrings.Etiket_KesimGunu}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Grid.Column="1"
+                                   Text="{x:Static strings:CardFormStrings.Etiket_SonOdemeGunu}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Grid.Row="1"
+                                   Text="{Binding Fields.ClosingDayInput}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Gun}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputCardClosingDay}" />
+                            <Entry Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding Fields.DueDayInput}"
+                                   Placeholder="{x:Static strings:CardFormStrings.YerTutucu_Gun}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputCardDueDay}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S1: kaydet kartı yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:CardFormStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnSaveCard}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:CardFormStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelCard}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek kart okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:CardFormStrings.Hata_KartYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding RetryCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

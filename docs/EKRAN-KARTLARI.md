@@ -797,7 +797,7 @@ Cumle_        0 / 3     açıklama cümlesi yok
 
 ```
 ┌─ PageHeader ──────────────────────────────────────────────────────┐
-│ Baslik_FinansalYapi         TypeTitle   / TextPrimary              │  üst etiket yok; aksiyon yok (V6b: Ekle)
+│ Baslik_FinansalYapi         TypeTitle   / TextPrimary    [ Ekle ]  │  üst etiket yok; Aksiyon_Ekle metin (V6b1, EK-V6b)
 └────────────────────────────────────────────────────────────────────┘
 ┌─ ListCard  Etiket_Gelirler ────────────────────────────────────────┐  ← S1, S2, S3
 │ Gelir                    TypeBody / TextPrimary      45.000 ₺   ›  │
@@ -840,9 +840,11 @@ Grid  "*, Auto, Auto"  ColumnSpacing Space3        dokun → SelectRecordCommand
 Satır diyaloğu (`IDialogService`, `T8` gelene kadar sistem diyaloğu):
 
 ```
-Kart        → ChooseAsync(ad, "Vazgeç", "Sil", "Ödemeyi yönet")
-Diğerleri   → ChooseAsync(ad, "Vazgeç", "Sil")                 V6b–V6e: + "Düzenle"
+Kart        → ChooseAsync(ad, "Vazgeç", "Sil", "Ödemeyi yönet", "Düzenle")     V6b1
+Diğerleri   → ChooseAsync(ad, "Vazgeç", "Sil")                 V6c–V6e: + "Düzenle"
 Ödemeyi yönet → Routes.CardControl + cardId
+Düzenle     → Routes.CardForm + cardId                          (EK-V6b)
+Ekle        → ChooseAsync("Ne eklemek istiyorsun?", "Vazgeç", null, "Kredi kartı") → Routes.CardForm
 Sil         → ConfirmAsync("Kaydı sil", "{ad} ve ona bağlı kayıtlar kalıcı olarak silinecek.",
                            "Sil", "Vazgeç") → türüne göre sil → listeyi yeniden yükle
 ```
@@ -871,7 +873,7 @@ Uygulama notları:
 
 | Durum | Görünen |
 |---|---|
-| Boş | Hiçbir grupta satır yoksa `StateBlock` (Boş, `AccountBalance` ikonu, `Bos_KayitYok`); aksiyon yok, `V6b`'den sonra başlıktaki "Ekle" kullanılır. |
+| Boş | Hiçbir grupta satır yoksa `StateBlock` (Boş, `AccountBalance` ikonu, `Bos_KayitYok`); aksiyon yok, başlıktaki "Ekle" kullanılır (`V6b1`). |
 | Yükleniyor | Üç `SkeletonBlock`; spinner yok (`GS14`). |
 | Hata | Okuma hatasında `StateBlock` (Hata, `Close` ikonu, `Hata_YapiYuklenemedi`, `Aksiyon_TekrarDene` → yükle); silme hatasında diyalog, liste olduğu gibi kalır. |
 
@@ -880,6 +882,145 @@ Uygulama notları:
 Konsept karşılığı **yok** (`GS2`). Türetme kaynağı `EK-V7`'nin "Sonraki ödemeler" satırı
 (ad/tarih + `Caption` bağlam + `Figure` tutar) ve `EK-V3`'ün kalan ödeme satırları; `StateBlock`,
 `SkeletonBlock`. Taşma davranışı `GS21`. Renk ve ses Planör marka token'larından (`GS7`).
+
+## EK-V6b — Kart formu
+
+> Sayfa dosyası: `CardFormPage.xaml`
+> Adım **V6b** iki alt adımda: `V6b1` kartın tanımı + "Ekle" / "Düzenle", `V6b2` gelecek kart
+> harcamaları. Kapı A ve B ortak (bütün sayfa), Kapı C her alt adımda ayrı. Davranış kararları: `S63`.
+> **V6b1 tamamlandı** (Kapı C onaylı, koyu + açık); `V6b2` açık.
+> Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
+> gövdesi olarak okunur.
+
+**Eski hâl:** `CommitmentsPage.xaml` kart formu bölümü 158 satır, **28 `<Label>`** (ortak ad alanı,
+form başlığı, açıklama ve durum mesajıyla ~32), 9 buton, 21 giriş; `CardControlPage.xaml` gelecek
+harcamalar bölümü 6 `<Label>`, 4 buton, 3 giriş. ViewModel: `CommitmentsViewModel.Cards` (338 satır),
+`.Entry` (`EditCardAsync`), `.Plans` (harcama ekle / sil).
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Kartımı nasıl eklerim, bilgilerini nasıl düzeltirim?" | ~12 etiket: ad, banka, limit, kesim, son ödeme, asgari % |
+| S2 | "Karta henüz yansımamış hangi taksitler var, hangi ay ne kadar?" | Bölüm başlığı + satır başına 3 etiket + Sil; açıklama hep "Gelecek taksit" |
+| S3 | "Yeni bir taksitli alışverişi nasıl eklerim?" | Tarih + tutar + Ekle; taksitler tek tek |
+| S4 | "Kartın şu anki borcu ne kadar?" *(kesilmiş ekstre yoksa)* | "Kesilmiş ekstren var mı?" Evet/Hayır + devreden + ekstreleşmemiş + bakiye tarihi: 4 etiket, 2 buton |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Ad, banka, limit, kesim günü, son ödeme günü | **Satır** (form kartı: `Eyebrow` + `Entry`, `Grid *,*`) | S1 · `V6b1` |
+| Güncel borç | **Satır** (form kartında, yalnız kesilmiş ekstre yokken) | S4 · `V6b1` · faizsiz ekstreleşmemiş harcama (`S63`-4) |
+| Kaydet | **Aksiyon** (`ActionFill`) | S1 · kartı ve harcamaları birlikte yazar |
+| Vazgeç | **Aksiyon** (`SecondaryButton`) | S1 · kaydedilmemiş değişiklik varsa onay sorar; geri oku ve cihazın geri tuşu da aynı yoldan geçer (Kapı B) |
+| Finansal Yapı başlığında "Ekle" | **Aksiyon** (`PageHeader` metin aksiyonu; ikon değil, `T7`) | `EK-V6` S4 · `V6b1` · tek seçenekli seçici |
+| Kart satırı diyaloğunda "Düzenle" | **Satır** (mevcut diyaloğa seçenek) | `EK-V6` S3 · `V6b1` |
+| Gelecek harcamalar (açıklama · tarih · tutar) | **Kart** (`ListCard`, ≤ 4 satır + "+N daha" yerinde, `GS21`) | S2 · `V6b2` |
+| Harcama girişi | **Kart** ("Gelecek harcama ekle" ile açılan giriş bloğu) | S3 · `V6b2` |
+| Harcamayı silme | **Satır** (dokun → diyalog → Sil) | S2 · `V6b2` |
+| PDF'den okuma | **Çıkar** | `S21` |
+| Ekstre alanları, sonraki tahmini tarihler, bu ekstrenin ödeme planı | **Çıkar** | `EK-V7`'de (`S61`) |
+| Varsayılan ödeme şekli, sabit tutar, varsayım | **Çıkar** | `EK-V7` NavRow'unda |
+| Asgari %, bakiye tarihi, "Kesilmiş ekstren var mı?" | **Çıkar** | Oran limitten (`I6`); tarih bugün; ekstre varlığı veriden okunur |
+| Form açıklama cümlesi, durum mesajı, spinner | **Çıkar** | Başlık yeter; hata diyalogla; `GS14` |
+| Limit kullanım çubuğu | **Çıkar** (Kapı B) | `EK-V7` Kapı C aynı çubuğu "hiçbir kararı beslemiyor" diye çıkardı; formda yazarken oynar |
+| Harcama toplamı | **Çıkar** | Tarihleri farklı kalemleri toplamak yanıltır (`EK-V6` ile aynı gerekçe) |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1     hero yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          3 / 4     form kartı (V6b1), harcama giriş bloğu, harcamalar ListCard (V6b2); analizci yalnız ListCard'ı sayar
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     NavRow yok
+Label        13 / 28    form 6 (V6b1) + giriş 4 + satır şablonu 3 (V6b2); DataTemplate içi bir kez
+Cumle_        0 / 3     açıklama cümlesi yok
+```
+
+### 4. Blok şeması
+
+```
+┌─ PageHeader ──────────────────────────────────────────────────────┐
+│ Baslik_YeniKart | Baslik_KartiDuzenle   TypeTitle / TextPrimary    │  ← S1   üst etiket yok, aksiyon yok
+└────────────────────────────────────────────────────────────────────┘
+┌─ Form kartı (Border SurfaceCard / RadiusCard / CardPadding) ───────┐  V6b1
+│ Etiket_KartAdi               Eyebrow                               │  ← S1
+│ [ Entry  "Örn. Bonus, Maximum" ]                                   │
+│ Etiket_Banka                 Eyebrow                               │  ← S1
+│ [ Entry  "Örn. Garanti BBVA" ]                                     │
+│ Etiket_Limit                 Eyebrow                               │  ← S1
+│ [ Entry Numeric ]                                 tam genişlik     │
+│ Etiket_GuncelBorc            Eyebrow                               │  ← S4 · yalnız ekstresiz kartta
+│ [ Entry Numeric "0" ]                             tam genişlik     │
+│ Etiket_KesimGunu             Etiket_SonOdemeGunu                   │  ← S1
+│ [ Entry Numeric "1–31" ]     [ Entry Numeric "1–31" ]              │
+└────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_GelecekHarcamalar ───────────────────────────────┐  V6b2 · ← S2 · yalnız harcama varsa
+│ Telefon (3/12)           TypeBody / TextPrimary        2.000 ₺     │
+│ 5 Kasım                  Caption (Tarih)               Figure      │
+│   … en fazla 4 satır, tarihe göre; fazlası:                         │
+│ +7 daha                  OverflowText (Bicim_FazlaKayit)        ›  │  GS21: yerinde açar
+│   dokun → ChooseAsync(açıklama, "Vazgeç", "Sil")                    │
+└────────────────────────────────────────────────────────────────────┘
+[ Aksiyon_GelecekHarcamaEkle          SecondaryButton ]                  V6b2 · ← S3 · giriş kapalıyken
+┌─ Giriş bloğu (Border SurfaceCard / RadiusCard / CardPadding) ──────┐  V6b2 · ← S3 · açıkken
+│ Etiket_Aciklama              Eyebrow                               │
+│ [ Entry  "Örn. Telefon" ]                                          │
+│ Etiket_AylikTutar            Etiket_TaksitSayisi                   │
+│ [ Entry Numeric ]            [ Entry Numeric "1" ]                 │
+│ Etiket_IlkTaksitTarihi       Eyebrow                               │
+│ [ DatePicker  en erken bugün, varsayılan bir ay sonra ]            │
+│ [ Aksiyon_Ekle  ActionFill ]  [ Aksiyon_Vazgec  SecondaryButton ]  │
+└────────────────────────────────────────────────────────────────────┘
+[ Aksiyon_Kaydet  ActionFill ]     [ Aksiyon_Vazgec  SecondaryButton ]    V6b1 · ← S1 · Grid *,*
+  Vazgeç / geri oku / geri tuşu → değişiklik varsa
+    ConfirmAsync("Kaydetmeden çık", "Yaptığın değişiklikler kaydedilmeyecek.", "Çık", "Kal")
+```
+
+Finansal Yapı'daki değişiklik (`EK-V6`, `V6b1`):
+
+```
+PageHeader  Baslik_FinansalYapi                          [ Aksiyon_Ekle ]   metin aksiyonu
+  Ekle        → ChooseAsync("Ne eklemek istiyorsun?", "Vazgeç", null, "Kredi kartı")
+                → Routes.CardForm (kimliksiz)                  V6c–V6e: + kendi seçenekleri
+  Kart satırı → ChooseAsync(ad, "Vazgeç", "Sil", "Ödemeyi yönet", "Düzenle")
+                Düzenle → Routes.CardForm + cardId
+```
+
+Uygulama notları:
+- Sayfa `Routes.CardForm` (`card-form`) ile itilir. Kaydedince `NavigateBackAsync`; Finansal Yapı
+  görünüşte listeyi yeniler. Vazgeç düğmesi, Shell geri oku (`BackButtonBehavior`) ve cihazın geri
+  tuşu aynı `CancelCommand`'a gider; değişiklik yoksa onaysız döner. "Değişiklik", formun yüklendiği
+  andaki değerlerle karşılaştırılır (`V6b2`'de harcama listesi de dahil).
+- Düzenleme yüklenen kartın üstüne `with` ile kurulur; formun dokunmadığı her alan (ekstre, ekstre
+  planı, vade planları, tercih geçmişi, bilinen sonraki tarihler, ödeme şekli, harcamalar `V6b1`'de)
+  olduğu gibi kalır.
+- Tutar girişi V7'nin Türkçe okuyucusuyla (`I60`); gün alanları 1–31. Ad boş, limit ≤ 0, gün aralık
+  dışı → diyalog; kalan kurallar `CreditCardValidator`'da.
+- Harcama satırı ham veri taşır (`CardChargeRow`: kimlik, açıklama, tarih, tutar); tarih metni
+  mevcut `Tarih` converter'ıyla kurulur. Taşma `FazlaKayitConverter` ile.
+- Yeni bileşen yok. Yeni converter yok.
+- `V6b1` uygulaması: sayfa ViewModel'i (`CardFormViewModel`) yükleme, kaydetme, vazgeçme ve "Tekrar
+  dene"yi (`RetryCommand`: aynı kartı yeniden yükler) yürütür; alanlar, doğrulama ve kartı kurma
+  çocuk `CardDefinitionViewModel`'dedir (200 satır sınırı). `V6b2` harcamaları ikinci bir çocukla
+  ekler. Form kimlikleri `RecordFormAutomationIds`'te (`AutomationIds` dosya sınırında); kimlik
+  testleri ad alanındaki bütün sınıfları birlikte denetler.
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Yeni kart: form boş alanlarla açılır (StateBlock yok). Harcama yoksa `ListCard` gizlidir, yalnız "Gelecek harcama ekle" görünür. |
+| Yükleniyor | Düzenlemede üç `SkeletonBlock`; spinner yok (`GS14`). Yeni kartta yükleme yok. |
+| Hata | Kart okunamazsa `StateBlock` (Hata, `Close` ikonu, `Hata_KartYuklenemedi`, `Aksiyon_TekrarDene` → yükle). Kart bulunamazsa diyalog ve geri dönüş. Kaydetme hatasında diyalog; form olduğu gibi kalır. |
+
+### 6. Konsept ilişkisi
+
+Konsept karşılığı **yok** (`GS2`). Form satırları `EK-V4` Adım 3'ten (`Eyebrow` + `Entry`, `Grid *,*`),
+giriş bloğu ve Kaydet / Vazgeç düzeni `EK-V7` Hâl C'den, harcama satırı ve taşma `EK-V6` satır
+şablonundan ve `GS21`'den. Renk ve ses Planör marka token'larından (`GS7`).
 
 ### EK-V5 — İlk düzen seçimi
 Konsept karşılığı **yok.** `V6`'ya dayanır.
@@ -923,6 +1064,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
+| EK-V6b | Kart formu | 28 | 6 | ✅ V6b1 (harcamalar V6b2) |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |

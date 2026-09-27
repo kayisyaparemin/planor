@@ -1,0 +1,17 @@
+{
+  "Baslik_YeniKart": "Yeni Kart",
+  "Baslik_KartiDuzenle": "Kartı Düzenle",
+  "Etiket_KartAdi": "KART ADI",
+  "Etiket_Banka": "BANKA",
+  "Etiket_Limit": "LİMİT",
+  "Etiket_GuncelBorc": "GÜNCEL BORÇ",
+  "Etiket_KesimGunu": "KESİM GÜNÜ",
+  "Etiket_SonOdemeGunu": "SON ÖDEME GÜNÜ",
+  "YerTutucu_KartAdi": "Örn. Bonus, Maximum",
+  "YerTutucu_Banka": "Örn. Garanti BBVA",
+  "YerTutucu_Tutar": "0",
+  "YerTutucu_Gun": "1–31",
+  "Aksiyon_Kaydet": "Kaydet",
+  "Aksiyon_Vazgec": "Vazgeç",
+  "Hata_KartYuklenemedi": "Kart bilgileri okunamadı."
+}

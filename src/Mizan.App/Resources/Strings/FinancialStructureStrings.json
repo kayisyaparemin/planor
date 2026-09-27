@@ -12,5 +12,6 @@
   "Etiket_PlanOdemesiYok": "Ödemesi yok",
   "Bicim_FazlaKayit": "+{0} daha",
   "Bos_KayitYok": "Henüz gelir, kart, kredi ya da ödeme kaydın yok.",
-  "Hata_YapiYuklenemedi": "Finansal yapı okunamadı."
+  "Hata_YapiYuklenemedi": "Finansal yapı okunamadı.",
+  "Aksiyon_Ekle": "Ekle"
 }

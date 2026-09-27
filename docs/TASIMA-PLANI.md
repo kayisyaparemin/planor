@@ -227,7 +227,13 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
         Ödemeler), satır diyaloğu (kart → kart kontrol, sil); geçici "Kart Kontrol" öğesi
         kalkar (`S61`-8); `Routes.Commitments` → `Routes.FinancialStructure`; taşma yerinde
         açılır (`GS21`)
-  - [ ] **V6b** — kart formu: ekle / düzenle + gelecek kart harcamaları (`S61`-7); başlıkta "Ekle"
+  - [ ] **V6b** — kart formu (`S63`, `EK-V6b`). Aşama 1'de ~430 satır çıktığı için ikiye bölündü;
+        Kapı A ve B ortak, Kapı C her alt adımda ayrı.
+    - [x] **V6b1** — `CardFormPage`: kartın tanımı (ad, banka, limit, kesim / son ödeme günü,
+          güncel borç), ekle / düzenle; Finansal Yapı başlığında "Ekle" (tek seçenekli seçici),
+          kart satırında "Düzenle"
+    - [ ] **V6b2** — aynı sayfaya gelecek kart harcamaları (`S61`-7): açıklama, aylık tutar ×
+          taksit sayısı, ilk taksit tarihi; liste ve silme
   - [ ] **V6c** — kredi formu: ekle / düzenle + faiz ve bugün kapatma bedeli + planlı erken ödemeler
   - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
@@ -270,6 +276,6 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | T | 6 | 8 *(T7, T8 V7 Kapı C'de açıldı)* |
-| V | 5 | 14 *(V6 beş alt adımda: V6a tamam)* |
+| V | 5 | 14 *(V6 altı alt adımda: V6a, V6b1 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

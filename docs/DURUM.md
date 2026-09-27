@@ -6,15 +6,19 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6a** — finansal yapı listesi |
-| Sıradaki adım | **V6b** — kart formu + gelecek kart harcamaları |
-| Test sayısı | 1433 |
+| Son tamamlanan adım | **V6b1** — kart formu: kartın tanımı, ekle / düzenle |
+| Sıradaki adım | **V6b2** — kart formuna gelecek kart harcamaları |
+| Test sayısı | 1468 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6b1 — kart formu: `CardFormViewModel`, `CardDefinitionViewModel`, `CardFormPage`; Finansal Yapı'da "Ekle" ve "Düzenle"
+
+Eski satır içi kart formu (`CommitmentsPage.xaml` kart bölümü 158 satır / 28 Label, 9 buton, 21 giriş) ayrı sayfaya indi: 130 satır / 6 Label; ViewModel 138 + 107 satır (5 bağımlılık, alanlar çocuk ViewModel'de). Aşama 1'de ~430 satır çıktığı için V6b ikiye bölündü; Kapı A ve B ortak, bu adım kartın tanımını getirdi (`S63`): ad, banka, limit, kesim / son ödeme günü, güncel borç (yalnız ekstresiz kartta). Ekstre ve ödeme kararları kart kontrolde kaldı. Asgari oran sorulmaz, limitten çözülür; düzenlemede yalnız limit değişince ya da oran 0 iken. Güncel borç değişirse faizsiz dönem içi harcama olarak yazılır (`I63`); formun dokunmadığı her alan korunur (`I64`). Finansal Yapı başlığında metin aksiyonu "Ekle" (tek seçenekli seçici: Kredi kartı), kart satırında "Düzenle". Kapı B'de Vazgeç düğmesi ve kaydetmeden çıkış onayı eklendi (düğme, geri ok, cihaz geri tuşu aynı yoldan); limit çubuğu önerisi `EK-V7` kararıyla reddedildi. Kalkanda iki yapı değişikliği: 200 satır sınırı için alanlar `CardDefinitionViewModel`'e, form kimlikleri `RecordFormAutomationIds`'e ayrıldı. **Dikkat:** gelecek kart harcamaları `V6b2`'de; `V4` kurulumu kartı asgari oran 0 ile ve güncel borcu faizli devreden bakiyeye yazıyor (ayrı düzeltme oturumu, `S63`); GK9 kart ayrıştırıcısı harf ekli anahtarı (`EK-V6b`) tanımıyor, ayrıca değerlendirilecek. Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 1/4, Grafik 0/1, NavRow 0/5, Label 6/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 35 yeni sunum testi (toplam 1.468 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz).
 
 ### V6a — finansal yapı listesi: `FinancialStructureViewModel`, `FinancialRecordGroup`, `FinancialRecordRowBuilder`, `FinancialRecordRemover`, `FinancialStructurePage`
 
