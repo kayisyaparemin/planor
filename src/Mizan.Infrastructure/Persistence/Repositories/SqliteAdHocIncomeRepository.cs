@@ -45,7 +45,7 @@ public sealed class SqliteAdHocIncomeRepository(SQLiteAsyncConnection connection
             Description = income.Description
         };
 
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.UpsertAsync(entity);
     }
 
     /// <inheritdoc />

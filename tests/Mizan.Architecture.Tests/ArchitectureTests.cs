@@ -129,4 +129,26 @@ public sealed class ArchitectureTests
 
         Assert.NotEmpty(violations);
     }
+
+    [Fact]
+    public void InsertOrReplace_Yasak()
+    {
+        var violations = ArchitectureRules.VerifyNoInsertOrReplace();
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void InsertOrReplaceKurali_IhlalGordugunde_Yakalayabilmelidir()
+    {
+        const string source = """
+            // INSERT OR REPLACE alt kayıtları götürür.
+            await _connection.InsertOrReplaceAsync(entity);
+            conn.Execute("INSERT OR REPLACE INTO loans (Id) VALUES (?)", id);
+            conn.Insert(entity, "OR REPLACE");
+            """;
+
+        var violations = PersistenceRules.CheckSourceContent("SqliteLoanRepository.cs", source);
+
+        Assert.Equal(3, violations.Count);
+    }
 }

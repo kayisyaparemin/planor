@@ -48,6 +48,10 @@ Yeni repo **temiz `v1`** ile başlar. Eski projenin migration'ları taşınmaz.
 - **Ölü kolon yazılmaz.** Kullanılmayan bir alan silinir, `null` yazılarak yaşatılmaz.
 - **Her parent/child bağı gerçek bir foreign key'dir.** Eskide tek bir gerçek kısıt vardı;
   referans bütünlüğü elle sürdürülüyordu ve `DeleteLoanAsync` gibi metotlara gömülüydü.
+- **`INSERT OR REPLACE` yasak.** SQLite çakışan satırı silip yeniden ekler ve bu silme
+  `ON DELETE CASCADE` ile alt kayıtları götürür. Bir krediyi güncellemek erken ödemelerini,
+  bir geliri güncellemek tutar geçmişini siliyordu. Satır `SqliteUpsert.Upsert` ile yazılır:
+  önce güncellenir, yoksa eklenir. Koruyan test: `ArchitectureTests.InsertOrReplace_Yasak`.
 - **"En fazla bir tane" kuralı UNIQUE indeksle söylenir**, yorumla değil.
 - **Yaz-sil-yeniden-yaz deseni yasak.** Bir kartı güncellerken ekstrelerini silip yeniden
   eklemek, tarihçeyi geri dönülmez biçimde yok eder. Etkin tarihli tablolar append-only'dir.

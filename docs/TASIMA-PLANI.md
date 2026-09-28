@@ -250,7 +250,8 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           Simülatörden uygulananlar da burada görünür ve silinir (`S64`-13). *(Aşama 1 bulgusu, adım dışı:
           `INSERT OR REPLACE` + `ON DELETE CASCADE` dönem kapanışında kredilerin erken ödemelerini ve ödeme
           planlarının taksitlerini, gelir kaydında tutar geçmişini siliyor — `/duzeltme` işi. Kredi formunun
-          kaydı tek işleme geçtiği için bu yoldan artık silinmiyor.)*
+          kaydı tek işleme geçtiği için bu yoldan artık silinmiyor. **Düzeltildi** (tür B, `I73`–`I77`):
+          `INSERT OR REPLACE` yasaklandı, kapanış kartları ve taksitleri de yazıyor.)*
   - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
 - [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*

@@ -14,7 +14,16 @@ internal static class PeriodSettlementWriter
     public static void SaveInstruments(SQLiteConnection conn, PeriodSettlementCommit commit)
     {
         SaveLoans(conn, commit.UpdatedLoans);
-        SavePaymentPlans(conn, commit.UpdatedPaymentPlans);
+        foreach (var plan in commit.UpdatedPaymentPlans)
+        {
+            PaymentPlanEntityWriter.Save(conn, plan);
+        }
+
+        foreach (var card in commit.UpdatedCreditCards)
+        {
+            CreditCardEntityWriter.Save(conn, card);
+        }
+
         SaveLargeExpenses(conn, commit.UpdatedLargeExpenses);
         RemoveLoanPrepayments(conn, commit.RemovedLoanPrepaymentIds);
     }
@@ -30,14 +39,14 @@ internal static class PeriodSettlementWriter
             : s.ProjectionAnchorDate.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture);
         existing.CreditCardCarryInterestRate = s.CreditCardCarryInterestRate;
         existing.DeficitFinancingInterestRate = s.DeficitFinancingInterestRate;
-        conn.InsertOrReplace(existing);
+        conn.Upsert(existing);
     }
 
     private static void SaveLoans(SQLiteConnection conn, IReadOnlyList<Loan> loans)
     {
         foreach (var loan in loans)
         {
-            conn.InsertOrReplace(new LoanEntity
+            conn.Upsert(new LoanEntity
             {
                 Id = loan.Id.ToString(),
                 Name = loan.Name,
@@ -56,26 +65,11 @@ internal static class PeriodSettlementWriter
         }
     }
 
-    private static void SavePaymentPlans(SQLiteConnection conn, IReadOnlyList<TemporaryPaymentPlan> plans)
-    {
-        foreach (var p in plans)
-        {
-            conn.InsertOrReplace(new PaymentPlanEntity
-            {
-                Id = p.Id.ToString(),
-                Name = p.Name,
-                Kind = (int)p.Kind,
-                OriginalAmount = p.OriginalAmount,
-                TotalRepaymentAmount = p.TotalRepaymentAmount
-            });
-        }
-    }
-
     private static void SaveLargeExpenses(SQLiteConnection conn, IReadOnlyList<PlannedLargeExpense> expenses)
     {
         foreach (var exp in expenses)
         {
-            conn.InsertOrReplace(new PlannedLargeExpenseEntity
+            conn.Upsert(new PlannedLargeExpenseEntity
             {
                 Id = exp.Id.ToString(),
                 Name = exp.Name,

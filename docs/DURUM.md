@@ -6,13 +6,19 @@
 |---|---|
 | Son tamamlanan adım | **V6c3** — kredi formu: planlı erken ödemeler; V6c tamam |
 | Sıradaki adım | **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir |
-| Test sayısı | 1624 |
+| Test sayısı | 1631 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Düzeltme — `INSERT OR REPLACE` alt kayıtları siliyordu; dönem kapanışı kartları ve taksitleri yazmıyordu
+
+Tür **B** (bug), `V6d`'den önce. SQLite'ın `INSERT OR REPLACE`'i çakışan satırı silip yeniden ekliyor; `S53`'ün açtığı gerçek yabancı anahtarlar (`ON DELETE CASCADE`) bu silmeyle alt kayıtları götürüyordu: dönem kapanışı bütün kredilerin planlı erken ödemelerini ve bütün ödeme planlarının taksitlerini, düzenli geliri düzenlemek tutar geçmişini, krediyi tek başına kaydetmek (`UpsertLoanAsync`, bugün yalnız kurulum) erken ödemelerini siliyordu. Aşama 2'de kapanışın `UpdatedCreditCards`'ı hiç yazmadığı ve taksitleri yazmadığı da görüldü; eski proje ikisini de yazıyordu (`InsertPaymentPlan`, `InsertCreditCard`), `I2d` taşımasında düşmüştü. Eskide kayıp yoktu çünkü yabancı anahtarlar zorlanmıyordu. Hiçbir yol henüz kullanıcıya açık değildi (kapanış `V11`, gelir düzenleme `V6d`).
+Düzeltme: satır `SqliteUpsert.Upsert` ile yazılıyor (önce güncelle, yoksa ekle; var olan satır hiç silinmez). 18 çağrının hepsi geçti ve yasak kural `05`'e `ArchitectureTests.InsertOrReplace_Yasak` ile girdi. Kart ve ödeme planı yazımı depolardan `CreditCardEntityWriter` ve `PaymentPlanEntityWriter`'a çıktı; depo ve kapanış aynı yazıcıyı kullanıyor. Yeni invariantlar `I73`–`I77`.
+**Dikkat:** kural `05`'in "yaz-sil-yeniden-yaz yasak" maddesinin testi yok ve kod ona uymuyor: kart yazıcısı ekstreyi ve etkin tarihli ödeme tercihlerini her kayıtta silip bellekteki listeden yeniden yazıyor (taşınan davranış, bu düzeltmede değişmedi). Liste eksiksiz olduğu sürece veri kaybolmuyor, ama madde ya teste bağlanmalı ya `MIMARI.md` → Tavsiyeler'e inmeli. **Dikkat (test altyapısı):** `Mizan.Infrastructure.Tests`'te şemayı kurucuda `GetAwaiter().GetResult()` ile kuran 11 sınıf var; xUnit paralel sınıfları çekirdek sayısı kadar (bu makinede 12) iş parçacığıyla çalıştırdığı için 12. böyle sınıf test takımını her seferinde kilitledi. Yeni sınıf `IAsyncLifetime` ile kuruluyor; kalan 11'i de geçmeli, yoksa bir sonraki veritabanı test sınıfı (ya da daha az çekirdekli bir makine) aynı kilitlenmeyi doğurur. 7 yeni test (5 Infrastructure, 2 mimari); toplam 1.631 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V6c3 — planlı erken ödemeler: `LoanPrepaymentsViewModel`, `UpsertLoanWithPrepaymentsAsync`, `ErkenOdemeTuruConverter`
 

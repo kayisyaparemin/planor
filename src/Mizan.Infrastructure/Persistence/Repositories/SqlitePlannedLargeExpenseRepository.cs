@@ -49,7 +49,7 @@ public sealed class SqlitePlannedLargeExpenseRepository(SQLiteAsyncConnection co
             Status = (int)expense.Status
         };
 
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.UpsertAsync(entity);
     }
 
     /// <inheritdoc />

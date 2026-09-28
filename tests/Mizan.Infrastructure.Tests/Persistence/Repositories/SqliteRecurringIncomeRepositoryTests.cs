@@ -67,6 +67,24 @@ public sealed class SqliteRecurringIncomeRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task UpsertRecurringIncomeAsync_KayitliAkisiGuncellerTutarGecmisiniKaybetmez()
+    {
+        var repository = new SqliteRecurringIncomeRepository(_connection);
+        var income = new RecurringIncome { Id = Guid.NewGuid(), Name = "Kira", PaymentDay = 5, IsActive = true };
+        await repository.UpsertRecurringIncomeAsync(income);
+        var raise = new IncomeAmountHistory
+        {
+            Id = Guid.NewGuid(), RecurringIncomeId = income.Id, Amount = 20000m, EffectiveDate = new DateOnly(2026, 7, 1), Description = "Ara Zam"
+        };
+        await repository.UpsertIncomeAmountHistoryAsync(raise);
+
+        await repository.UpsertRecurringIncomeAsync(income with { Name = "Dükkân Kirası", PaymentDay = 10 });
+
+        Assert.Equal("Dükkân Kirası", Assert.Single(await repository.GetRecurringIncomesAsync()).Name);
+        Assert.Equal([raise], await repository.GetIncomeAmountHistoriesAsync());
+    }
+
+    [Fact]
     public async Task UpsertIncomeAmountHistoryAsync_TutarGecmisiEklerVeListeler()
     {
         var repository = new SqliteRecurringIncomeRepository(_connection);

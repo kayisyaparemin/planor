@@ -50,7 +50,7 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
                 conn.Execute("DELETE FROM period_observations WHERE Id = ?", existing.Id);
             }
 
-            conn.InsertOrReplace(ToEntity(observation));
+            conn.Upsert(ToEntity(observation));
             conn.Execute("DELETE FROM period_observation_payments WHERE PeriodObservationId = ?", obsKey);
             foreach (var payment in observation.Payments)
             {

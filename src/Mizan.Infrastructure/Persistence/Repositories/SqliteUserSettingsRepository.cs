@@ -55,6 +55,6 @@ public sealed class SqliteUserSettingsRepository(SQLiteAsyncConnection connectio
         entity.CreditCardCarryInterestRate = settings.CreditCardCarryInterestRate;
         entity.DeficitFinancingInterestRate = settings.DeficitFinancingInterestRate;
 
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.UpsertAsync(entity);
     }
 }

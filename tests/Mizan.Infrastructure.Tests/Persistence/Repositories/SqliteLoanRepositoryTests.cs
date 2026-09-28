@@ -154,10 +154,22 @@ public sealed class SqliteLoanRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task UpsertLoanAsync_KayitliKrediyiGuncellerErkenOdemeleriKaybetmez()
+    {
+        var repository = new SqliteLoanRepository(_connection);
+        var loan = TwentyFourInstallmentLoan();
+        var partial = Prepayment(loan.Id, new DateOnly(2026, 12, 5), LoanPrepaymentMode.ReduceTerm, 50000m);
+        await repository.UpsertLoanWithPrepaymentsAsync(loan, [partial]);
+
+        await repository.UpsertLoanAsync(loan with { Name = "Taşıt" });
+
+        Assert.Equal("Taşıt", Assert.Single(await repository.GetLoansAsync()).Name);
+        Assert.Equal([partial], await repository.GetLoanPrepaymentsAsync());
+    }
+
+    [Fact]
     public async Task UpsertLoanWithPrepaymentsAsync_KayitliKrediyiGuncellerErkenOdemeleriKaybetmez()
     {
-        // INSERT OR REPLACE krediyi silip yeniden eklediği için ON DELETE CASCADE erken ödemeleri
-        // götürüyordu; tek işlemdeki kayıt listeyi krediden sonra yazar (S64-12).
         var repository = new SqliteLoanRepository(_connection);
         var loan = TwentyFourInstallmentLoan();
         var partial = Prepayment(loan.Id, new DateOnly(2026, 12, 5), LoanPrepaymentMode.ReduceTerm, 50000m);

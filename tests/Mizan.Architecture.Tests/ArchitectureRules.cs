@@ -38,4 +38,7 @@ internal static class ArchitectureRules
 
     public static IReadOnlyList<string> VerifyNoSentryPackage() =>
         OfflineRules.CheckNoSentryPackage();
+
+    public static IReadOnlyList<string> VerifyNoInsertOrReplace() =>
+        PersistenceRules.CheckNoInsertOrReplace();
 }

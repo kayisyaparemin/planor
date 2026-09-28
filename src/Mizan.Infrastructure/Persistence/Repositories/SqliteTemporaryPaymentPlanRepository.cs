@@ -49,31 +49,7 @@ public sealed class SqliteTemporaryPaymentPlanRepository(SQLiteAsyncConnection c
         ArgumentNullException.ThrowIfNull(plan);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var planIdStr = plan.Id.ToString();
-        await _connection.RunInTransactionAsync(conn =>
-        {
-            conn.InsertOrReplace(new PaymentPlanEntity
-            {
-                Id = planIdStr,
-                Name = plan.Name,
-                Kind = (int)plan.Kind,
-                OriginalAmount = plan.OriginalAmount,
-                TotalRepaymentAmount = plan.TotalRepaymentAmount
-            });
-
-            conn.Execute("DELETE FROM payment_installments WHERE PlanId = ?", planIdStr);
-            foreach (var inst in plan.Installments)
-            {
-                conn.Insert(new PaymentInstallmentEntity
-                {
-                    Id = inst.Id.ToString(),
-                    PlanId = planIdStr,
-                    DueDate = inst.DueDate.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-                    Amount = inst.Amount,
-                    IsPaid = inst.IsPaid
-                });
-            }
-        });
+        await _connection.RunInTransactionAsync(conn => PaymentPlanEntityWriter.Save(conn, plan));
     }
 
     /// <inheritdoc />

@@ -45,7 +45,7 @@ public sealed class SqliteRecurringIncomeRepository(SQLiteAsyncConnection connec
             IsActive = income.IsActive
         };
 
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.UpsertAsync(entity);
     }
 
     /// <inheritdoc />
@@ -88,7 +88,7 @@ public sealed class SqliteRecurringIncomeRepository(SQLiteAsyncConnection connec
             Description = history.Description
         };
 
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.UpsertAsync(entity);
     }
 
     /// <inheritdoc />

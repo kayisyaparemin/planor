@@ -32,7 +32,7 @@ public sealed class SqlitePaymentReminderRepository(SQLiteAsyncConnection connec
         var existing = await _connection.Table<SettingsEntity>().FirstOrDefaultAsync();
         var entity = existing ?? new SettingsEntity();
         entity.PaymentReminderMode = (int)mode;
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.UpsertAsync(entity);
     }
 
     /// <inheritdoc />
@@ -57,7 +57,7 @@ public sealed class SqlitePaymentReminderRepository(SQLiteAsyncConnection connec
         {
             foreach (var r in responses)
             {
-                conn.InsertOrReplace(ToEntity(r));
+                conn.Upsert(ToEntity(r));
             }
         });
     }

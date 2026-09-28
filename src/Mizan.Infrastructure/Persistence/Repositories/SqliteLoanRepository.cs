@@ -47,7 +47,7 @@ public sealed class SqliteLoanRepository(SQLiteAsyncConnection connection) : ILo
     {
         ArgumentNullException.ThrowIfNull(loan);
         cancellationToken.ThrowIfCancellationRequested();
-        await _connection.InsertOrReplaceAsync(ToEntity(loan));
+        await _connection.UpsertAsync(ToEntity(loan));
     }
 
     /// <inheritdoc />
@@ -58,12 +58,12 @@ public sealed class SqliteLoanRepository(SQLiteAsyncConnection connection) : ILo
         ArgumentNullException.ThrowIfNull(prepayments);
         cancellationToken.ThrowIfCancellationRequested();
 
-        // INSERT OR REPLACE krediyi silip yeniden ekler ve ON DELETE CASCADE erken ödemeleri götürür;
-        // liste bu yüzden krediden sonra ve aynı işlemde bütünüyle yeniden yazılır (S64-12).
+        // Formdaki liste kredinin bütün erken ödemeleridir: listede olmayan silinmiş demektir. Bu yüzden
+        // liste krediyle aynı işlemde bütünüyle yeniden yazılır (S64-12).
         var loanId = loan.Id.ToString();
         await _connection.RunInTransactionAsync(conn =>
         {
-            conn.InsertOrReplace(ToEntity(loan));
+            conn.Upsert(ToEntity(loan));
             conn.Execute("DELETE FROM loan_prepayments WHERE LoanId = ?", loanId);
             foreach (var prepayment in prepayments)
             {
@@ -102,7 +102,7 @@ public sealed class SqliteLoanRepository(SQLiteAsyncConnection connection) : ILo
     {
         ArgumentNullException.ThrowIfNull(prepayment);
         cancellationToken.ThrowIfCancellationRequested();
-        await _connection.InsertOrReplaceAsync(ToEntity(prepayment));
+        await _connection.UpsertAsync(ToEntity(prepayment));
     }
 
     /// <inheritdoc />

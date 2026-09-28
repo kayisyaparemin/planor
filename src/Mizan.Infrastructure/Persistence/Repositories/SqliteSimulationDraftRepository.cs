@@ -56,7 +56,7 @@ public sealed class SqliteSimulationDraftRepository(SQLiteAsyncConnection connec
         var draftIdStr = draft.Id.ToString();
         await _connection.RunInTransactionAsync(conn =>
         {
-            conn.InsertOrReplace(new SimulationDraftEntity
+            conn.Upsert(new SimulationDraftEntity
             {
                 Id = draftIdStr,
                 Name = draft.Name,
