@@ -3,7 +3,7 @@
     Mizan'ı Android emülatöründe derleyip kurar, açar ve emülatörü açık bırakır.
 
 .DESCRIPTION
-    Ekran adımlarının (tasarim-adimi.md Aşama 9) tek emülatör komutu. Çalışan bir emülatör
+    Ekran adımlarının (/tasarim-adimi Aşama 9) tek emülatör komutu. Çalışan bir emülatör
     yoksa verilen AVD'yi ayrı bir pencerede başlatır ve açılmasını bekler; sonra uygulamayı
     Debug olarak derleyip kurar ve ön planda başlatır.
 

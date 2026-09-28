@@ -1,8 +1,20 @@
+---
+name: tasarim-adimi
+description: Faz V ekran adımı protokolü — 10 aşama, üç onay kapısı (A, B, C). Kullanıcı bir ekran adımını başlattığında.
+argument-hint: "<adım kodu> <adım adı> <EK-kart>"
+disable-model-invocation: true
+---
+
+**Adım:** $ARGUMENTS
+**Eski proje:** `C:\Users\kayis\Documents\mizan`
+
+Aşama 1 (keşif) ile başla.
+
 # İş Akışı — Bir Ekran Adımı
 
 Faz V adımları (`V0`–`V13`) bu protokolle yürür. **On aşama vardır ve hiçbiri atlanamaz.**
 
-Bu protokol `tasima-adimi.md`'nin yerine geçmez, **üzerine biner**: Aşama 1, 2, 3, 6, 7, 9,
+Bu protokol `/tasima-adimi`'nin yerine geçmez, **üzerine biner**: Aşama 1, 2, 3, 6, 7, 9,
 10 oradaki aşamalarla birebir aynı mantıktadır. Eklenen üç aşama şunlar:
 
 | Yeni aşama | Neden var |
@@ -37,7 +49,15 @@ Taşınmamış bir bağımlılığa rastladıysan **dur ve söyle.** Sırayı ke
 
 ## Aşama 2 — Soru Listesi  *(ONAY KAPISI A'nın parçası)*
 
-Taşıma protokolündeki "Anlatım" aşamasının ekran hâli. Kullanıcıya Türkçe anlat:
+Taşıma protokolündeki "Anlatım" aşamasının ekran hâli.
+
+**Önce ürün dili.** İlk paragraf: "Bu adımdan sonra kullanıcı şunu yapabilecek: …" — günlük
+dille. Port, bağımlılık sayısı, K3/M3 gibi teknik ayrıntılar ondan sonra gelir. Bir özellik
+elenecek ya da eklenecekse, soruyu sormadan önce sonucunu somut söyle: bu olmazsa o veri başka
+hangi yoldan doğmaya devam eder, kim görür, kim siler? (V6c3'te bu söylenmeden verilen eleme
+kararı sonradan geri alındı.)
+
+Sonra kullanıcıya Türkçe anlat:
 
 1. **Bu ekran kullanıcının hangi sorularını cevaplıyor?** Soruları kullanıcının diliyle yaz
    ve **önem sırasına koy.** En fazla beş soru. Örnek:
@@ -55,7 +75,7 @@ Anlatımı bitirince **durma, Aşama 3 ve 4'ü de aynı mesajda sun.**
 
 ## Aşama 3 — Sapma Kararı *(davranış)*  *(ONAY KAPISI A'nın parçası)*
 
-`tasima-adimi.md` Aşama 3 ile **birebir aynı.** Ekranın davranışı hakkında:
+`/tasima-adimi` Aşama 3 ile **birebir aynı.** Ekranın davranışı hakkında:
 
 1. `docs/SAPMALAR.md`'de bu adımı etkileyen `S` kaydı var mı? Varsa oku ve uygula.
 2. Eski kod bu ekranın davranışını yanlış mı modellemiş? Arayüzün vaat ettiği şeyi motor
@@ -135,6 +155,11 @@ için: bileşen adı, token'lar, hangi soruyu cevapladığı.
 Şemada **her bloğun sağında cevapladığı soru kodu** (`← S1`) yazılı olur. Sorusuz blok
 Aşama 4'ten kaçmış demektir; geri dön.
 
+Her metin için sor: kullanıcıya yeni bir şey söylüyor mu? Söylemiyorsa çıkar. Başlığın
+söylediğini ikinci bir adla tekrarlayan ya da yeni kavram uyduran etiket önerme; kodun iç
+kavramlarını ("plan", "projeksiyon") ekran metnine taşıma. (V6a'da "Finansal Yapı" başlığının
+üstüne önerilen "Planına girenler" kullanıcıyı şaşırttı ve kaldırıldı.)
+
 Şemayı `docs/EKRAN-KARTLARI.md`'ye `EK-<adım kodu>` başlığıyla yaz. Sonra üç durumu tanımla:
 boş, yükleniyor, hata — her biri tek cümle.
 
@@ -157,7 +182,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
 }
 ```
 
-Kurallar (`rules/03-mvvm.md`): **ham veri, metin üretilmez.** `decimal`, `DateOnly`, `bool`,
+Kurallar (`.claude/rules/03-mvvm.md`): **ham veri, metin üretilmez.** `decimal`, `DateOnly`, `bool`,
 `ChartSeries` sunulur; `"12.500,00 ₺"` üretilmez, renk adı sunulmaz.
 
 Sonra davranışı tarif eden testleri yaz ve **kırmızı olduklarını göster.** Testler
@@ -172,7 +197,7 @@ edilemiyordu, kopyalayacak bir şey yok.
 En yalın implementasyon. Testler geçsin. "İleride lazım olur" diye özellik ekleme.
 
 Bağımlılık sınırı: **en fazla 5.** Aşılıyorsa ekran bir çocuk ViewModel'e bölünür — bu meşru
-ve tercih edilen yoldur (`rules/03-mvvm.md`).
+ve tercih edilen yoldur (`.claude/rules/03-mvvm.md`).
 
 ## Aşama 8 — XAML
 
@@ -316,4 +341,4 @@ projenin 14 farklı görsel dilinin yeniden üretilmesi.
 
 Bu protokol ekran adımının *içinde* fark edilenleri çözer. Uygulamayı kullanırken ya da
 konsepte bakarken bir görsel tutarsızlık yakaladıysan — yani adım dışında — o iş
-`duzeltme.md` akışına gider, **tür G**.
+`/duzeltme` akışına gider, **tür G**.

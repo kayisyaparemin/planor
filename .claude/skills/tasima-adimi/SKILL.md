@@ -1,3 +1,15 @@
+---
+name: tasima-adimi
+description: Eski projeden bu repoya bir parça taşıma protokolü — 8 aşama, atlanamaz. Kullanıcı bir taşıma adımını başlattığında.
+argument-hint: "<adım kodu> <adım adı>"
+disable-model-invocation: true
+---
+
+**Adım:** $ARGUMENTS
+**Eski proje:** `C:\Users\kayis\Documents\mizan`
+
+Aşama 1 (keşif) ile başla.
+
 # İş Akışı — Bir Taşıma Adımı
 
 Eski projeden (`C:\Users\kayis\Documents\mizan`) bu repoya bir parça taşırken izlenecek
@@ -26,7 +38,7 @@ Kullanıcıya Türkçe anlat:
    ("Kullanıcı bankadan aldığı taksit tutarını biliyor ama faiz oranını bilmiyor; bu sınıf
    oranı geri çözüyor, çünkü erken kapama tutarı oran olmadan hesaplanamıyor.")
 2. **Hangi iş kuralını taşıyor?** Varsa mevzuat maddesi, varsa `docs/INVARYANTLAR.md` kodu.
-3. **Eski hâlinde ne sorunluydu?** `docs/v2/02-NEDEN-BU-YAPI.md`'deki düğümlerden birine
+3. **Eski hâlinde ne sorunluydu?** `C:\Users\kayis\Documents\mizan\docs\v2\02-NEDEN-BU-YAPI.md`'deki (eski depo, arşiv) düğümlerden birine
    dokunuyor mu; yeni hâlinde ne değişecek.
 4. **Yeni hâlinde hangi dosyalar oluşacak?** Yol yol liste.
 
@@ -157,4 +169,4 @@ eski şema göçleri, `*SourceTests` karşılıkları, kaldırılmış özellikl
 
 Bu protokol bir taşıma adımının *içinde* fark edilenleri çözer. Kullanıcı dokümanları okurken
 ya da uygulamayı kullanırken bir hata yakalarsa — yani adım dışında — o iş buraya değil
-`.antigravity/workflows/duzeltme.md` akışına gider.
+`/duzeltme` akışına gider.

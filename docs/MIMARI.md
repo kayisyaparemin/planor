@@ -1,6 +1,6 @@
 # Mizan — Mimari
 
-Bu dosya mimariyi **anlatır**. Bağlayıcı kurallar `.antigravity/rules/` altındadır.
+Bu dosya mimariyi **anlatır**. Bağlayıcı kurallar `CLAUDE.md` ve `.claude/rules/` altındadır.
 İkisi çelişirse kural kitabı geçerlidir ve bu dosya düzeltilir.
 
 ## Katmanlar
@@ -26,7 +26,7 @@ bir belge kuralını bir derleyici kuralına çevirir.
 ## Test projeleri
 
 Altı ayrı test projesi vardır ve her biri yalnızca denetlediği katmanı görür
-(`.antigravity/rules/04-test.md`). Bir domain testinin bir servise uzanamaması,
+(`.claude/rules/04-test.md`). Bir domain testinin bir servise uzanamaması,
 disiplinle değil proje referanslarıyla sağlanır.
 
 ## Veri
@@ -40,7 +40,7 @@ Yedek, cihaz depolamasının üstünde `Mizan` klasöründe durur (uygulama sili
 ## Tavsiyeler  *(kural değil)*
 
 Buradakiler henüz kural değil çünkü onları koruyan bir test yok. Testi yazılırsa
-`.antigravity/rules/` altına terfi ederler.
+`.claude/rules/` altına terfi ederler.
 
 - Para değerlerini tam sayı kuruş olarak saklamak `decimal`'e göre daha güvenli olabilir.
 - Ekranlar arası paylaşılan çocuk ViewModel'ler yerine olay tabanlı bir yaklaşım

@@ -1,10 +1,16 @@
+---
+name: duzeltme
+description: Bir taşıma ya da ekran adımının dışında fark edilen hata için düzeltme akışı — terim (T), kavramsal sapma (K), doküman (D), bug (B), görsel (G). Türü belirler, kapsamı ölçer, kullanıcı seçmeden uygulamaz.
+argument-hint: "<ne gördün>"
+---
+
 # İş Akışı — Düzeltme
 
 Taşıma adımının **dışında** fark edilen bir hata için. Kullanıcı dokümanları okurken,
 uygulamayı kullanırken ya da eski kodu incelerken bir şey yakaladıysa bu akış işler.
 
-Adımın *içinde* fark edilenler buraya değil, `tasima-adimi.md` Aşama 3'e (Sapma Kararı)
-aittir — bir ekran adımındaysan `tasarim-adimi.md` Aşama 3'e (davranış) ya da Aşama 4'e
+Adımın *içinde* fark edilenler buraya değil, `/tasima-adimi` Aşama 3'e (Sapma Kararı)
+aittir — bir ekran adımındaysan `/tasarim-adimi` Aşama 3'e (davranış) ya da Aşama 4'e
 (görsel bütçe) aittir.
 
 > Bu akış taşıma protokolünü **değiştirmez.** Yanında çalışır ve çıktısını ona besler:
@@ -69,7 +75,7 @@ Sonra kullanıcıya üç şıkla gel:
    etkilenen adımlar, durum.
 2. `docs/TASIMA-PLANI.md`'de etkilenen adımların tarifini güncelle ve sapma koduna referans ver.
 3. Tamamlanmış bir adım etkileniyorsa kutusunu **geri aç** ve sebebini yaz.
-4. Düzeltme şimdi yapılacaksa: kırmızı test → yeşil, `tasima-adimi.md` Aşama 5–7 gibi.
+4. Düzeltme şimdi yapılacaksa: kırmızı test → yeşil, `/tasima-adimi` Aşama 5–7 gibi.
 5. Yeni bir invariant doğduysa `docs/INVARYANTLAR.md` — koruyan testin tam adıyla.
 
 ### D — Doküman hatası
@@ -127,7 +133,7 @@ Sonra:
 3. `dotnet build` + `dotnet test` — 0 hata, 0 uyarı, tümü yeşil.
 4. Tür **B** ya da **G** ise uygulamayı aç ve bırak: `./scripts/emulatorde-ac.ps1`. Kullanıcı
    düzeltmeyi kendi gözüyle onaylamadan commit atılmaz. Emülatöre dokunma kuralı
-   `tasarim-adimi.md` Aşama 9 ile aynıdır.
+   `/tasarim-adimi` Aşama 9 ile aynıdır.
 5. **Tek commit.** `fix(...)` ya da `docs(...)`; gövdede düzeltmenin türü ve sapma kodu.
 
 ```

@@ -6,7 +6,7 @@ Her satır bir taşıma adımıdır ve bir prompt'a karşılık gelir.
 Sıra **bağımlılık analizinden** çıkarılmıştır: bir adım, yalnızca üstündeki adımlarda
 taşınmış şeylere dayanır. Sırayı değiştirmek geri dönmek demektir.
 
-Protokol: `.antigravity/workflows/tasima-adimi.md` — yedi aşama, atlanamaz.
+Protokol: `/tasima-adimi` (`.claude/skills/tasima-adimi/SKILL.md`) — sekiz aşama, atlanamaz.
 
 **Kritik yol:** `D1 → D2 → D3 → D5 → D13 → D16 → D17 → D19 → D20 → D21 → D24`
 Geri kalan her şey bu omurgadan sarkar.
@@ -162,14 +162,14 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz T — Tasarım Sistemi (Planör)
 
-`T1`–`T2` tasarım bootstrap'ı ile kuruldu (`docs/v2/05-TASARIM-BOOTSTRAP-PROMPT.md`).
-`T3`–`T6` normal adımlardır ve `.antigravity/workflows/tasima-adimi.md` ile yürür, ama
+`T1`–`T2` tasarım bootstrap'ı ile kuruldu (`C:\Users\kayis\Documents\mizan\docs\v2\05-TASARIM-BOOTSTRAP-PROMPT.md`; eski depo, arşiv, otorite değil).
+`T3`–`T6` normal adımlardır ve `/tasima-adimi` ile yürür, ama
 kaynak "eski proje" değil, `docs/TASARIM-SISTEMI.md`'dir: Aşama 1 (keşif) sistemdeki tanımı
 okur, Aşama 3 (sapma kararı) tanım eksik ya da yanlışsa `docs/TASARIM-SAPMALARI.md`'ye
 `GS` kaydı yazar.
 
 ⚠️ **Faz T, `V0`'dan önce biter.** Bileşen yoksa ekran yazılamaz, token yoksa bileşen
-yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yürür (10 aşama).
+yazılamaz. Faz V adımları `/tasima-adimi` değil `/tasarim-adimi` ile yürür (10 aşama).
 
 - [x] **T1** — token katmanı: `DarkPalette.xaml` + `LightPalette.xaml` (23 token × 2 tema),
       `Tipografi.xaml` (7 kademe), `Olcu.xaml` (boşluk, yarıçap, vuruş). `Styles.xaml`
@@ -193,7 +193,7 @@ yazılamaz. Faz V adımları `tasima-adimi.md` değil `tasarim-adimi.md` ile yü
       sayım bileşen adlarına dayanıyor.)*
 
 Faz V sırasında kullanıcı geri bildiriminden doğan sistem işleri. Ekran içinde değil,
-bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satırı):
+bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı):
 
 - [ ] **T7** — başlık aksiyonunun anlaşılırlığı: `PageHeader`'daki tek başına ikon (ilk
       kullanım: `EK-V7` kart değiştirme) dokunulabilir olduğunu belli etmiyor; kullanıcı
@@ -237,7 +237,7 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
     - [x] **V6b2** — aynı sayfaya gelecek kart harcamaları (`S61`-7): açıklama, aylık tutar ×
           taksit sayısı, ilk taksit tarihi; liste ve silme
     - [ ] **Takip** — taksitli harcamanın bütün taksitlerini tek seferde silme; bugün her ay tek
-          tek siliniyor *(V6b2 sonrası kullanıcı isteği; `duzeltme.md`, büyük ihtimalle tür K: taksitler
+          tek siliniyor *(V6b2 sonrası kullanıcı isteği; `/duzeltme`, büyük ihtimalle tür K: taksitler
           birbirine bağlı saklanmıyor, `CardCharge`'ta grup kimliği yok; "Açıklama (i/N)" adına
           dayanmak eski veride tutmaz)*
   - [x] **V6c** — kredi formu (`S64`, `EK-V6c`). Aşama 1'de ~800 satır çıktığı için üçe bölündü;
@@ -249,7 +249,7 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
     - [x] **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki).
           Simülatörden uygulananlar da burada görünür ve silinir (`S64`-13). *(Aşama 1 bulgusu, adım dışı:
           `INSERT OR REPLACE` + `ON DELETE CASCADE` dönem kapanışında kredilerin erken ödemelerini ve ödeme
-          planlarının taksitlerini, gelir kaydında tutar geçmişini siliyor — `duzeltme.md` işi. Kredi formunun
+          planlarının taksitlerini, gelir kaydında tutar geçmişini siliyor — `/duzeltme` işi. Kredi formunun
           kaydı tek işleme geçtiği için bu yoldan artık silinmiyor.)*
   - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama

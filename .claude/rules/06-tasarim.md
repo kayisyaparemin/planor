@@ -1,10 +1,17 @@
+---
+paths:
+  - "src/Mizan.App/**"
+  - "docs/TASARIM-*.md"
+  - "docs/EKRAN-KARTLARI.md"
+---
+
 # 06 — Görsel Tasarım
 
-Bu dosya `rules/03-mvvm.md`'nin üzerine biner: o ViewModel ile sayfa arasındaki sınırı
+Bu dosya `.claude/rules/03-mvvm.md`'nin üzerine biner: o ViewModel ile sayfa arasındaki sınırı
 çizer, bu sayfanın **neye benzediğini** kısıtlar.
 
 Ürünün adı **Planör**; kod adı `Mizan` kalır (`GS6`). Tanımların tamamı
-`docs/TASARIM-SISTEMI.md`'de. Buradaki on bir kural o tanımların **zorlanma biçimidir.**
+`docs/TASARIM-SISTEMI.md`'de. Buradaki on iki kural o tanımların **zorlanma biçimidir.**
 
 ## On iki görsel kural
 
@@ -256,14 +263,14 @@ kararlaştırılmış olmalı. XAML yazarken bileşen icat etmek, tasarım siste
 
 ## Code-behind
 
-`rules/03-mvvm.md` değişmedi: code-behind'de yalnız `InitializeComponent()` bulunur.
+`.claude/rules/03-mvvm.md` değişmedi: code-behind'de yalnız `InitializeComponent()` bulunur.
 Grafik çizimi de buna dahildir: `IDrawable` ayrı bir sınıftır, code-behind'e yazılmaz.
 Palet dosyalarının (`DarkPalette`, `LightPalette`) code-behind'i de yalnız
 `InitializeComponent()` taşır. Tema geçişi `App`'in işidir.
 
 ## AutomationId
 
-`rules/03-mvvm.md`'deki desen aynen geçerli. Bileşenler `AutomationId`'yi **dışarıdan**
+`.claude/rules/03-mvvm.md`'deki desen aynen geçerli. Bileşenler `AutomationId`'yi **dışarıdan**
 alır:
 
 ```xml

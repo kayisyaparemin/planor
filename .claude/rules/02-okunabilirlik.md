@@ -1,3 +1,9 @@
+---
+paths:
+  - "src/**/*.cs"
+  - "tests/**/*.cs"
+---
+
 # 02 — Okunabilirlik
 
 Bu projenin var olma sebebi bu dosyadır. Birinci Mizan çalışıyordu ama sahibi kodu

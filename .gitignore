@@ -23,7 +23,7 @@ coverage/
 
 # --- Yerel, paylaşılmayan ---
 *.local.md
-.antigravity/RULES.local.md
+.claude/settings.local.json
 .env
 .env.local
 

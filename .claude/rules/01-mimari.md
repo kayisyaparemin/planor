@@ -1,3 +1,9 @@
+---
+paths:
+  - "src/**/*.cs"
+  - "tests/**/*.cs"
+---
+
 # 01 — Mimari ve Katmanlar
 
 ## Bağımlılık yönü

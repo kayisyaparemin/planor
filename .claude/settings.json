@@ -1,0 +1,50 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(dotnet test *)",
+      "Bash(dotnet restore *)",
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git grep *)",
+      "Bash(git ls-files *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "PowerShell(dotnet build *)",
+      "PowerShell(dotnet test *)",
+      "PowerShell(dotnet restore *)",
+      "PowerShell(git status *)",
+      "PowerShell(git log *)",
+      "PowerShell(git diff *)",
+      "PowerShell(git show *)",
+      "PowerShell(git branch *)",
+      "PowerShell(git grep *)",
+      "PowerShell(git ls-files *)",
+      "PowerShell(git add *)",
+      "PowerShell(git commit *)",
+      "PowerShell(./scripts/emulatorde-ac.ps1 *)",
+      "PowerShell(.\\scripts\\emulatorde-ac.ps1 *)"
+    ],
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)",
+      "Bash(adb shell input *)",
+      "Bash(adb shell screencap *)",
+      "Bash(adb exec-out screencap *)",
+      "Bash(adb shell uiautomator *)",
+      "Bash(adb shell cmd uimode *)",
+      "PowerShell(git push --force *)",
+      "PowerShell(git reset --hard *)",
+      "PowerShell(git clean *)",
+      "PowerShell(adb shell input *)",
+      "PowerShell(adb shell screencap *)",
+      "PowerShell(adb exec-out screencap *)",
+      "PowerShell(adb shell uiautomator *)",
+      "PowerShell(adb shell cmd uimode *)"
+    ]
+  }
+}

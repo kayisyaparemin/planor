@@ -1,7 +1,7 @@
 namespace Mizan.Architecture.Tests;
 
 /// <summary>
-/// Mizan projesinin 8 pazarlıksız mimari kuralını (K1-K8) ve mimari ilkelerini denetleyen
+/// Mizan projesinin 9 pazarlıksız mimari kuralını (K1-K9) ve mimari ilkelerini denetleyen
 /// otomatik test kalkanı. Kuralları çiğneyen kod değişikliklerini derleme ve test aşamasında
 /// derhal yakalayarak mimari bütünlüğü korur.
 /// </summary>

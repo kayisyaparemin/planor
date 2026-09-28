@@ -72,7 +72,7 @@ birlikte tanımlıyor (`GS7`). Kural **GK8**: iki tema, **tek mekanizma**.
 
 | Parça | Nasıl |
 |---|---|
-| Palet dosyaları | `Resources/Styles/DarkPalette.xaml` ve `LightPalette.xaml`. İkisi de `x:Class`'lı `ResourceDictionary` (kod İngilizce, `rules/02-okunabilirlik.md`). **Anahtar kümeleri birebir aynı**, değerler § Renk token'ları'ndaki Koyu/Açık kolonlarından |
+| Palet dosyaları | `Resources/Styles/DarkPalette.xaml` ve `LightPalette.xaml`. İkisi de `x:Class`'lı `ResourceDictionary` (kod İngilizce, `.claude/rules/02-okunabilirlik.md`). **Anahtar kümeleri birebir aynı**, değerler § Renk token'ları'ndaki Koyu/Açık kolonlarından |
 | Tema seçimi | Tek yerde: `App`, açılışta `RequestedTheme`'e göre paleti birleştirir ve `RequestedThemeChanged`'de değiştirir. `UserAppTheme` ayarlanmaz |
 | XAML'de renk | Yalnız `{DynamicResource <token>}`. `{StaticResource}` ilk temada donar, tema değişince ekran yarım boyanır |
 | `AppThemeBinding` | **Yasak.** Tema kararını sayfalara dağıtır; her sayfa iki değeri ayrı ayrı taşır ve biri eksik kalır |

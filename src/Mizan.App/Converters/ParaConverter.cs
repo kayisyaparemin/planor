@@ -4,7 +4,7 @@ namespace Mizan.App.Converters;
 
 /// <summary>
 /// ViewModel'in sunduğu ham tutarı ekranda "41.723 ₺" biçimine çevirir. ViewModel metin üretmez;
-/// para biçimi ve kültürü yalnız burada tanımlıdır (rules/03-mvvm.md).
+/// para biçimi ve kültürü yalnız burada tanımlıdır (.claude/rules/03-mvvm.md).
 /// </summary>
 public sealed class ParaConverter : IValueConverter
 {

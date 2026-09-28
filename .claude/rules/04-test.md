@@ -1,3 +1,8 @@
+---
+paths:
+  - "tests/**"
+---
+
 # 04 — Test Protokolü
 
 ## Altı test projesi, altı sınır
@@ -8,7 +13,7 @@
 | `Mizan.Application.Tests` | **yalnız** Application | Kullanım senaryoları, el yapımı fake portlarla |
 | `Mizan.Infrastructure.Tests` | **yalnız** Infrastructure | Gerçek SQLite, geçici dosya |
 | `Mizan.Presentation.Tests` | **yalnız** Presentation | ViewModel davranışı |
-| `Mizan.Architecture.Tests` | beşi birden | Kural kitabının kendisi (K1–K8) |
+| `Mizan.Architecture.Tests` | beşi birden | Kural kitabının kendisi (K1–K9) |
 | `Mizan.Regression.Tests` | Domain + Application + Infrastructure | Uçtan uca finansal doğruluk |
 
 Bu ayrım kozmetik değil: eski projede tek bir `Mizan.Tests` vardı ve bir domain testi

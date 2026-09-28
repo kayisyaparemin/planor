@@ -94,7 +94,7 @@ daha kullanılmaz.
 |---|---|
 | **Tür** | kasıtlı sadeleştirme |
 | **Eski uygulama** | `MainPage` içinde `ToggleCalculationDetailsCommand` ile açılan, `CalculationDetails` dizesini `FontSize="12"` ile basan bir döküm alanı. |
-| **Neden yanlış** | Hata ayıklama çıktısı, üretim ekranında. Hiçbir kullanıcı sorusuna bağlanmıyor. Ayrıca ViewModel'de metin üretiyor; `rules/03-mvvm.md` bunu zaten yasaklıyor. |
+| **Neden yanlış** | Hata ayıklama çıktısı, üretim ekranında. Hiçbir kullanıcı sorusuna bağlanmıyor. Ayrıca ViewModel'de metin üretiyor; `.claude/rules/03-mvvm.md` bunu zaten yasaklıyor. |
 | **Yeni** | Taşınmaz. Hesap doğrulaması gerektiğinde yolu testtir, ekran değil. |
 | **Etkiler** | `EK-V3` |
 | **Durum** | açık |
@@ -147,7 +147,7 @@ daha kullanılmaz.
 | **Çatışma** | Marka `#64748B`'yi "tarih aralıkları, açıklama metinleri" için veriyor ama bu değer **eşiği geçemiyor**: açık kartta 4,32 (gövde metni 4,5 ister), koyu kartta 2,91 (3,0 bile değil). |
 | **Yeni** | `#64748B` açık temada `TextMuted` ve `BorderStrong` oluyor (4,3). Tarih ve açıklama metni `TextSecondary`'ye geçiyor (açık `#4E5B6D` 6,3; koyu `#A7B0BC` 6,3). Koyu temada metalik gri yerine türetilmiş `#7A889B` (3,8). Semantik, karşılaştırma ve ikincil yüzeyler grafit ile çelik mavisinin tonlarından türetildi; hepsi kontrast tablosundan geçiyor. |
 | **Biçim** | Yarıçaplar "endüstriyel ciddiyet" tarifine göre keskinleşti: çip 8 → 4, kart 14 → 8, hero 18 → 12. Eski tablodaki 4'ün katı olmayan iki değer (14, 18) böylece düzeldi. Pill buton kalktı; `RadiusPill` yalnız ilerleme çubuğunda. |
-| **Kaynak ayrımı** | Hangi değerin markadan geldiği, hangisinin türetildiği `docs/v2/04-NEDEN-BU-TASARIM.md` § Planör paleti'nde (eski depoda) tek tek yazılı. |
+| **Kaynak ayrımı** | Hangi değerin markadan geldiği, hangisinin türetildiği `C:\Users\kayis\Documents\mizan\docs\v2\04-NEDEN-BU-TASARIM.md` § Planör paleti'nde (eski depo, arşiv) tek tek yazılı. |
 | **Kilit** | `T1`'de kullanıcı onayıyla kilitlenir; kilitlenince `uygulandı` ve türetilen değerler nihai sayılır. |
 | **Etkiler** | `T1` |
 | **Durum** | uygulandı |

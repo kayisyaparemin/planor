@@ -1,3 +1,10 @@
+---
+paths:
+  - "src/Mizan.Presentation/**"
+  - "src/Mizan.App/**"
+  - "tests/Mizan.Presentation.Tests/**"
+---
+
 # 03 — Sunum Katmanı ve MVVM
 
 ## Neden `Mizan.Presentation` ayrı bir proje

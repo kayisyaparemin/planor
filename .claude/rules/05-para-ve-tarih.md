@@ -1,3 +1,9 @@
+---
+paths:
+  - "src/**/*.cs"
+  - "tests/**/*.cs"
+---
+
 # 05 — Para, Tarih ve Şema
 
 Bu üçü bu uygulamanın konusudur; buradaki her kural bir kuruş sapmasını ya da bir günlük
