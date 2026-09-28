@@ -6,8 +6,8 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6c3** — planlı erken ödemeler: **taşınmadı** (`S65`); V6c kredi formu tamam |
-| Sıradaki adım | **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir |
+| Son tamamlanan adım | **V6c2** — kredi formu: faiz ve bugün kapatma bedeli |
+| Sıradaki adım | **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki) |
 | Test sayısı | 1572 |
 | Şema sürümü | v1 |
 
@@ -15,11 +15,6 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
-
-### V6c3 — planlı erken ödemeler: taşınmadı (`S65`)
-
-Eskide planlı erken ödeme ayrı bir kayıttı: "+ Ekle" → "Krediye erken ödeme" ortak senaryo formundan (erken ödeme yolunda 8 Label, 6 giriş) ya da simülatörden giriliyor, Krediler listesinde ayrı satırlarda (4 etiket + not + Sil) görünüyordu. `S64`-6 bunu kredinin sayfasına taşımayı öngörüyordu. Kapı A'da kullanıcı kararı: ürünün böyle bir özelliği yok; kredi motoru kullanıcının girdiği krediden faizi, bugün kapatma bedelini ve öneriyi arkada hesaplayıp bilgi vermek için var (faiz kartı `V6c2`, erken kapama önerisi `V8`). Kod değişikliği yok; motor (`LoanPrepayment`, replay, doğrulayıcı, projeksiyon, dönem kapanışında tüketim) olduğu gibi kalır. Kredi formu `V6c2`'deki hâliyle tamam: bütçe Hero 0/1, Kart 2/4, Grafik 0/1, NavRow 0/5, Label 10/28, Cümle 2/3.
-**Dikkat:** simülatörün "planına uygula" yolu (`SimulationPlanApplier`) hâlâ erken ödeme kaydı yazabiliyor; gösteren ekran olmayacağı için yeri `V10` Aşama 3'te. **Aşama 1 bulgusu (adım dışı):** `INSERT OR REPLACE` yabancı anahtarın `ON DELETE CASCADE`'ini tetikliyor. Bir krediyi kaydetmek o kredinin erken ödemelerini siliyor (sqlite3 ile doğrulandı). Dönem kapanışı (`PeriodSettlementWriter`) vadeli ödeme planlarının taksitlerini ve kredilerin erken ödemelerini, düzenli gelir kaydı da tutar geçmişini siliyor. `V6d` gelir formundan ve `V11`'den önce `duzeltme.md` ile düzeltilmeli.
 
 ### V6c2 — faiz kartı: `LoanPayoffViewModel`, `PreviewLoan`, `YuzdeConverter`
 
