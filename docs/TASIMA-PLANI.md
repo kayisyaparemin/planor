@@ -203,6 +203,8 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
       sistem diyaloğuyla açıyor (kart seçme, vade kararı, varsayılan ödeme şekli). Planör
       token'larıyla çizilmiş, hareketli (örn. alttan açılan sayfa, geçiş animasyonu) bir
       diyalog; `MauiDialogService` arkasında, ViewModel'ler değişmeden. *(V7 Kapı C)*
+      Tarih seçicinin açılan penceresi de Android'in sistem penceresi; `V6c3` Kapı C'de yalnız düğme
+      rengi düzeltildi (`Platforms/Android/Resources/values/styles.xml`), tasarımı bu işin kapsamında.
 
 ## Faz V — Ekranlar
 
@@ -238,13 +240,17 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
           tek siliniyor *(V6b2 sonrası kullanıcı isteği; `duzeltme.md`, büyük ihtimalle tür K: taksitler
           birbirine bağlı saklanmıyor, `CardCharge`'ta grup kimliği yok; "Açıklama (i/N)" adına
           dayanmak eski veride tutmaz)*
-  - [ ] **V6c** — kredi formu (`S64`, `EK-V6c`). Aşama 1'de ~800 satır çıktığı için üçe bölündü;
+  - [x] **V6c** — kredi formu (`S64`, `EK-V6c`). Aşama 1'de ~800 satır çıktığı için üçe bölündü;
         Kapı A ve B ortak, Kapı C her alt adımda ayrı.
     - [x] **V6c1** — `LoanFormPage`: kredinin tanımı (ad, banka, aylık taksit, kalan taksit, sonraki
           taksit tarihi, kredi türü), ekle / düzenle; Finansal Yapı "Ekle"de "Kredi", kredi satırında "Düzenle"
     - [x] **V6c2** — faiz ve bugün kapatma bedeli: kalan anapara + bankanın kapatma tutarı, canlı
           "Bugün kapatırsan" kartı
-    - [ ] **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki)
+    - [x] **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki).
+          Simülatörden uygulananlar da burada görünür ve silinir (`S64`-13). *(Aşama 1 bulgusu, adım dışı:
+          `INSERT OR REPLACE` + `ON DELETE CASCADE` dönem kapanışında kredilerin erken ödemelerini ve ödeme
+          planlarının taksitlerini, gelir kaydında tutar geçmişini siliyor — `duzeltme.md` işi. Kredi formunun
+          kaydı tek işleme geçtiği için bu yoldan artık silinmiyor.)*
   - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
 - [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*
@@ -286,6 +292,6 @@ bileşen / servis düzeyinde çözülür (`duzeltme.md` tür G, "sistem" satır�
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | T | 6 | 8 *(T7, T8 V7 Kapı C'de açıldı)* |
-| V | 5 | 14 *(V6 sekiz alt adımda: V6a, V6b1, V6b2, V6c1, V6c2 tamam)* |
+| V | 5 | 14 *(V6 sekiz alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

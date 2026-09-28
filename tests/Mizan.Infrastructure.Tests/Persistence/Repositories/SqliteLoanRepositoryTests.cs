@@ -137,4 +137,61 @@ public sealed class SqliteLoanRepositoryTests : IDisposable
         Assert.Single(remaining);
         Assert.Equal(p2.Id, remaining[0].Id);
     }
+
+    [Fact]
+    public async Task UpsertLoanWithPrepaymentsAsync_KrediyiVeErkenOdemeleriniBirlikteYazar()
+    {
+        var repository = new SqliteLoanRepository(_connection);
+        var loan = TwentyFourInstallmentLoan();
+        var closure = Prepayment(loan.Id, new DateOnly(2027, 3, 5), LoanPrepaymentMode.FullClosure, null);
+        var partial = Prepayment(loan.Id, new DateOnly(2026, 12, 5), LoanPrepaymentMode.ReduceInstallment, 50000m);
+
+        await repository.UpsertLoanWithPrepaymentsAsync(loan, [closure, partial]);
+
+        Assert.Equal("Taşıt Kredisi", Assert.Single(await repository.GetLoansAsync()).Name);
+        var saved = await repository.GetLoanPrepaymentsAsync();
+        Assert.Equal([partial, closure], saved);
+    }
+
+    [Fact]
+    public async Task UpsertLoanWithPrepaymentsAsync_KayitliKrediyiGuncellerErkenOdemeleriKaybetmez()
+    {
+        // INSERT OR REPLACE krediyi silip yeniden eklediği için ON DELETE CASCADE erken ödemeleri
+        // götürüyordu; tek işlemdeki kayıt listeyi krediden sonra yazar (S64-12).
+        var repository = new SqliteLoanRepository(_connection);
+        var loan = TwentyFourInstallmentLoan();
+        var partial = Prepayment(loan.Id, new DateOnly(2026, 12, 5), LoanPrepaymentMode.ReduceTerm, 50000m);
+        await repository.UpsertLoanWithPrepaymentsAsync(loan, [partial]);
+
+        await repository.UpsertLoanWithPrepaymentsAsync(loan with { Name = "Taşıt" }, [partial]);
+
+        Assert.Equal("Taşıt", Assert.Single(await repository.GetLoansAsync()).Name);
+        Assert.Equal([partial], await repository.GetLoanPrepaymentsAsync());
+    }
+
+    [Fact]
+    public async Task UpsertLoanWithPrepaymentsAsync_ListedeOlmayaniSilerBaskaKredininkineDokunmaz()
+    {
+        var repository = new SqliteLoanRepository(_connection);
+        var loan = TwentyFourInstallmentLoan();
+        var other = TwentyFourInstallmentLoan();
+        var removed = Prepayment(loan.Id, new DateOnly(2026, 12, 5), LoanPrepaymentMode.FullClosure, null);
+        var kept = Prepayment(loan.Id, new DateOnly(2027, 1, 5), LoanPrepaymentMode.ReduceTerm, 10000m);
+        var otherLoans = Prepayment(other.Id, new DateOnly(2027, 2, 5), LoanPrepaymentMode.FullClosure, null);
+        await repository.UpsertLoanWithPrepaymentsAsync(loan, [removed, kept]);
+        await repository.UpsertLoanWithPrepaymentsAsync(other, [otherLoans]);
+
+        await repository.UpsertLoanWithPrepaymentsAsync(loan, [kept]);
+
+        Assert.Equal([kept, otherLoans], await repository.GetLoanPrepaymentsAsync());
+    }
+
+    private static Loan TwentyFourInstallmentLoan() => new()
+    {
+        Id = Guid.NewGuid(), Name = "Taşıt Kredisi", Bank = "Yapı Kredi", MonthlyPayment = 10000m, PaymentDay = 5,
+        NextPaymentDate = new DateOnly(2026, 10, 5), RemainingInstallmentCount = 24
+    };
+
+    private static LoanPrepayment Prepayment(Guid loanId, DateOnly date, LoanPrepaymentMode mode, decimal? principal) =>
+        new() { Id = Guid.NewGuid(), LoanId = loanId, Date = date, Mode = mode, PrincipalAmount = principal };
 }

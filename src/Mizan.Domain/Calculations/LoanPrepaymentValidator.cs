@@ -11,6 +11,37 @@ public sealed class LoanPrepaymentValidator(
     LoanPaymentScheduleBuilder scheduleBuilder)
 {
     /// <summary>
+    /// <see cref="Validate"/>'in kurallarını hata fırlatmadan uygular: erken ödeme kabul edilecekse
+    /// null, edilmeyecekse kullanıcıya gösterilecek mesajı döner. Kredi formu bir erken ödemeyi
+    /// eklemeden ve kaydetmeden önce aynı kuralı sorar (S64-14).
+    /// </summary>
+    public string? Check(Loan? loan, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
+    {
+        ArgumentNullException.ThrowIfNull(existing);
+        ArgumentNullException.ThrowIfNull(prepayment);
+
+        if (loan is null || !loan.IsActive || loan.RemainingInstallmentCount < 1)
+        {
+            return "Erken ödeme için aktif bir kredi seçmelisin.";
+        }
+
+        if (amortizationCalculator.Analyze(loan).Amortization is not { } amortization)
+        {
+            return "Bu kredinin erken ödeme hesabı için kalan anaparası ya da bankanın tarihli kapatma tutarı gerekli. " +
+                   "Finansal Yapı'dan krediyi düzenle.";
+        }
+
+        if (prepayment.Date < amortization.PreviousDueDate)
+        {
+            return $"Erken ödeme tarihi kredinin son ödenen taksitinden ({amortization.PreviousDueDate:dd.MM.yyyy}) önce olamaz.";
+        }
+
+        return EarlierClosureError(loan.Id, existing, prepayment)
+               ?? RemainingInstallmentsError(loan, existing, prepayment)
+               ?? (prepayment.Mode == LoanPrepaymentMode.FullClosure ? null : PartialPrepaymentError(loan, existing, prepayment));
+    }
+
+    /// <summary>
     /// Yeni bir erken ödemenin anlamlı ve geçerli olup olmadığını diğer olaylarla birlikte denetler.
     /// </summary>
     /// <param name="loan">Erken ödemenin ait olduğu kredi sözleşmesi.</param>
@@ -19,68 +50,41 @@ public sealed class LoanPrepaymentValidator(
     /// <exception cref="InvalidOperationException">İş kuralı ihlalinde fırlatılır.</exception>
     public void Validate(Loan? loan, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
     {
-        ArgumentNullException.ThrowIfNull(existing);
-        ArgumentNullException.ThrowIfNull(prepayment);
-
-        if (loan is null || !loan.IsActive || loan.RemainingInstallmentCount < 1)
+        if (Check(loan, existing, prepayment) is { } error)
         {
-            throw new InvalidOperationException("Erken ödeme için aktif bir kredi seçmelisin.");
-        }
-
-        if (amortizationCalculator.Analyze(loan).Amortization is not { } amortization)
-        {
-            throw new InvalidOperationException(
-                "Bu kredinin erken ödeme hesabı için kalan anaparası ya da bankanın tarihli kapatma tutarı gerekli. " +
-                "Finansal Yapı'dan krediyi düzenle.");
-        }
-
-        if (prepayment.Date < amortization.PreviousDueDate)
-        {
-            throw new InvalidOperationException(
-                $"Erken ödeme tarihi kredinin son ödenen taksitinden ({amortization.PreviousDueDate:dd.MM.yyyy}) önce olamaz.");
-        }
-
-        CheckEarlierClosure(loan.Id, existing, prepayment);
-        CheckRemainingInstallments(loan, existing, prepayment);
-
-        if (prepayment.Mode != LoanPrepaymentMode.FullClosure)
-        {
-            ValidatePartialPrepayment(loan, existing, prepayment);
+            throw new InvalidOperationException(error);
         }
     }
 
-    private static void CheckEarlierClosure(Guid loanId, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
+    private static string? EarlierClosureError(Guid loanId, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
     {
         var earlierClosure = existing
             .Where(x => x.LoanId == loanId && x.Id != prepayment.Id && x.Mode == LoanPrepaymentMode.FullClosure)
             .OrderBy(x => x.Date)
             .FirstOrDefault();
 
-        if (earlierClosure is not null && (earlierClosure.Date <= prepayment.Date || prepayment.Mode == LoanPrepaymentMode.FullClosure))
-        {
-            throw new InvalidOperationException($"Bu kredi {earlierClosure.Date:dd.MM.yyyy} tarihinde zaten kapatılıyor.");
-        }
+        return earlierClosure is not null && (earlierClosure.Date <= prepayment.Date || prepayment.Mode == LoanPrepaymentMode.FullClosure)
+            ? $"Bu kredi {earlierClosure.Date:dd.MM.yyyy} tarihinde zaten kapatılıyor."
+            : null;
     }
 
-    private void CheckRemainingInstallments(Loan loan, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
+    private string? RemainingInstallmentsError(Loan loan, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
     {
         var earlier = existing
             .Where(x => x.LoanId == loan.Id && x.Id != prepayment.Id && x.Date <= prepayment.Date)
             .ToArray();
 
-        var before = scheduleBuilder.Replay(loan, earlier);
-        var lastDate = before.LastPaymentDate;
-        if (lastDate is null || prepayment.Date >= lastDate)
-        {
-            throw new InvalidOperationException("Bu tarihte kredinin kapatılacak taksiti kalmıyor. Daha erken bir tarih seç.");
-        }
+        var lastDate = scheduleBuilder.Replay(loan, earlier).LastPaymentDate;
+        return lastDate is null || prepayment.Date >= lastDate
+            ? "Bu tarihte kredinin kapatılacak taksiti kalmıyor. Daha erken bir tarih seç."
+            : null;
     }
 
-    private void ValidatePartialPrepayment(Loan loan, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
+    private string? PartialPrepaymentError(Loan loan, IReadOnlyList<LoanPrepayment> existing, LoanPrepayment prepayment)
     {
         if (prepayment.PrincipalAmount is not decimal amount || amount <= 0m)
         {
-            throw new InvalidOperationException("Ara ödeme tutarı 0'dan büyük olmalı.");
+            return "Ara ödeme tutarı 0'dan büyük olmalı.";
         }
 
         var earlier = existing
@@ -88,10 +92,8 @@ public sealed class LoanPrepaymentValidator(
             .ToArray();
 
         var probe = scheduleBuilder.Replay(loan, [.. earlier, prepayment with { Mode = LoanPrepaymentMode.FullClosure }]);
-        if (probe.PrincipalBeforeEvent.TryGetValue(prepayment.Id, out var principal) && amount >= principal)
-        {
-            throw new InvalidOperationException(
-                $"Ara ödeme, o günkü kalan anaparadan ({principal:N0} TL) küçük olmalı. Tamamını ödemek için erken kapamayı seç.");
-        }
+        return probe.PrincipalBeforeEvent.TryGetValue(prepayment.Id, out var principal) && amount >= principal
+            ? $"Ara ödeme, o günkü kalan anaparadan ({principal:N0} TL) küçük olmalı. Tamamını ödemek için erken kapamayı seç."
+            : null;
     }
 }

@@ -10,10 +10,11 @@ namespace Mizan.Application.Abstractions;
 public interface IObligationManagementService
 {
     /// <summary>
-    /// Kredi sözleşmesini iş kurallarına ve banka kapatma tutarı otoritesine göre doğrular,
-    /// depoya kaydeder ve açık dönem varsa plan revizyonu tetikler.
+    /// Kredi sözleşmesini iş kurallarına ve banka kapatma tutarı otoritesine göre doğrular, erken
+    /// ödemelerini kredinin bu hâline göre yeniden doğrular, ikisini tek işlemde kaydeder ve açık
+    /// dönem varsa tek plan revizyonu tetikler. Listede olmayan erken ödemeler silinir (S64-12).
     /// </summary>
-    Task SaveLoanAsync(Loan loan, CancellationToken cancellationToken = default);
+    Task SaveLoanAsync(Loan loan, IReadOnlyList<LoanPrepayment> prepayments, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Krediyi kaydetmeden, <see cref="SaveLoanAsync"/> onu hangi faiz ve bugünkü kapatma bedeliyle
@@ -22,14 +23,23 @@ public interface IObligationManagementService
     LoanPayoffOverview? PreviewLoan(Loan loan);
 
     /// <summary>
+    /// Erken ödemeleri, kredinin kaydedileceği hâlden hesaplanan o günkü tutarlarıyla tarih sırasında
+    /// listeler; her erken ödeme için bir satır. Kredi kayıtta reddedilecekse ya da faizi çözülemiyorsa
+    /// tutarlar null'dır. Kredi formunun canlı erken ödeme listesi içindir (S64-14).
+    /// </summary>
+    IReadOnlyList<PlannedLoanPrepayment> PreviewLoanPrepayments(Loan loan, IReadOnlyList<LoanPrepayment> prepayments);
+
+    /// <summary>
+    /// Yeni bir erken ödemenin, kredinin kaydedileceği hâline ve diğer erken ödemelere göre kabul
+    /// edilip edilmeyeceğini söyler: kabul edilecekse null, edilmeyecekse kullanıcıya gösterilecek
+    /// mesaj. Kayıt aynı kuralı uygular (S64-14).
+    /// </summary>
+    string? ValidateLoanPrepayment(Loan loan, IReadOnlyList<LoanPrepayment> prepayments, LoanPrepayment candidate);
+
+    /// <summary>
     /// Belirtilen krediyi ve bağlı erken ödeme kayıtlarını siler ve açık dönem varsa plan revizyonu tetikler.
     /// </summary>
     Task DeleteLoanAsync(Guid id, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Krediye ait belirli bir erken/ara ödeme taahhüdünü siler ve açık dönem varsa plan revizyonu tetikler.
-    /// </summary>
-    Task DeleteLoanPrepaymentAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Vadeli/senetli geçici borç ödeme planını doğrular, taksitlerini normalleştirir,

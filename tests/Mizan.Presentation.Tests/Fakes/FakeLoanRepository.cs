@@ -25,6 +25,15 @@ internal sealed class FakeLoanRepository : ILoanRepository
         return Task.CompletedTask;
     }
 
+    public Task UpsertLoanWithPrepaymentsAsync(
+        Loan loan, IReadOnlyList<LoanPrepayment> prepayments, CancellationToken cancellationToken = default)
+    {
+        Loans[loan.Id] = loan;
+        Prepayments.RemoveAll(x => x.LoanId == loan.Id);
+        Prepayments.AddRange(prepayments);
+        return Task.CompletedTask;
+    }
+
     public Task DeleteLoanAsync(Guid id, CancellationToken cancellationToken = default)
     {
         Loans.Remove(id);

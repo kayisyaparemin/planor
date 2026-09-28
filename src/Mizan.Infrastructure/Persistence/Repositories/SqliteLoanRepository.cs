@@ -47,25 +47,29 @@ public sealed class SqliteLoanRepository(SQLiteAsyncConnection connection) : ILo
     {
         ArgumentNullException.ThrowIfNull(loan);
         cancellationToken.ThrowIfCancellationRequested();
+        await _connection.InsertOrReplaceAsync(ToEntity(loan));
+    }
 
-        var entity = new LoanEntity
+    /// <inheritdoc />
+    public async Task UpsertLoanWithPrepaymentsAsync(
+        Loan loan, IReadOnlyList<LoanPrepayment> prepayments, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+        ArgumentNullException.ThrowIfNull(prepayments);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // INSERT OR REPLACE krediyi silip yeniden ekler ve ON DELETE CASCADE erken ödemeleri götürür;
+        // liste bu yüzden krediden sonra ve aynı işlemde bütünüyle yeniden yazılır (S64-12).
+        var loanId = loan.Id.ToString();
+        await _connection.RunInTransactionAsync(conn =>
         {
-            Id = loan.Id.ToString(),
-            Name = loan.Name,
-            Bank = loan.Bank,
-            MonthlyPayment = loan.MonthlyPayment,
-            PaymentDay = loan.PaymentDay,
-            NextPaymentDate = loan.NextPaymentDate.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-            RemainingInstallmentCount = loan.RemainingInstallmentCount,
-            FinalPaymentAmount = loan.FinalPaymentAmount,
-            RemainingDebt = loan.RemainingDebt,
-            EarlyClosureAmount = loan.EarlyClosureAmount,
-            EarlyClosureAmountAsOf = loan.EarlyClosureAmountAsOf?.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-            Kind = (int)loan.Kind,
-            IsActive = loan.IsActive
-        };
-
-        await _connection.InsertOrReplaceAsync(entity);
+            conn.InsertOrReplace(ToEntity(loan));
+            conn.Execute("DELETE FROM loan_prepayments WHERE LoanId = ?", loanId);
+            foreach (var prepayment in prepayments)
+            {
+                conn.Insert(ToEntity(prepayment with { LoanId = loan.Id }));
+            }
+        });
     }
 
     /// <inheritdoc />
@@ -98,17 +102,7 @@ public sealed class SqliteLoanRepository(SQLiteAsyncConnection connection) : ILo
     {
         ArgumentNullException.ThrowIfNull(prepayment);
         cancellationToken.ThrowIfCancellationRequested();
-
-        var entity = new LoanPrepaymentEntity
-        {
-            Id = prepayment.Id.ToString(),
-            LoanId = prepayment.LoanId.ToString(),
-            Date = prepayment.Date.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-            Mode = (int)prepayment.Mode,
-            PrincipalAmount = prepayment.PrincipalAmount
-        };
-
-        await _connection.InsertOrReplaceAsync(entity);
+        await _connection.InsertOrReplaceAsync(ToEntity(prepayment));
     }
 
     /// <inheritdoc />
@@ -117,4 +111,30 @@ public sealed class SqliteLoanRepository(SQLiteAsyncConnection connection) : ILo
         cancellationToken.ThrowIfCancellationRequested();
         await _connection.DeleteAsync<LoanPrepaymentEntity>(id.ToString());
     }
+
+    private static LoanEntity ToEntity(Loan loan) => new()
+    {
+        Id = loan.Id.ToString(),
+        Name = loan.Name,
+        Bank = loan.Bank,
+        MonthlyPayment = loan.MonthlyPayment,
+        PaymentDay = loan.PaymentDay,
+        NextPaymentDate = loan.NextPaymentDate.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
+        RemainingInstallmentCount = loan.RemainingInstallmentCount,
+        FinalPaymentAmount = loan.FinalPaymentAmount,
+        RemainingDebt = loan.RemainingDebt,
+        EarlyClosureAmount = loan.EarlyClosureAmount,
+        EarlyClosureAmountAsOf = loan.EarlyClosureAmountAsOf?.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
+        Kind = (int)loan.Kind,
+        IsActive = loan.IsActive
+    };
+
+    private static LoanPrepaymentEntity ToEntity(LoanPrepayment prepayment) => new()
+    {
+        Id = prepayment.Id.ToString(),
+        LoanId = prepayment.LoanId.ToString(),
+        Date = prepayment.Date.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
+        Mode = (int)prepayment.Mode,
+        PrincipalAmount = prepayment.PrincipalAmount
+    };
 }

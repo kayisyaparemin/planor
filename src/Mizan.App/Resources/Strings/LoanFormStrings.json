@@ -21,9 +21,18 @@
   "Etiket_KurtulacaginFaiz": "Kurtulacağın faiz",
   "Etiket_AylikFaiz": "Aylık faiz (vergi dahil)",
   "YerTutucu_IstegeBagli": "İsteğe bağlı",
+  "Etiket_ErkenOdemeler": "ERKEN ÖDEMELER",
+  "Etiket_OdemeSekli": "ÖDEME ŞEKLİ",
+  "Etiket_OdemeTarihi": "ÖDEME TARİHİ",
+  "Etiket_AnaparadanDusecek": "ANAPARADAN DÜŞECEK",
+  "Etiket_TamamenKapatma": "Tamamen kapatma",
+  "Etiket_VadeKisalir": "Ara ödeme · vade kısalır",
+  "Etiket_TaksitDuser": "Ara ödeme · taksit düşer",
   "Cumle_FaizIcinTutarGir": "Faizi görmek için kalan anaparayı ya da bankanın kapatma tutarını gir.",
   "Cumle_TutarUyusmuyor": "Bu tutar taksitlerle uyuşmuyor; tutarı ve taksit bilgilerini kontrol et.",
   "Aksiyon_Kaydet": "Kaydet",
   "Aksiyon_Vazgec": "Vazgeç",
+  "Aksiyon_ErkenOdemePlanla": "Erken ödeme planla",
+  "Aksiyon_Ekle": "Ekle",
   "Hata_KrediYuklenemedi": "Kredi bilgileri okunamadı."
 }

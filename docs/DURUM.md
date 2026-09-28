@@ -6,15 +6,23 @@ Bu repo şu anda **boş iskelet** hâlinde. Hiçbir iş kodu taşınmadı.
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6c2** — kredi formu: faiz ve bugün kapatma bedeli |
-| Sıradaki adım | **V6c3** — planlı erken ödemeler: liste, giriş, silme; kredi ile tek kayıt (Application eki) |
-| Test sayısı | 1572 |
+| Son tamamlanan adım | **V6c3** — kredi formu: planlı erken ödemeler; V6c tamam |
+| Sıradaki adım | **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir |
+| Test sayısı | 1624 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6c3 — planlı erken ödemeler: `LoanPrepaymentsViewModel`, `UpsertLoanWithPrepaymentsAsync`, `ErkenOdemeTuruConverter`
+
+Eskide planlı erken ödeme Krediler listesinde kredilerin arasına karışık satırlardı (4 etiket + not + Sil) ve "+ Ekle" → ortak senaryo formundan (8 Label, 6 giriş, kredi seçerek) ya da simülatörden giriliyordu. Şimdi kredinin sayfasında: liste (şekil · yıllı tarih · o gün ödenecek tutar; ≤ 4 satır + "+N daha"), "Erken ödeme planla" girişi (önce şekil; ara ödemede anaparadan düşecek tutar; tarih bugünden sonraki ilk taksit günü) ve dokun → Sil. Simülatörden uygulananlar da burada görünür ve silinir (`S64`-13). Sayfa 296 satır / 16 Label; liste çocuk ViewModel'de (200 satır), form ViewModel'i 5 bağımlılıkta (180 satır).
+Karar (`S64`-12–16): Kaydet krediyi ve erken ödemelerini tek transaction'da, tek plan revizyonuyla yazar (`I70`, `I71`). Erken ödemeler kredinin kaydedileceği hâline göre doğrulanır ve hesaplanır; kayıt krediyi reddedecekse tutar "—" (`I72`). Reddedilen erken ödemenin tarihi mesajın başında; faiz çözülemezse mesaj formun diliyle. `LoanPrepaymentValidator`'a hata fırlatmayan `Check` geldi. Port 8 → 9 metot (`SaveLoanAsync` erken ödemeleri alır, `PreviewLoanPrepayments`, `ValidateLoanPrepayment`); çağıranı kalmayan `DeleteLoanPrepaymentAsync` ve `DescribePrepayments(FinancialPlan)` çıktı. Doğrulama `LoanPayoffService`'te (4 bağımlılık, 198 satır).
+**Dikkat (Aşama 1 bulgusu):** SQLite'ın `INSERT OR REPLACE`'i satırı silip yeniden eklediği için `ON DELETE CASCADE` alt kayıtları götürüyor. V6c1/V6c2'nin Kaydet'i krediyi yazarken erken ödemelerini siliyordu; form yolu tek işleme geçerek düzeldi. Dönem kapanışı (`PeriodSettlementWriter`: kredilerin erken ödemeleri, ödeme planlarının taksitleri) ve düzenli gelir kaydı (tutar geçmişi) hâlâ siliyor; `V6d` ve `V11`'den önce `duzeltme.md` ile düzeltilmeli. Adım Kapı A'da bir kez elendi (`d87e5a5`), simülatörden doğan kaydı gösterecek yer kalmadığı için geri alındı (`b92ac72`).
+Kapı C: tarih seçicinin açılan penceresinde Cancel / OK iki temada da zemine karışıyordu. Android bu düğmeleri `colorPrimary` ile boyuyor, bizde o GK11 gereği `Backdrop`. `Platforms/Android/Resources/values/styles.xml` + `MainActivity` ile yüzey üstü metin rengi verildi (MAUI'nin uyarı penceresindeki desen, yeni renk yok); uygulamadaki bütün tarih seçicileri düzeldi.
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 4/4 (analizcinin saydığı 1 ListCard), Grafik 0/1, NavRow 0/5, Label 16/28, Cümle 2/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 56 yeni test, 4'ü kaldırılan metotlarla yer değiştirdi (3 Domain, 17 Application, 3 Infrastructure, 33 sunum); toplam 1.624 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V6c2 — faiz kartı: `LoanPayoffViewModel`, `PreviewLoan`, `YuzdeConverter`
 

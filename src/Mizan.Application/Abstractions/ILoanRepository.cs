@@ -19,6 +19,14 @@ public interface ILoanRepository
     Task UpsertLoanAsync(Loan loan, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Krediyi ve erken ödemelerinin tamamını tek işlemde yazar: listede olmayan erken ödemeleri
+    /// siler, başka kredininkine dokunmaz. Kredi formunun tek kaydıdır; ikisi ayrı yazılırsa kredi
+    /// yazıldığı anda erken ödemeler kaybolabilir (S64-12).
+    /// </summary>
+    Task UpsertLoanWithPrepaymentsAsync(
+        Loan loan, IReadOnlyList<LoanPrepayment> prepayments, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Bir krediyi ve ona bağlı erken ödeme kayıtlarını kalıcı olarak siler.
     /// </summary>
     Task DeleteLoanAsync(Guid id, CancellationToken cancellationToken = default);

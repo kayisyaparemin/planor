@@ -74,6 +74,27 @@ public static class LoanFormStrings
     /// <summary>Faiz kartındaki iki tutar alanının yer tutucusu.</summary>
     public const string YerTutucu_IstegeBagli = "İsteğe bağlı";
 
+    /// <summary>Planlı erken ödemeler listesinin üst etiketi (S64-6).</summary>
+    public const string Etiket_ErkenOdemeler = "ERKEN ÖDEMELER";
+
+    /// <summary>Erken ödeme girişi: şekil seçicisinin etiketi; tutarın sorulup sorulmayacağını belirler.</summary>
+    public const string Etiket_OdemeSekli = "ÖDEME ŞEKLİ";
+
+    /// <summary>Erken ödeme girişi: tarih seçicisinin etiketi.</summary>
+    public const string Etiket_OdemeTarihi = "ÖDEME TARİHİ";
+
+    /// <summary>Erken ödeme girişi: ara ödemede anaparadan düşecek tutar alanının etiketi.</summary>
+    public const string Etiket_AnaparadanDusecek = "ANAPARADAN DÜŞECEK";
+
+    /// <summary>Erken ödeme şekli: kalan borcun tamamı ödenir.</summary>
+    public const string Etiket_TamamenKapatma = "Tamamen kapatma";
+
+    /// <summary>Erken ödeme şekli: ara ödeme, taksit aynı kalır, vade kısalır.</summary>
+    public const string Etiket_VadeKisalir = "Ara ödeme · vade kısalır";
+
+    /// <summary>Erken ödeme şekli: ara ödeme, vade aynı kalır, taksit düşer.</summary>
+    public const string Etiket_TaksitDuser = "Ara ödeme · taksit düşer";
+
     /// <summary>Faiz kartı: geçerli tutar girilmemişken gösterilen cümle.</summary>
     public const string Cumle_FaizIcinTutarGir = "Faizi görmek için kalan anaparayı ya da bankanın kapatma tutarını gir.";
 
@@ -85,6 +106,12 @@ public static class LoanFormStrings
 
     /// <summary>Kaydetmeden listeye dönen aksiyon; değişiklik varsa onay sorulur.</summary>
     public const string Aksiyon_Vazgec = "Vazgeç";
+
+    /// <summary>Erken ödeme giriş bloğunu açan aksiyon.</summary>
+    public const string Aksiyon_ErkenOdemePlanla = "Erken ödeme planla";
+
+    /// <summary>Girilen erken ödemeyi listeye ekleyen aksiyon; kayıt Kaydet'e kadar bekler.</summary>
+    public const string Aksiyon_Ekle = "Ekle";
 
     /// <summary>Düzenlenecek kredi okunamadığında gösterilen hata metni.</summary>
     public const string Hata_KrediYuklenemedi = "Kredi bilgileri okunamadı.";

@@ -151,4 +151,34 @@ public sealed class LoanPrepaymentValidatorTests
         _validator.Validate(loan, [], validClosure);
         _validator.Validate(loan, [], validPartial);
     }
+
+    [Fact]
+    public void Check_GecerliErkenOdemede_NullDoner()
+    {
+        var loan = CreateReferenceLoan();
+
+        Assert.Null(_validator.Check(loan, [], CreatePrepayment(loan, LoanPrepaymentMode.ReduceTerm, SixthInstallmentDate, 20_000m)));
+    }
+
+    [Fact]
+    public void Check_GecersizErkenOdemede_FirlatmadanValidateIleAyniMesajiDoner()
+    {
+        var loan = CreateReferenceLoan();
+        var afterLast = CreatePrepayment(loan, LoanPrepaymentMode.FullClosure, new DateOnly(2027, 8, 20));
+        var excessive = CreatePrepayment(loan, LoanPrepaymentMode.ReduceTerm, SixthInstallmentDate, 60_000m);
+
+        foreach (var prepayment in new[] { afterLast, excessive })
+        {
+            var thrown = Assert.Throws<InvalidOperationException>(() => _validator.Validate(loan, [], prepayment));
+            Assert.Equal(thrown.Message, _validator.Check(loan, [], prepayment));
+        }
+    }
+
+    [Fact]
+    public void Check_KrediYoksa_AktifKrediIstenir()
+    {
+        var prepayment = CreatePrepayment(CreateReferenceLoan(), LoanPrepaymentMode.FullClosure, SixthInstallmentDate);
+
+        Assert.Equal("Erken ödeme için aktif bir kredi seçmelisin.", _validator.Check(null, [], prepayment));
+    }
 }

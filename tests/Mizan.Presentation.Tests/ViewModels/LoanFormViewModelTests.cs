@@ -442,6 +442,105 @@ public sealed class LoanFormViewModelTests
         Assert.False(_navigation.NavigateBackCalled);
     }
 
+    [Fact]
+    public async Task Load_Duzenleme_YalnizBuKredininErkenOdemeleriYuklenir()
+    {
+        var loan = Add(Loan());
+        var own = new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
+        _repository.Prepayments.Add(own);
+        _repository.Prepayments.Add(own with { Id = Guid.NewGuid(), LoanId = Guid.NewGuid() });
+
+        await _viewModel.LoadAsync(loan.Id);
+
+        Assert.Equal(own.Id, Assert.Single(_viewModel.Prepayments.Items).Id);
+        Assert.False(_viewModel.HasChanges);
+    }
+
+    [Fact]
+    public async Task Load_ErkenOdemeTutarlari_FormunTaslagiylaHesaplanir()
+    {
+        var loan = Add(Loan());
+        _repository.Prepayments.Add(new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure });
+        _service.PrepaymentAmount = (_, _) => 52_410m;
+
+        await _viewModel.LoadAsync(loan.Id);
+
+        Assert.Equal(52_410m, Assert.Single(_viewModel.Prepayments.Items).Amount);
+        Assert.Equal(loan.Id, _service.PrepaymentPreviewLoans[^1].Id);
+    }
+
+    [Fact]
+    public async Task FormDegisince_ErkenOdemeTutarlari_YenidenHesaplanir()
+    {
+        await _viewModel.LoadAsync(Add(Loan()).Id);
+
+        _viewModel.Fields.CountInput = "12";
+
+        Assert.Equal(12, _service.PrepaymentPreviewLoans[^1].RemainingInstallmentCount);
+    }
+
+    [Fact]
+    public async Task FaizKartindaTutarDegisince_ErkenOdemeTutarlari_YenidenHesaplanir()
+    {
+        await _viewModel.LoadAsync(Add(Loan()).Id);
+
+        _viewModel.Payoff.PrincipalInput = "150.000";
+
+        Assert.Equal(150_000m, _service.PrepaymentPreviewLoans[^1].RemainingDebt);
+    }
+
+    [Fact]
+    public async Task FaizKartindaTutarGecersizse_ErkenOdemeTutarlariHesaplanmaz()
+    {
+        var loan = Add(Loan());
+        _repository.Prepayments.Add(new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure });
+        _service.PrepaymentAmount = (_, _) => 52_410m;
+        await _viewModel.LoadAsync(loan.Id);
+
+        _viewModel.Payoff.PrincipalInput = "abc";
+
+        Assert.Null(Assert.Single(_viewModel.Prepayments.Items).Amount);
+    }
+
+    [Fact]
+    public async Task Save_ErkenOdemeler_KrediyleBirlikteGonderilir()
+    {
+        var loan = Add(Loan());
+        var kept = new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
+        _repository.Prepayments.Add(kept);
+        await _viewModel.LoadAsync(loan.Id);
+        _viewModel.Prepayments.OpenEntryCommand.Execute(null);
+        _viewModel.Prepayments.EntryMode = LoanPrepaymentMode.ReduceTerm;
+        _viewModel.Prepayments.EntryDate = new DateOnly(2027, 1, 15);
+        _viewModel.Prepayments.AmountInput = "20.000";
+        await _viewModel.Prepayments.AddCommand.ExecuteAsync(null);
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        var saved = Assert.Single(_service.SavedPrepayments);
+        Assert.Equal(2, saved.Count);
+        Assert.Contains(saved, p => p.Id == kept.Id);
+        Assert.Contains(saved, p => p is { Mode: LoanPrepaymentMode.ReduceTerm, PrincipalAmount: 20_000m });
+        Assert.True(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Cancel_ErkenOdemeSilinirse_DegisiklikSayilir()
+    {
+        var loan = Add(Loan());
+        _repository.Prepayments.Add(new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure });
+        await _viewModel.LoadAsync(loan.Id);
+        _dialog.NextChooseResponse = "Sil";
+        await _viewModel.Prepayments.SelectCommand.ExecuteAsync(_viewModel.Prepayments.Items[0]);
+        _dialog.NextConfirmResponse = false;
+
+        await _viewModel.CancelCommand.ExecuteAsync(null);
+
+        Assert.True(_viewModel.HasChanges);
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.False(_navigation.NavigateBackCalled);
+    }
+
     // Faizi çözülmüş görünüm; sayılar yalnız hâli belirler, kartın ayrıntıları LoanPayoffViewModelTests'te.
     private static LoanPayoffOverview? Resolved(Loan loan)
     {

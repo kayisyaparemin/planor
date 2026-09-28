@@ -20,6 +20,7 @@ public sealed class LoanPayoffServiceTests
     private static readonly LoanScheduleCalculator ScheduleCalculator = new();
     private static readonly LoanAmortizationCalculator AmortizationCalculator = new(ScheduleCalculator);
     private static readonly LoanPaymentScheduleBuilder ScheduleBuilder = new(ScheduleCalculator, AmortizationCalculator);
+    private static readonly LoanPrepaymentValidator Validator = new(AmortizationCalculator, ScheduleBuilder);
 
     [Fact]
     public void PrepareForSave_BankaTutariVarken_AnaparayiTutardanCozupElleGirileninYerineYazar()
@@ -297,49 +298,80 @@ public sealed class LoanPayoffServiceTests
     }
 
     [Fact]
-    public void DescribePrepayments_PlanliOdemeler_OGunkuTutarlariylaTarihSirasinaGoreListelenir()
+    public void PreviewPrepayments_OGunkuTutarlariylaTarihSirasinaGoreListelenirKrediyeBaglanir()
     {
         var service = CreateService(Today);
         var loan = ReferenceLoan();
-        var closure = new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
+        var closure = new LoanPrepayment { Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
         var partial = new LoanPrepayment
         {
-            LoanId = loan.Id, Date = new DateOnly(2026, 12, 20), Mode = LoanPrepaymentMode.ReduceTerm, PrincipalAmount = 20_000m
+            Date = new DateOnly(2026, 12, 20), Mode = LoanPrepaymentMode.ReduceTerm, PrincipalAmount = 20_000m
         };
-        var plan = new FinancialPlan { Loans = [loan], LoanPrepayments = [closure, partial] };
 
-        var planned = service.DescribePrepayments(plan);
+        var planned = service.PreviewPrepayments(loan, [closure, partial]);
 
-        Assert.Equal([partial, closure], planned.Select(x => x.Prepayment));
-        var replay = ScheduleBuilder.Replay(loan, plan.LoanPrepayments);
+        Assert.Equal([partial.Id, closure.Id], planned.Select(x => x.Prepayment.Id));
+        Assert.All(planned, x => Assert.Equal(loan.Id, x.Prepayment.LoanId));
+        var replay = ScheduleBuilder.Replay(loan, planned.Select(x => x.Prepayment));
         Assert.All(planned, x => Assert.Equal(replay.Payments.Single(p => p.SourceId == x.Prepayment.Id).Amount, x.Amount));
         Assert.All(planned, x => Assert.False(x.IsUnquotable));
     }
 
     [Fact]
-    public void DescribePrepayments_FaiziCozulemeyenKredi_TutarsizVeHesaplanamazIsaretlenir()
+    public void PreviewPrepayments_FaiziCozulemeyenKredi_TutarsizVeHesaplanamazIsaretlenir()
     {
         var service = CreateService(Today);
-        var loan = ReferenceLoan() with { RemainingDebt = null };
-        var closure = new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
+        var closure = new LoanPrepayment { Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
 
-        var planned = Assert.Single(service.DescribePrepayments(new FinancialPlan { Loans = [loan], LoanPrepayments = [closure] }));
+        var planned = Assert.Single(service.PreviewPrepayments(ReferenceLoan() with { RemainingDebt = null }, [closure]));
 
         Assert.Null(planned.Amount);
         Assert.True(planned.IsUnquotable);
     }
 
     [Fact]
-    public void DescribePrepayments_KrediOTarihtenOnceBitiyorsa_TutarNullAmaHesaplanabilirKalir()
+    public void PreviewPrepayments_KrediOTarihtenOnceBitiyorsa_TutarNullAmaHesaplanabilirKalir()
     {
         var service = CreateService(Today);
-        var loan = ReferenceLoan();
-        var afterEnd = new LoanPrepayment { LoanId = loan.Id, Date = new DateOnly(2027, 12, 1), Mode = LoanPrepaymentMode.FullClosure };
+        var afterEnd = new LoanPrepayment { Date = new DateOnly(2027, 12, 1), Mode = LoanPrepaymentMode.FullClosure };
 
-        var planned = Assert.Single(service.DescribePrepayments(new FinancialPlan { Loans = [loan], LoanPrepayments = [afterEnd] }));
+        var planned = Assert.Single(service.PreviewPrepayments(ReferenceLoan(), [afterEnd]));
 
         Assert.Null(planned.Amount);
         Assert.False(planned.IsUnquotable);
+    }
+
+    [Fact]
+    public void PreviewPrepayments_KayitKrediyiReddedecekse_AnaparayaDusmezTutarVermez()
+    {
+        // I68'in erken ödeme karşılığı: bankanın tutarı uyuşmazken anaparadan tutar hesaplanmaz.
+        var service = CreateService(Today);
+        var closure = new LoanPrepayment { Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
+
+        var planned = Assert.Single(service.PreviewPrepayments(ReferenceLoan() with { EarlyClosureAmount = 150_000m }, [closure]));
+
+        Assert.Null(planned.Amount);
+        Assert.True(planned.IsUnquotable);
+    }
+
+    [Fact]
+    public void CheckPrepayment_ListedeAdayKendisiyleKarsilastirilmaz()
+    {
+        var service = CreateService(Today);
+        var closure = new LoanPrepayment { Date = new DateOnly(2027, 3, 15), Mode = LoanPrepaymentMode.FullClosure };
+
+        Assert.Null(service.CheckPrepayment(ReferenceLoan(), [closure], closure));
+    }
+
+    [Fact]
+    public void CheckPrepayment_KredininSonTaksitindenSonra_MesajDoner()
+    {
+        var service = CreateService(Today);
+        var afterEnd = new LoanPrepayment { Date = new DateOnly(2027, 12, 1), Mode = LoanPrepaymentMode.FullClosure };
+
+        Assert.Equal(
+            "Bu tarihte kredinin kapatılacak taksiti kalmıyor. Daha erken bir tarih seç.",
+            service.CheckPrepayment(ReferenceLoan(), [], afterEnd));
     }
 
     [Fact]
@@ -347,13 +379,14 @@ public sealed class LoanPayoffServiceTests
     {
         var clock = new FixedClock(Today);
 
-        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(null!, AmortizationCalculator, ScheduleBuilder));
-        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(clock, null!, ScheduleBuilder));
-        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(clock, AmortizationCalculator, null!));
+        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(null!, AmortizationCalculator, ScheduleBuilder, Validator));
+        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(clock, null!, ScheduleBuilder, Validator));
+        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(clock, AmortizationCalculator, null!, Validator));
+        Assert.Throws<ArgumentNullException>(() => new LoanPayoffService(clock, AmortizationCalculator, ScheduleBuilder, null!));
     }
 
     private static LoanPayoffService CreateService(DateOnly today) =>
-        new(new FixedClock(today), AmortizationCalculator, ScheduleBuilder);
+        new(new FixedClock(today), AmortizationCalculator, ScheduleBuilder, Validator);
 
     private static Loan ReferenceLoan() => new()
     {

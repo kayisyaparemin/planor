@@ -90,4 +90,25 @@ public static class RecordFormAutomationIds
 
     /// <summary>Kredi formu: vazgeç butonu kimliği.</summary>
     public const string BtnCancelLoan = "btn-cancel-loan";
+
+    /// <summary>Kredi formu: planlı erken ödemeler listesi kimliği.</summary>
+    public const string ListLoanPrepayments = "list-loan-prepayments";
+
+    /// <summary>Kredi formu: erken ödeme girişini açan buton kimliği.</summary>
+    public const string BtnOpenLoanPrepayment = "btn-open-loan-prepayment";
+
+    /// <summary>Kredi formu: erken ödeme şekli seçicisi kimliği.</summary>
+    public const string PickerPrepaymentMode = "picker-prepayment-mode";
+
+    /// <summary>Kredi formu: erken ödeme tarihi seçicisi kimliği.</summary>
+    public const string PickerPrepaymentDate = "picker-prepayment-date";
+
+    /// <summary>Kredi formu: ara ödemede anaparadan düşecek tutar girişi kimliği.</summary>
+    public const string InputPrepaymentAmount = "input-prepayment-amount";
+
+    /// <summary>Kredi formu: erken ödemeyi listeye ekleyen buton kimliği.</summary>
+    public const string BtnAddLoanPrepayment = "btn-add-loan-prepayment";
+
+    /// <summary>Kredi formu: erken ödeme girişini kapatan buton kimliği.</summary>
+    public const string BtnCancelLoanPrepayment = "btn-cancel-loan-prepayment";
 }

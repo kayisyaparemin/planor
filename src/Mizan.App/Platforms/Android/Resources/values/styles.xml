@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      Android'in tarih penceresi düğme yazısını colorPrimary ile boyar. colorPrimary GK11 gereği
+      Backdrop'tur (zemin); düğmeler iki temada da zemine karışıyordu (V6c3 Kapı C). MAUI kendi uyarı
+      penceresinde (MauiAlertDialogTheme) aynı sorunu yüzey üstü metinle çözüyor; burada da o.
+      Yeni renk yok: colorOnSurface temanın kendi değeridir.
+    -->
+    <style name="Planor.DatePickerDialog" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="colorPrimary">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- MainActivity açılışta etkinliğin temasına ekler; MAUI temayı OnCreate'te değiştirdiği için stil adıyla değil böyle bağlanır. -->
+    <style name="Planor.DialogOverrides" parent="">
+        <item name="android:datePickerDialogTheme">@style/Planor.DatePickerDialog</item>
+    </style>
+</resources>

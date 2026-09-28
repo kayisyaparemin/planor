@@ -22,7 +22,8 @@ public sealed class ObligationManagementServiceTests
         var scheduleCalculator = new LoanScheduleCalculator();
         var amortizationCalculator = new LoanAmortizationCalculator(scheduleCalculator);
         var scheduleBuilder = new LoanPaymentScheduleBuilder(scheduleCalculator, amortizationCalculator);
-        _loanPayoffService = new LoanPayoffService(_clock, amortizationCalculator, scheduleBuilder);
+        _loanPayoffService = new LoanPayoffService(
+            _clock, amortizationCalculator, scheduleBuilder, new LoanPrepaymentValidator(amortizationCalculator, scheduleBuilder));
     }
 
     private ObligationManagementService CreateSut() =>
@@ -62,7 +63,7 @@ public sealed class ObligationManagementServiceTests
             RemainingInstallmentCount = 12
         };
 
-        await sut.SaveLoanAsync(loan);
+        await sut.SaveLoanAsync(loan, []);
 
         var savedLoans = await _loanRepository.GetLoansAsync();
         Assert.Single(savedLoans);
@@ -87,7 +88,7 @@ public sealed class ObligationManagementServiceTests
             EarlyClosureAmountAsOf = new DateOnly(2026, 9, 25)
         };
 
-        await sut.SaveLoanAsync(loan);
+        await sut.SaveLoanAsync(loan, []);
 
         var savedLoans = await _loanRepository.GetLoansAsync();
         Assert.Single(savedLoans);
@@ -136,7 +137,7 @@ public sealed class ObligationManagementServiceTests
             RemainingInstallmentCount = 12
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.SaveLoanAsync(loan));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.SaveLoanAsync(loan, []));
         Assert.Empty(await _loanRepository.GetLoansAsync());
         Assert.Empty(_changeRecorder.RecordedTriggers);
     }
@@ -155,7 +156,7 @@ public sealed class ObligationManagementServiceTests
             RemainingInstallmentCount = count
         };
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.SaveLoanAsync(loan));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.SaveLoanAsync(loan, []));
         Assert.Empty(await _loanRepository.GetLoansAsync());
         Assert.Empty(_changeRecorder.RecordedTriggers);
     }
@@ -174,7 +175,7 @@ public sealed class ObligationManagementServiceTests
             RemainingInstallmentCount = 12
         };
 
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => sut.SaveLoanAsync(loan));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => sut.SaveLoanAsync(loan, []));
         Assert.Empty(await _loanRepository.GetLoansAsync());
         Assert.Empty(_changeRecorder.RecordedTriggers);
     }
@@ -196,27 +197,6 @@ public sealed class ObligationManagementServiceTests
         await sut.DeleteLoanAsync(loanId);
 
         Assert.Empty(await _loanRepository.GetLoansAsync());
-        Assert.Single(_changeRecorder.RecordedTriggers);
-        Assert.Equal("Kredi planı değişti", _changeRecorder.RecordedTriggers[0]);
-    }
-
-    [Fact]
-    public async Task DeleteLoanPrepaymentAsync_ValidId_DeletesAndTriggersChange()
-    {
-        var sut = CreateSut();
-        var prepaymentId = Guid.NewGuid();
-        await _loanRepository.UpsertLoanPrepaymentAsync(new LoanPrepayment
-        {
-            Id = prepaymentId,
-            LoanId = Guid.NewGuid(),
-            Date = new DateOnly(2026, 10, 15),
-            PrincipalAmount = 10_000m,
-            Mode = LoanPrepaymentMode.ReduceTerm
-        });
-
-        await sut.DeleteLoanPrepaymentAsync(prepaymentId);
-
-        Assert.Empty(await _loanRepository.GetLoanPrepaymentsAsync());
         Assert.Single(_changeRecorder.RecordedTriggers);
         Assert.Equal("Kredi planı değişti", _changeRecorder.RecordedTriggers[0]);
     }

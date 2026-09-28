@@ -190,6 +190,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kredinin tanımı | `LoanDefinitionViewModel` | Kredi formundaki ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi ve kredi türü; ödeme günü tarihten çözülür (S64-2, I66) |
 | faiz kartı | `LoanPayoffViewModel` | Kredi formunda kalan anapara ve bankanın kapatma tutarını alıp bugün kapatmanın bedelini, içindeki ücreti, kurtulunacak faizi ve aylık faizi canlı gösteren bölüm (S64-4, S64-9) |
 | kredi önizlemesi | `PreviewLoan` / `LoanPayoffService.Preview` | Krediyi kaydetmeden, kaydın kurallarıyla çözen hesap: kayıt kabul edecekse kaydedilecek hâlin bugünkü görünümü, reddedecekse null (I68) |
+| erken ödeme listesi | `LoanPrepaymentsViewModel` | Kredi formunda kredinin planlı erken ödemelerini (simülatörden uygulananlar dahil) o gün ödenecek tutarlarıyla gösteren, ekleyen ve silen bölüm; değişiklikler krediyle birlikte kaydedilir (S64-6, S64-13) |
+| erken ödeme önizlemesi | `PreviewLoanPrepayments` / `LoanPayoffService.PreviewPrepayments` | Erken ödemelerin o gün ödenecek tutarını kredinin kaydedileceği hâlden hesaplayan, kayıt krediyi reddedecekse tutar vermeyen hesap (I72) |
+| kredi ve erken ödemelerin tek kaydı | `SaveLoanAsync(loan, prepayments)` / `UpsertLoanWithPrepaymentsAsync` | Krediyi ve erken ödemelerinin tamamını tek işlemde, tek plan revizyonuyla yazan kayıt; listede olmayan erken ödemeler silinir (I70, I71) |
 | net kazanç | `NetGain` | Kapatmanın 12. dönem sonu bakiye farkı ile ufuk sonrasında ödenmeyecek taksitlerin toplamı; kapatma parasının açık faizi maliyeti içindedir |
 | banka kapatma tutarı | `EarlyClosureAmount` | Bankanın belirli bir gün için bildirdiği erken kapama tutarı; kaydedildiğinde kalan anaparanın otoritesidir (I25) |
 

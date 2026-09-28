@@ -46,9 +46,18 @@ public sealed partial class LoanFormViewModel : ViewModelBase
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         Payoff = new LoanPayoffViewModel(_obligationService);
+        Prepayments = new LoanPrepaymentsViewModel(_obligationService, _dialogService, _clock);
 
-        // Faiz kartı canlıdır: tanımdaki her değişiklik kartı formun o anki taslağıyla yeniden çözer.
-        Fields.PropertyChanged += (_, _) => Payoff.Refresh(Fields.Draft(_loan));
+        // Faiz kartı ve erken ödemeler canlıdır: tanımdaki her değişiklik ikisini formun o anki taslağıyla,
+        // faiz kartındaki iki tutarın değişikliği erken ödeme tutarlarını yeniden çözer.
+        Fields.PropertyChanged += (_, _) => RefreshPreviews();
+        Payoff.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(LoanPayoffViewModel.PrincipalInput) or nameof(LoanPayoffViewModel.ClosureInput))
+            {
+                Prepayments.Refresh(WithAmounts(Fields.Draft(_loan)));
+            }
+        };
     }
 
     /// <summary>Kredinin tanımı: ad, banka, aylık taksit, kalan taksit, sonraki taksit tarihi, tür.</summary>
@@ -57,8 +66,11 @@ public sealed partial class LoanFormViewModel : ViewModelBase
     /// <summary>Faiz kartı: kalan anapara, bankanın kapatma tutarı ve bugün kapatmanın bedeli.</summary>
     public LoanPayoffViewModel Payoff { get; }
 
-    /// <summary>Form açıldığından beri bir alan ya da faiz kartındaki bir tutar değişti mi.</summary>
-    public bool HasChanges => Fields.HasChanges || Payoff.HasChanges;
+    /// <summary>Planlı erken ödemeler: liste, giriş ve silme; krediyle birlikte kaydedilir.</summary>
+    public LoanPrepaymentsViewModel Prepayments { get; }
+
+    /// <summary>Form açıldığından beri bir alan, faiz kartındaki bir tutar ya da erken ödeme listesi değişti mi.</summary>
+    public bool HasChanges => Fields.HasChanges || Payoff.HasChanges || Prepayments.HasChanges;
 
     /// <summary>Kimlik verilmezse boş yeni kredi formu, verilirse o kredinin düzenlemesi açılır.</summary>
     [RelayCommand]
@@ -77,10 +89,14 @@ public sealed partial class LoanFormViewModel : ViewModelBase
                 return;
             }
 
+            // Kaynağı fark etmeksizin kredinin bütün erken ödemeleri; simülatörden uygulananlar dahil (S64-13).
+            Prepayments.Load(_loan is { } loaded
+                ? (await _loanRepository.GetLoanPrepaymentsAsync()).Where(p => p.LoanId == loaded.Id)
+                : []);
             IsEditing = _loan is not null;
             Fields.Fill(_loan, _clock.Today);
             Payoff.Fill(_loan);
-            Payoff.Refresh(Fields.Draft(_loan));
+            RefreshPreviews();
             State = ScreenState.Content;
         }
         catch (Exception ex)
@@ -122,7 +138,7 @@ public sealed partial class LoanFormViewModel : ViewModelBase
         SetBusy(true);
         try
         {
-            await _obligationService.SaveLoanAsync(loan);
+            await _obligationService.SaveLoanAsync(loan, Prepayments.ToPrepayments());
             await _navigationService.NavigateBackAsync();
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)
@@ -151,4 +167,14 @@ public sealed partial class LoanFormViewModel : ViewModelBase
 
         await _navigationService.NavigateBackAsync();
     }
+
+    private void RefreshPreviews()
+    {
+        var draft = Fields.Draft(_loan);
+        Payoff.Refresh(draft);
+        Prepayments.Refresh(WithAmounts(draft));
+    }
+
+    // Erken ödeme tutarları faiz kartındaki iki tutarla birlikte hesaplanır; tutar okunamıyorsa hesaplanmaz.
+    private Loan? WithAmounts(Loan? draft) => draft is not null && Payoff.TryApply(draft, out var loan) is null ? loan : null;
 }

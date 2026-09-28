@@ -14,7 +14,8 @@ namespace Mizan.Application.Services;
 public sealed class LoanPayoffService(
     IClock clock,
     LoanAmortizationCalculator amortizationCalculator,
-    LoanPaymentScheduleBuilder scheduleBuilder)
+    LoanPaymentScheduleBuilder scheduleBuilder,
+    LoanPrepaymentValidator prepaymentValidator)
 {
     // Kültürden bağımsız sabit desen; ekran biçimi sunum kenarına aittir (S28).
     private const string MessageDateFormat = "dd.MM.yyyy";
@@ -25,6 +26,8 @@ public sealed class LoanPayoffService(
         amortizationCalculator ?? throw new ArgumentNullException(nameof(amortizationCalculator));
     private readonly LoanPaymentScheduleBuilder _scheduleBuilder =
         scheduleBuilder ?? throw new ArgumentNullException(nameof(scheduleBuilder));
+    private readonly LoanPrepaymentValidator _prepaymentValidator =
+        prepaymentValidator ?? throw new ArgumentNullException(nameof(prepaymentValidator));
 
     /// <summary>Her kredinin bugünkü faizini, anaparasını ve kapatma bedelini çıkarır.</summary>
     public IReadOnlyList<LoanPayoffOverview> Describe(IEnumerable<Loan> loans)
@@ -44,16 +47,41 @@ public sealed class LoanPayoffService(
     }
 
     /// <summary>
-    /// Plandaki erken ödemeleri, her biri o günkü kredi durumundan hesaplanan tutarıyla,
-    /// tarih sırasına göre listeler.
+    /// Kredinin erken ödemelerini, kredinin <see cref="PrepareForSave"/> ile kaydedileceği hâlden
+    /// hesaplanan o günkü tutarlarıyla tarih sırasında listeler; erken ödemeler bu krediye bağlanır.
+    /// Kayıt krediyi reddedecekse tutarlar hesaplanmaz (S64-14).
     /// </summary>
-    public IReadOnlyList<PlannedLoanPrepayment> DescribePrepayments(FinancialPlan plan)
+    public IReadOnlyList<PlannedLoanPrepayment> PreviewPrepayments(Loan loan, IReadOnlyList<LoanPrepayment> prepayments)
     {
-        ArgumentNullException.ThrowIfNull(plan);
-        return plan.Loans
-            .SelectMany(loan => DescribePrepayments(loan, plan.LoanPrepayments))
-            .OrderBy(x => x.Prepayment.Date)
-            .ToArray();
+        ArgumentNullException.ThrowIfNull(loan);
+        ArgumentNullException.ThrowIfNull(prepayments);
+
+        // Reddedilecek kredide tutarlar anaparaya düşülerek hesaplanmaz (I68); faizsiz kredi hesaplanamaz.
+        var terms = Prepare(loan, out var prepared) is null
+            ? prepared
+            : prepared with { RemainingDebt = null, EarlyClosureAmount = null, EarlyClosureAmountAsOf = null };
+        return DescribePrepayments(terms, Attach(terms, prepayments)).OrderBy(x => x.Prepayment.Date).ToArray();
+    }
+
+    /// <summary>
+    /// Bir erken ödemenin, kredinin kaydedileceği hâline ve diğer erken ödemelere göre kabul edilip
+    /// edilmeyeceğini söyler; edilmeyecekse kullanıcıya gösterilecek mesajı döner. Listede aday da
+    /// bulunabilir, kendisiyle karşılaştırılmaz.
+    /// </summary>
+    public string? CheckPrepayment(Loan loan, IReadOnlyList<LoanPrepayment> prepayments, LoanPrepayment candidate)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+        ArgumentNullException.ThrowIfNull(prepayments);
+        ArgumentNullException.ThrowIfNull(candidate);
+        if (Prepare(loan, out var prepared) is { } error)
+        {
+            return error;
+        }
+
+        // Faiz çözülemiyorsa doğrulayıcının "Finansal Yapı'dan düzenle" cümlesi formda yanlış yeri gösterir (S64-14).
+        return _amortizationCalculator.Analyze(prepared).Amortization is null
+            ? "Erken ödemeyi hesaplamak için kalan anaparayı ya da bankanın kapatma tutarını gir."
+            : _prepaymentValidator.Check(prepared, Attach(prepared, prepayments), candidate with { LoanId = prepared.Id });
     }
 
     /// <summary>
@@ -78,6 +106,10 @@ public sealed class LoanPayoffService(
         ArgumentNullException.ThrowIfNull(loan);
         return Prepare(loan, out var prepared) is { } error ? throw new InvalidOperationException(error) : prepared;
     }
+
+    // Yeni kredinin taslağı her seferinde yeni bir kimlik taşır; erken ödemeler kaydedilecek krediye bağlanır.
+    private static LoanPrepayment[] Attach(Loan loan, IEnumerable<LoanPrepayment> prepayments) =>
+        prepayments.Select(p => p with { LoanId = loan.Id }).ToArray();
 
     private IEnumerable<PlannedLoanPrepayment> DescribePrepayments(Loan loan, IReadOnlyList<LoanPrepayment> prepayments)
     {

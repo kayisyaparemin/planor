@@ -25,6 +25,28 @@ public sealed class InMemoryLoanRepository : ILoanRepository
         return Task.CompletedTask;
     }
 
+    /// <summary>Tek işlemde yazma çağrısının sayısı; kayıt ayrı ayrı yazmaya dönerse testler görür.</summary>
+    public int CombinedWriteCount { get; private set; }
+
+    public Task UpsertLoanWithPrepaymentsAsync(
+        Loan loan, IReadOnlyList<LoanPrepayment> prepayments, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        CombinedWriteCount++;
+        _loans[loan.Id] = loan;
+        foreach (var stale in _prepayments.Values.Where(p => p.LoanId == loan.Id).Select(p => p.Id).ToArray())
+        {
+            _prepayments.Remove(stale);
+        }
+
+        foreach (var prepayment in prepayments)
+        {
+            _prepayments[prepayment.Id] = prepayment;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task DeleteLoanAsync(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();

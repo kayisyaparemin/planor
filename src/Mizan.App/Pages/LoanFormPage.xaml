@@ -5,15 +5,43 @@
              xmlns:icons="clr-namespace:Mizan.App.Icons"
              xmlns:strings="clr-namespace:Mizan.App.Resources"
              xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
              xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
              x:Class="Mizan.App.Pages.LoanFormPage"
              x:DataType="vm:LoanFormViewModel"
              AutomationId="{x:Static auto:RecordFormAutomationIds.PageLoanForm}">
 
-    <!-- EK-V6c: Kredi formu (V6c1 kredinin tanımı, V6c2 faiz kartı). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <!-- EK-V6c: Kredi formu (V6c1 kredinin tanımı, V6c2 faiz kartı, V6c3 erken ödemeler). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
     <Shell.BackButtonBehavior>
         <BackButtonBehavior Command="{Binding CancelCommand}" />
     </Shell.BackButtonBehavior>
+
+    <ContentPage.Resources>
+        <!-- Erken ödeme satırı: şekil · tarih · o gün ödenecek; dokununca silme sorulur (S64-6). Tarihte yıl var: plan bir yıldan uzak olabilir -->
+        <DataTemplate x:Key="ErkenOdemeSatiri"
+                      x:DataType="models:LoanPrepaymentRow">
+            <Grid ColumnDefinitions="*, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LoanFormViewModel}}, Path=Prepayments.SelectCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding Mode, Converter={StaticResource ErkenOdemeTuru}}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding Date, Converter={StaticResource Tarih}, ConverterParameter='d MMMM yyyy'}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+                <!-- Hesaplanamıyorsa "—" (Para çeviricisi) -->
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Spacing="{StaticResource Space4}"
@@ -162,7 +190,86 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- S1: kaydet krediyi yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <!-- S3: planlı erken ödemeler (simülatörden uygulananlar dahil); ≤ 4 satır, fazlası yerinde açılır (GS21) -->
+                <comp:ListCard EyebrowText="{x:Static strings:LoanFormStrings.Etiket_ErkenOdemeler}"
+                               ItemsSource="{Binding Prepayments.Items}"
+                               ItemTemplate="{StaticResource ErkenOdemeSatiri}"
+                               OverflowText="{Binding Prepayments.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Prepayments.ExpandCommand}"
+                               IsVisible="{Binding Prepayments.HasItems}"
+                               AutomationId="{x:Static auto:RecordFormAutomationIds.ListLoanPrepayments}" />
+
+                <!-- S4: giriş kapalıyken yalnız aksiyon görünür -->
+                <Button Text="{x:Static strings:LoanFormStrings.Aksiyon_ErkenOdemePlanla}"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding Prepayments.OpenEntryCommand}"
+                        AutomationId="{x:Static auto:RecordFormAutomationIds.BtnOpenLoanPrepayment}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding Prepayments.IsEntryOpen}" Value="True">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!-- S4: erken ödeme girişi; önce şekil (tutarın sorulup sorulmayacağını o belirler), tarih en erken bugün (S64-15) -->
+                <Border IsVisible="{Binding Prepayments.IsEntryOpen}">
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_OdemeSekli}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <!-- Ham LoanPrepaymentMode; görünen ad ve geri çeviri ErkenOdemeTuruConverter'da -->
+                            <Picker ItemsSource="{Binding Prepayments.Modes, Converter={StaticResource ErkenOdemeTuru}}"
+                                    SelectedItem="{Binding Prepayments.EntryMode, Converter={StaticResource ErkenOdemeTuru}}"
+                                    Title="{x:Static strings:LoanFormStrings.Etiket_OdemeSekli}"
+                                    BackgroundColor="{DynamicResource SurfaceSunken}"
+                                    TextColor="{DynamicResource TextPrimary}"
+                                    TitleColor="{DynamicResource TextSecondary}"
+                                    FontSize="{StaticResource TypeBody}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.PickerPrepaymentMode}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              RowDefinitions="Auto, Auto"
+                              ColumnSpacing="{StaticResource Space2}"
+                              RowSpacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:LoanFormStrings.Etiket_OdemeTarihi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Grid.Column="1"
+                                   Text="{x:Static strings:LoanFormStrings.Etiket_AnaparadanDusecek}"
+                                   Style="{StaticResource Eyebrow}"
+                                   IsVisible="{Binding Prepayments.IsPartial}" />
+                            <DatePicker Grid.Row="1"
+                                        Date="{Binding Prepayments.EntryDate, Converter={StaticResource TarihSecici}}"
+                                        MinimumDate="{Binding Prepayments.MinimumDate, Converter={StaticResource TarihSecici}}"
+                                        Format="dd.MM.yyyy"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:RecordFormAutomationIds.PickerPrepaymentDate}" />
+                            <Entry Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding Prepayments.AmountInput}"
+                                   Placeholder="{x:Static strings:LoanFormStrings.YerTutucu_Tutar}"
+                                   Keyboard="Numeric"
+                                   IsVisible="{Binding Prepayments.IsPartial}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputPrepaymentAmount}" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <Button Text="{x:Static strings:LoanFormStrings.Aksiyon_Ekle}"
+                                    Command="{Binding Prepayments.AddCommand}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.BtnAddLoanPrepayment}" />
+                            <Button Grid.Column="1"
+                                    Text="{x:Static strings:LoanFormStrings.Aksiyon_Vazgec}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding Prepayments.CancelEntryCommand}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelLoanPrepayment}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S1: kaydet krediyi ve erken ödemelerini tek işlemde yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
                 <Grid ColumnDefinitions="*, *"
                       ColumnSpacing="{StaticResource Space2}">
                     <Button Text="{x:Static strings:LoanFormStrings.Aksiyon_Kaydet}"

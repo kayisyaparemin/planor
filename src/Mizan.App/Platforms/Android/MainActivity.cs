@@ -13,6 +13,16 @@ namespace Mizan.App;
 public class MainActivity : MauiAppCompatActivity
 {
     /// <inheritdoc />
+    protected override void OnCreate(Bundle? savedInstanceState)
+    {
+        base.OnCreate(savedInstanceState);
+
+        // MAUI temayı base.OnCreate içinde değiştirir; tarih penceresinin teması ondan sonra eklenir
+        // (Resources/values/styles.xml: düğmeler zemin rengiyle boyanıyordu).
+        Theme?.ApplyStyle(Resource.Style.Planor_DialogOverrides, true);
+    }
+
+    /// <inheritdoc />
     protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
     {
         base.OnActivityResult(requestCode, resultCode, data);

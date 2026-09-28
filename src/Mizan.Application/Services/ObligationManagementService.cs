@@ -1,3 +1,4 @@
+using System.Globalization;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
 using Mizan.Domain.Calculations;
@@ -19,6 +20,10 @@ public sealed class ObligationManagementService(
     private const string LoanChangeTrigger = "Kredi planı değişti";
     private const string PaymentPlanChangeTrigger = "Planlı ödeme değişti";
     private const string LargeExpenseChangeTrigger = "Büyük ödeme planı değişti";
+    private const string InvalidTermsMessage = "Kredi taksiti ve kalan taksit sayısı pozitif olmalıdır.";
+
+    // Kültürden bağımsız sabit desen; ekran biçimi sunum kenarına aittir (S28).
+    private const string MessageDateFormat = "dd.MM.yyyy";
 
     private readonly ILoanRepository _loanRepository =
         loanRepository ?? throw new ArgumentNullException(nameof(loanRepository));
@@ -32,20 +37,32 @@ public sealed class ObligationManagementService(
         planChangeRecorder ?? throw new ArgumentNullException(nameof(planChangeRecorder));
 
     /// <inheritdoc />
-    public async Task SaveLoanAsync(Loan loan, CancellationToken cancellationToken = default)
+    public async Task SaveLoanAsync(Loan loan, IReadOnlyList<LoanPrepayment> prepayments, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(loan);
+        ArgumentNullException.ThrowIfNull(prepayments);
         cancellationToken.ThrowIfCancellationRequested();
 
         if (loan.MonthlyPayment <= 0m || loan.RemainingInstallmentCount < 1)
         {
-            throw new InvalidOperationException("Kredi taksiti ve kalan taksit sayısı pozitif olmalıdır.");
+            throw new InvalidOperationException(InvalidTermsMessage);
         }
 
         CalendarRules.ValidateDay(loan.PaymentDay);
         var prepared = _loanPayoffService.PrepareForSave(loan);
 
-        await _loanRepository.UpsertLoanAsync(prepared, cancellationToken);
+        // Erken ödemeler kredinin kaydedilecek hâline göre yeniden doğrulanır; biri reddedilirse hiçbiri yazılmaz.
+        var attached = prepayments.Select(p => p with { LoanId = prepared.Id }).ToArray();
+        foreach (var prepayment in attached.OrderBy(p => p.Date))
+        {
+            if (_loanPayoffService.CheckPrepayment(prepared, attached, prepayment) is { } error)
+            {
+                var date = prepayment.Date.ToString(MessageDateFormat, CultureInfo.InvariantCulture);
+                throw new InvalidOperationException($"{date} tarihli erken ödeme: {error}");
+            }
+        }
+
+        await _loanRepository.UpsertLoanWithPrepaymentsAsync(prepared, attached, cancellationToken);
         await _planChangeRecorder.RecordChangeAsync(LoanChangeTrigger, cancellationToken);
     }
 
@@ -53,11 +70,24 @@ public sealed class ObligationManagementService(
     public LoanPayoffOverview? PreviewLoan(Loan loan)
     {
         ArgumentNullException.ThrowIfNull(loan);
+        return IsSavable(loan) ? _loanPayoffService.Preview(loan) : null;
+    }
 
-        // SaveLoanAsync'in taksit ve gün kapısı; reddedeceği krediyi önizleme de çözmez.
-        return loan.MonthlyPayment > 0m && loan.RemainingInstallmentCount >= 1 && loan.PaymentDay is >= 1 and <= 31
-            ? _loanPayoffService.Preview(loan)
-            : null;
+    /// <inheritdoc />
+    public IReadOnlyList<PlannedLoanPrepayment> PreviewLoanPrepayments(Loan loan, IReadOnlyList<LoanPrepayment> prepayments)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+        ArgumentNullException.ThrowIfNull(prepayments);
+        return IsSavable(loan)
+            ? _loanPayoffService.PreviewPrepayments(loan, prepayments)
+            : prepayments.OrderBy(p => p.Date).Select(p => new PlannedLoanPrepayment(loan, p, null, true)).ToArray();
+    }
+
+    /// <inheritdoc />
+    public string? ValidateLoanPrepayment(Loan loan, IReadOnlyList<LoanPrepayment> prepayments, LoanPrepayment candidate)
+    {
+        ArgumentNullException.ThrowIfNull(loan);
+        return IsSavable(loan) ? _loanPayoffService.CheckPrepayment(loan, prepayments, candidate) : InvalidTermsMessage;
     }
 
     /// <inheritdoc />
@@ -65,14 +95,6 @@ public sealed class ObligationManagementService(
     {
         cancellationToken.ThrowIfCancellationRequested();
         await _loanRepository.DeleteLoanAsync(id, cancellationToken);
-        await _planChangeRecorder.RecordChangeAsync(LoanChangeTrigger, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public async Task DeleteLoanPrepaymentAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        await _loanRepository.DeleteLoanPrepaymentAsync(id, cancellationToken);
         await _planChangeRecorder.RecordChangeAsync(LoanChangeTrigger, cancellationToken);
     }
 
@@ -122,4 +144,8 @@ public sealed class ObligationManagementService(
         await _largeExpenseRepository.DeletePlannedLargeExpenseAsync(id, cancellationToken);
         await _planChangeRecorder.RecordChangeAsync(LargeExpenseChangeTrigger, cancellationToken);
     }
+
+    // SaveLoanAsync'in taksit ve gün kapısı; reddedeceği krediyi önizlemeler de çözmez.
+    private static bool IsSavable(Loan loan) =>
+        loan.MonthlyPayment > 0m && loan.RemainingInstallmentCount >= 1 && loan.PaymentDay is >= 1 and <= 31;
 }
