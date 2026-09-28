@@ -1,14 +1,18 @@
 ---
 name: tasima-adimi
 description: Eski projeden bu repoya bir parça taşıma protokolü — 8 aşama, atlanamaz. Kullanıcı bir taşıma adımını başlattığında.
-argument-hint: "<adım kodu> <adım adı>"
+argument-hint: "<adım kodu>"
 disable-model-invocation: true
 ---
 
-**Adım:** $ARGUMENTS
+**Adım kodu:** $ARGUMENTS
 **Eski proje:** `C:\Users\kayis\Documents\mizan`
 
-Aşama 1 (keşif) ile başla.
+Adımın adını ve tarifini `docs/TASIMA-PLANI.md`'deki satırından, ilgili `S` kayıtlarını oradaki
+referanslardan al. Adım kodu verilmemişse ya da planda yoksa dur ve sor; sıradaki adımı kendin
+seçme.
+
+Aşama 1 (keşif) ile başla; ilk cümlede adımı plandaki adıyla söyle.
 
 # İş Akışı — Bir Taşıma Adımı
 

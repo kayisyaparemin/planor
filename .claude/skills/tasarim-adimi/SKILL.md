@@ -1,14 +1,20 @@
 ---
 name: tasarim-adimi
 description: Faz V ekran adımı protokolü — 10 aşama, üç onay kapısı (A, B, C). Kullanıcı bir ekran adımını başlattığında.
-argument-hint: "<adım kodu> <adım adı> <EK-kart>"
+argument-hint: "<adım kodu>"
 disable-model-invocation: true
 ---
 
-**Adım:** $ARGUMENTS
+**Adım kodu:** $ARGUMENTS
 **Eski proje:** `C:\Users\kayis\Documents\mizan`
 
-Aşama 1 (keşif) ile başla.
+Adımın adını ve tarifini `docs/TASIMA-PLANI.md`'deki satırından, ilgili `S` / `GS` kayıtlarını
+oradaki referanslardan al. Ekran kartı `docs/EKRAN-KARTLARI.md` → `EK-<adım kodu>`; bölünmüş bir
+adımın alt adımları ana adımın kartını paylaşır (`V6c2` → `EK-V6c`). Kart varsa oradan devam et,
+yoksa Aşama 5'te doğar. Adım kodu verilmemişse ya da planda yoksa dur ve sor; sıradaki adımı
+kendin seçme.
+
+Aşama 1 (keşif) ile başla; ilk cümlede adımı plandaki adıyla söyle.
 
 # İş Akışı — Bir Ekran Adımı
 
