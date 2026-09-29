@@ -265,6 +265,7 @@ public sealed class DashboardViewModelTests : IDisposable
             RemainingVariableExpenseAllowance = 6800m,
             ProjectedDeficitInterest = 0m,
             ProjectedEndingBalance = 41723m,
+            Pace = null,
             Cards = [],
             Observation = new PeriodObservation
             {

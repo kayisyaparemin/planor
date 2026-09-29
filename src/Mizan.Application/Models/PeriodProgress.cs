@@ -62,6 +62,12 @@ public sealed record PeriodProgress
     /// <summary>Bu gidişatla dönem sonu bakiyesi; bakiye girilmediyse <c>null</c>.</summary>
     public required decimal? ProjectedEndingBalance { get; init; }
 
+    /// <summary>
+    /// Harcamanın süreye göre temposu; bakiye girilmediyse ya da yaşam havuzu 0 ise <c>null</c> (S70).
+    /// Gözlem gününe göre hesaplanır; bugüne göre olan <see cref="ElapsedDays"/> ile karıştırılmaz.
+    /// </summary>
+    public required SpendingPace? Pace { get; init; }
+
     /// <summary>Planlanan kart ödemeleri ile kartların bugünkü hâlinin karşılaştırması.</summary>
     public required IReadOnlyList<PeriodCardComparison> Cards { get; init; }
 

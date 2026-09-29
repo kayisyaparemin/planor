@@ -156,7 +156,7 @@ Geri kalan her şey bu omurgadan sarkar.
       yazılmaz, "Bakiye gir" önce kapanışı ister (4, `PeriodObservationRules.CanObserveOn`). Açık notlar: kurulum
       gözlemi dönemden önceki güne düşebiliyor; hatırlatıcı cevabı gözlemle zaman damgasıyla kıyaslanıyor,
       geriye tarihli gözlemde bu yanıltır.
-- [ ] **A29** — harcama temposu *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
+- [x] **A29** — harcama temposu *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
       oran ile geçen süre oranı ve aradaki fark (puan). **İkisi aynı güne göre** hesaplanır: son gözlemin
       günü. Bugünle kıyaslanırsa bakiye girilmedikçe harcama donar, süre ilerler ve ekran "harcama geride"
       diyerek yanlış güven verir. Gözlem yoksa tempo yok. Kavram önce `SOZLUK.md`'ye girer.
@@ -436,7 +436,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | F | 3 | 4 *(F1 K9 testi için geri açıldı)* |
 | D | 24 | 24 |
 | H | 5 | 5 *(H5 V3 yenilemesi için açıldı ve kapandı)* |
-| A | 25 | 27 *(A22 ve A25 taşınmıyor; A28, A29 V3 yenilemesi için açıldı)* |
+| A | 27 | 27 *(A22 ve A25 taşınmıyor; A28, A29 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
 | V | 5 | 14 *(V3 "Rota + Tempo" için geri açıldı; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |

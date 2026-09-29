@@ -115,6 +115,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I99` | "Ödedim" cevabının bakiyeye yansıması cevabın günüyle gözlem gününün kıyasıdır, kayıt zamanıyla değil: geriye tarihli gözlemde cevap yanlış tarafa düşmez (S68 açık not b). | `Mizan.Application.Tests.Services.PeriodPaymentLineClassifierTests.Classify_OdedimCevabiGozlemGunuKayitZamanindanBagimsizdir_GeriyeTarihliGozlemdeYanilmaz` |
 | `I100` | Önizleme hiçbir şey yazmaz; taslak gözlem aynı günün gözlemi yerine geçer ve geriye tarihli taslak son gözlemi değiştirmez (S68-2, S68-3). | `Mizan.Application.Tests.Services.PeriodProgressServicePreviewTests.PreviewAsync_GeriyeTarihliGiris_SonGozlemiDegistirmez` |
 | `I101` | Kurulum gözlem yazmaz: ilk dönem planın açılış bakiyesiyle başlar (S68-1). | `Mizan.Application.Tests.Services.OnboardingServiceTests.InitializeFromOnboardingAsync_BaslangicBakiyesi_PlaninAcilisBakiyesidirGozlemOlmaz` |
+| `I102` | Harcama temposunda harcanan oran ile geçen süre oranı aynı güne, son gözlemin gününe göre hesaplanır; bugün ilerlese de tempo değişmez, yoksa bakiye girilmedikçe harcama donar ve ekran "geride" diyerek yanlış güven verir (S70). | `Mizan.Application.Tests.Services.SpendingPaceTests.Calculate_BugunGozlemGunundenSonraysa_GecenSureGozlemGunuyleHesaplanir` |
+| `I103` | Bakiye girilmediyse ya da yaşam havuzu 0 ise harcama temposu yoktur; oran tanımsızdır, "yüzde 0 harcandı" denmez (S70). | `Mizan.Application.Tests.Services.SpendingPaceTests.Calculate_HavuzSifirsa_TempoYoktur` |
+| `I104` | Harcanan oran havuz aşılınca 1'i geçer, kırpılmaz; tempo puanı aşımı yansıtır (S70). | `Mizan.Application.Tests.Services.SpendingPaceTests.Calculate_HavuzAsildiysa_HarcananOranBireKirpilmaz` |
 
 ## Satır eklerken
 

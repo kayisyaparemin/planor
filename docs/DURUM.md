@@ -4,15 +4,20 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A28** — dönemin gözlemleri: tarihli giriş, önizleme, yansıma kuralları (S68) |
-| Sıradaki adım | **A29** — harcama temposu (V3 zinciri: `A29 → V3`); **V6d2** de açık |
-| Test sayısı | 1734 |
+| Son tamamlanan adım | **A29** — harcama temposu: `PeriodProgress.Pace`, gözlem gününe göre (S70) |
+| Sıradaki adım | **V3** — ana sayfa yenilemesi (zincir: `A29 → V3` tamam; kural ve primitifler `T9`/`T10` hazır); **V6d2** de açık |
+| Test sayısı | 1742 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A29 — harcama temposu: harcanan oran, geçen süre, fark; kararlar `S70`'te
+
+`PeriodProgress.Pace` (`SpendingPace`: gözlem günü, harcanan oran, geçen süre oranı, `GapPoints` = (harcanan − geçen) × 100) geldi. İki oran da **son gözlemin gününe** göre; bugüne göre olan `ElapsedDays` dokunulmadan kaldı. Gözlem yoksa ya da havuz 0 ise `Pace` `null`; aşım kırpılmaz (`I102`–`I104`). Hesap `PeriodProgressCalculator.CalculatePace`'te (~15 satır); servis değişmedi.
+**Dikkat:** `DashboardViewModel.PeriodElapsedRatio` hâlâ bugüne göre kurulu; `V3` onu `Pace.ElapsedRatio`'ya bağlayacak ya da kaldıracak, aksi hâlde halka ile cümle farklı günlere bakar. Puanın yuvarlanması ve "önde/geride" cümlesi Presentation'ın (`V3`). Testler: `SpendingPaceTests` (8 yeni); toplam 1.742 test yeşil, 0 hata, 0 uyarı.
 
 ### A28 — dönemin gözlemleri: tarihli giriş, önizleme, vade kuralları; kararlar `S68` "A28 notları"nda
 

@@ -56,6 +56,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | gidişat | `PeriodProgress` | Açık dönemde planın dediği ile kullanıcının girdiği bakiyeden çıkan tahmin yan yana: harcanan ve kalan yaşam havuzu, KMH faizi, dönem sonu (I31) |
 | gidişat hesaplayıcısı | `PeriodProgressCalculator` | Açık dönem defterinden gidişatı üreten bağımlılıksız yardımcı; KMH'yı `DeficitFinancingRules`'tan, satır durumunu `PeriodPaymentLineClassifier`'dan alır |
 | gidişat servisi | `PeriodProgressService` | Defteri, ayarları ve kartları dar portlardan okuyup kartın güncel ödemesini bulan ve hesabı hesaplayıcıya bırakan ince kabuk |
+| harcama temposu | `SpendingPace` | Yaşam havuzundan harcanan oran ile geçen süre oranı ve aradaki fark (puan); ikisi de son gözlemin gününe göre hesaplanır, gözlem yoksa tempo yoktur (S70) |
 | kart karşılaştırması | `PeriodCardComparison` | Bir kartın bu dönemdeki ödemesi: planlanan (kilitli) ile kartın bugünkü hâline göre güncel tutar |
 | gözlenen yaşam harcaması | `ObservedLivingSpend` | Bakiye farkından, bakiyeye yansımış ödemeler ve yatmış gelir hesaba katılarak geri çözülen yaşam harcaması; fiş toplamı değildir (S20) |
 | kalan yaşam havuzu | `RemainingVariableExpenseAllowance` | Dönemin yaşam havuzundan kalan; havuz aşıldıysa sıfır. Yasaklı eski adı `RemainingLivingBudget` (S16) |

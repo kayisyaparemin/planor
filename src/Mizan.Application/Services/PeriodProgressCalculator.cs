@@ -52,6 +52,7 @@ public static class PeriodProgressCalculator
             RemainingVariableExpenseAllowance = trajectory?.RemainingAllowance,
             ProjectedDeficitInterest = trajectory?.DeficitInterest,
             ProjectedEndingBalance = trajectory?.EndingBalance,
+            Pace = CalculatePace(ledger.Plan, ledger.LatestObservation, trajectory?.LivingSpend, allowance),
             Cards = CompareCards(ledger.CurrentPaymentLines, currentCardPayments),
             Observation = ledger.LatestObservation,
             RemainingLines = lines.RemainingLines,
@@ -91,6 +92,24 @@ public static class PeriodProgressCalculator
         // Kart faizi burada yoktur: karta biner, sonraki ekstreye yansır; nakit dönem sonunu değiştirmez (I11).
         var deficitInterest = DeficitFinancingRules.CalculateInterest(endingBeforeInterest, deficitFinancingInterestRate);
         return new Trajectory(livingSpend, remainingAllowance, deficitInterest, endingBeforeInterest - deficitInterest);
+    }
+
+    // Tempo iki oranı da gözlem gününe göre alır (S70): bugüne göre alınırsa bakiye girilmedikçe süre ilerler,
+    // harcama donar ve "geride" görünür. Havuz 0 ise harcanan oran tanımsızdır; aşım kırpılmaz.
+    private static SpendingPace? CalculatePace(
+        PeriodPlanSnapshot plan,
+        PeriodObservation? observation,
+        decimal? livingSpend,
+        decimal allowance)
+    {
+        var totalDays = plan.PeriodEnd.DayNumber - plan.PeriodStart.DayNumber;
+        if (observation is null || livingSpend is null || allowance <= 0m || totalDays <= 0)
+        {
+            return null;
+        }
+
+        var elapsedDays = observation.ObservedOn.DayNumber - plan.PeriodStart.DayNumber;
+        return new SpendingPace(observation.ObservedOn, livingSpend.Value / allowance, (decimal)elapsedDays / totalDays);
     }
 
     // Gözlem günü yatan gelir bakiyenin içinde sayılır: kullanıcı bakiyesine en çok gelir günü bakar ve gelir
