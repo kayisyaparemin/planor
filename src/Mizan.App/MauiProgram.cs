@@ -87,6 +87,7 @@ public static class MauiProgram
         services.AddSingleton<IProfileRepository>(profileRepository);
         services.AddSingleton<IProfileFileLayout>(profileRepository);
 
+        services.AddSingleton(new DatabaseSchema());
         services.AddSingleton<ISqliteConnectionFactory, SqliteConnectionFactory>();
         services.AddSingleton<SqliteProfileStoreSwitch>();
         services.AddSingleton<IProfileStoreSwitch>(sp => sp.GetRequiredService<SqliteProfileStoreSwitch>());

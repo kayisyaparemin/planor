@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using System.Text.Json;
-using Mizan.Infrastructure.Persistence;
 
 namespace Mizan.Infrastructure.Backup;
 
@@ -28,12 +27,15 @@ internal static class BackupManifestReader
 
     /// <summary>
     /// Manifesti okur ve denetler: biçim (eski uygulamanın yedeği şema sürümünden önce tanınır),
-    /// şema sürümü ve profil listesi.
+    /// şema sürümü (<paramref name="currentVersion"/>'dan yeni olamaz) ve profil listesi.
     /// </summary>
-    public static async Task<BackupManifest> ReadAsync(ZipArchive zip, CancellationToken cancellationToken)
+    public static async Task<BackupManifest> ReadAsync(
+        ZipArchive zip,
+        int currentVersion,
+        CancellationToken cancellationToken)
     {
         var manifest = await DeserializeAsync(zip, cancellationToken);
-        EnsureKnownVersion(manifest);
+        EnsureKnownVersion(manifest, currentVersion);
         EnsureValidProfiles(manifest.Profiles);
         return manifest;
     }
@@ -59,7 +61,7 @@ internal static class BackupManifestReader
         return manifest is { Format: > 0, Profiles: not null } ? manifest : throw BackupRestoreErrors.NotABackup();
     }
 
-    private static void EnsureKnownVersion(BackupManifest manifest)
+    private static void EnsureKnownVersion(BackupManifest manifest, int currentVersion)
     {
         // Eski uygulamanın yedeği şema v17 taşır; biçime önce bakılmazsa "daha yeni sürüm" denirdi (S57).
         if (manifest.Format == BackupArchiveFormat.LegacyVersion)
@@ -68,7 +70,7 @@ internal static class BackupManifestReader
         }
 
         if (manifest.Format > BackupArchiveFormat.Version ||
-            manifest.SchemaVersion > DatabaseConstants.CurrentSchemaVersion)
+            manifest.SchemaVersion > currentVersion)
         {
             throw BackupRestoreErrors.NewerVersion();
         }

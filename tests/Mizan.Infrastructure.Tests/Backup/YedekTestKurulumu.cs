@@ -22,21 +22,28 @@ internal sealed class YedekTestKurulumu : IDisposable
 
     private readonly List<string> _geciciKlasorler = [];
 
-    public YedekTestKurulumu()
+    /// <summary>
+    /// <paramref name="sema"/> verilirse profil açılışı ve arşiv o şemayla çalışır; testler üretim
+    /// listesine sahte göç adımları ekleyerek uygulamanın daha yeni bir sürümünü taklit eder.
+    /// </summary>
+    public YedekTestKurulumu(DatabaseSchema? sema = null)
     {
         Kok = YeniGeciciKlasor("mizan_yedek_test");
         Depo = new FileSystemProfileRepository(Kok);
-        Anahtar = new SqliteProfileStoreSwitch(Depo, new SqliteConnectionFactory());
+        Sema = sema ?? new DatabaseSchema();
+        Anahtar = new SqliteProfileStoreSwitch(Depo, new SqliteConnectionFactory(Sema));
     }
 
     public string Kok { get; }
 
     public FileSystemProfileRepository Depo { get; }
 
+    public DatabaseSchema Sema { get; }
+
     public SqliteProfileStoreSwitch Anahtar { get; }
 
     public ProfileBackupArchive Arsiv(IProfileRepository? profiller = null) =>
-        new(profiller ?? Depo, Depo, new SabitSaat(Simdi));
+        new(profiller ?? Depo, Depo, new SabitSaat(Simdi), Sema);
 
     public async Task<UserProfile> ProfilEkleAsync(string ad, DateTimeOffset olusturma)
     {

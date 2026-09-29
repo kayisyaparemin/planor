@@ -4,7 +4,7 @@ namespace Mizan.Infrastructure.Persistence;
 
 /// <summary>
 /// SQLite veritabanı bağlantılarını oluşturan, yerel SQLite kütüphanesini başlatan,
-/// yabancı anahtarları etkinleştiren ve şemanın v1 olarak hazır olmasını sağlayan somut fabrika sınıfı.
+/// yabancı anahtarları etkinleştiren ve şemayı güncel sürüme getiren somut fabrika sınıfı.
 /// </summary>
 public sealed class SqliteConnectionFactory : ISqliteConnectionFactory
 {

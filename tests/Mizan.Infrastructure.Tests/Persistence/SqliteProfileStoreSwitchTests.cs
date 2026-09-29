@@ -82,10 +82,10 @@ public sealed class SqliteProfileStoreSwitchTests : IDisposable
 
         await anahtar.OpenAsync(profilId);
 
-        // Şema v1 başlatıldıysa user_version = 1 olmalı
+        // Şema kurulduysa user_version güncel sürüm olmalı
         var surum = await anahtar.Connection.ExecuteScalarAsync<int>(
             "PRAGMA user_version;");
-        Assert.Equal(DatabaseConstants.CurrentSchemaVersion, surum);
+        Assert.Equal(SchemaMigrations.CurrentVersion, surum);
     }
 
     // ── CloseAsync ────────────────────────────────────────────────

@@ -46,7 +46,7 @@ public sealed class ProfileBackupArchiveTests : IDisposable
         var kok = manifest.RootElement;
         Assert.Equal(2, kok.GetProperty("Format").GetInt32());
         Assert.Equal(YedekTestKurulumu.Simdi, kok.GetProperty("CreatedAt").GetDateTimeOffset());
-        Assert.Equal(DatabaseConstants.CurrentSchemaVersion, kok.GetProperty("SchemaVersion").GetInt32());
+        Assert.Equal(SchemaMigrations.CurrentVersion, kok.GetProperty("SchemaVersion").GetInt32());
         var profiller = kok.GetProperty("Profiles").EnumerateArray().ToArray();
         Assert.Equal(
             [(mehmet.Id, "Mehmet", false), (zeynep.Id, "Zeynep", false), (ayse.Id, "Ayşe", true)],
@@ -82,7 +82,7 @@ public sealed class ProfileBackupArchiveTests : IDisposable
 
         using var zip = new ZipArchive(yedek, ZipArchiveMode.Read);
         var cikti = _kurulum.VeritabaniGirdisiniCikar(zip, ayse.Id);
-        Assert.Equal(DatabaseConstants.CurrentSchemaVersion, SemaSurumu(cikti));
+        Assert.Equal(SchemaMigrations.CurrentVersion, SemaSurumu(cikti));
         Assert.Equal(["Konut"], await KrediAdlariAsync(cikti));
     }
 
@@ -188,7 +188,7 @@ public sealed class ProfileBackupArchiveTests : IDisposable
     {
         var yeniKok = Path.Combine(_kurulum.Kok, "henuz-yok");
         var depo = new FileSystemProfileRepository(yeniKok);
-        var arsiv = new ProfileBackupArchive(depo, depo, new SabitSaat());
+        var arsiv = new ProfileBackupArchive(depo, depo, new SabitSaat(), new DatabaseSchema());
         var kayit = new BackupState(YedekTestKurulumu.Simdi, "Mizan-yedegi-2026-09-25.zip", "ABC123");
 
         await arsiv.SaveStateAsync(kayit);
@@ -203,10 +203,12 @@ public sealed class ProfileBackupArchiveTests : IDisposable
     {
         var depo = _kurulum.Depo;
         var saat = new SabitSaat();
+        var sema = new DatabaseSchema();
 
-        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(null!, depo, saat));
-        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(depo, null!, saat));
-        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(depo, depo, null!));
+        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(null!, depo, saat, sema));
+        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(depo, null!, saat, sema));
+        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(depo, depo, null!, sema));
+        Assert.Throws<ArgumentNullException>(() => new ProfileBackupArchive(depo, depo, saat, null!));
     }
 
     private static int SemaSurumu(string veritabani)

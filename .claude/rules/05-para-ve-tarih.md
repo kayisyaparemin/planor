@@ -42,6 +42,11 @@ Yeni repo **temiz `v1`** ile başlar. Eski projenin migration'ları taşınmaz.
 - **Şema sürümü `PRAGMA user_version`'da tutulur**, kullanıcı verisinin içinde değil.
   Eskide `settings.SchemaVersion` tek satırlık bir tabloda duruyordu ve her ayar kaydında
   yeniden yazılıyordu; yedek parmak izi bu yüzden içerik tabanlı olmak zorunda kalmıştı.
+- **Şema bir göç listesidir; yayımlanmış bir adım değiştirilmez.** Her şema değişikliği
+  `SchemaMigrations`'a yeni bir adım olarak eklenir, boş veritabanı da v1'den başlayıp aynı
+  adımlardan geçer (`S69`). Telefondaki veritabanı bir adımı bir kez çalıştırır; sonradan metni
+  değişen adım yeni kurulumu ve eski profili sessizce farklı şemalara götürür. Koruyan test:
+  `SchemaMigrationsTests.YayimlanmisAdimlar_Degismez` — yeni adımın özeti oraya bilerek eklenir.
 - **Kolon adı alanı yanıltmaz.** Eskide 16 kolon yalan söylüyordu — `loans.StartDate` aslında
   `NextPaymentDate` tutuyordu, `card_installments.DueDate` aslında `PostingDate` idi.
   `[Column("...")]` takma adı **yasak**; C# özellik adı ile SQL kolon adı birebir aynıdır.

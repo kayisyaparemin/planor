@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **H5** — dönem içinde birden fazla gözlem: kararlar ve gözlem kuralları |
-| Sıradaki adım | **I7a** — göç altyapısı (V3 zinciri: `H5 → I7a → I7b → A28`); **V6d2** de açık |
-| Test sayısı | 1671 |
-| Şema sürümü | v1 |
+| Son tamamlanan adım | **I7a** — göç altyapısı: şema bir göç listesi, yükseltme tek işlem |
+| Sıradaki adım | **I7b** — v2 ve gözlem modelinin yeni şekli (V3 zinciri: `I7b → A28`); **V6d2** de açık |
+| Test sayısı | 1683 |
+| Şema sürümü | v1 (göç altyapısı hazır; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I7a — göç altyapısı: `SchemaMigration`, `SchemaMigrations`, `SchemaMigrationRunner`; kararlar `S69`'da
+
+Kaynak eski proje değil, bugünkü kod: `DatabaseSchema` yalnız "sürüm 0 ise kur, büyükse reddet" diyordu; sürüm 2 geldiği gün v1 veritabanı sessizce açılıp olmayan tabloda çökecekti. Kurulum da işlem dışındaydı: 30 `CREATE TABLE` arasında süreç ölürse profil bir daha açılmazdı. Kararlar (`S69`): şema bir göç listesidir ve boş veritabanı da v1'den başlayıp aynı adımlardan geçer (tek yol; bütün depo testleri göçleri de dener); güncel sürüm listenin son adımıdır, `DatabaseConstants.CurrentSchemaVersion` çıktı; yükseltme tek işlemdir; yedekten gelen eski sürüm hazırlıkta, yerine konmadan yükseltilir.
+Göç sırasında yabancı anahtar denetimi kapalıdır (SQLite onu işlem içinde değiştirmez) ve işlem kapanmadan `pragma_foreign_key_check` bütün veritabanını denetler. Mutasyonla doğrulandı: denetim açıkken `loans`'ı yeniden kuran bir göç krediye bağlı erken ödemeyi siliyor (`I84`). Yayımlanmış adım değiştirilmez: `SchemaMigrationsTests` v1'in SHA-256 özetini sabitliyor, kural `05`'e girdi. Üretim kodu +216 / −53 satır, tek katman (+1 satır `MauiProgram.cs`, dosya 199 satır).
+Emülatör denemesi: uygulama kuruldu (veri korundu), "Emin (telefon)" açıldı, cihazdaki dosya v1'de, bütünlük tamam. I7b provası emülatördeki 4 profilin ve telefon dönüşümündeki 2 profilin kopyasında yapıldı (`period_observations` yeniden kuruldu): satır sayıları aynı, kopuk bağ 0. Prova testi kişisel veriye dokunduğu için commit'lenmedi.
+**Dikkat:** I7b'nin v2'si `SchemaMigrations`'a yeni adım olarak yazılır, özeti `SchemaMigrationsTests`'e bilerek eklenir; şema dosyaları (`Schema*Tables.cs`) v1'i gösterir, bugünkü şekil v1 + adımlardır. Profil seçiminde "Son açılış" tarihi İngilizce ay adıyla görünüyor ("28 September 2026"); `/duzeltme` işi. 12 yeni test; toplam 1.683 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### H5 — dönem içinde birden fazla gözlem: `PeriodObservationRules`; kararlar `S68`'de
 

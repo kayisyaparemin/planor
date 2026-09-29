@@ -1,4 +1,5 @@
 using Mizan.Application.Models;
+using Mizan.Infrastructure.Persistence;
 using Mizan.Infrastructure.Tests.Fakes;
 
 namespace Mizan.Infrastructure.Tests.Backup;
@@ -152,7 +153,7 @@ public sealed class ProfileBackupArchiveImportTests : IDisposable
     public async Task GeriYukle_VeritabaniSurumuDahaYeni_GuncellemeIster_HicbirSeyEklenmez()
     {
         var ayse = await VerisiOlanProfilAsync(_kaynak, "Ayşe");
-        _kaynak.SemaSurumunuDegistir(ayse.Id, 2);
+        _kaynak.SemaSurumunuDegistir(ayse.Id, SchemaMigrations.CurrentVersion + 1);
         using var yedek = await _kaynak.YedekAlAsync();
 
         var hata = await Assert.ThrowsAsync<InvalidOperationException>(

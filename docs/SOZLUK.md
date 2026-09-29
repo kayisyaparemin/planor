@@ -293,10 +293,19 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | manifest okuyucu | `BackupManifestReader` | Yedek zip'ini açıp manifesti denetleyen yardımcı; özet okuma ile geri yükleme aynı denetimden geçer (biçim, şema sürümü, profil listesi) |
 | yedek veritabanı denetimi | `BackupDatabaseValidator` | Yedekteki veritabanını hazırlığa çıkarıp boyut, bütünlük (`quick_check`) ve `user_version` sınırlarını denetleyen yardımcı (`I38`) |
 | hazırlık klasörü | `.restore-*` | Geri yüklenecek veritabanlarının telefondaki profillere dokunmadan çıkarılıp doğrulandığı geçici klasör; iş bitince silinir (`BackupWorkDirectory`) |
-| geri yükleme işlemi | `ProfileImportTransaction` | Seçilen profilleri hep-ya-hiç ekleyen akış: hazırla → doğrula → önce veri sonra kayıt taşı → gerekirse geri al (`I36`, `S58`) |
+| geri yükleme işlemi | `ProfileImportTransaction` | Seçilen profilleri hep-ya-hiç ekleyen akış: hazırla → doğrula → güncel sürüme yükselt → önce veri sonra kayıt taşı → gerekirse geri al (`I36`, `I86`, `S58`, `S69`) |
 | yedek klasörü | `FolderBackupStorage` | `IBackupStorage`'ın Infrastructure adaptörü: yedekleri uygulama kaldırılınca silinmeyen düz bir klasöre geçici dosya → yerine taşıma ile yazar; klasördeki bütün dosyaları listeler, hangisinin yedek olduğuna `BackupRetentionRules` karar verir (S59) |
 | depolama izni | `IStorageAccess` | Yedek klasörüne yazma izninin platforma özgü kısmı; Android uygulaması uygular (V0/V13), klasör işi onsuz test edilir |
 | yedek dosya öneki | `BackupRetentionRules.FilePrefix` | `Mizan-yedegi-`: bu uygulamanın yedek adlarının başı. Eski uygulamanın öneki `Mizan-yedek-`'tir; iki önek harf büyüklüğü gözetmeden de birbiriyle başlamaz, böylece iki uygulama aynı klasörde birbirinin yedeğine dokunmaz (`I39`, S59) |
+
+## Şema
+
+| Türkçe | Kod | Tanım |
+|---|---|---|
+| şema göçü | `SchemaMigration` | Şemayı bir önceki sürümden bir sonrakine taşıyan tek adım: hedef sürüm ve SQL komutları. Yayımlandıktan sonra değişmez; değişiklik yeni bir adımdır (S69) |
+| göç listesi | `SchemaMigrations` | v1'den bugüne bütün adımlar, sırasıyla. Güncel şema sürümü listenin son adımıdır; boş veritabanı da bu listeden kurulur |
+| şema kapısı | `DatabaseSchema` | Profil açılırken ve yedek geri yüklenirken veritabanını güncel sürüme getiren giriş; daha yeni bir sürümü reddeder |
+| göç çalıştırıcı | `SchemaMigrationRunner` | Bekleyen adımları yabancı anahtar denetimi kapalıyken tek işlemde çalıştıran, bitişte bağları topluca denetleyen yardımcı (`I83`–`I85`) |
 
 ## Tasarım ve Durum Yönetimi
 

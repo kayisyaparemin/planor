@@ -74,7 +74,7 @@ public sealed class DatabaseSchemaTests : IDisposable
         var version = await _schema.GetUserVersionAsync(connection);
         await connection.CloseAsync();
 
-        Assert.Equal(DatabaseConstants.CurrentSchemaVersion, version);
+        Assert.Equal(SchemaMigrations.CurrentVersion, version);
     }
 
     [Fact]

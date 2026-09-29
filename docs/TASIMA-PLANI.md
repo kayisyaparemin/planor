@@ -197,15 +197,24 @@ Geri kalan her şey bu omurgadan sarkar.
       extra ve ekran görüntüsü açıkta kalıyordu. `AttachScreenshot` varsayılan olarak kapalı.)*
 - [ ] **I7** — ilk şema yükseltmesi, v1 → v2 *(V3 yenilemesi — bkz. `V3`)*. Bugün `DatabaseSchema` yalnız
       boş veritabanını v1'e kurar; v1'i yükseltecek bir yol yok. İki alt adım:
-  - [ ] **I7a** — göç altyapısı: sürüm sürüm ilerleyen, işlem içinde çalışan yükseltme; eski sürümlü
+  - [x] **I7a** — göç altyapısı: sürüm sürüm ilerleyen, işlem içinde çalışan yükseltme; eski sürümlü
         yedek geri yüklenince yükseltilir (`BackupDatabaseValidator` bugün yalnız "daha yeni"yi reddediyor).
         Emülatördeki telefon verisiyle (v1) denenir.
+        *(S69: şema bir göç listesidir — `SchemaMigration`, `SchemaMigrations`, `SchemaMigrationRunner`; boş
+        veritabanı da v1'den başlar, `CurrentSchemaVersion` sabiti çıktı. Yükseltme tek işlem; göç sırasında yabancı
+        anahtar denetimi kapalı, sonunda `foreign_key_check`. Yedekten gelen eski sürüm hazırlıkta yükseltilir.
+        Yayımlanmış adım değişmez: kural `05`. `I83`–`I86`)*
   - [ ] **I7b** — v2 ve gözlem modelinin yeni şekli (S68-2, 8, 9): `period_observations`'ta dönem başına tek
         kayıt kısıtı yerine `(PeriodPlanSnapshotId, ObservedOn)` UNIQUE; ödeme işareti gözlemden ayrılır, plana
         bağlanır ve `PeriodPaymentMark` olur; bakiye zorunlu, `ObservedLivingSpend` ve `Note` çıkar, tek kayıt
         zamanı. Port listeyle ve işaretlerle çalışır; Application yalnız derlenecek kadar uyarlanır, davranış
         `A28`'de. Mevcut kayıt dönemin ilk gözlemi olarak kalır; kopyalama gerekmez. Dört katmana dokunur,
         Aşama 1'de bölünebilir.
+        *(I7a'dan: v2, `SchemaMigrations`'a yeni adım olarak yazılır ve özeti `SchemaMigrationsTests`'e eklenir.
+        UNIQUE ancak tablo yeniden kurularak kalkar: yenisini kur → kopyala → eskisini sil → yenisinin adını
+        değiştir → indeksleri yeniden kur; sıra önemli, önce eskisinin adı değişirse çocukların bağı ona döner.
+        Bu yol emülatördeki 4 profilin ve telefon dönüşümündeki 2 profilin kopyasında prova edildi: satır
+        sayıları aynı, `integrity_check` ok, kopuk bağ 0.)*
 
 ## Faz T — Tasarım Sistemi (Planör)
 

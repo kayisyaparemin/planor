@@ -12,16 +12,19 @@ namespace Mizan.Infrastructure.Backup;
 /// profillerin veritabanları da silindiği için vardır. Yedek dosyası bir zip'tir:
 /// <c>mizan-backup.json</c> (biçim, tarih, şema sürümü, profiller) ve verisi olan her profil için
 /// <c>profiles/{id}/mizan.db3</c>. Disk yerleşimini somut depodan değil
-/// <see cref="IProfileFileLayout"/>'tan öğrenir (S55).
+/// <see cref="IProfileFileLayout"/>'tan öğrenir (S55). Şema sürümünü ve eski sürümlü bir yedeği
+/// yükseltmeyi, profil açılışının kullandığı <see cref="DatabaseSchema"/>'dan alır (S69).
 /// </summary>
 public sealed class ProfileBackupArchive(
     IProfileRepository profiles,
     IProfileFileLayout layout,
-    IClock clock) : IProfileBackupArchive
+    IClock clock,
+    DatabaseSchema schema) : IProfileBackupArchive
 {
     private readonly IProfileRepository _profiles = profiles ?? throw new ArgumentNullException(nameof(profiles));
     private readonly IProfileFileLayout _layout = layout ?? throw new ArgumentNullException(nameof(layout));
     private readonly IClock _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+    private readonly DatabaseSchema _schema = schema ?? throw new ArgumentNullException(nameof(schema));
 
     /// <summary>
     /// Bütün profillerin içeriğinden, veri değişmedikçe aynı kalan bir SHA-256 parmak izi (64 onaltılık
@@ -69,7 +72,7 @@ public sealed class ProfileBackupArchive(
             var manifest = new BackupManifest(
                 BackupArchiveFormat.Version,
                 _clock.UtcNow,
-                DatabaseConstants.CurrentSchemaVersion,
+                _schema.CurrentVersion,
                 manifestProfiles);
             await WriteManifestAsync(zip, manifest, cancellationToken);
             return Summary(manifest);
@@ -88,12 +91,13 @@ public sealed class ProfileBackupArchive(
     {
         ArgumentNullException.ThrowIfNull(source);
         using var zip = BackupManifestReader.Open(source);
-        return Summary(await BackupManifestReader.ReadAsync(zip, cancellationToken));
+        return Summary(await BackupManifestReader.ReadAsync(zip, _schema.CurrentVersion, cancellationToken));
     }
 
     /// <summary>
     /// Seçilen profilleri hedef kimlik ve adlarıyla ekler. Hep-ya-hiç çalışır: seçilenlerden biri bozuk,
-    /// tanınmayan ya da daha yeni bir sürümdense veya taşıma yarıda kalırsa hiçbiri eklenmez.
+    /// tanınmayan, daha yeni bir sürümden ya da bu sürüme yükseltilemiyorsa veya taşıma yarıda kalırsa
+    /// hiçbiri eklenmez. Eski sürümlü veritabanı yerine konmadan önce yükseltilir.
     /// </summary>
     public Task ImportAsync(
         Stream source,
@@ -102,7 +106,13 @@ public sealed class ProfileBackupArchive(
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(profileImports);
-        return ProfileImportTransaction.RunAsync(source, profileImports, _profiles, _layout, cancellationToken);
+        return ProfileImportTransaction.RunAsync(
+            source,
+            profileImports,
+            _profiles,
+            _layout,
+            _schema,
+            cancellationToken);
     }
 
     /// <summary>

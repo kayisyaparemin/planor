@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using Mizan.Infrastructure.Persistence;
 using SQLite;
 
 namespace Mizan.Infrastructure.Backup;
@@ -19,13 +18,18 @@ internal static class BackupDatabaseValidator
 
     /// <summary>
     /// Profilin veritabanı girdisini <paramref name="targetPath"/>'e çıkarır ve denetler; geri yüklenemiyorsa
-    /// kullanıcıya gidecek mesajla <see cref="InvalidOperationException"/> fırlatır.
+    /// kullanıcıya gidecek mesajla <see cref="InvalidOperationException"/> fırlatır. Sürümü
+    /// <paramref name="currentVersion"/>'dan eski olan veritabanı kabul edilir; onu çağıran yükseltir (S69).
     /// </summary>
-    public static void ExtractAndValidate(ZipArchive zip, BackupManifestProfile profile, string targetPath)
+    public static void ExtractAndValidate(
+        ZipArchive zip,
+        BackupManifestProfile profile,
+        string targetPath,
+        int currentVersion)
     {
         Extract(zip, profile, targetPath);
         var version = ReadVerifiedVersion(targetPath, profile.Name);
-        if (version > DatabaseConstants.CurrentSchemaVersion)
+        if (version > currentVersion)
         {
             throw BackupRestoreErrors.NewerVersion();
         }

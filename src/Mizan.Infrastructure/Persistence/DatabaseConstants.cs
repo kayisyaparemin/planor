@@ -1,16 +1,12 @@
 namespace Mizan.Infrastructure.Persistence;
 
 /// <summary>
-/// SQLite veritabanı şema sürümü, tablo adları, tarih ve sayı biçimlendirme kuralları
-/// ile PRAGMA sabitlerini merkezi olarak barındıran tanımlayıcı sınıf.
+/// SQLite veritabanının tablo adları, tarih ve sayı biçimlendirme kuralları ile dosya adlarını
+/// merkezi olarak barındıran tanımlayıcı sınıf. Şema sürümü burada değil, göç listesinde durur
+/// (<see cref="SchemaMigrations.CurrentVersion"/>, S69).
 /// </summary>
 public static class DatabaseConstants
 {
-    /// <summary>
-    /// Temiz şema v1 başlangıç sürüm numarası. PRAGMA user_version ile SQLite başlığında saklanır.
-    /// </summary>
-    public const int CurrentSchemaVersion = 1;
-
     /// <summary>
     /// Kültürden bağımsız ISO 8601 tarih biçim deseni.
     /// </summary>
