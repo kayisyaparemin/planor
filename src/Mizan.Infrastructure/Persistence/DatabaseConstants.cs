@@ -100,8 +100,8 @@ public static class DatabaseConstants
     /// <summary>Açık dönemin canlı ara nakit bakiyesi ve harcama gözlem defteri tablosu.</summary>
     public const string TablePeriodObservations = "period_observations";
 
-    /// <summary>Açık dönemin erken işaretlenen ara ödeme gözlemleri tablosu.</summary>
-    public const string TablePeriodObservationPayments = "period_observation_payments";
+    /// <summary>Kullanıcının açık dönemin ödeme satırlarına koyduğu ödeme işaretleri tablosu (v2).</summary>
+    public const string TablePeriodPaymentMarks = "period_payment_marks";
 
     /// <summary>Kullanıcının simülatörde oluşturduğu varsayımsal senaryo taslakları tablosu.</summary>
     public const string TableSimulationDrafts = "simulation_drafts";

@@ -14,6 +14,7 @@ public sealed class SchemaMigrationsTests
     private static readonly IReadOnlyDictionary<int, string> DondurulmusOzetler = new Dictionary<int, string>
     {
         [1] = "82AF1E2FF84441DB4ECB081D197BE341FD2225D0B9E9124D6F1E71445BE564A2",
+        [2] = "E76B731859E751CED2F0671E5E8F7A0A6A853737212B6181D15372ECE0443A00",
     };
 
     [Fact]

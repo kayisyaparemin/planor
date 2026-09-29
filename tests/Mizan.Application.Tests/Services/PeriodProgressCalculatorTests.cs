@@ -215,12 +215,8 @@ public sealed class PeriodProgressCalculatorTests
     public void Calculate_GozlemdeBakiyeGirilmemisse_GidisatRakamlariUretilmez()
     {
         // Hazırla — kullanıcı yalnız kirayı erken ödendi işaretledi, bakiye girmedi
-        var gozlem = Gozlem(Gun(3), 0m) with
-        {
-            ObservedBalance = null,
-            Payments = [new PeriodObservationPayment { PeriodPlanPaymentLineId = Kira.Id, Status = ActualPaymentStatus.Paid, ActualAmount = 15_000m }]
-        };
-        var defter = Defter(Plan, gozlem);
+        var isaret = new PeriodPaymentMark { PeriodPlanPaymentLineId = Kira.Id, Status = ActualPaymentStatus.Paid, ActualAmount = 15_000m };
+        var defter = Defter(Plan, isaretler: [isaret]);
 
         // Uygula
         var gidisat = Hesapla(defter, Gun(3));
@@ -228,7 +224,7 @@ public sealed class PeriodProgressCalculatorTests
         // Doğrula
         Assert.Null(gidisat.ObservedLivingSpend);
         Assert.Null(gidisat.ProjectedEndingBalance);
-        Assert.Same(gozlem, gidisat.Observation);
+        Assert.Null(gidisat.Observation);
         Assert.Equal([Kart.Id], gidisat.RemainingLines.Select(x => x.Id));
     }
 
@@ -360,8 +356,9 @@ public sealed class PeriodProgressCalculatorTests
         PeriodPlanSnapshot plan,
         PeriodObservation? gozlem = null,
         IReadOnlyList<PeriodPlanRevision>? revizyonlar = null,
+        IReadOnlyList<PeriodPaymentMark>? isaretler = null,
         IReadOnlyList<PaymentReminderResponse>? cevaplar = null) =>
-        new(plan, revizyonlar ?? [], gozlem, cevaplar ?? []);
+        new(plan, revizyonlar ?? [], gozlem, isaretler ?? [], cevaplar ?? []);
 
     private static PeriodPlanSnapshot PlanKur(decimal yasamHavuzu, decimal kmhFaizi, decimal kapanis) => new()
     {

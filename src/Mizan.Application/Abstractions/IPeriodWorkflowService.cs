@@ -18,7 +18,7 @@ public interface IPeriodWorkflowService
         Guid? planId = null,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Açık dönemin kaydedilmiş gözlem defterinden dönem kapanış taslağını üretir; gözlem yoksa <c>null</c> döner.</summary>
+    /// <summary>Açık dönemin gözlem defterinden ve ödeme işaretlerinden dönem kapanış taslağını üretir; ikisi de yoksa <c>null</c> döner.</summary>
     Task<PeriodSettlementDraft?> GetObservedSettlementDraftAsync(
         Guid periodPlanSnapshotId,
         CancellationToken cancellationToken = default);
@@ -38,8 +38,8 @@ public interface IPeriodWorkflowService
         decimal balance,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Açık dönemin planlanan bir ödeme satırına ait fiilî ara ödeme gerçekleşme durumunu kaydeder.</summary>
-    Task<PeriodObservation> ObservePaymentAsync(
+    /// <summary>Açık dönemin planlanan bir ödeme satırına ödeme işareti koyar; aynı satırın işareti yenisiyle değişir ve hiçbir gözlem değişmez (S68-8).</summary>
+    Task<PeriodPaymentMark> ObservePaymentAsync(
         Guid periodPlanPaymentLineId,
         ActualPaymentStatus status,
         decimal actualAmount,

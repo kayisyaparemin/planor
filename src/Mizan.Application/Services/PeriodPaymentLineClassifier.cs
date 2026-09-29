@@ -6,7 +6,7 @@ namespace Mizan.Application.Services;
 /// <summary>
 /// Açık dönemin ödeme satırlarından hangisinin yapıldığını, hangisinin kaldığını bulur.
 /// Kullanıcıdan her ödemeyi tek tek işaretlemesi beklenmez; üç kaynak öncelik sırasıyla okunur:
-/// gözlem defterindeki açık işaret, hatırlatıcıya verilen "Ödedim" / "Ertele" cevabı ve son olarak
+/// plana konmuş açık işaret, hatırlatıcıya verilen "Ödedim" / "Ertele" cevabı ve son olarak
 /// vade — vadesi gelen ödeme yapılmış sayılır, planın kendi varsayımı da budur.
 /// İşaret de cevap da satır kimliğine değil, ödemenin kaynağına ve vadesine bağlanır: plan revizyonu
 /// satırlara yeni kimlik verdiğinde kaybolmazlar (I22, S33).
@@ -47,11 +47,11 @@ public static class PeriodPaymentLineClassifier
         };
     }
 
-    // Açık işaret gözlem defterinin parçasıdır; bu yüzden bakiyeye yansımış sayılır ve planlanan
-    // değil, fiilen ödenen tutar düşülür.
+    // Açık işaret bakiyeye yansımış sayılır ve planlanan değil, fiilen ödenen tutar düşülür. İşaretin gözlemden
+    // bağımsız olması (S68-8) vade kuralıyla yansıma ayrımını da getirecek; o davranış A28'de.
     private static LineOutcome? FromExplicitMark(
         PeriodPlanPaymentLine line,
-        Dictionary<string, PeriodObservationPayment> marks)
+        Dictionary<string, PeriodPaymentMark> marks)
     {
         if (!marks.TryGetValue(DueKey(line), out var mark))
         {
@@ -102,21 +102,16 @@ public static class PeriodPaymentLineClassifier
 
     // Plan sürümleri eskiden yeniye dolaşılır; aynı ödemeye birden fazla sürümde işaret konmuşsa
     // en yeni sürümdeki üzerine yazılarak kalır (S33).
-    private static Dictionary<string, PeriodObservationPayment> ExplicitMarksByDueKey(OpenPeriodLedger ledger)
+    private static Dictionary<string, PeriodPaymentMark> ExplicitMarksByDueKey(OpenPeriodLedger ledger)
     {
-        var marks = new Dictionary<string, PeriodObservationPayment>(StringComparer.Ordinal);
-        if (ledger.Observation is not { } observation)
-        {
-            return marks;
-        }
-
+        var marks = new Dictionary<string, PeriodPaymentMark>(StringComparer.Ordinal);
         var linesOldestFirst = ledger.Revisions
             .Select(x => x.PaymentLines)
             .Prepend(ledger.Plan.PaymentLines)
             .SelectMany(x => x);
         foreach (var line in linesOldestFirst)
         {
-            if (observation.FindPayment(line.Id) is { } mark)
+            if (ledger.PaymentMarks.FirstOrDefault(x => x.PeriodPlanPaymentLineId == line.Id) is { } mark)
             {
                 marks[DueKey(line)] = mark;
             }

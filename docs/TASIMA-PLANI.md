@@ -72,7 +72,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 - [x] **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları (`PeriodObservationPayment`) — *S20 kararıyla spekülatif `PeriodObservationFlow` elendi*
 - [x] **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` *(eski `FinancialReviewCommit` — S12 gereği adlandırıldı)*
-- [x] **H5** — dönem içinde birden fazla gözlem *(V3 yenilemesi — bkz. `V3`)*. Sözlük gözlemi "dönem
+- [x] **H5** — dönem içinde birden fazla gözlem *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`)*. Sözlük gözlemi "dönem
       içinde kullanıcının girdiği anlık bakiye" diye tanımlıyor, ama kod dönem başına **tek** kayıt tutuyor
       ve her bakiye girişinde üzerine yazıyor (`period_observations.PeriodPlanSnapshotId UNIQUE`,
       `PeriodWorkflowService.ObserveCurrentBalanceAsync`). Artık her bakiye girişi yeni bir gözlem olur,
@@ -141,7 +141,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
       *(S52: BackupRetentionRules saf sınıfına ayrıldı, IBackupService dar portu eklendi, S22 uyarınca HasLegacyDatabase elendi)*
 - [x] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
-- [ ] **A28** — dönemin gözlemleri *(V3 yenilemesi — bkz. `V3`; `H5`'e dayanır)*: bakiye girişi yeni gözlem
+- [ ] **A28** — dönemin gözlemleri *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; `H5`'e dayanır)*: bakiye girişi yeni gözlem
       ekler, üzerine yazmaz; `OpenPeriodLedger` dönemin gözlemlerini taşır, gidişat son gözlemi kullanır.
       `IPeriodObservationRepository`'nin tek kayıt dönen imzası listeye döner. "Bakiye gir" sayfası için
       iki ek (konsept, bkz. `V3`):
@@ -156,7 +156,7 @@ Geri kalan her şey bu omurgadan sarkar.
       yazılmaz, "Bakiye gir" önce kapanışı ister (4, `PeriodObservationRules.CanObserveOn`). Açık notlar: kurulum
       gözlemi dönemden önceki güne düşebiliyor; hatırlatıcı cevabı gözlemle zaman damgasıyla kıyaslanıyor,
       geriye tarihli gözlemde bu yanıltır.
-- [ ] **A29** — harcama temposu *(V3 yenilemesi — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
+- [ ] **A29** — harcama temposu *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
       oran ile geçen süre oranı ve aradaki fark (puan). **İkisi aynı güne göre** hesaplanır: son gözlemin
       günü. Bugünle kıyaslanırsa bakiye girilmedikçe harcama donar, süre ilerler ve ekran "harcama geride"
       diyerek yanlış güven verir. Gözlem yoksa tempo yok. Kavram önce `SOZLUK.md`'ye girer.
@@ -195,7 +195,7 @@ Geri kalan her şey bu omurgadan sarkar.
       `allowBackup` kapalı, Sentry paketi yasak)
       *(eskinin açığı: maske yalnız `event.Message`'ı kapsıyordu; exception metni, breadcrumb,
       extra ve ekran görüntüsü açıkta kalıyordu. `AttachScreenshot` varsayılan olarak kapalı.)*
-- [ ] **I7** — ilk şema yükseltmesi, v1 → v2 *(V3 yenilemesi — bkz. `V3`)*. Bugün `DatabaseSchema` yalnız
+- [ ] **I7** — ilk şema yükseltmesi, v1 → v2 *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`)*. Bugün `DatabaseSchema` yalnız
       boş veritabanını v1'e kurar; v1'i yükseltecek bir yol yok. İki alt adım:
   - [x] **I7a** — göç altyapısı: sürüm sürüm ilerleyen, işlem içinde çalışan yükseltme; eski sürümlü
         yedek geri yüklenince yükseltilir (`BackupDatabaseValidator` bugün yalnız "daha yeni"yi reddediyor).
@@ -204,12 +204,16 @@ Geri kalan her şey bu omurgadan sarkar.
         veritabanı da v1'den başlar, `CurrentSchemaVersion` sabiti çıktı. Yükseltme tek işlem; göç sırasında yabancı
         anahtar denetimi kapalı, sonunda `foreign_key_check`. Yedekten gelen eski sürüm hazırlıkta yükseltilir.
         Yayımlanmış adım değişmez: kural `05`. `I83`–`I86`)*
-  - [ ] **I7b** — v2 ve gözlem modelinin yeni şekli (S68-2, 8, 9): `period_observations`'ta dönem başına tek
-        kayıt kısıtı yerine `(PeriodPlanSnapshotId, ObservedOn)` UNIQUE; ödeme işareti gözlemden ayrılır, plana
-        bağlanır ve `PeriodPaymentMark` olur; bakiye zorunlu, `ObservedLivingSpend` ve `Note` çıkar, tek kayıt
-        zamanı. Port listeyle ve işaretlerle çalışır; Application yalnız derlenecek kadar uyarlanır, davranış
-        `A28`'de. Mevcut kayıt dönemin ilk gözlemi olarak kalır; kopyalama gerekmez. Dört katmana dokunur,
-        Aşama 1'de bölünebilir.
+  - [ ] **I7b** — v2 ve gözlem modelinin yeni şekli (S68-2, 8, 9). Aşama 1'de iş yeteneğine göre ikiye bölündü
+        (dört katman, iki bağımsız yetenek); sıra `I7b1 → I7b2`:
+    - [x] **I7b1** — ödeme işareti gözlemden ayrılır (S68-8): `PeriodPaymentMark`, `period_payment_marks`
+          (`(PeriodPlanSnapshotId, PeriodPlanPaymentLineId)` UNIQUE), v2 göçü eski gözlem ödemelerini kopyalayıp
+          eski tabloyu düşürür. Port ayrı açılmadı, iki metot eklendi. İşaret koymak gözleme dokunmaz; kapanış
+          işaretleri silmez. `I87`–`I89`. Gözlem eski şekliyle kaldı.
+    - [ ] **I7b2** — gözlemin yeni şekli (S68-2, 9): `period_observations` yeniden kurulur (v3): `(PeriodPlanSnapshotId,
+          ObservedOn)` UNIQUE, bakiye zorunlu (bakiyesiz eski satırlar elenir), `ObservedLivingSpend` ve `Note`
+          çıkar, iki damga yerine tek kayıt zamanı. Port listeyle çalışır; Application yalnız derlenecek kadar
+          uyarlanır, davranış `A28`'de. Yeniden kurma sırası aşağıdaki nottadır.
         *(I7a'dan: v2, `SchemaMigrations`'a yeni adım olarak yazılır ve özeti `SchemaMigrationsTests`'e eklenir.
         UNIQUE ancak tablo yeniden kurularak kalkar: yenisini kur → kopyala → eskisini sil → yenisinin adını
         değiştir → indeksleri yeniden kur; sıra önemli, önce eskisinin adı değişirse çocukların bağı ona döner.
@@ -261,7 +265,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       diyalog; `MauiDialogService` arkasında, ViewModel'ler değişmeden. *(V7 Kapı C)*
       Tarih seçicinin açılan penceresi de Android'in sistem penceresi; `V6c3` Kapı C'de yalnız düğme
       rengi düzeltildi (`Platforms/Android/Resources/values/styles.xml`), tasarımı bu işin kapsamında.
-- [ ] **T9** — kaydırılan hero: **GK4 kural değişikliği** *(V3 yenilemesi — bkz. `V3`. Kullanıcı kararı,
+- [ ] **T9** — kaydırılan hero: **GK4 kural değişikliği** *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`. Kullanıcı kararı,
       2026-09-29: ana sayfada iki görünüm; açılışta grafik, sağa kaydırınca halka)*. Bugün
       `DesignBudgetAnalyzer` her `GraphicsView`'ü sayıyor, sınır 1. Önerilen kural: ekranda **aynı anda**
       en fazla bir grafik görünür; sayfada en fazla bir kaydırılan hero, en fazla iki sayfa, sayfa başına
@@ -272,7 +276,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       hepsi geçiyor. Ya `SurfaceCard` ya token değişikliği (`GS`); kontrast tablosuna yeni çiftler.
       "Bakiye gir" sayfasındaki önizleme kartı da aynı zemin sorusu: koyu temada `PositiveText` /
       `SurfaceHero` 4,25 < 4,5.
-- [ ] **T10** — grafik primitiflerinin genişlemesi *(V3 yenilemesi — bkz. `V3`; GK7: beşinci primitif yok)*.
+- [ ] **T10** — grafik primitiflerinin genişlemesi *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; GK7: beşinci primitif yok)*.
       `AreaTrend`: gerçek noktalar düz çizgi ve alan, son gözlemden dönem sonu tahminine kesikli devam,
       "bugün" işareti, plan çizgisi (planın dönem sonu). `RingGauge`: dolulukla birlikte zaman işareti
       (tempo). İkisinin de `<summary>`'deki sorusu değişir; eklemeler isteğe bağlı olur, `AreaTrend`'in
@@ -288,6 +292,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 - [x] **V1** — profil seçimi
 - [x] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
 - [ ] **V3** — ana sayfa (dashboard). ⚠️ **Geri açıldı (2026-09-29): "Rota + Tempo" yenilemesi.**
+      *Kaynak eski proje değil:* bugünkü `DashboardPage` ve aşağıdaki konsept görüntüleri.
       İlk hâl (`GS20`: halka + hero rakam + gözlem kartı + gezinme satırları) tamamlanmıştı. Yeni yerleşim
       Claude Design'da üretilen D yönü: `docs/assets/konsept/ana-sayfa-rota-tempo.png` (dolu hâl, iki tema,
       yükleniyor) ve `ana-sayfa-rota-tempo-durumlar.png` (boş, bakiye hiç girilmemiş, kapanış ertelenmiş,
@@ -381,7 +386,8 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 - [ ] **V9** — dönem ayrıntısı
 - [ ] **V10** — simülatör *(eskide 1.034 satır / 4 partial)*
 - [ ] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
-      `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`)*. Çapa günü uygulama açılınca kendiliğinden
+      `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`; kaynak eski proje değil, eski
+      `PeriodReviewPage` okunmaz)*. Çapa günü uygulama açılınca kendiliğinden
       açılır: dönem sonu, plana göre fark, farkın kaynağı ve tek "Dönemi kapat". ✕ ile kapatmak ertelemek
       demek; ana sayfada "Dönemi kapat" kalır ve bu sayfayı açar. Kapanış bakiyesinin yanındaki "Değiştir"
       bakiyeyi kapanışın içinde değiştirir, gözlem yazmaz ve "Bakiye gir"i açmaz (S68-5): "planlandığı gibi"

@@ -100,6 +100,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I84` | Şema göçü kayıt silmez: bir tablo yeniden kurulurken ona bağlı kayıtlar (bir kredinin erken ödemeleri gibi) silinmez (S69-4). | `Mizan.Infrastructure.Tests.Persistence.DatabaseSchemaMigrationTests.EnsureInitializedAsync_TabloYenidenKurulurken_CocukKayitlarSilinmez` | `I7a` |
 | `I85` | Göçten sonra bağlı olduğu kaydı kaybeden tek bir kayıt kalırsa yükseltme geri alınır; veri ve sürüm değişmez (S69-4). | `Mizan.Infrastructure.Tests.Persistence.DatabaseSchemaMigrationTests.EnsureInitializedAsync_GocKopukBagBirakirsa_HicbirSeyYazilmaz` | `I7a` |
 | `I86` | Yedekten gelen eski sürümlü veritabanı, profil yerine konmadan güncel sürüme yükseltilir; yükseltilemezse "bu sürüme yükseltilemedi" denir ve hiçbir profil eklenmez (S69-5, `I36`). | `Mizan.Infrastructure.Tests.Backup.ProfileBackupArchiveUpgradeTests.GeriYukle_EskiSurumYukseltilemezse_HicbirSeyEklenmez` | `I7a` |
+| `I87` | Ödeme işareti gözlemden bağımsızdır: işaret koymak dönemin gözleminin gününü, bakiyesini ve kayıt zamanını değiştirmez, gözlem yoksa gözlem doğurmaz (S68-8). | `Mizan.Application.Tests.Services.PeriodWorkflowServiceTests.ObservePaymentAsync_GozlemVarken_GozlemiDegistirmez` | `I7b1` |
+| `I88` | Bir ödeme satırına en fazla bir işaret vardır: aynı satıra ikinci işaret öncekinin yerine geçer (S68-8). | `Mizan.Infrastructure.Tests.Persistence.Repositories.SqlitePeriodObservationRepositoryTests.UpsertPaymentMarkAsync_AyniSatiraYeniKimlikliIsaret_OncekininYerineGecer` | `I7b1` |
+| `I89` | v1 → v2 göçü ödeme kaydı kaybetmez: eski gözlem ödemeleri aynı kimlik ve değerlerle, gözlemin planına bağlı işaret olur (S68-8, S69-4). | `Mizan.Infrastructure.Tests.Persistence.PaymentMarkMigrationTests.EnsureInitializedAsync_V1denYukseltilirken_GozlemOdemeleriPlanaBagliIsaretOlur` | `I7b1` |
 
 ## Satır eklerken
 

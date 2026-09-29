@@ -225,6 +225,55 @@ public sealed class PaymentReminderServiceTests
     }
 
     [Fact]
+    public async Task GetUpcomingPaymentDuesAsync_OdendiIsaretliSatir_ListedeOlmaz()
+    {
+        // Hazırla
+        var service = CreateService(out _, out var planReader);
+        var plan = CreateSampleFinancialPlan();
+        planReader.PlanToReturn = plan;
+        var snapshotPlan = await SeedCurrentPlanAsync(plan);
+        var line = snapshotPlan.PaymentLines[0];
+        var dueKey = PaymentReminderPlanner.DueKey(line.SourceEntityId, line.Name, line.PlannedDate);
+        await _observationRepo.UpsertPaymentMarkAsync(new PeriodPaymentMark
+        {
+            PeriodPlanSnapshotId = snapshotPlan.Id,
+            PeriodPlanPaymentLineId = line.Id,
+            Status = ActualPaymentStatus.Paid,
+            ActualAmount = 10_000m
+        });
+
+        // Uygula
+        var dues = await service.GetUpcomingPaymentDuesAsync(new DateTime(2026, 9, 1, 10, 0, 0));
+
+        // Doğrula
+        Assert.DoesNotContain(dues, x => x.Key == dueKey);
+    }
+
+    [Fact]
+    public async Task GetUpcomingPaymentDuesAsync_OdenmediIsaretliSatir_ListedeKalir()
+    {
+        // Hazırla
+        var service = CreateService(out _, out var planReader);
+        var plan = CreateSampleFinancialPlan();
+        planReader.PlanToReturn = plan;
+        var snapshotPlan = await SeedCurrentPlanAsync(plan);
+        var line = snapshotPlan.PaymentLines[0];
+        var dueKey = PaymentReminderPlanner.DueKey(line.SourceEntityId, line.Name, line.PlannedDate);
+        await _observationRepo.UpsertPaymentMarkAsync(new PeriodPaymentMark
+        {
+            PeriodPlanSnapshotId = snapshotPlan.Id,
+            PeriodPlanPaymentLineId = line.Id,
+            Status = ActualPaymentStatus.Unpaid
+        });
+
+        // Uygula
+        var dues = await service.GetUpcomingPaymentDuesAsync(new DateTime(2026, 9, 1, 10, 0, 0));
+
+        // Doğrula
+        Assert.Contains(dues, x => x.Key == dueKey);
+    }
+
+    [Fact]
     public async Task GetUpcomingPaymentDuesAsync_UfukDonemiAstiginda_ProjeksiyondanVeBuyukHarcamalardanToplar()
     {
         var service = CreateService(out _, out var planReader);

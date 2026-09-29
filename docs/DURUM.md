@@ -4,15 +4,21 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I7a** — göç altyapısı: şema bir göç listesi, yükseltme tek işlem |
-| Sıradaki adım | **I7b** — v2 ve gözlem modelinin yeni şekli (V3 zinciri: `I7b → A28`); **V6d2** de açık |
-| Test sayısı | 1683 |
-| Şema sürümü | v1 (göç altyapısı hazır; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
+| Son tamamlanan adım | **I7b1** — ödeme işareti gözlemden ayrıldı: `PeriodPaymentMark`, şema v2 |
+| Sıradaki adım | **I7b2** — gözlemin yeni şekli, v3 (V3 zinciri: `I7b2 → A28`); **V6d2** de açık |
+| Test sayısı | 1701 |
+| Şema sürümü | v2 (v1 + `period_payment_marks`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I7b1 — ödeme işareti gözlemden ayrıldı: `PeriodPaymentMark`, şema v2; kararlar `S68`'de
+
+`I7b` Aşama 1'de iş yeteneğine göre bölündü (dört katman, iki bağımsız yetenek): `I7b1` işaret, `I7b2` gözlemin şekli. İşaret artık dönemin planına bağlı kendi tablosunda (`period_payment_marks`), satır başına tek (`UNIQUE`). v2 göçü eski `period_observation_payments` satırlarını gözlemin planıyla kopyalayıp tabloyu düşürür (`I89`); gözlem tablosuna dokunulmadı.
+`ObservePaymentAsync` gözleme dokunmaz (`I87`) ve işareti döndürür; kapanış taslağı işaretleri ayrı okur, bakiye girilmemişse de taslak çıkar. Kapanış gözlemi silmeye devam eder ama işaretleri silmez (S68-7'nin yönü, `A28`'e kadar). Port bölünmedi: `IPeriodObservationRepository`'ye iki metot eklendi, çünkü ayrı port `PeriodWorkflowService`'i 6 bağımlılığa çıkarırdı (M3). Sınıflandırıcı işareti hâlâ bakiyeye yansımış sayar; vade kuralı `A28`'de.
+**Dikkat:** v2 metni artık dondurulmuş (`SchemaMigrationsTests`). Emülatörde v1 → v2 henüz denenmedi; I7a provası yalnız kopyalarda yapılmıştı, telefon verisiyle deneme `I7b2` sonunda v3 ile birlikte yapılır. Testler: `PeriodPaymentMarkTests`, `PaymentMarkMigrationTests` ve mevcut testlerin işarete geçirilmesi; toplam 1.701 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### I7a — göç altyapısı: `SchemaMigration`, `SchemaMigrations`, `SchemaMigrationRunner`; kararlar `S69`'da
 

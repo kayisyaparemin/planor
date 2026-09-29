@@ -121,7 +121,7 @@ public sealed class PeriodWorkflowServiceTests
     }
 
     [Fact]
-    public async Task GetObservedSettlementDraftAsync_GozlemVarsa_TaslagiUretir_FlowsBosKalir()
+    public async Task GetObservedSettlementDraftAsync_GozlemVeIsaretVarsa_TaslagiUretir_FlowsBosKalir()
     {
         var service = CreateService(out _, out _);
         var plan = await SeedCurrentPlanAsync();
@@ -132,18 +132,16 @@ public sealed class PeriodWorkflowServiceTests
             PeriodPlanSnapshotId = plan.Id,
             ObservedBalance = 42_000m,
             ObservedLivingSpend = 8_000m,
-            Note = "Dönem ortası gözlemi",
-            Payments =
-            [
-                new PeriodObservationPayment
-                {
-                    PeriodPlanPaymentLineId = lineId,
-                    Status = ActualPaymentStatus.Paid,
-                    ActualAmount = 5_000m,
-                    ActualPaymentDate = new DateOnly(2026, 9, 15),
-                    Note = "Kira ödendi"
-                }
-            ]
+            Note = "Dönem ortası gözlemi"
+        });
+        await _observationRepo.UpsertPaymentMarkAsync(new PeriodPaymentMark
+        {
+            PeriodPlanSnapshotId = plan.Id,
+            PeriodPlanPaymentLineId = lineId,
+            Status = ActualPaymentStatus.Paid,
+            ActualAmount = 5_000m,
+            ActualPaymentDate = new DateOnly(2026, 9, 15),
+            Note = "Kira ödendi"
         });
 
         var draft = await service.GetObservedSettlementDraftAsync(plan.Id);
@@ -159,7 +157,32 @@ public sealed class PeriodWorkflowServiceTests
         Assert.Equal(lineId, draft.Payments[0].PeriodPlanPaymentLineId);
         Assert.Equal(5_000m, draft.Payments[0].ActualAmount);
         Assert.Equal(ActualPaymentStatus.Paid, draft.Payments[0].Status);
+        Assert.Equal("Kira ödendi", draft.Payments[0].Note);
     }
+
+    [Fact]
+    public async Task GetObservedSettlementDraftAsync_YalnizIsaretVarsa_BakiyesizTaslakUretir()
+    {
+        // Hazırla — kullanıcı yalnız ödemeyi işaretledi, hiç bakiye girmedi
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+        await _observationRepo.UpsertPaymentMarkAsync(new PeriodPaymentMark
+        {
+            PeriodPlanSnapshotId = plan.Id,
+            PeriodPlanPaymentLineId = plan.PaymentLines[0].Id,
+            Status = ActualPaymentStatus.Paid,
+            ActualAmount = 10_000m
+        });
+
+        // Uygula
+        var draft = await service.GetObservedSettlementDraftAsync(plan.Id);
+
+        // Doğrula
+        Assert.NotNull(draft);
+        Assert.Null(draft.ConfirmedEndingBalance);
+        Assert.Single(draft.Payments);
+    }
+
 
     [Fact]
     public async Task PreviewSettlementAsync_TaslagiHesaplar()
@@ -283,28 +306,40 @@ public sealed class PeriodWorkflowServiceTests
     }
 
     [Fact]
-    public async Task ObservePaymentAsync_SatirPlandaysa_OdemeGozleminiKaydeder()
+    public async Task ObservePaymentAsync_SatirPlandaysa_IsaretiKaydeder()
     {
         var service = CreateService(out _, out _);
         var plan = await SeedCurrentPlanAsync();
         var lineId = plan.PaymentLines[0].Id;
 
-        var observation = await service.ObservePaymentAsync(
+        var mark = await service.ObservePaymentAsync(
             lineId,
             ActualPaymentStatus.Paid,
             5_000m,
             new DateOnly(2026, 9, 5),
             "  Açıklama notu  ");
 
-        Assert.Single(observation.Payments);
-        Assert.Equal(lineId, observation.Payments[0].PeriodPlanPaymentLineId);
-        Assert.Equal(5_000m, observation.Payments[0].ActualAmount);
-        Assert.Equal(new DateOnly(2026, 9, 5), observation.Payments[0].ActualPaymentDate);
-        Assert.Equal("Açıklama notu", observation.Payments[0].Note);
+        Assert.Equal(plan.Id, mark.PeriodPlanSnapshotId);
+        Assert.Equal(lineId, mark.PeriodPlanPaymentLineId);
+        Assert.Equal(5_000m, mark.ActualAmount);
+        Assert.Equal(new DateOnly(2026, 9, 5), mark.ActualPaymentDate);
+        Assert.Equal("Açıklama notu", mark.Note);
+        Assert.Equal([mark], await _observationRepo.GetPaymentMarksAsync(plan.Id));
     }
 
     [Fact]
-    public async Task ObservePaymentAsync_SatirSonRevizyondaysa_GozlemiKaydeder()
+    public async Task ObservePaymentAsync_TarihVerilmediyse_BugunuYazar()
+    {
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+
+        var mark = await service.ObservePaymentAsync(plan.PaymentLines[0].Id, ActualPaymentStatus.Paid, 10_000m);
+
+        Assert.Equal(InitialDate, mark.ActualPaymentDate);
+    }
+
+    [Fact]
+    public async Task ObservePaymentAsync_SatirSonRevizyondaysa_IsaretiKaydeder()
     {
         var service = CreateService(out _, out _);
         var plan = await SeedCurrentPlanAsync();
@@ -331,14 +366,57 @@ public sealed class PeriodWorkflowServiceTests
         };
         await _historyRepo.SavePeriodPlanRevisionAsync(revision);
 
-        var observation = await service.ObservePaymentAsync(
-            newRevisionLineId,
-            ActualPaymentStatus.Paid,
-            3_000m);
+        var mark = await service.ObservePaymentAsync(newRevisionLineId, ActualPaymentStatus.Paid, 3_000m);
 
-        Assert.Single(observation.Payments);
-        Assert.Equal(newRevisionLineId, observation.Payments[0].PeriodPlanPaymentLineId);
+        Assert.Equal(newRevisionLineId, mark.PeriodPlanPaymentLineId);
     }
+
+    [Fact]
+    public async Task ObservePaymentAsync_AyniSatiraIkinciIsaret_OncekininYerineGecer()
+    {
+        // Hazırla
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+        var lineId = plan.PaymentLines[0].Id;
+        await service.ObservePaymentAsync(lineId, ActualPaymentStatus.Paid, 10_000m);
+
+        // Uygula — kullanıcı fikrini değiştirdi
+        await service.ObservePaymentAsync(lineId, ActualPaymentStatus.Unpaid, 0m);
+
+        // Doğrula
+        var marks = await _observationRepo.GetPaymentMarksAsync(plan.Id);
+        Assert.Equal(ActualPaymentStatus.Unpaid, Assert.Single(marks).Status);
+    }
+
+    /// <summary>I87: işaret gözlemden bağımsızdır (S68-8).</summary>
+    [Fact]
+    public async Task ObservePaymentAsync_GozlemVarken_GozlemiDegistirmez()
+    {
+        // Hazırla — 1 Eylül'de 20.000 girildi, sonra 10 Eylül'de 5 Eylül'deki ödeme işaretlenecek
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+        var gozlem = await service.ObserveCurrentBalanceAsync(20_000m);
+        _clock.SetDate(new DateOnly(2026, 9, 10));
+
+        // Uygula
+        await service.ObservePaymentAsync(
+            plan.PaymentLines[0].Id, ActualPaymentStatus.Paid, 10_000m, new DateOnly(2026, 9, 5));
+
+        // Doğrula
+        Assert.Equal(gozlem, await _observationRepo.GetPeriodObservationAsync(plan.Id));
+    }
+
+    [Fact]
+    public async Task ObservePaymentAsync_GozlemYokken_GozlemOlusturmaz()
+    {
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+
+        await service.ObservePaymentAsync(plan.PaymentLines[0].Id, ActualPaymentStatus.Paid, 10_000m);
+
+        Assert.Null(await _observationRepo.GetPeriodObservationAsync(plan.Id));
+    }
+
 
     private async Task<PeriodPlanSnapshot> SeedCurrentPlanAsync()
     {

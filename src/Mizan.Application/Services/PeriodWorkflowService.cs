@@ -45,7 +45,8 @@ public sealed class PeriodWorkflowService(
         var observation = await _periodObservationRepository.GetPeriodObservationAsync(
             periodPlanSnapshotId,
             cancellationToken);
-        if (observation is null)
+        var marks = await _periodObservationRepository.GetPaymentMarksAsync(periodPlanSnapshotId, cancellationToken);
+        if (observation is null && marks.Count == 0)
         {
             return null;
         }
@@ -53,13 +54,13 @@ public sealed class PeriodWorkflowService(
         return new PeriodSettlementDraft
         {
             PeriodPlanSnapshotId = periodPlanSnapshotId,
-            Payments = observation.Payments.Select(MapPaymentDraft).ToArray(),
-            ActualLivingSpend = observation.ObservedLivingSpend,
+            Payments = marks.Select(MapPaymentDraft).ToArray(),
+            ActualLivingSpend = observation?.ObservedLivingSpend ?? 0m,
             ActualInterest = 0m,
             Flows = [],
             LivingBreakdown = [],
-            ConfirmedEndingBalance = observation.ObservedBalance,
-            ActualNote = observation.Note
+            ConfirmedEndingBalance = observation?.ObservedBalance,
+            ActualNote = observation?.Note ?? string.Empty
         };
     }
 
@@ -87,7 +88,7 @@ public sealed class PeriodWorkflowService(
         decimal balance,
         CancellationToken cancellationToken = default)
     {
-        var openPlan = await ResolveOpenPlanAsync(cancellationToken);
+        var (openPlan, _) = await ResolveOpenPlanAsync(cancellationToken);
         var existing = await _periodObservationRepository.GetPeriodObservationAsync(openPlan.Id, cancellationToken);
         var now = _clock.UtcNow;
         var observation = (existing ?? new PeriodObservation
@@ -106,7 +107,7 @@ public sealed class PeriodWorkflowService(
     }
 
     /// <inheritdoc />
-    public async Task<PeriodObservation> ObservePaymentAsync(
+    public async Task<PeriodPaymentMark> ObservePaymentAsync(
         Guid periodPlanPaymentLineId,
         ActualPaymentStatus status,
         decimal actualAmount,
@@ -114,25 +115,25 @@ public sealed class PeriodWorkflowService(
         string note = "",
         CancellationToken cancellationToken = default)
     {
-        var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
-        var openPlan = history.FindOpenPlan() ??
-            throw new InvalidOperationException("Gözlem kaydedebilmek için önce güncel bir dönem planı gerekir.");
-
+        var (openPlan, history) = await ResolveOpenPlanAsync(cancellationToken);
         VerifyPaymentLineExists(openPlan, history, periodPlanPaymentLineId);
 
-        var now = _clock.UtcNow;
-        var existing = await _periodObservationRepository.GetPeriodObservationAsync(openPlan.Id, cancellationToken);
-        var observation = existing ?? new PeriodObservation
+        // Aynı satırın işareti yeniden konursa kimliği korunur; gözleme dokunulmaz (S68-8).
+        var marks = await _periodObservationRepository.GetPaymentMarksAsync(openPlan.Id, cancellationToken);
+        var mark = (marks.FirstOrDefault(x => x.PeriodPlanPaymentLineId == periodPlanPaymentLineId) ?? new PeriodPaymentMark
         {
             PeriodPlanSnapshotId = openPlan.Id,
-            ObservedOn = _clock.Today,
-            CreatedAtUtc = now
+            PeriodPlanPaymentLineId = periodPlanPaymentLineId
+        }) with
+        {
+            Status = status,
+            ActualAmount = actualAmount,
+            ActualPaymentDate = actualPaymentDate ?? _clock.Today,
+            Note = note.Trim()
         };
 
-        var date = actualPaymentDate ?? _clock.Today;
-        observation = UpsertPayment(observation, periodPlanPaymentLineId, status, actualAmount, date, note, now);
-        await _periodObservationRepository.UpsertPeriodObservationAsync(observation, cancellationToken);
-        return observation;
+        await _periodObservationRepository.UpsertPaymentMarkAsync(mark, cancellationToken);
+        return mark;
     }
 
     private static void VerifyPaymentLineExists(
@@ -151,37 +152,7 @@ public sealed class PeriodWorkflowService(
         }
     }
 
-    private static PeriodObservation UpsertPayment(
-        PeriodObservation observation,
-        Guid lineId,
-        ActualPaymentStatus status,
-        decimal amount,
-        DateOnly date,
-        string note,
-        DateTimeOffset now)
-    {
-        var payments = observation.Payments
-            .Where(x => x.PeriodPlanPaymentLineId != lineId)
-            .Append(new PeriodObservationPayment
-            {
-                PeriodObservationId = observation.Id,
-                PeriodPlanPaymentLineId = lineId,
-                Status = status,
-                ActualAmount = amount,
-                ActualPaymentDate = date,
-                Note = note.Trim()
-            })
-            .ToArray();
-
-        return observation with
-        {
-            Payments = payments,
-            ObservedOn = date,
-            UpdatedAtUtc = now
-        };
-    }
-
-    private static ActualPaymentDraft MapPaymentDraft(PeriodObservationPayment x) => new()
+    private static ActualPaymentDraft MapPaymentDraft(PeriodPaymentMark x) => new()
     {
         PeriodPlanPaymentLineId = x.PeriodPlanPaymentLineId,
         Status = x.Status,
@@ -190,10 +161,12 @@ public sealed class PeriodWorkflowService(
         Note = x.Note
     };
 
-    private async Task<PeriodPlanSnapshot> ResolveOpenPlanAsync(CancellationToken cancellationToken)
+    private async Task<(PeriodPlanSnapshot Plan, FinancialHistoryData History)> ResolveOpenPlanAsync(
+        CancellationToken cancellationToken)
     {
         var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
-        return history.FindOpenPlan() ??
+        var plan = history.FindOpenPlan() ??
             throw new InvalidOperationException("Gözlem kaydedebilmek için önce güncel bir dönem planı gerekir.");
+        return (plan, history);
     }
 }

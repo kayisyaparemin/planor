@@ -9,8 +9,11 @@ namespace Mizan.Application.Tests.Fakes;
 public sealed class InMemoryPeriodObservationRepository : IPeriodObservationRepository
 {
     private readonly Dictionary<Guid, PeriodObservation> _observations = [];
+    private readonly List<PeriodPaymentMark> _marks = [];
 
     public IReadOnlyDictionary<Guid, PeriodObservation> Items => _observations;
+
+    public IReadOnlyList<PeriodPaymentMark> Marks => _marks;
 
     public Task<PeriodObservation?> GetPeriodObservationAsync(
         Guid periodPlanSnapshotId,
@@ -33,6 +36,21 @@ public sealed class InMemoryPeriodObservationRepository : IPeriodObservationRepo
         CancellationToken cancellationToken = default)
     {
         _observations.Remove(periodPlanSnapshotId);
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<PeriodPaymentMark>> GetPaymentMarksAsync(
+        Guid periodPlanSnapshotId,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<PeriodPaymentMark>>(
+            _marks.Where(x => x.PeriodPlanSnapshotId == periodPlanSnapshotId).ToArray());
+
+    public Task UpsertPaymentMarkAsync(PeriodPaymentMark mark, CancellationToken cancellationToken = default)
+    {
+        _marks.RemoveAll(x =>
+            x.PeriodPlanSnapshotId == mark.PeriodPlanSnapshotId &&
+            x.PeriodPlanPaymentLineId == mark.PeriodPlanPaymentLineId);
+        _marks.Add(mark);
         return Task.CompletedTask;
     }
 }

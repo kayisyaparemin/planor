@@ -67,7 +67,7 @@ public sealed class FakePeriodWorkflowService : IPeriodWorkflowService
     }
 
     /// <summary>Ödeme gözlemini taklit olarak kaydeder.</summary>
-    public Task<PeriodObservation> ObservePaymentAsync(
+    public Task<PeriodPaymentMark> ObservePaymentAsync(
         Guid periodPlanPaymentLineId,
         ActualPaymentStatus status,
         decimal actualAmount,

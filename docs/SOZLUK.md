@@ -36,7 +36,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | açık dönem defteri | `OpenPeriodLedger` | Açık dönemin dondurulan planı, dönem içi revizyonları, gözlem defteri ve vadesi o döneme düşen hatırlatıcı cevapları bir arada |
 | açık dönem defteri okuyucusu | `OpenPeriodLedgerReader` | Açık dönem defterini tarihçe, gözlem ve hatırlatıcı portlarından okuyup birleştiren, hiçbir şey yazmayan servis |
 | dönem tarihçesi deposu | `IPeriodHistoryRepository` | Dondurulmuş planları, revizyonları, gerçekleşmeleri ve settlement taahhütlerini kalıcılaştıran port |
-| dönem gözlem defteri deposu | `IPeriodObservationRepository` | Açık dönemin ara bakiye ve borç ödeme işaretlerini saklayan veri deposu portu |
+| dönem gözlem defteri deposu | `IPeriodObservationRepository` | Açık dönemin ara bakiye gözlemini ve ödeme işaretlerini saklayan veri deposu portu |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
 | fiilî ödeme | `ActualPayment` | Dondurulan plan ödeme satırının dönem sonundaki gerçekleşme sonucu |
 | plansız akış | `ActualFlow` | Dönem planında yer almayan arızi gelir veya gider satırı |
@@ -46,7 +46,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye; gün başına bir tane, ana sayfa grafiğinde bir nokta (S68) |
 | son gözlem | `PeriodObservationRules.Latest` | Dönemin en geç **tarihli** gözlemi; giriş sırasına bakılmaz. Gidişat ondan hesaplanır (S68) |
 | gözlem kuralları | `PeriodObservationRules` | Gözlemin hangi güne yazılabileceği, aynı güne ikinci girişin öncekinin yerine geçmesi ve son gözlemin seçimi (S68) |
-| gözlem ödemesi | `PeriodObservationPayment` | Dondurulan plan ödeme satırının dönem içi gözlem defterindeki ara gerçekleşme kaydı |
+| ödeme işareti | `PeriodPaymentMark` | Kullanıcının açık dönemde bir plan ödeme satırına koyduğu "ödedim / şu tutarda ödedim / ödemedim" işareti; plana bağlıdır, gözlemden bağımsızdır, satır başına en fazla bir tane (S68-8). Eski adı: gözlem ödemesi |
 | güncel ödeme satırları | `OpenPeriodLedger.CurrentPaymentLines` | Dönem içinde "planım şu an ne" sorusunun satırları: son revizyonunkiler, revizyon yoksa dondurulan planınkiler (I24) |
 | ödeme satırı durumu | `PeriodPaymentLineClassification` | Açık dönemin güncel ödeme satırlarının bir güne göre durumu: gözlenen bakiyeye yansımış ödemeler, gözlemden sonra yapılanlar, kalan ve ertelenen satırlar |
 | ödeme satırı sınıflandırıcısı | `PeriodPaymentLineClassifier` | Bir ödemenin yapılıp yapılmadığını açık işaret → hatırlatıcı cevabı → vade önceliğiyle bulan, işareti ve cevabı kaynak + vadeyle eşleyen bağımlılıksız yardımcı (I30, S33) |

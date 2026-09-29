@@ -39,7 +39,7 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task UpsertPeriodObservationAsync_GozlemVeOdemeleriKaydederVeOkur()
+    public async Task UpsertPeriodObservationAsync_GozlemiKaydederVeOkur()
     {
         var repository = new SqlitePeriodObservationRepository(_connection);
         var planId = Guid.NewGuid();
@@ -47,19 +47,6 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
 
         var obsId = Guid.NewGuid();
         var now = DateTimeOffset.UtcNow;
-        var paymentLineId = Guid.NewGuid();
-
-        var payment = new PeriodObservationPayment
-        {
-            Id = Guid.NewGuid(),
-            PeriodObservationId = obsId,
-            PeriodPlanPaymentLineId = paymentLineId,
-            Status = ActualPaymentStatus.Paid,
-            ActualAmount = 2500m,
-            ActualPaymentDate = new DateOnly(2026, 9, 20),
-            Note = "Zamanında ödendi"
-        };
-
         var observation = new PeriodObservation
         {
             Id = obsId,
@@ -69,8 +56,7 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
             ObservedLivingSpend = 8500m,
             Note = "Dönem ortası kontrolü",
             CreatedAtUtc = now,
-            UpdatedAtUtc = now,
-            Payments = [payment]
+            UpdatedAtUtc = now
         };
 
         await repository.UpsertPeriodObservationAsync(observation);
@@ -80,10 +66,6 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
         Assert.Equal(obsId, loaded.Id);
         Assert.Equal(45000m, loaded.ObservedBalance);
         Assert.Equal(8500m, loaded.ObservedLivingSpend);
-        var loadedPayment = Assert.Single(loaded.Payments);
-        Assert.Equal(paymentLineId, loadedPayment.PeriodPlanPaymentLineId);
-        Assert.Equal(ActualPaymentStatus.Paid, loadedPayment.Status);
-        Assert.Equal(2500m, loadedPayment.ActualAmount);
     }
 
     [Fact]
@@ -135,43 +117,174 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task DeletePeriodObservationAsync_GozlemiSiler_CascadeIleOdemeleriDeTemizler()
+    public async Task DeletePeriodObservationAsync_GozlemiSiler()
     {
         var repository = new SqlitePeriodObservationRepository(_connection);
         var planId = Guid.NewGuid();
         await SeedPlanSnapshotAsync(planId);
-
-        var obsId = Guid.NewGuid();
-        var payment = new PeriodObservationPayment
-        {
-            Id = Guid.NewGuid(),
-            PeriodObservationId = obsId,
-            PeriodPlanPaymentLineId = Guid.NewGuid(),
-            Status = ActualPaymentStatus.Paid,
-            ActualAmount = 1000m
-        };
-        var observation = new PeriodObservation
-        {
-            Id = obsId,
-            PeriodPlanSnapshotId = planId,
-            ObservedOn = new DateOnly(2026, 9, 25),
-            CreatedAtUtc = DateTimeOffset.UtcNow,
-            UpdatedAtUtc = DateTimeOffset.UtcNow,
-            Payments = [payment]
-        };
-        await repository.UpsertPeriodObservationAsync(observation);
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId));
 
         await repository.DeletePeriodObservationAsync(planId);
 
-        var loaded = await repository.GetPeriodObservationAsync(planId);
-        Assert.Null(loaded);
-
-        var obsIdStr = obsId.ToString();
-        var payments = await _connection.Table<PeriodObservationPaymentEntity>()
-            .Where(p => p.PeriodObservationId == obsIdStr)
-            .ToListAsync();
-        Assert.Empty(payments);
+        Assert.Null(await repository.GetPeriodObservationAsync(planId));
     }
+
+    [Fact]
+    public async Task GetPaymentMarksAsync_IsaretYokken_BosListeDoner()
+    {
+        var repository = new SqlitePeriodObservationRepository(_connection);
+
+        var marks = await repository.GetPaymentMarksAsync(Guid.NewGuid());
+
+        Assert.Empty(marks);
+    }
+
+    [Fact]
+    public async Task UpsertPaymentMarkAsync_IsaretiKaydederVeOkur()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        var mark = Mark(planId, Guid.NewGuid());
+
+        // Uygula
+        await repository.UpsertPaymentMarkAsync(mark);
+        var loaded = await repository.GetPaymentMarksAsync(planId);
+
+        // Doğrula
+        Assert.Equal([mark], loaded);
+    }
+
+    [Fact]
+    public async Task UpsertPaymentMarkAsync_OdenmediIsareti_TarihsizVeNotsuzOkur()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        var mark = Mark(planId, Guid.NewGuid()) with
+        {
+            Status = ActualPaymentStatus.Unpaid,
+            ActualAmount = 0m,
+            ActualPaymentDate = null,
+            Note = string.Empty
+        };
+
+        // Uygula
+        await repository.UpsertPaymentMarkAsync(mark);
+
+        // Doğrula
+        Assert.Equal([mark], await repository.GetPaymentMarksAsync(planId));
+    }
+
+    /// <summary>I88: bir ödeme satırına en fazla bir işaret vardır.</summary>
+    [Fact]
+    public async Task UpsertPaymentMarkAsync_AyniSatiraYeniKimlikliIsaret_OncekininYerineGecer()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        var lineId = Guid.NewGuid();
+        await repository.UpsertPaymentMarkAsync(Mark(planId, lineId));
+        var sonIsaret = Mark(planId, lineId) with { Status = ActualPaymentStatus.Unpaid, ActualAmount = 0m };
+
+        // Uygula
+        await repository.UpsertPaymentMarkAsync(sonIsaret);
+
+        // Doğrula
+        Assert.Equal([sonIsaret], await repository.GetPaymentMarksAsync(planId));
+    }
+
+    [Fact]
+    public async Task UpsertPaymentMarkAsync_AyniKimlikliIsaret_Gunceller()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        var mark = Mark(planId, Guid.NewGuid());
+        await repository.UpsertPaymentMarkAsync(mark);
+
+        // Uygula
+        await repository.UpsertPaymentMarkAsync(mark with { ActualAmount = 999m });
+
+        // Doğrula
+        Assert.Equal(999m, Assert.Single(await repository.GetPaymentMarksAsync(planId)).ActualAmount);
+    }
+
+    [Fact]
+    public async Task GetPaymentMarksAsync_YalnizIstenenPlaninIsaretleriniGetirir()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        var digerPlanId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        await SeedPlanSnapshotAsync(digerPlanId);
+        var mark = Mark(planId, Guid.NewGuid());
+        await repository.UpsertPaymentMarkAsync(mark);
+        await repository.UpsertPaymentMarkAsync(Mark(digerPlanId, Guid.NewGuid()));
+
+        // Uygula
+        var loaded = await repository.GetPaymentMarksAsync(planId);
+
+        // Doğrula
+        Assert.Equal([mark.Id], loaded.Select(x => x.Id));
+    }
+
+    /// <summary>S68-7: kapanış gözlemi silse de işaretler dönemin tarihçesinde kalır.</summary>
+    [Fact]
+    public async Task DeletePeriodObservationAsync_IsaretleriSilmez()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId));
+        await repository.UpsertPaymentMarkAsync(Mark(planId, Guid.NewGuid()));
+
+        // Uygula
+        await repository.DeletePeriodObservationAsync(planId);
+
+        // Doğrula
+        Assert.Single(await repository.GetPaymentMarksAsync(planId));
+    }
+
+    [Fact]
+    public async Task GetPaymentMarksAsync_PlanSilinince_IsaretlerDeGider()
+    {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        await repository.UpsertPaymentMarkAsync(Mark(planId, Guid.NewGuid()));
+
+        // Uygula
+        await _connection.ExecuteAsync("DELETE FROM period_plan_snapshots WHERE Id = ?", planId.ToString());
+
+        // Doğrula
+        Assert.Empty(await repository.GetPaymentMarksAsync(planId));
+    }
+
+    private static PeriodObservation Gozlem(Guid planId) => new()
+    {
+        PeriodPlanSnapshotId = planId,
+        ObservedOn = new DateOnly(2026, 9, 25),
+        CreatedAtUtc = DateTimeOffset.UtcNow,
+        UpdatedAtUtc = DateTimeOffset.UtcNow
+    };
+
+    private static PeriodPaymentMark Mark(Guid planId, Guid lineId) => new()
+    {
+        PeriodPlanSnapshotId = planId,
+        PeriodPlanPaymentLineId = lineId,
+        Status = ActualPaymentStatus.DifferentAmount,
+        ActualAmount = 2_500m,
+        ActualPaymentDate = new DateOnly(2026, 9, 20),
+        Note = "Erken ödendi"
+    };
 
     private async Task SeedPlanSnapshotAsync(Guid planId)
     {

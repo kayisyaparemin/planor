@@ -7,7 +7,7 @@ using SQLite;
 namespace Mizan.Infrastructure.Persistence.Repositories;
 
 /// <summary>
-/// Devam eden açık nakit akış döneminin anlık gözlem defterini
+/// Devam eden açık nakit akış döneminin anlık gözlem defterini ve ödeme işaretlerini
 /// SQLite veritabanında saklayan somut depo adaptörü.
 /// </summary>
 public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection connection) : IPeriodObservationRepository
@@ -20,16 +20,7 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
         cancellationToken.ThrowIfCancellationRequested();
         var planKey = periodPlanSnapshotId.ToString();
         var row = await _connection.Table<PeriodObservationEntity>().FirstOrDefaultAsync(x => x.PeriodPlanSnapshotId == planKey);
-        if (row is null)
-        {
-            return null;
-        }
-
-        var payments = await _connection.Table<PeriodObservationPaymentEntity>()
-            .Where(p => p.PeriodObservationId == row.Id)
-            .ToListAsync();
-
-        return MapObservation(row, payments);
+        return row is null ? null : MapObservation(row);
     }
 
     /// <inheritdoc />
@@ -46,16 +37,10 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
             var existing = conn.Table<PeriodObservationEntity>().FirstOrDefault(x => x.PeriodPlanSnapshotId == planKey);
             if (existing is not null && existing.Id != obsKey)
             {
-                conn.Execute("DELETE FROM period_observation_payments WHERE PeriodObservationId = ?", existing.Id);
                 conn.Execute("DELETE FROM period_observations WHERE Id = ?", existing.Id);
             }
 
             conn.Upsert(ToEntity(observation));
-            conn.Execute("DELETE FROM period_observation_payments WHERE PeriodObservationId = ?", obsKey);
-            foreach (var payment in observation.Payments)
-            {
-                conn.Insert(ToPaymentEntity(obsKey, payment));
-            }
         });
     }
 
@@ -67,7 +52,35 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
         await _connection.ExecuteAsync("DELETE FROM period_observations WHERE PeriodPlanSnapshotId = ?", planKey);
     }
 
-    private static PeriodObservation MapObservation(PeriodObservationEntity row, List<PeriodObservationPaymentEntity> payments) =>
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<PeriodPaymentMark>> GetPaymentMarksAsync(Guid periodPlanSnapshotId, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var planKey = periodPlanSnapshotId.ToString();
+        var rows = await _connection.Table<PeriodPaymentMarkEntity>()
+            .Where(x => x.PeriodPlanSnapshotId == planKey)
+            .ToListAsync();
+        return rows.Select(MapMark).ToArray();
+    }
+
+    /// <inheritdoc />
+    public async Task UpsertPaymentMarkAsync(PeriodPaymentMark mark, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(mark);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var entity = ToEntity(mark);
+        await _connection.RunInTransactionAsync(conn =>
+        {
+            // Aynı satıra başka kimlikle konmuş işaret yeni işaretin yerine geçer; işaretin çocuğu yoktur.
+            conn.Execute(
+                "DELETE FROM period_payment_marks WHERE PeriodPlanSnapshotId = ? AND PeriodPlanPaymentLineId = ? AND Id <> ?",
+                entity.PeriodPlanSnapshotId, entity.PeriodPlanPaymentLineId, entity.Id);
+            conn.Upsert(entity);
+        });
+    }
+
+    private static PeriodObservation MapObservation(PeriodObservationEntity row) =>
         new()
         {
             Id = Guid.Parse(row.Id),
@@ -77,20 +90,19 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
             ObservedLivingSpend = row.ObservedLivingSpend,
             Note = row.Note,
             CreatedAtUtc = DateTimeOffset.Parse(row.CreatedAtUtc, CultureInfo.InvariantCulture),
-            UpdatedAtUtc = DateTimeOffset.Parse(row.UpdatedAtUtc, CultureInfo.InvariantCulture),
-            Payments = payments.Select(MapPayment).ToArray()
+            UpdatedAtUtc = DateTimeOffset.Parse(row.UpdatedAtUtc, CultureInfo.InvariantCulture)
         };
 
-    private static PeriodObservationPayment MapPayment(PeriodObservationPaymentEntity p) =>
+    private static PeriodPaymentMark MapMark(PeriodPaymentMarkEntity row) =>
         new()
         {
-            Id = Guid.Parse(p.Id),
-            PeriodObservationId = Guid.Parse(p.PeriodObservationId),
-            PeriodPlanPaymentLineId = Guid.Parse(p.PeriodPlanPaymentLineId),
-            Status = (ActualPaymentStatus)p.Status,
-            ActualAmount = p.ActualAmount,
-            ActualPaymentDate = string.IsNullOrWhiteSpace(p.ActualPaymentDate) ? null : DateOnly.ParseExact(p.ActualPaymentDate, DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-            Note = p.Note
+            Id = Guid.Parse(row.Id),
+            PeriodPlanSnapshotId = Guid.Parse(row.PeriodPlanSnapshotId),
+            PeriodPlanPaymentLineId = Guid.Parse(row.PeriodPlanPaymentLineId),
+            Status = (ActualPaymentStatus)row.Status,
+            ActualAmount = row.ActualAmount,
+            ActualPaymentDate = string.IsNullOrWhiteSpace(row.ActualPaymentDate) ? null : DateOnly.ParseExact(row.ActualPaymentDate, DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
+            Note = row.Note
         };
 
     private static PeriodObservationEntity ToEntity(PeriodObservation obs) =>
@@ -106,15 +118,15 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
             UpdatedAtUtc = obs.UpdatedAtUtc.ToString(DatabaseConstants.DateTimeOffsetFormat, CultureInfo.InvariantCulture)
         };
 
-    private static PeriodObservationPaymentEntity ToPaymentEntity(string obsKey, PeriodObservationPayment payment) =>
+    private static PeriodPaymentMarkEntity ToEntity(PeriodPaymentMark mark) =>
         new()
         {
-            Id = payment.Id.ToString(),
-            PeriodObservationId = obsKey,
-            PeriodPlanPaymentLineId = payment.PeriodPlanPaymentLineId.ToString(),
-            Status = (int)payment.Status,
-            ActualAmount = payment.ActualAmount,
-            ActualPaymentDate = payment.ActualPaymentDate?.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-            Note = payment.Note
+            Id = mark.Id.ToString(),
+            PeriodPlanSnapshotId = mark.PeriodPlanSnapshotId.ToString(),
+            PeriodPlanPaymentLineId = mark.PeriodPlanPaymentLineId.ToString(),
+            Status = (int)mark.Status,
+            ActualAmount = mark.ActualAmount,
+            ActualPaymentDate = mark.ActualPaymentDate?.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
+            Note = mark.Note
         };
 }

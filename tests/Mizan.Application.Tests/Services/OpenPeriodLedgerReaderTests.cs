@@ -41,6 +41,8 @@ public sealed class OpenPeriodLedgerReaderTests
         await _tarihce.SavePeriodPlanRevisionAsync(birinciRevizyon);
         var gozlem = new PeriodObservation { PeriodPlanSnapshotId = plan.Id, ObservedOn = DonemBasi.AddDays(2), ObservedBalance = 30_000m };
         await _gozlemler.UpsertPeriodObservationAsync(gozlem);
+        var isaret = new PeriodPaymentMark { PeriodPlanSnapshotId = plan.Id, PeriodPlanPaymentLineId = Guid.NewGuid(), Status = ActualPaymentStatus.Paid, ActualAmount = 9_000m };
+        await _gozlemler.UpsertPaymentMarkAsync(isaret);
         var cevap = Cevap(DonemBasi.AddDays(5));
         await _hatirlaticilar.UpsertResponsesAsync([cevap]);
 
@@ -52,6 +54,7 @@ public sealed class OpenPeriodLedgerReaderTests
         Assert.Equal(plan.Id, defter.Plan.Id);
         Assert.Equal([birinciRevizyon.Id, ikinciRevizyon.Id], defter.Revisions.Select(x => x.Id));
         Assert.Equal(gozlem.Id, defter.Observation?.Id);
+        Assert.Equal([isaret.Id], defter.PaymentMarks.Select(x => x.Id));
         Assert.Equal([cevap.DueKey], defter.ReminderAnswers.Select(x => x.DueKey));
     }
 

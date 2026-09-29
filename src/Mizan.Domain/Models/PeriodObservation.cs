@@ -2,14 +2,14 @@ namespace Mizan.Domain.Models;
 
 /// <summary>
 /// Açık olan nakit akış döneminin canlı gözlem defteri sözleşmesi.
-/// Dönem içinde kullanıcının girdiği anlık kasa/hesap bakiyesini ve erken işaretlenen
-/// plan ödemelerini kesinleşene kadar geçici olarak saklamak, dönem içi canlı kalan
-/// yaşam havuzunu hesaplamak ve dönem kapanış taslağına hazır veri sağlamak için vardır.
+/// Dönem içinde kullanıcının girdiği anlık kasa/hesap bakiyesini kesinleşene kadar geçici olarak saklamak,
+/// dönem içi canlı kalan yaşam havuzunu hesaplamak ve dönem kapanış taslağına hazır veri sağlamak için vardır.
 /// </summary>
 /// <remarks>
 /// Bu kayıt snapshot zincirinin dışındadır; yazılması veya güncellenmesi finansal planı
 /// veya dondurulmuş dönem planını mutasyona uğratmaz. Gün başına tek gözlem tutulur; hangi güne
 /// yazılabileceği ve hangisinin son gözlem olduğu <see cref="Calculations.PeriodObservationRules"/>'ta (S68).
+/// Ödeme işaretleri gözlemin parçası değildir; <see cref="PeriodPaymentMark"/> olarak plana bağlanır.
 /// </remarks>
 public sealed record PeriodObservation
 {
@@ -37,20 +37,6 @@ public sealed record PeriodObservation
     /// <summary>Gözlemin son güncellendiği UTC zaman damgası.</summary>
     public DateTimeOffset UpdatedAtUtc { get; init; }
 
-    /// <summary>Dönem içinde fiilen gerçekleştiği gözlenen plan ödeme satırları.</summary>
-    public IReadOnlyList<PeriodObservationPayment> Payments { get; init; } = [];
-
     /// <summary>Kullanıcının anlık bir serbest bakiye girip girmediğini belirtir.</summary>
     public bool HasObservedBalance => ObservedBalance.HasValue;
-
-    /// <summary>Ödenmiş veya farklı tutarla ödenmiş olarak işaretlenen gözlem ödemelerinin toplam tutarı.</summary>
-    public decimal TotalObservedPayments => Payments.Where(p => p.IsSettled).Sum(p => p.ActualAmount);
-
-    /// <summary>Belirtilen plan ödeme satırına ait gözlem kaydını bulur.</summary>
-    public PeriodObservationPayment? FindPayment(Guid periodPlanPaymentLineId) =>
-        Payments.FirstOrDefault(p => p.PeriodPlanPaymentLineId == periodPlanPaymentLineId);
-
-    /// <summary>Belirtilen plan ödeme satırının gözlem defterinde ödenmiş işaretlenip işaretlenmediğini denetler.</summary>
-    public bool IsPaymentSettled(Guid periodPlanPaymentLineId) =>
-        FindPayment(periodPlanPaymentLineId)?.IsSettled ?? false;
 }

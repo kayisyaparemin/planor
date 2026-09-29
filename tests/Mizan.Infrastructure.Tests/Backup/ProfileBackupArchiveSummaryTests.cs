@@ -69,7 +69,7 @@ public sealed class ProfileBackupArchiveSummaryTests : IDisposable
 
     [Theory]
     [InlineData(3, 1)]
-    [InlineData(2, 2)]
+    [InlineData(2, 99)]
     public async Task OzetOku_DahaYeniBicimYaDaSema_GuncellemeIster(int bicim, int sema)
     {
         using var yedek = YedekTestKurulumu.Zip(

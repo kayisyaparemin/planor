@@ -12,11 +12,13 @@ namespace Mizan.Application.Models;
 /// <param name="Plan">Dönem başında dondurulan, değişmeyen plan taahhüdü (I23).</param>
 /// <param name="Revisions">Planın dönem içi revizyonları, en eskiden en yeniye (I24).</param>
 /// <param name="Observation">Kullanıcının dönem içi gözlem defteri; hiç bakiye girilmediyse <c>null</c>.</param>
+/// <param name="PaymentMarks">Kullanıcının ödeme satırlarına koyduğu işaretler; gözlemden bağımsızdır (S68-8).</param>
 /// <param name="ReminderAnswers">Vadesi bu döneme düşen ödemelere verilmiş "Ödedim" / "Ertele" cevapları.</param>
 public sealed record OpenPeriodLedger(
     PeriodPlanSnapshot Plan,
     IReadOnlyList<PeriodPlanRevision> Revisions,
     PeriodObservation? Observation,
+    IReadOnlyList<PeriodPaymentMark> PaymentMarks,
     IReadOnlyList<PaymentReminderResponse> ReminderAnswers)
 {
     /// <summary>

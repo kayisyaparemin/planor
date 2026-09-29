@@ -56,11 +56,11 @@ public sealed class PaymentDueCollector(
             ? revisions[^1].PaymentLines
             : openPlan.PaymentLines;
 
-        var observation = await _periodObservationRepository.GetPeriodObservationAsync(openPlan.Id, cancellationToken);
-        var settled = observation?.Payments
-            .Where(x => x.Status != ActualPaymentStatus.Unpaid)
+        var marks = await _periodObservationRepository.GetPaymentMarksAsync(openPlan.Id, cancellationToken);
+        var settled = marks
+            .Where(x => x.IsSettled)
             .Select(x => x.PeriodPlanPaymentLineId)
-            .ToHashSet() ?? [];
+            .ToHashSet();
 
         return currentLines
             .Where(x => !settled.Contains(x.Id) && x.PlannedDate >= today && x.PlannedDate <= last)

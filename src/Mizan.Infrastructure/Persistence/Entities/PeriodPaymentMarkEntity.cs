@@ -3,16 +3,17 @@ using SQLite;
 namespace Mizan.Infrastructure.Persistence.Entities;
 
 /// <summary>
-/// Dönem gözlem defterine kaydedilen tekil plan ödemesi gözleminin SQLite tablo varlığı.
+/// Açık dönemin bir ödeme satırına konmuş işaretin SQLite tablo varlığı. Plana bağlıdır, gözleme değil (S68-8);
+/// satır başına tek işaret kuralı tablonun <c>UNIQUE (PeriodPlanSnapshotId, PeriodPlanPaymentLineId)</c>
+/// kısıtındadır.
 /// </summary>
-[Table("period_observation_payments")]
-internal sealed class PeriodObservationPaymentEntity
+[Table("period_payment_marks")]
+internal sealed class PeriodPaymentMarkEntity
 {
     [PrimaryKey]
     public string Id { get; set; } = string.Empty;
 
-    [Indexed]
-    public string PeriodObservationId { get; set; } = string.Empty;
+    public string PeriodPlanSnapshotId { get; set; } = string.Empty;
 
     public string PeriodPlanPaymentLineId { get; set; } = string.Empty;
 

@@ -127,8 +127,7 @@ public sealed class PeriodPaymentLineClassifierTests
     public void Classify_AcikOdendiIsareti_GercekTutarlaBakiyeyeYansimisSayilir()
     {
         // Hazırla — vadesi gelmemiş kart farklı tutarla erken ödendi
-        var gozlem = Gozlem(new DateOnly(2026, 9, 10), Isaret(Kart, ActualPaymentStatus.DifferentAmount, 11_500m));
-        var defter = Defter([Kart], gozlem: gozlem);
+        var defter = Defter([Kart], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kart, ActualPaymentStatus.DifferentAmount, 11_500m)]);
 
         // Uygula
         var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
@@ -143,8 +142,7 @@ public sealed class PeriodPaymentLineClassifierTests
     public void Classify_AcikOdenmediIsareti_VadesiGecseDeKalanlardaDurur()
     {
         // Hazırla
-        var gozlem = Gozlem(new DateOnly(2026, 9, 10), Isaret(Kira, ActualPaymentStatus.Unpaid, 0m));
-        var defter = Defter([Kira], gozlem: gozlem);
+        var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kira, ActualPaymentStatus.Unpaid, 0m)]);
 
         // Uygula
         var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
@@ -159,8 +157,7 @@ public sealed class PeriodPaymentLineClassifierTests
     public void Classify_AcikIsaret_HatirlaticiCevabinaUstunGelir()
     {
         // Hazırla
-        var gozlem = Gozlem(new DateOnly(2026, 9, 10), Isaret(Kira, ActualPaymentStatus.Unpaid, 0m));
-        var defter = Defter([Kira], gozlem: gozlem, cevaplar: [Cevap(Kira, PaymentReminderAnswerKind.Paid, Utc(9, 5, 9))]);
+        var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kira, ActualPaymentStatus.Unpaid, 0m)], cevaplar: [Cevap(Kira, PaymentReminderAnswerKind.Paid, Utc(9, 5, 9))]);
 
         // Uygula
         var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
@@ -297,7 +294,8 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter(
             [Kira],
             revizyonlar: [Revizyon(revizeKira)],
-            gozlem: Gozlem(new DateOnly(2026, 9, 2), Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)));
+            gozlem: Gozlem(new DateOnly(2026, 9, 2)),
+            isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)]);
 
         // Uygula
         var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
@@ -312,11 +310,11 @@ public sealed class PeriodPaymentLineClassifierTests
     {
         // Hazırla — dondurulan satır "ödendi", revizyondaki satır "ödenmedi"; liste sırası bilerek ters
         var revizeKira = YeniKimlik(Kira);
-        var gozlem = Gozlem(
-            new DateOnly(2026, 9, 2),
-            Isaret(revizeKira, ActualPaymentStatus.Unpaid, 0m),
-            Isaret(Kira, ActualPaymentStatus.Paid, 15_000m));
-        var defter = Defter([Kira], revizyonlar: [Revizyon(revizeKira)], gozlem: gozlem);
+        var defter = Defter(
+            [Kira],
+            revizyonlar: [Revizyon(revizeKira)],
+            gozlem: Gozlem(new DateOnly(2026, 9, 2)),
+            isaretler: [Isaret(revizeKira, ActualPaymentStatus.Unpaid, 0m), Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)]);
 
         // Uygula
         var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
@@ -334,7 +332,8 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter(
             [Kira],
             revizyonlar: [Revizyon(ertelenmisKira)],
-            gozlem: Gozlem(new DateOnly(2026, 9, 2), Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)));
+            gozlem: Gozlem(new DateOnly(2026, 9, 2)),
+            isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)]);
 
         // Uygula
         var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
@@ -362,23 +361,24 @@ public sealed class PeriodPaymentLineClassifierTests
         IReadOnlyList<PeriodPlanPaymentLine> planSatirlari,
         IReadOnlyList<PeriodPlanRevision>? revizyonlar = null,
         PeriodObservation? gozlem = null,
+        IReadOnlyList<PeriodPaymentMark>? isaretler = null,
         IReadOnlyList<PaymentReminderResponse>? cevaplar = null) =>
         new(
             new PeriodPlanSnapshot { PeriodStart = DonemBasi, PeriodEnd = DonemSonu, PaymentLines = planSatirlari },
             revizyonlar ?? [],
             gozlem,
+            isaretler ?? [],
             cevaplar ?? []);
 
     /// <summary>Bakiye o gün saat 10:00'da (UTC) girilmiş gözlem.</summary>
-    private static PeriodObservation Gozlem(DateOnly gun, params PeriodObservationPayment[] isaretler) => new()
+    private static PeriodObservation Gozlem(DateOnly gun) => new()
     {
         ObservedOn = gun,
         ObservedBalance = 10_000m,
-        UpdatedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero),
-        Payments = isaretler
+        UpdatedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
     };
 
-    private static PeriodObservationPayment Isaret(PeriodPlanPaymentLine satir, ActualPaymentStatus durum, decimal tutar) =>
+    private static PeriodPaymentMark Isaret(PeriodPlanPaymentLine satir, ActualPaymentStatus durum, decimal tutar) =>
         new() { PeriodPlanPaymentLineId = satir.Id, Status = durum, ActualAmount = tutar };
 
     private static PaymentReminderResponse Cevap(PeriodPlanPaymentLine satir, PaymentReminderAnswerKind tur, DateTime verilme) => new()

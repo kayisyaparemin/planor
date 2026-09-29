@@ -10,7 +10,7 @@ public sealed class OpenPeriodLedgerTests
     {
         // Hazırla
         var kira = new PeriodPlanPaymentLine { Name = "Kira", PlannedAmount = 15_000m };
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { PaymentLines = [kira] }, [], null, []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { PaymentLines = [kira] }, [], null, [], []);
 
         // Uygula
         var satirlar = defter.CurrentPaymentLines;
@@ -33,6 +33,7 @@ public sealed class OpenPeriodLedgerTests
                 new PeriodPlanRevision { RevisionNumber = 2, PaymentLines = [ikinci] }
             ],
             null,
+            [],
             []);
 
         // Uygula
@@ -46,7 +47,7 @@ public sealed class OpenPeriodLedgerTests
     public void LatestRevision_RevizyonYoksa_NullDondurur()
     {
         // Hazırla
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot(), [], null, []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot(), [], null, [], []);
 
         // Uygula
         var sonRevizyon = defter.LatestRevision;
@@ -60,7 +61,7 @@ public sealed class OpenPeriodLedgerTests
     {
         // Hazırla
         var gelir = new PeriodPlanIncomeLine { Name = "Gelir", PlannedAmount = 40_000m };
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [gelir] }, [], null, []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [gelir] }, [], null, [], []);
 
         // Uygula
         var satirlar = defter.CurrentIncomeLines;
@@ -76,7 +77,7 @@ public sealed class OpenPeriodLedgerTests
         var dondurulan = new PeriodPlanIncomeLine { Name = "Gelir", PlannedDate = new DateOnly(2026, 9, 15), PlannedAmount = 40_000m };
         var revize = dondurulan with { Id = Guid.NewGuid(), PlannedDate = new DateOnly(2026, 9, 10) };
         var revizyon = new PeriodPlanRevision { RevisionNumber = 1, IncomeLines = [revize] };
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [dondurulan] }, [revizyon], null, []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [dondurulan] }, [revizyon], null, [], []);
 
         // Uygula
         var satirlar = defter.CurrentIncomeLines;

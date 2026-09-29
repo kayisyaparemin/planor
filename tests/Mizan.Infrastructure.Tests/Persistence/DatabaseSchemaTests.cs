@@ -59,14 +59,15 @@ public sealed class DatabaseSchemaTests : IDisposable
         Assert.Contains(DatabaseConstants.TableActualFlows, tables);
         Assert.Contains(DatabaseConstants.TableActualLivingBreakdowns, tables);
         Assert.Contains(DatabaseConstants.TablePeriodObservations, tables);
-        Assert.Contains(DatabaseConstants.TablePeriodObservationPayments, tables);
+        Assert.Contains(DatabaseConstants.TablePeriodPaymentMarks, tables);
+        Assert.DoesNotContain("period_observation_payments", tables);
         Assert.Contains(DatabaseConstants.TableSimulationDrafts, tables);
         Assert.Contains(DatabaseConstants.TableSimulationDraftConditions, tables);
         Assert.Contains(DatabaseConstants.TablePaymentReminderResponses, tables);
     }
 
     [Fact]
-    public async Task EnsureInitializedAsync_TemizVeritabaninda_UserVersion1OlarakBelirler()
+    public async Task EnsureInitializedAsync_TemizVeritabaninda_UserVersionGuncelSurumOlarakBelirler()
     {
         var connection = new SQLiteAsyncConnection(_databasePath);
         await _schema.EnsureInitializedAsync(connection);
@@ -78,17 +79,17 @@ public sealed class DatabaseSchemaTests : IDisposable
     }
 
     [Fact]
-    public async Task EnsureInitializedAsync_ZatenSurum1Ise_HataVermedenGecer()
+    public async Task EnsureInitializedAsync_ZatenGuncelSurumdeyse_HataVermedenGecer()
     {
         var connection = new SQLiteAsyncConnection(_databasePath);
         await _schema.EnsureInitializedAsync(connection);
 
-        // İkinci çağrı: şema sürümü zaten 1, DDL tetiklenmeden sessizce başarıyla dönmeli
+        // İkinci çağrı: şema zaten güncel sürümde, adım çalışmadan sessizce başarıyla dönmeli
         await _schema.EnsureInitializedAsync(connection);
         var version = await _schema.GetUserVersionAsync(connection);
         await connection.CloseAsync();
 
-        Assert.Equal(1, version);
+        Assert.Equal(SchemaMigrations.CurrentVersion, version);
     }
 
     [Fact]
@@ -114,7 +115,7 @@ public sealed class DatabaseSchemaTests : IDisposable
         var fkStatus = await connection.ExecuteScalarAsync<int>("PRAGMA foreign_keys;");
         await connection.CloseAsync();
 
-        Assert.Equal(1, version);
+        Assert.Equal(SchemaMigrations.CurrentVersion, version);
         Assert.Equal(1, fkStatus);
     }
 }
