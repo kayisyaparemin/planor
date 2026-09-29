@@ -4,15 +4,21 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I7b1** — ödeme işareti gözlemden ayrıldı: `PeriodPaymentMark`, şema v2 |
-| Sıradaki adım | **I7b2** — gözlemin yeni şekli, v3 (V3 zinciri: `I7b2 → A28`); **V6d2** de açık |
-| Test sayısı | 1701 |
-| Şema sürümü | v2 (v1 + `period_payment_marks`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
+| Son tamamlanan adım | **I7b2** — gözlemin yeni şekli: gün başına tek, bakiye zorunlu, tek kayıt zamanı; şema v3 |
+| Sıradaki adım | **A28** — gözlem davranışı (V3 zinciri: `A28 → A29 → T9 → T10`); **V6d2** de açık |
+| Test sayısı | 1704 |
+| Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### I7b2 — gözlemin yeni şekli: gün başına tek, bakiye zorunlu, tek kayıt zamanı; şema v3; kararlar `S68`'de
+
+`period_observations` v3 göçüyle yeniden kuruldu: `(PeriodPlanSnapshotId, ObservedOn)` UNIQUE, `ObservedBalance` `NOT NULL`, `ObservedLivingSpend`, `Note` ve `CreatedAtUtc` gitti, `UpdatedAtUtc` `RecordedAtUtc` oldu. Bakiyesiz eski satırlar elendi, kalanlar aynı kimlikle taşındı (`I91`); plan indeksi yeniden kurulmadı, UNIQUE'in öneki onu karşılıyor. Port listeyle çalışıyor (`GetPeriodObservationsAsync`); aynı güne ikinci giriş öncekinin yerine geçiyor (`I90`).
+Application yalnız derlenecek kadar uyarlandı: defter son gözlemi `PeriodObservationRules.Latest` ile alıyor, `ObserveCurrentBalanceAsync` her girişte bugünün gözlemini yazıyor (davranış kuralları — gün/dönem denetimi, önizleme — `A28`'de), kapanış taslağının yaşam harcaması 0 ve notu boş (eskiden de öyleydi), kapanış hâlâ gözlemleri siliyor. Presentation'da tek satır (`HasObservation`).
+**Dikkat:** eski kayıt zamanı `UpdatedAtUtc`'den geldi; eski `ObservePaymentAsync` işaret koyarken onu yeniliyordu, o kayıtlarda zaman yanıltıcı olabilir. Emülatörde v1 → v3 henüz denenmedi (kişisel veri; kopyalarda prova, commit dışı) — sıradaki fırsatta yapılmalı. Testler: `ObservationShapeMigrationTests`, genişletilen `SqlitePeriodObservationRepositoryTests`, `SchemaMigrationsTests`'e v3 özeti; toplam 1.704 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### I7b1 — ödeme işareti gözlemden ayrıldı: `PeriodPaymentMark`, şema v2; kararlar `S68`'de
 

@@ -162,7 +162,7 @@ public sealed class PeriodProgressServiceTests
             PeriodPlanSnapshotId = plan.Id,
             ObservedOn = gun,
             ObservedBalance = bakiye,
-            UpdatedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
+            RecordedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
         });
 
     private static CreditCard Kart(string ad) => new()

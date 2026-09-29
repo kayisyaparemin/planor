@@ -249,7 +249,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var yerelGozlemAni = new DateTimeOffset(new DateTime(2026, 9, 11, 23, 30, 0, DateTimeKind.Local));
         var defter = Defter(
             [Kart, Kredi],
-            gozlem: Gozlem(new DateOnly(2026, 9, 11)) with { UpdatedAtUtc = yerelGozlemAni.ToUniversalTime() },
+            gozlem: Gozlem(new DateOnly(2026, 9, 11)) with { RecordedAtUtc = yerelGozlemAni.ToUniversalTime() },
             cevaplar:
             [
                 Cevap(Kart, PaymentReminderAnswerKind.Paid, new DateTime(2026, 9, 11, 22, 0, 0, DateTimeKind.Local)),
@@ -375,7 +375,7 @@ public sealed class PeriodPaymentLineClassifierTests
     {
         ObservedOn = gun,
         ObservedBalance = 10_000m,
-        UpdatedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
+        RecordedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
     };
 
     private static PeriodPaymentMark Isaret(PeriodPlanPaymentLine satir, ActualPaymentStatus durum, decimal tutar) =>

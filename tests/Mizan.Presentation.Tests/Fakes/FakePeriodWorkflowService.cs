@@ -60,8 +60,7 @@ public sealed class FakePeriodWorkflowService : IPeriodWorkflowService
         {
             PeriodPlanSnapshotId = Guid.NewGuid(),
             ObservedOn = new DateOnly(2026, 9, 27),
-            ObservedBalance = balance,
-            ObservedLivingSpend = 0m
+            ObservedBalance = balance
         };
         return Task.FromResult(observation);
     }

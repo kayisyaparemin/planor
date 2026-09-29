@@ -126,7 +126,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
         IsPeriodClosable = progress.IsClosable;
         RemainingVariableExpenseAllowance = progress.RemainingVariableExpenseAllowance;
         ObservedLivingSpend = progress.ObservedLivingSpend;
-        HasObservation = progress.Observation?.ObservedBalance.HasValue == true;
+        HasObservation = progress.Observation is not null;
         LastObservedBalance = progress.Observation?.ObservedBalance;
         LastObservedOn = progress.Observation?.ObservedOn;
         HasActivePeriod = true;

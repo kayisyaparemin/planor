@@ -379,7 +379,7 @@ public sealed class PeriodProgressCalculatorTests
     {
         ObservedOn = gun,
         ObservedBalance = bakiye,
-        UpdatedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
+        RecordedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
     };
 
     private static PeriodPlanPaymentLine Satir(string ad, DateOnly vade, decimal tutar, PlanPaymentSourceType tur, Guid kaynak) => new()

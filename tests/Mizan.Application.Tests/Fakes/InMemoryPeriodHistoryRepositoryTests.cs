@@ -119,18 +119,15 @@ public sealed class InMemoryPeriodHistoryRepositoryTests
         var observation = new PeriodObservation
         {
             PeriodPlanSnapshotId = planId,
-            ObservedBalance = 42000m,
-            ObservedLivingSpend = 8000m
+            ObservedBalance = 42000m
         };
 
         await sut.UpsertPeriodObservationAsync(observation);
 
-        var retrieved = await sut.GetPeriodObservationAsync(planId);
-        Assert.NotNull(retrieved);
+        var retrieved = Assert.Single(await sut.GetPeriodObservationsAsync(planId));
         Assert.Equal(42000m, retrieved.ObservedBalance);
-        Assert.Equal(8000m, retrieved.ObservedLivingSpend);
 
         await sut.DeletePeriodObservationAsync(planId);
-        Assert.Null(await sut.GetPeriodObservationAsync(planId));
+        Assert.Empty(await sut.GetPeriodObservationsAsync(planId));
     }
 }

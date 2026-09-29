@@ -1,3 +1,4 @@
+using Mizan.Domain.Calculations;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
 using Mizan.Domain.Models;
@@ -42,9 +43,8 @@ public sealed class PeriodWorkflowService(
         Guid periodPlanSnapshotId,
         CancellationToken cancellationToken = default)
     {
-        var observation = await _periodObservationRepository.GetPeriodObservationAsync(
-            periodPlanSnapshotId,
-            cancellationToken);
+        var observation = PeriodObservationRules.Latest(
+            await _periodObservationRepository.GetPeriodObservationsAsync(periodPlanSnapshotId, cancellationToken));
         var marks = await _periodObservationRepository.GetPaymentMarksAsync(periodPlanSnapshotId, cancellationToken);
         if (observation is null && marks.Count == 0)
         {
@@ -55,12 +55,12 @@ public sealed class PeriodWorkflowService(
         {
             PeriodPlanSnapshotId = periodPlanSnapshotId,
             Payments = marks.Select(MapPaymentDraft).ToArray(),
-            ActualLivingSpend = observation?.ObservedLivingSpend ?? 0m,
+            ActualLivingSpend = 0m,
             ActualInterest = 0m,
             Flows = [],
             LivingBreakdown = [],
             ConfirmedEndingBalance = observation?.ObservedBalance,
-            ActualNote = observation?.Note ?? string.Empty
+            ActualNote = string.Empty
         };
     }
 
@@ -89,17 +89,12 @@ public sealed class PeriodWorkflowService(
         CancellationToken cancellationToken = default)
     {
         var (openPlan, _) = await ResolveOpenPlanAsync(cancellationToken);
-        var existing = await _periodObservationRepository.GetPeriodObservationAsync(openPlan.Id, cancellationToken);
-        var now = _clock.UtcNow;
-        var observation = (existing ?? new PeriodObservation
+        var observation = new PeriodObservation
         {
             PeriodPlanSnapshotId = openPlan.Id,
-            CreatedAtUtc = now
-        }) with
-        {
             ObservedOn = _clock.Today,
             ObservedBalance = balance,
-            UpdatedAtUtc = now
+            RecordedAtUtc = _clock.UtcNow
         };
 
         await _periodObservationRepository.UpsertPeriodObservationAsync(observation, cancellationToken);

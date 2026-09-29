@@ -11,7 +11,7 @@ public static class SchemaMigrations
     /// Üretimdeki adımlar. v1 temiz şemanın 30 tablosudur (S53) ve dondurulmuştur; bugünkü şema,
     /// v1 ile ondan sonraki adımların toplamıdır.
     /// </summary>
-    public static IReadOnlyList<SchemaMigration> All { get; } = [V1(), V2()];
+    public static IReadOnlyList<SchemaMigration> All { get; } = [V1(), V2(), V3()];
 
     /// <summary>
     /// Bu uygulamanın kurduğu ve açabildiği en yeni şema sürümü.
@@ -56,6 +56,41 @@ public static class SchemaMigrations
             """,
             """
             DROP TABLE period_observation_payments;
+            """
+        ]);
+
+    /// <summary>
+    /// v3, gözlemi yeni şekline getirir (S68-2, S68-9): (plan, gün) tektir, bakiye zorunludur, hesaplanmış
+    /// yaşam harcaması ile not gider, iki damga tek kayıt zamanı olur. UNIQUE ancak tablo yeniden kurularak
+    /// eklenir: yenisi kurulur, bakiyesi olan satırlar kopyalanır, eskisi düşer, yenisinin adı değişir. Ödeme
+    /// işaretleri v2'de gözlemden ayrıldığı için eski tabloya bağlı çocuk kalmadı. Ayrı bir plan indeksi kurulmaz:
+    /// UNIQUE'in öneki plan kimliğini zaten indeksler.
+    /// </summary>
+    private static SchemaMigration V3() =>
+        new(3,
+        [
+            """
+            CREATE TABLE period_observations_new (
+                Id TEXT PRIMARY KEY NOT NULL,
+                PeriodPlanSnapshotId TEXT NOT NULL,
+                ObservedOn TEXT NOT NULL,
+                ObservedBalance decimal NOT NULL,
+                RecordedAtUtc TEXT NOT NULL,
+                FOREIGN KEY (PeriodPlanSnapshotId) REFERENCES period_plan_snapshots (Id) ON DELETE CASCADE,
+                UNIQUE (PeriodPlanSnapshotId, ObservedOn)
+            );
+            """,
+            """
+            INSERT INTO period_observations_new (Id, PeriodPlanSnapshotId, ObservedOn, ObservedBalance, RecordedAtUtc)
+            SELECT Id, PeriodPlanSnapshotId, ObservedOn, ObservedBalance, UpdatedAtUtc
+            FROM period_observations
+            WHERE ObservedBalance IS NOT NULL;
+            """,
+            """
+            DROP TABLE period_observations;
+            """,
+            """
+            ALTER TABLE period_observations_new RENAME TO period_observations;
             """
         ]);
 }

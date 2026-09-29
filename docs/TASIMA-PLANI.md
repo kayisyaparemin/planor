@@ -204,13 +204,13 @@ Geri kalan her şey bu omurgadan sarkar.
         veritabanı da v1'den başlar, `CurrentSchemaVersion` sabiti çıktı. Yükseltme tek işlem; göç sırasında yabancı
         anahtar denetimi kapalı, sonunda `foreign_key_check`. Yedekten gelen eski sürüm hazırlıkta yükseltilir.
         Yayımlanmış adım değişmez: kural `05`. `I83`–`I86`)*
-  - [ ] **I7b** — v2 ve gözlem modelinin yeni şekli (S68-2, 8, 9). Aşama 1'de iş yeteneğine göre ikiye bölündü
+  - [x] **I7b** — v2 ve gözlem modelinin yeni şekli (S68-2, 8, 9). Aşama 1'de iş yeteneğine göre ikiye bölündü
         (dört katman, iki bağımsız yetenek); sıra `I7b1 → I7b2`:
     - [x] **I7b1** — ödeme işareti gözlemden ayrılır (S68-8): `PeriodPaymentMark`, `period_payment_marks`
           (`(PeriodPlanSnapshotId, PeriodPlanPaymentLineId)` UNIQUE), v2 göçü eski gözlem ödemelerini kopyalayıp
           eski tabloyu düşürür. Port ayrı açılmadı, iki metot eklendi. İşaret koymak gözleme dokunmaz; kapanış
           işaretleri silmez. `I87`–`I89`. Gözlem eski şekliyle kaldı.
-    - [ ] **I7b2** — gözlemin yeni şekli (S68-2, 9): `period_observations` yeniden kurulur (v3): `(PeriodPlanSnapshotId,
+    - [x] **I7b2** — gözlemin yeni şekli (S68-2, 9): `period_observations` yeniden kurulur (v3): `(PeriodPlanSnapshotId,
           ObservedOn)` UNIQUE, bakiye zorunlu (bakiyesiz eski satırlar elenir), `ObservedLivingSpend` ve `Note`
           çıkar, iki damga yerine tek kayıt zamanı. Port listeyle çalışır; Application yalnız derlenecek kadar
           uyarlanır, davranış `A28`'de. Yeniden kurma sırası aşağıdaki nottadır.

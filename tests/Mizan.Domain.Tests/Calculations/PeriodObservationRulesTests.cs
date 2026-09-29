@@ -123,7 +123,8 @@ public sealed class PeriodObservationRulesTests
         var gozlemler = PeriodObservationRules.Record(kayitli, Gozlem(9, 4, 95_000m));
 
         // Doğrula
-        Assert.Equal(new decimal?[] { 95_000m, 65_000m }, gozlemler.Select(x => x.ObservedBalance));
+        Assert.Equal(95_000m, gozlemler[0].ObservedBalance);
+        Assert.Equal(65_000m, gozlemler[1].ObservedBalance);
     }
 
     [Fact]
@@ -158,8 +159,7 @@ public sealed class PeriodObservationRulesTests
             PeriodPlanSnapshotId = PlanId,
             ObservedOn = new DateOnly(Yil, ay, gun),
             ObservedBalance = bakiye,
-            CreatedAtUtc = kayitZamani,
-            UpdatedAtUtc = kayitZamani
+            RecordedAtUtc = kayitZamani
         };
     }
 }

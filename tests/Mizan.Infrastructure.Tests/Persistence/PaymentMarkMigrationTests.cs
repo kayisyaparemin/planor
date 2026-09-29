@@ -77,8 +77,8 @@ public sealed class PaymentMarkMigrationTests : IAsyncLifetime
         var eskiTablo = await _baglanti.ExecuteScalarAsync<int>(
             "SELECT COUNT(*) FROM sqlite_master WHERE name = 'period_observation_payments';");
         Assert.Equal(0, eskiTablo);
-        var kalan = await new SqlitePeriodObservationRepository(_baglanti).GetPeriodObservationAsync(plan);
-        Assert.Equal(40_000m, kalan?.ObservedBalance);
+        var kalan = Assert.Single(await new SqlitePeriodObservationRepository(_baglanti).GetPeriodObservationsAsync(plan));
+        Assert.Equal(40_000m, kalan.ObservedBalance);
     }
 
     [Fact]

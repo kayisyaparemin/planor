@@ -81,8 +81,7 @@ public sealed class OnboardingServiceTests
         var openPlan = history.FindOpenPlan();
         Assert.NotNull(openPlan);
 
-        var observation = await _observationRepo.GetPeriodObservationAsync(openPlan.Id);
-        Assert.NotNull(observation);
+        var observation = Assert.Single(await _observationRepo.GetPeriodObservationsAsync(openPlan.Id));
         Assert.Equal(25000m, observation.ObservedBalance);
     }
 

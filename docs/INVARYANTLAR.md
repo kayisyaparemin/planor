@@ -103,6 +103,8 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I87` | Ödeme işareti gözlemden bağımsızdır: işaret koymak dönemin gözleminin gününü, bakiyesini ve kayıt zamanını değiştirmez, gözlem yoksa gözlem doğurmaz (S68-8). | `Mizan.Application.Tests.Services.PeriodWorkflowServiceTests.ObservePaymentAsync_GozlemVarken_GozlemiDegistirmez` | `I7b1` |
 | `I88` | Bir ödeme satırına en fazla bir işaret vardır: aynı satıra ikinci işaret öncekinin yerine geçer (S68-8). | `Mizan.Infrastructure.Tests.Persistence.Repositories.SqlitePeriodObservationRepositoryTests.UpsertPaymentMarkAsync_AyniSatiraYeniKimlikliIsaret_OncekininYerineGecer` | `I7b1` |
 | `I89` | v1 → v2 göçü ödeme kaydı kaybetmez: eski gözlem ödemeleri aynı kimlik ve değerlerle, gözlemin planına bağlı işaret olur (S68-8, S69-4). | `Mizan.Infrastructure.Tests.Persistence.PaymentMarkMigrationTests.EnsureInitializedAsync_V1denYukseltilirken_GozlemOdemeleriPlanaBagliIsaretOlur` | `I7b1` |
+| `I90` | Gün başına tek gözlem: aynı plan ve güne ikinci giriş öncekinin yerine geçer, farklı gün ayrı nokta olur; tablo da aynı (plan, gün) çiftini kısıtla reddeder (S68-2). | `Mizan.Infrastructure.Tests.Persistence.Repositories.SqlitePeriodObservationRepositoryTests.UpsertPeriodObservationAsync_AyniGuneYeniGiris_OncekininYerineGecer` | `I7b2` |
+| `I91` | v2 → v3 göçü bakiyeli gözlemi aynı kimlik, gün ve değerle taşır (kayıt zamanı eski son yazma anıdır), bakiyesiz eski satırı eler (S68-9). | `Mizan.Infrastructure.Tests.Persistence.ObservationShapeMigrationTests.EnsureInitializedAsync_V2denYukseltilirken_BakiyeliGozlemTasinirBakiyesizElenir` | `I7b2` |
 
 ## Satır eklerken
 

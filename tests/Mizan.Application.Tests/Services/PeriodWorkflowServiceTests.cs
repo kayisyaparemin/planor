@@ -130,9 +130,7 @@ public sealed class PeriodWorkflowServiceTests
         await _observationRepo.UpsertPeriodObservationAsync(new PeriodObservation
         {
             PeriodPlanSnapshotId = plan.Id,
-            ObservedBalance = 42_000m,
-            ObservedLivingSpend = 8_000m,
-            Note = "Dönem ortası gözlemi"
+            ObservedBalance = 42_000m
         });
         await _observationRepo.UpsertPaymentMarkAsync(new PeriodPaymentMark
         {
@@ -149,9 +147,9 @@ public sealed class PeriodWorkflowServiceTests
         Assert.NotNull(draft);
         Assert.Equal(plan.Id, draft.PeriodPlanSnapshotId);
         Assert.Equal(42_000m, draft.ConfirmedEndingBalance);
-        Assert.Equal(8_000m, draft.ActualLivingSpend);
+        Assert.Equal(0m, draft.ActualLivingSpend);
         Assert.Equal(0m, draft.ActualInterest);
-        Assert.Equal("Dönem ortası gözlemi", draft.ActualNote);
+        Assert.Equal(string.Empty, draft.ActualNote);
         Assert.Empty(draft.Flows);
         Assert.Single(draft.Payments);
         Assert.Equal(lineId, draft.Payments[0].PeriodPlanPaymentLineId);
@@ -244,8 +242,7 @@ public sealed class PeriodWorkflowServiceTests
         Assert.NotNull(result.NewPlan);
         Assert.Equal(SettlementDate, result.NewPlan.PeriodStart);
 
-        var observationAfter = await _observationRepo.GetPeriodObservationAsync(plan.Id);
-        Assert.Null(observationAfter);
+        Assert.Empty(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
     }
 
     [Fact]
@@ -270,13 +267,12 @@ public sealed class PeriodWorkflowServiceTests
         Assert.Equal(25_000m, observation.ObservedBalance);
         Assert.Equal(InitialDate, observation.ObservedOn);
 
-        var stored = await _observationRepo.GetPeriodObservationAsync(plan.Id);
-        Assert.NotNull(stored);
+        var stored = Assert.Single(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
         Assert.Equal(25_000m, stored.ObservedBalance);
     }
 
     [Fact]
-    public async Task ObserveCurrentBalanceAsync_GozlemVarsa_MevcutKaydiGunceller()
+    public async Task ObserveCurrentBalanceAsync_FarkliGundeIkinciGiris_YeniNoktaEkler()
     {
         var service = CreateService(out _, out _);
         var plan = await SeedCurrentPlanAsync();
@@ -284,14 +280,25 @@ public sealed class PeriodWorkflowServiceTests
         await service.ObserveCurrentBalanceAsync(20_000m);
         _clock.SetDate(new DateOnly(2026, 9, 10));
 
-        var updated = await service.ObserveCurrentBalanceAsync(18_500m);
+        var ikinci = await service.ObserveCurrentBalanceAsync(18_500m);
 
-        Assert.Equal(18_500m, updated.ObservedBalance);
-        Assert.Equal(new DateOnly(2026, 9, 10), updated.ObservedOn);
+        Assert.Equal(new DateOnly(2026, 9, 10), ikinci.ObservedOn);
+        var kayitlar = await _observationRepo.GetPeriodObservationsAsync(plan.Id);
+        Assert.Equal(20_000m, kayitlar[0].ObservedBalance);
+        Assert.Equal(18_500m, kayitlar[1].ObservedBalance);
+    }
 
-        var stored = await _observationRepo.GetPeriodObservationAsync(plan.Id);
-        Assert.NotNull(stored);
-        Assert.Equal(18_500m, stored.ObservedBalance);
+    [Fact]
+    public async Task ObserveCurrentBalanceAsync_AyniGundeIkinciGiris_OncekininYerineGecer()
+    {
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+
+        await service.ObserveCurrentBalanceAsync(20_000m);
+        await service.ObserveCurrentBalanceAsync(18_500m);
+
+        var kayit = Assert.Single(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
+        Assert.Equal(18_500m, kayit.ObservedBalance);
     }
 
     [Fact]
@@ -403,7 +410,7 @@ public sealed class PeriodWorkflowServiceTests
             plan.PaymentLines[0].Id, ActualPaymentStatus.Paid, 10_000m, new DateOnly(2026, 9, 5));
 
         // Doğrula
-        Assert.Equal(gozlem, await _observationRepo.GetPeriodObservationAsync(plan.Id));
+        Assert.Equal(gozlem, Assert.Single(await _observationRepo.GetPeriodObservationsAsync(plan.Id)));
     }
 
     [Fact]
@@ -414,7 +421,7 @@ public sealed class PeriodWorkflowServiceTests
 
         await service.ObservePaymentAsync(plan.PaymentLines[0].Id, ActualPaymentStatus.Paid, 10_000m);
 
-        Assert.Null(await _observationRepo.GetPeriodObservationAsync(plan.Id));
+        Assert.Empty(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
     }
 
 

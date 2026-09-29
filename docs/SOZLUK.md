@@ -36,7 +36,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | açık dönem defteri | `OpenPeriodLedger` | Açık dönemin dondurulan planı, dönem içi revizyonları, gözlem defteri ve vadesi o döneme düşen hatırlatıcı cevapları bir arada |
 | açık dönem defteri okuyucusu | `OpenPeriodLedgerReader` | Açık dönem defterini tarihçe, gözlem ve hatırlatıcı portlarından okuyup birleştiren, hiçbir şey yazmayan servis |
 | dönem tarihçesi deposu | `IPeriodHistoryRepository` | Dondurulmuş planları, revizyonları, gerçekleşmeleri ve settlement taahhütlerini kalıcılaştıran port |
-| dönem gözlem defteri deposu | `IPeriodObservationRepository` | Açık dönemin ara bakiye gözlemini ve ödeme işaretlerini saklayan veri deposu portu |
+| dönem gözlem defteri deposu | `IPeriodObservationRepository` | Açık dönemin ara bakiye gözlemlerini (gün başına bir tane) ve ödeme işaretlerini saklayan veri deposu portu |
 | gerçekleşme | `PeriodActual` | Dönem kapanışında ölçülen fiilî durum |
 | fiilî ödeme | `ActualPayment` | Dondurulan plan ödeme satırının dönem sonundaki gerçekleşme sonucu |
 | plansız akış | `ActualFlow` | Dönem planında yer almayan arızi gelir veya gider satırı |

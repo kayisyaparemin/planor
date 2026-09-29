@@ -80,7 +80,7 @@ public static class PeriodPaymentLineClassifier
             return new LineOutcome(line, LineState.Snoozed, 0m);
         }
 
-        return Settled(line, observation is null || AnsweredAtUtc(answer) <= observation.UpdatedAtUtc.UtcDateTime);
+        return Settled(line, observation is null || AnsweredAtUtc(answer) <= observation.RecordedAtUtc.UtcDateTime);
     }
 
     // Gözlem günü düşen ödeme bakiyeye henüz yansımamış sayılır: yanılırsak dönem sonu kötümser çıkar.

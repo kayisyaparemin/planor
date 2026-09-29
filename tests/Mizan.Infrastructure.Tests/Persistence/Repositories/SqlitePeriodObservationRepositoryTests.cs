@@ -27,106 +27,92 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
             try { File.Delete(_databasePath); } catch { /* cleanup */ }
         }
     }
-
     [Fact]
-    public async Task GetPeriodObservationAsync_KayitYokken_NullDoner()
+    public async Task GetPeriodObservationsAsync_KayitYokken_BosListeDoner()
     {
         var repository = new SqlitePeriodObservationRepository(_connection);
 
-        var result = await repository.GetPeriodObservationAsync(Guid.NewGuid());
+        var result = await repository.GetPeriodObservationsAsync(Guid.NewGuid());
 
-        Assert.Null(result);
+        Assert.Empty(result);
     }
 
     [Fact]
     public async Task UpsertPeriodObservationAsync_GozlemiKaydederVeOkur()
     {
+        // Hazırla
         var repository = new SqlitePeriodObservationRepository(_connection);
         var planId = Guid.NewGuid();
         await SeedPlanSnapshotAsync(planId);
+        var kayitAni = new DateTimeOffset(2026, 9, 25, 9, 30, 0, TimeSpan.Zero);
+        var observation = Gozlem(planId, new DateOnly(2026, 9, 25), 45_000m) with { RecordedAtUtc = kayitAni };
 
-        var obsId = Guid.NewGuid();
-        var now = DateTimeOffset.UtcNow;
-        var observation = new PeriodObservation
-        {
-            Id = obsId,
-            PeriodPlanSnapshotId = planId,
-            ObservedOn = new DateOnly(2026, 9, 25),
-            ObservedBalance = 45000m,
-            ObservedLivingSpend = 8500m,
-            Note = "Dönem ortası kontrolü",
-            CreatedAtUtc = now,
-            UpdatedAtUtc = now
-        };
-
+        // Uygula
         await repository.UpsertPeriodObservationAsync(observation);
-        var loaded = await repository.GetPeriodObservationAsync(planId);
 
-        Assert.NotNull(loaded);
-        Assert.Equal(obsId, loaded.Id);
-        Assert.Equal(45000m, loaded.ObservedBalance);
-        Assert.Equal(8500m, loaded.ObservedLivingSpend);
+        // Doğrula
+        var loaded = Assert.Single(await repository.GetPeriodObservationsAsync(planId));
+        Assert.Equal(observation, loaded);
     }
 
+    /// <summary>I90: gün başına tek gözlem; aynı plan ve güne ikinci giriş öncekinin yerine geçer, farklı gün ayrı nokta olur.</summary>
     [Fact]
-    public async Task UpsertPeriodObservationAsync_AyniPlanaYeniGozlemGelirse_EskisiniEzerekGunceller()
+    public async Task UpsertPeriodObservationAsync_AyniGuneYeniGiris_OncekininYerineGecer()
     {
+        // Hazırla
         var repository = new SqlitePeriodObservationRepository(_connection);
         var planId = Guid.NewGuid();
         await SeedPlanSnapshotAsync(planId);
+        var gun = new DateOnly(2026, 9, 20);
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId, gun, 50_000m));
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId, gun.AddDays(-5), 60_000m));
+        var duzeltme = Gozlem(planId, gun, 42_000m);
 
-        var obs1Id = Guid.NewGuid();
-        var obs2Id = Guid.NewGuid();
-        var now = DateTimeOffset.UtcNow;
+        // Uygula
+        await repository.UpsertPeriodObservationAsync(duzeltme);
 
-        var obs1 = new PeriodObservation
-        {
-            Id = obs1Id,
-            PeriodPlanSnapshotId = planId,
-            ObservedOn = new DateOnly(2026, 9, 20),
-            ObservedBalance = 50000m,
-            ObservedLivingSpend = 5000m,
-            CreatedAtUtc = now,
-            UpdatedAtUtc = now
-        };
-        await repository.UpsertPeriodObservationAsync(obs1);
-
-        var obs2 = new PeriodObservation
-        {
-            Id = obs2Id,
-            PeriodPlanSnapshotId = planId,
-            ObservedOn = new DateOnly(2026, 9, 25),
-            ObservedBalance = 42000m,
-            ObservedLivingSpend = 13000m,
-            CreatedAtUtc = now,
-            UpdatedAtUtc = now.AddDays(5)
-        };
-        await repository.UpsertPeriodObservationAsync(obs2);
-
-        var loaded = await repository.GetPeriodObservationAsync(planId);
-        Assert.NotNull(loaded);
-        Assert.Equal(obs2Id, loaded.Id);
-        Assert.Equal(42000m, loaded.ObservedBalance);
-        Assert.Equal(13000m, loaded.ObservedLivingSpend);
-
-        var planIdStr = planId.ToString();
-        var count = await _connection.Table<PeriodObservationEntity>()
-            .Where(x => x.PeriodPlanSnapshotId == planIdStr)
-            .CountAsync();
-        Assert.Equal(1, count);
+        // Doğrula
+        var loaded = await repository.GetPeriodObservationsAsync(planId);
+        Assert.Equal(2, loaded.Count);
+        Assert.Equal(new[] { gun.AddDays(-5), gun }, loaded.Select(x => x.ObservedOn).ToArray());
+        Assert.Equal(duzeltme.Id, loaded[1].Id);
+        Assert.Equal(42_000m, loaded[1].ObservedBalance);
     }
 
     [Fact]
-    public async Task DeletePeriodObservationAsync_GozlemiSiler()
+    public async Task GetPeriodObservationsAsync_DigerPlaninGozlemleriniKatmaz()
     {
+        // Hazırla
+        var repository = new SqlitePeriodObservationRepository(_connection);
+        var planId = Guid.NewGuid();
+        var digerPlanId = Guid.NewGuid();
+        await SeedPlanSnapshotAsync(planId);
+        await SeedPlanSnapshotAsync(digerPlanId);
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId, new DateOnly(2026, 9, 20), 1m));
+        await repository.UpsertPeriodObservationAsync(Gozlem(digerPlanId, new DateOnly(2026, 9, 20), 2m));
+
+        // Uygula
+        var loaded = await repository.GetPeriodObservationsAsync(planId);
+
+        // Doğrula
+        Assert.Equal(1m, Assert.Single(loaded).ObservedBalance);
+    }
+
+    [Fact]
+    public async Task DeletePeriodObservationAsync_PlaninButunGozlemleriniSiler()
+    {
+        // Hazırla
         var repository = new SqlitePeriodObservationRepository(_connection);
         var planId = Guid.NewGuid();
         await SeedPlanSnapshotAsync(planId);
-        await repository.UpsertPeriodObservationAsync(Gozlem(planId));
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId, new DateOnly(2026, 9, 20), 1m));
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId, new DateOnly(2026, 9, 21), 2m));
 
+        // Uygula
         await repository.DeletePeriodObservationAsync(planId);
 
-        Assert.Null(await repository.GetPeriodObservationAsync(planId));
+        // Doğrula
+        Assert.Empty(await repository.GetPeriodObservationsAsync(planId));
     }
 
     [Fact]
@@ -242,7 +228,7 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
         var repository = new SqlitePeriodObservationRepository(_connection);
         var planId = Guid.NewGuid();
         await SeedPlanSnapshotAsync(planId);
-        await repository.UpsertPeriodObservationAsync(Gozlem(planId));
+        await repository.UpsertPeriodObservationAsync(Gozlem(planId, new DateOnly(2026, 9, 25), 1m));
         await repository.UpsertPaymentMarkAsync(Mark(planId, Guid.NewGuid()));
 
         // Uygula
@@ -268,12 +254,12 @@ public sealed class SqlitePeriodObservationRepositoryTests : IDisposable
         Assert.Empty(await repository.GetPaymentMarksAsync(planId));
     }
 
-    private static PeriodObservation Gozlem(Guid planId) => new()
+    private static PeriodObservation Gozlem(Guid planId, DateOnly gun, decimal bakiye) => new()
     {
         PeriodPlanSnapshotId = planId,
-        ObservedOn = new DateOnly(2026, 9, 25),
-        CreatedAtUtc = DateTimeOffset.UtcNow,
-        UpdatedAtUtc = DateTimeOffset.UtcNow
+        ObservedOn = gun,
+        ObservedBalance = bakiye,
+        RecordedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(9, 0)), TimeSpan.Zero)
     };
 
     private static PeriodPaymentMark Mark(Guid planId, Guid lineId) => new()

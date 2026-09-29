@@ -69,8 +69,7 @@ public sealed class OnboardingService(
             PeriodPlanSnapshotId = openPlan.Id,
             ObservedOn = _clock.Today,
             ObservedBalance = openingBalance,
-            CreatedAtUtc = now,
-            UpdatedAtUtc = now
+            RecordedAtUtc = now
         };
 
         await _periodObservationRepository.UpsertPeriodObservationAsync(observation, cancellationToken);

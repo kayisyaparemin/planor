@@ -15,12 +15,15 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
     private readonly SQLiteAsyncConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
     /// <inheritdoc />
-    public async Task<PeriodObservation?> GetPeriodObservationAsync(Guid periodPlanSnapshotId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<PeriodObservation>> GetPeriodObservationsAsync(Guid periodPlanSnapshotId, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var planKey = periodPlanSnapshotId.ToString();
-        var row = await _connection.Table<PeriodObservationEntity>().FirstOrDefaultAsync(x => x.PeriodPlanSnapshotId == planKey);
-        return row is null ? null : MapObservation(row);
+        var rows = await _connection.Table<PeriodObservationEntity>()
+            .Where(x => x.PeriodPlanSnapshotId == planKey)
+            .OrderBy(x => x.ObservedOn)
+            .ToListAsync();
+        return rows.Select(MapObservation).ToArray();
     }
 
     /// <inheritdoc />
@@ -29,18 +32,14 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
         ArgumentNullException.ThrowIfNull(observation);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var planKey = observation.PeriodPlanSnapshotId.ToString();
-        var obsKey = observation.Id.ToString();
-
+        var entity = ToEntity(observation);
         await _connection.RunInTransactionAsync(conn =>
         {
-            var existing = conn.Table<PeriodObservationEntity>().FirstOrDefault(x => x.PeriodPlanSnapshotId == planKey);
-            if (existing is not null && existing.Id != obsKey)
-            {
-                conn.Execute("DELETE FROM period_observations WHERE Id = ?", existing.Id);
-            }
-
-            conn.Upsert(ToEntity(observation));
+            // Aynı güne başka kimlikle konmuş gözlem yeni girişin yerine geçer (S68-2); gözlemin çocuğu yoktur.
+            conn.Execute(
+                "DELETE FROM period_observations WHERE PeriodPlanSnapshotId = ? AND ObservedOn = ? AND Id <> ?",
+                entity.PeriodPlanSnapshotId, entity.ObservedOn, entity.Id);
+            conn.Upsert(entity);
         });
     }
 
@@ -87,10 +86,7 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
             PeriodPlanSnapshotId = Guid.Parse(row.PeriodPlanSnapshotId),
             ObservedOn = DateOnly.ParseExact(row.ObservedOn, DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
             ObservedBalance = row.ObservedBalance,
-            ObservedLivingSpend = row.ObservedLivingSpend,
-            Note = row.Note,
-            CreatedAtUtc = DateTimeOffset.Parse(row.CreatedAtUtc, CultureInfo.InvariantCulture),
-            UpdatedAtUtc = DateTimeOffset.Parse(row.UpdatedAtUtc, CultureInfo.InvariantCulture)
+            RecordedAtUtc = DateTimeOffset.Parse(row.RecordedAtUtc, CultureInfo.InvariantCulture)
         };
 
     private static PeriodPaymentMark MapMark(PeriodPaymentMarkEntity row) =>
@@ -112,10 +108,7 @@ public sealed class SqlitePeriodObservationRepository(SQLiteAsyncConnection conn
             PeriodPlanSnapshotId = obs.PeriodPlanSnapshotId.ToString(),
             ObservedOn = obs.ObservedOn.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
             ObservedBalance = obs.ObservedBalance,
-            ObservedLivingSpend = obs.ObservedLivingSpend,
-            Note = obs.Note,
-            CreatedAtUtc = obs.CreatedAtUtc.ToString(DatabaseConstants.DateTimeOffsetFormat, CultureInfo.InvariantCulture),
-            UpdatedAtUtc = obs.UpdatedAtUtc.ToString(DatabaseConstants.DateTimeOffsetFormat, CultureInfo.InvariantCulture)
+            RecordedAtUtc = obs.RecordedAtUtc.ToString(DatabaseConstants.DateTimeOffsetFormat, CultureInfo.InvariantCulture)
         };
 
     private static PeriodPaymentMarkEntity ToEntity(PeriodPaymentMark mark) =>

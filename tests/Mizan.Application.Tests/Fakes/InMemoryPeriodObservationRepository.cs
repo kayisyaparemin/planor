@@ -5,29 +5,30 @@ namespace Mizan.Application.Tests.Fakes;
 
 /// <summary>
 /// Application katmanı birim testlerinde dönem gözlem defteri verilerini bellek içinde saklayan sahte depo çifti.
+/// Gerçek depo gibi, aynı plan ve güne yazılan gözlem öncekinin yerine geçer.
 /// </summary>
 public sealed class InMemoryPeriodObservationRepository : IPeriodObservationRepository
 {
-    private readonly Dictionary<Guid, PeriodObservation> _observations = [];
+    private readonly List<PeriodObservation> _observations = [];
     private readonly List<PeriodPaymentMark> _marks = [];
 
-    public IReadOnlyDictionary<Guid, PeriodObservation> Items => _observations;
+    public IReadOnlyList<PeriodObservation> Items => _observations;
 
     public IReadOnlyList<PeriodPaymentMark> Marks => _marks;
 
-    public Task<PeriodObservation?> GetPeriodObservationAsync(
+    public Task<IReadOnlyList<PeriodObservation>> GetPeriodObservationsAsync(
         Guid periodPlanSnapshotId,
-        CancellationToken cancellationToken = default)
-    {
-        _observations.TryGetValue(periodPlanSnapshotId, out var observation);
-        return Task.FromResult(observation);
-    }
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult<IReadOnlyList<PeriodObservation>>(
+            _observations.Where(x => x.PeriodPlanSnapshotId == periodPlanSnapshotId).OrderBy(x => x.ObservedOn).ToArray());
 
     public Task UpsertPeriodObservationAsync(
         PeriodObservation observation,
         CancellationToken cancellationToken = default)
     {
-        _observations[observation.PeriodPlanSnapshotId] = observation;
+        _observations.RemoveAll(x =>
+            x.PeriodPlanSnapshotId == observation.PeriodPlanSnapshotId && x.ObservedOn == observation.ObservedOn);
+        _observations.Add(observation);
         return Task.CompletedTask;
     }
 
@@ -35,7 +36,7 @@ public sealed class InMemoryPeriodObservationRepository : IPeriodObservationRepo
         Guid periodPlanSnapshotId,
         CancellationToken cancellationToken = default)
     {
-        _observations.Remove(periodPlanSnapshotId);
+        _observations.RemoveAll(x => x.PeriodPlanSnapshotId == periodPlanSnapshotId);
         return Task.CompletedTask;
     }
 

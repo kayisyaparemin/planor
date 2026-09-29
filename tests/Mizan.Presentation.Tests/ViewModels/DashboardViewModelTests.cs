@@ -270,8 +270,7 @@ public sealed class DashboardViewModelTests : IDisposable
             {
                 PeriodPlanSnapshotId = planId,
                 ObservedOn = new DateOnly(2026, 9, 20),
-                ObservedBalance = 12400m,
-                ObservedLivingSpend = 3200m
+                ObservedBalance = 12400m
             },
             RemainingLines = lines,
             RemainingPlannedTotal = 6450m,

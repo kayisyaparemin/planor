@@ -71,10 +71,12 @@ public static class PeriodProgressCalculator
         decimal plannedAllowance,
         decimal deficitFinancingInterestRate)
     {
-        if (ledger.Observation is not { ObservedBalance: { } balance } observation)
+        if (ledger.Observation is not { } observation)
         {
             return null;
         }
+
+        var balance = observation.ObservedBalance;
 
         var incomeInBalance = IncomeReceivedBy(ledger.CurrentIncomeLines, observation.ObservedOn);
         var incomeStillToCome = ledger.CurrentIncomeLines.Sum(x => x.PlannedAmount) - incomeInBalance;
