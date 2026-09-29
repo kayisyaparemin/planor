@@ -12,9 +12,16 @@ internal static class DesignBudgetAnalyzer
     public const int MaxHeroSurfaces = 1;
     public const int MaxCards = 4;
     public const int MaxCharts = 1;
+    public const int MaxHeroPagers = 1;
+    public const int MaxHeroPages = 2;
+    public const int MaxChartsPerHeroPage = 1;
     public const int MaxLabels = 28;
     public const int MaxNavRows = 5;
     public const int MaxSentences = 3;
+
+    private const string ChartPattern = @"<(?:[A-Za-z0-9_]+:)?(?:ChartCard|Sparkline|AreaTrend|StackedBar|RingGauge)\b|<GraphicsView\b";
+    private const string HeroPagerPattern = @"<(?:[A-Za-z0-9_]+:)?HeroPager\b.*?</(?:[A-Za-z0-9_]+:)?HeroPager>";
+    private const string HeroPagePattern = @"<(?:[A-Za-z0-9_]+:)?HeroPage\b[^>]*?(?:/>|>.*?</(?:[A-Za-z0-9_]+:)?HeroPage>)";
 
     public const int MaxEtiketLength = 24;
     public const int MaxCumleLength = 90;
@@ -28,8 +35,9 @@ internal static class DesignBudgetAnalyzer
     {
         var heroFigureCount = CountMatches(xamlContent, @"TypeHero|Style=""\{StaticResource HeroFigure\}""");
         var heroSurfaceCount = CountMatches(xamlContent, @"\{DynamicResource SurfaceHero\}|<(?:[A-Za-z0-9_]+:)?(?:HeroInputCard|InfoBanner)\b");
-        var cardCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?(?:SummaryCard|ListCard|ChartCard|HeroInputCard)\b");
-        var chartCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?(?:ChartCard|Sparkline|AreaTrend|StackedBar|RingGauge)\b|<GraphicsView\b");
+        var cardCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?(?:SummaryCard|ListCard|ChartCard|HeroInputCard|HeroPager)\b");
+        var hero = MeasureHeroPagers(xamlContent);
+        var chartCount = hero.VisibleCharts;
         var navRowCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?NavRow\b");
         var labelCount = CountMatches(xamlContent, @"<Label\b");
         var sentences = ExtractSentenceKeys(xamlContent);
@@ -39,13 +47,44 @@ internal static class DesignBudgetAnalyzer
         if (heroSurfaceCount > MaxHeroSurfaces) { violations.Add($"Hero yüzey sınırı aşıldı: {heroSurfaceCount} > {MaxHeroSurfaces}"); }
         if (cardCount > MaxCards) { violations.Add($"Kart sayısı sınırı aşıldı: {cardCount} > {MaxCards}"); }
         if (chartCount > MaxCharts) { violations.Add($"Grafik sayısı sınırı aşıldı: {chartCount} > {MaxCharts}"); }
+        if (hero.Pagers > MaxHeroPagers) { violations.Add($"Kaydırılan hero sınırı aşıldı: {hero.Pagers} > {MaxHeroPagers}"); }
+        if (hero.Pages > MaxHeroPages) { violations.Add($"Hero sayfa sınırı aşıldı: {hero.Pages} > {MaxHeroPages}"); }
+        if (hero.MaxChartsOnOnePage > MaxChartsPerHeroPage) { violations.Add($"Hero sayfa başına grafik sınırı aşıldı: {hero.MaxChartsOnOnePage} > {MaxChartsPerHeroPage}"); }
         if (navRowCount > MaxNavRows) { violations.Add($"NavRow sayısı sınırı aşıldı: {navRowCount} > {MaxNavRows}"); }
         if (labelCount > MaxLabels) { violations.Add($"<Label> sayısı sınırı aşıldı: {labelCount} > {MaxLabels}"); }
         if (sentences.Count > MaxSentences) { violations.Add($"Cümle sayısı sınırı aşıldı: {sentences.Count} > {MaxSentences}"); }
 
         return new VisualBudgetAnalysis(
-            heroFigureCount, heroSurfaceCount, cardCount, chartCount, navRowCount, labelCount, sentences.Count, violations);
+            heroFigureCount, heroSurfaceCount, cardCount, chartCount, navRowCount, labelCount, sentences.Count, hero.Pagers, hero.Pages, violations);
     }
+
+    /// <summary>
+    /// Gözün aynı anda gördüğü grafiği bulur (GS22): <c>HeroPager</c> dışındaki her grafik
+    /// görünür, pager içinden ise yalnız en kalabalık sayfa görünür.
+    /// </summary>
+    private static HeroPagerMeasure MeasureHeroPagers(string xaml)
+    {
+        var pagers = Regex.Matches(xaml, HeroPagerPattern, RegexOptions.Singleline);
+        var visible = CountMatches(Regex.Replace(xaml, HeroPagerPattern, string.Empty, RegexOptions.Singleline), ChartPattern);
+        var pageCount = 0;
+        var mostChartsOnOnePage = 0;
+
+        foreach (Match pager in pagers)
+        {
+            var pages = Regex.Matches(pager.Value, HeroPagePattern, RegexOptions.Singleline);
+            var pageCharts = pages.Select(page => CountMatches(page.Value, ChartPattern)).ToList();
+            var pagerOnly = Regex.Replace(pager.Value, HeroPagePattern, string.Empty, RegexOptions.Singleline);
+            var tallest = pageCharts.Count == 0 ? 0 : pageCharts.Max();
+
+            pageCount += pages.Count;
+            mostChartsOnOnePage = Math.Max(mostChartsOnOnePage, tallest);
+            visible += CountMatches(pagerOnly, ChartPattern) + tallest;
+        }
+
+        return new HeroPagerMeasure(pagers.Count, pageCount, visible, mostChartsOnOnePage);
+    }
+
+    private sealed record HeroPagerMeasure(int Pagers, int Pages, int VisibleCharts, int MaxChartsOnOnePage);
 
     /// <summary>
     /// Metin anahtarlarının ve değerlerinin GK5 karakter sınırlarına uygunluğunu denetler.
@@ -88,7 +127,8 @@ internal static class DesignBudgetAnalyzer
 }
 
 /// <summary>
-/// Bir XAML sayfasının görsel ve cümle bütçesi analiz sonucu.
+/// Bir XAML sayfasının görsel ve cümle bütçesi analiz sonucu. <c>Charts</c> gözün aynı anda
+/// gördüğü grafik sayısıdır (GS22): kaydırılan hero'nun gizli sayfası sayılmaz.
 /// </summary>
 internal sealed record VisualBudgetAnalysis(
     int HeroFigures,
@@ -98,6 +138,8 @@ internal sealed record VisualBudgetAnalysis(
     int NavRows,
     int Labels,
     int Sentences,
+    int HeroPagers,
+    int HeroPages,
     IReadOnlyList<string> Violations)
 {
     public bool IsValid => Violations.Count == 0;

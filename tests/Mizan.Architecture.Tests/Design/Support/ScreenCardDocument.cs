@@ -73,6 +73,7 @@ internal static class ScreenCardDocument
         var heroSurfaceMatch = Regex.Match(cardBody, @"Hero yüzey\s+(?<val>\d+)\s*/\s*1");
         var cardMatch = Regex.Match(cardBody, @"Kart\s+(?<val>\d+)\s*/\s*4");
         var chartMatch = Regex.Match(cardBody, @"Grafik\s+(?<val>\d+)\s*/\s*1");
+        var heroPageMatch = Regex.Match(cardBody, @"Hero sayfa\s+(?<val>\d+)\s*/\s*2");
         var navMatch = Regex.Match(cardBody, @"NavRow\s+(?<val>\d+)\s*/\s*5");
         var sentenceMatch = Regex.Match(cardBody, @"Cumle_\s+(?<val>\d+)\s*/\s*3");
 
@@ -88,7 +89,8 @@ internal static class ScreenCardDocument
             cardMatch.Success ? int.Parse(cardMatch.Groups["val"].Value, CultureInfo.InvariantCulture) : 0,
             chartMatch.Success ? int.Parse(chartMatch.Groups["val"].Value, CultureInfo.InvariantCulture) : 0,
             navMatch.Success ? int.Parse(navMatch.Groups["val"].Value, CultureInfo.InvariantCulture) : 0,
-            sentenceMatch.Success ? int.Parse(sentenceMatch.Groups["val"].Value, CultureInfo.InvariantCulture) : 0);
+            sentenceMatch.Success ? int.Parse(sentenceMatch.Groups["val"].Value, CultureInfo.InvariantCulture) : 0,
+            heroPageMatch.Success ? int.Parse(heroPageMatch.Groups["val"].Value, CultureInfo.InvariantCulture) : 0);
     }
 }
 
@@ -112,4 +114,5 @@ internal sealed record DeclaredBudget(
     int CardCount,
     int ChartCount,
     int NavRowCount,
-    int SentenceCount);
+    int SentenceCount,
+    int HeroPageCount);

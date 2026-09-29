@@ -13,7 +13,8 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 
 1. **Sorular** — ekranın cevapladığı sorular, kullanıcının diliyle, önem sırasıyla (≤ 5)
 2. **Kesme kararları** — her bilgi parçası: hero / kart / şema / grafik / satır / derine / çıkar
-3. **Bütçe** — sayım tablosu (GK4, GK5)
+3. **Bütçe** — sayım tablosu (GK4, GK5). `Grafik  N / 1` gözün **aynı anda** gördüğü sayıdır;
+   kaydırılan hero varsa ek bir `Hero sayfa  N / 2` satırı yazılır (`GS22`)
 4. **Blok şeması** — bileşen, token, cevapladığı soru kodu
 5. **Üç durum** — boş, yükleniyor, hata
 6. **Konsept ilişkisi** — hangi konsept panelinden geliyor, ya da neyden türetildi

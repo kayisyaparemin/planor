@@ -4,15 +4,21 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **I7b2** — gözlemin yeni şekli: gün başına tek, bakiye zorunlu, tek kayıt zamanı; şema v3 |
-| Sıradaki adım | **A28** — gözlem davranışı (V3 zinciri: `A28 → A29 → T9 → T10`); **V6d2** de açık |
-| Test sayısı | 1704 |
+| Son tamamlanan adım | **T9** — kaydırılan hero: GK4 "aynı anda ≤ 1 grafik" oldu (GS22) |
+| Sıradaki adım | **A28** — gözlem davranışı (V3 zinciri: `A28 → A29 → T10 → V3`); **V6d2** de açık |
+| Test sayısı | 1712 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### T9 — kaydırılan hero: GK4 sınırı "aynı anda görünen grafik" oldu; kararlar `GS22`'de
+
+`DesignBudgetAnalyzer` artık `HeroPager` / `HeroPage` tanıyor: pager dışındaki grafikler + pager başına en kalabalık sayfa = gözün aynı anda gördüğü grafik (`Charts`, sınır 1). Ayrıca en fazla 1 pager, 2 sayfa, sayfa başına 1 grafik; pager 1 kart sayılır. Kart bütçesine `Hero sayfa N / 2` satırı eklendi (`ScreenCardDocument`), `EK-V3` testi onu da denetliyor.
+Kart zemini kararı: `SurfaceCard`. Token değişmedi, `GS8` etkilenmedi; kontrast tablosuna yeni çift gerekmedi, `I93` gerekli dört çiftin tabloda durduğunu sabitliyor. Kural metni analizciden dardı (`ChartCard` diyordu, analizci beş etiket sayıyordu): `06-tasarim.md` hizalandı.
+**Dikkat:** `HeroPager` bileşeni henüz yok; `V3` yazacak (`GS20` orada iptal olur). Sıra kararı: T9, `A28`/`A29`'dan önce yapıldı çünkü onların koduna bağlı değil; `T10` ve `V3` hâlâ ikisini bekler. Testler: `DesignHeroPagerTests` (8 yeni); toplam 1.712 test yeşil, 0 hata, 0 uyarı.
 
 ### I7b2 — gözlemin yeni şekli: gün başına tek, bakiye zorunlu, tek kayıt zamanı; şema v3; kararlar `S68`'de
 

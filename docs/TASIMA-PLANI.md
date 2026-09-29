@@ -265,7 +265,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       diyalog; `MauiDialogService` arkasında, ViewModel'ler değişmeden. *(V7 Kapı C)*
       Tarih seçicinin açılan penceresi de Android'in sistem penceresi; `V6c3` Kapı C'de yalnız düğme
       rengi düzeltildi (`Platforms/Android/Resources/values/styles.xml`), tasarımı bu işin kapsamında.
-- [ ] **T9** — kaydırılan hero: **GK4 kural değişikliği** *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`. Kullanıcı kararı,
+- [x] **T9** — kaydırılan hero: **GK4 kural değişikliği** *(GS22: aynı anda ≤ 1 grafik; `HeroPager` ≤ 1, ≤ 2 sayfa, sayfa başına ≤ 1 grafik; kart zemini `SurfaceCard`, token değişmedi; koruyan: I92, I93)* *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`. Kullanıcı kararı,
       2026-09-29: ana sayfada iki görünüm; açılışta grafik, sağa kaydırınca halka)*. Bugün
       `DesignBudgetAnalyzer` her `GraphicsView`'ü sayıyor, sınır 1. Önerilen kural: ekranda **aynı anda**
       en fazla bir grafik görünür; sayfada en fazla bir kaydırılan hero, en fazla iki sayfa, sayfa başına

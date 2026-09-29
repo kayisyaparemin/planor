@@ -313,6 +313,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 |---|---|---|
 | ekran durumu | `ScreenState` | Sayfaların ve bileşenlerin sunum durumunu (yükleniyor, içerik, boş veri, hata) temsil eden saf durum modeli (K2) |
 | durum bloğu | `StateBlock` | Boş veri veya hata durumlarını kullanıcıya açıklayıp aksiyon aldıran semantik arayüz bileşeni (GS14) |
+| kaydırılan hero | `HeroPager` / `HeroPage` | Tek kart içinde en fazla iki sayfa (her birinde en fazla bir grafik) sunan, sağa kaydırılan ana kart; bileşeni `V3`'te yazılır, kuralı `GK4` / `GS22` |
 | iskelet bloğu | `SkeletonBlock` | Veri yüklenirken spinner kullanmadan yerleşim zıplamasını önleyen SurfaceSunken zeminli yer tutucu bileşeni (GS14) |
 
 ---

@@ -251,6 +251,17 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V6`, `FinancialStructurePage.xaml`, `FinancialRecordGroup`; `GS12` (yalnız bu ekran için istisna) |
 | **Durum** | uygulandı (`V6a`; taşma metni `FazlaKayitConverter` ile, gizli satır yoksa boş) |
 
+### GS22 — GK4 grafik sınırı "aynı anda görünen" olur; kaydırılan hero kartı `SurfaceCard` üstünde durur
+
+| | |
+|---|---|
+| **Tür** | kural değişikliği (sistem geneli; numara `GS20`+ aralığında çünkü `V3` yenilemesinden doğdu) |
+| **Konsept** | `ana-sayfa-rota-tempo.png`: tek kartta iki sayfa. 1. sayfa bakiye trendi (`AreaTrend`), 2. sayfa tempo halkası (`RingGauge`). Kullanıcı kararı, 2026-09-29: açılışta grafik, sağa kaydırınca halka. |
+| **Neden değiştirildi** | `GK4` "sayfada 1 grafik" diyordu ve `DesignBudgetAnalyzer` XAML'deki her grafik örneğini sayıyordu. Kural gözün aynı anda taşıdığı yükü korumak için var; kaydırılan kartın gizli sayfası o yükü artırmıyor. Kural metni de analizciden dardı (`ChartCard` diyordu, analizci beş etiketi sayıyordu). |
+| **Yeni** | (1) Ekranda **aynı anda** en fazla 1 grafik görünür: `HeroPager` dışındaki grafikler + pager başına 1. (2) Sayfada en fazla 1 `HeroPager`, pager başına en fazla 2 `HeroPage`, `HeroPage` başına en fazla 1 grafik. (3) `HeroPager` 1 kart sayılır; sayfaları ayrıca kart sayılmaz. (4) Kart bütçesinde `Grafik  N / 1` aynı anda görünen sayıdır, `Hero sayfa  N / 2` yeni satırdır. (5) Hero rakam 1 kalır: halkanın ortasındaki tutar `TypeTitle`. (6) Kaydırılan kartın ve "Bakiye gir" önizleme kartının zemini `SurfaceCard`: `SurfaceHero` koyu temada `Indicator` (2,92), `NegativeText` (4,18), `TextSecondary` (4,05) ve `PositiveText` (4,25) çiftlerini eşiğin altına düşürüyor, `SurfaceCard`'da hepsi geçiyor. Token değişmez; `GS8` etkilenmez. |
+| **Etkiler** | `06-tasarim.md` GK4, `TASARIM-SISTEMI.md` § Grafikler, `EKRAN-KARTLARI.md` bütçe biçimi, `DesignBudgetAnalyzer`, `ScreenCardDocument`, `I57`; `GS20`'yi `V3` iptal edecek; `HeroPager` bileşeni `V3`'te yazılır |
+| **Durum** | uygulandı (`T9`) |
+
 ---
 
 ## Konsept otorite değildir

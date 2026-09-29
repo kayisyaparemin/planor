@@ -20,7 +20,7 @@ Bu dosya `.claude/rules/03-mvvm.md`'nin üzerine biner: o ViewModel ile sayfa ar
 | **GK1** | XAML ham renk içermez; her renk `docs/TASARIM-SISTEMI.md`'deki bir token'dır ve token adı rolü söyler, boyayı söylemez | `DesignTokenTests.Xaml_HamRenk_Iceremez`, `DesignTokenTests.TokenAdi_BoyaAdiOlamaz` |
 | **GK2** | `FontSize` yalnız yedi kademeli tip skalasından gelir; sayısal literal yasak | `DesignTokenTests.Xaml_FontSize_SkalaDisiOlamaz` |
 | **GK3** | `Margin`, `Padding`, `Spacing`, `CornerRadius` token'dan gelir; sayısal literal yasak | `DesignTokenTests.Xaml_OlcuLiterali_Yasak` |
-| **GK4** | Görsel bütçe: sayfa başına ≤ 1 hero, ≤ 4 kart, ≤ 1 grafik, ≤ 28 `<Label>` | `DesignBudgetTests.Sayfa_GorselButceyiAsamaz` |
+| **GK4** | Görsel bütçe: sayfa başına ≤ 1 hero, ≤ 4 kart, aynı anda ≤ 1 grafik, ≤ 28 `<Label>` | `DesignBudgetTests.Sayfa_GorselButceyiAsamaz`, `DesignHeroPagerTests` |
 | **GK5** | Cümle bütçesi: sayfa başına ≤ 3 `Cumle_*` dizesi, her biri ≤ 90 karakter | `DesignBudgetTests.Sayfa_CumleButcesiniAsamaz` |
 | **GK6** | İkon tek kaynaktan (`Icons.cs`); XAML'de ham glif veya emoji yok; boyut 16/20/24 | `DesignTokenTests.Xaml_HamGlif_Iceremez` |
 | **GK7** | Grafik yalnız dört primitiften biri olabilir; verisi `Mizan.Presentation`'dan ham seri gelir | `DesignChartTests.Grafik_YalnizPrimitiflerden` |
@@ -102,9 +102,16 @@ Sayfa başına:
 | Hero rakam | **1** | `TypeHero` kullanımı |
 | Hero yüzey | **1** | `SurfaceHero` kullanımı (`HeroInputCard` veya `InfoBanner`) |
 | Kart | **4** | `SummaryCard`, `ListCard`, `ChartCard`, `HeroInputCard` örnekleri |
-| Grafik | **1** | `ChartCard` örneği |
+| Grafik | **1 (aynı anda)** | `ChartCard`, `Sparkline`, `AreaTrend`, `StackedBar`, `RingGauge`, `GraphicsView`; `HeroPager` dışındakilerin hepsi + pager başına en kalabalık sayfa |
+| Kaydırılan hero | **1** | `HeroPager` örneği; 1 kart sayılır, sayfaları ayrıca kart sayılmaz |
+| Hero sayfa | **2** | `HeroPage` örnekleri; sayfa başına en fazla 1 grafik |
 | `<Label>` | **28** | XAML'deki `<Label` sayısı |
 | Gezinme satırı | **5** | `NavRow` örnekleri |
+
+Grafik sınırı gözün **aynı anda** gördüğüdür (`GS22`): kaydırılan hero'nun gizli sayfasındaki
+grafik sayılmaz, ama pager'ın yanında ikinci bir grafik duruyorsa ekran iki grafiklidir.
+Kaydırılan kartın ve "Bakiye gir" önizlemesinin zemini `SurfaceCard`'dır; `SurfaceHero`
+koyu temada grafiği taşımaz (kontrast tablosu).
 
 Sınıra dayandığında **çıkar, küçültme.** Üç yol var:
 

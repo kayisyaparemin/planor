@@ -168,6 +168,7 @@ public sealed class DesignBudgetTests
         Assert.True(declaredBudget.HeroSurfaceCount <= DesignBudgetAnalyzer.MaxHeroSurfaces);
         Assert.True(declaredBudget.CardCount <= DesignBudgetAnalyzer.MaxCards);
         Assert.True(declaredBudget.ChartCount <= DesignBudgetAnalyzer.MaxCharts);
+        Assert.True(declaredBudget.HeroPageCount <= DesignBudgetAnalyzer.MaxHeroPages);
         Assert.True(declaredBudget.NavRowCount <= DesignBudgetAnalyzer.MaxNavRows);
         Assert.True(declaredBudget.SentenceCount <= DesignBudgetAnalyzer.MaxSentences);
     }

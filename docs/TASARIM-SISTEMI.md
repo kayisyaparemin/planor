@@ -407,7 +407,10 @@ cümle olarak taşır.
 | `StackedBar` | "Bu dönem neyden oluşuyor?" | ≤ 4 kategori. |
 | `RingGauge` | "Ne kadarı tamamlandı?" | Tek oran (0–1). |
 
-**Ekranda en fazla bir grafik.** İkinci bir grafik gerekiyorsa o ekran iki ekrandır.
+**Ekranda aynı anda en fazla bir grafik görünür.** İkinci bir grafik gerekiyorsa o ekran iki
+ekrandır; tek istisna `HeroPager`: en fazla bir kaydırılan kart, en fazla iki sayfa, sayfa
+başına bir grafik (`GS22`). Kaydırılan kartın zemini `SurfaceCard`'dır: `Indicator`,
+`TextSecondary`, `NegativeText` ve `PositiveText` çiftleri o zeminde kontrast tablosunda durur.
 
 ### Veri sözleşmesi
 
