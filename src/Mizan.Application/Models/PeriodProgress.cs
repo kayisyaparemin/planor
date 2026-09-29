@@ -74,6 +74,12 @@ public sealed record PeriodProgress
     /// <summary>Kullanıcının dönem içi gözlem defteri; gözlenen bakiye ve gözlem günü buradan okunur (S34).</summary>
     public required PeriodObservation? Observation { get; init; }
 
+    /// <summary>Dönemin gözlemleri, güne göre sıralı; grafikte her biri bir nokta işaretidir (S68-1). Gözlem yoksa boş.</summary>
+    public required IReadOnlyList<PeriodObservation> Observations { get; init; }
+
+    /// <summary>Ana sayfa grafiğinin çizdiği bakiye rotası: her gün bir nokta, son noktası dönem sonu (S71).</summary>
+    public required PeriodBalancePath Path { get; init; }
+
     /// <summary>Henüz yapılmamış plan satırları, önce vadeye sonra ada göre sıralı.</summary>
     public required IReadOnlyList<PeriodPlanPaymentLine> RemainingLines { get; init; }
 

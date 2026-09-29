@@ -1,4 +1,5 @@
 using Mizan.Application.Abstractions;
+using Mizan.Application.Models;
 using Mizan.Application.Services;
 using Mizan.Application.Tests.Fakes;
 using Mizan.Domain.Calculations;
@@ -34,6 +35,21 @@ public sealed class PeriodProgressServicePreviewTests
         Assert.Equal(40_000m, onizleme.ProjectedEndingBalance);
         Assert.Equal(40_000m, onizleme.Observation?.ObservedBalance);
         Assert.Empty(await _gozlemler.GetPeriodObservationsAsync(plan.Id));
+    }
+
+    [Fact]
+    public async Task PreviewAsync_TaslakGozlem_RotadaNoktaOlur()
+    {
+        // Hazırla — "Bakiye gir" sayfasının küçük grafiği bu rotayı çizer (S71-9)
+        await AcikDonemKurAsync();
+
+        // Uygula
+        var onizleme = await Servis().PreviewAsync(40_000m, new DateOnly(2026, 9, 12));
+
+        // Doğrula
+        Assert.Equal(new BalancePathPoint(new DateOnly(2026, 9, 12), 40_000m), onizleme.Path.Travelled[^1]);
+        Assert.Equal(new BalancePathPoint(DonemSonu, 40_000m), onizleme.Path.Ahead[^1]);
+        Assert.Equal(40_000m, Assert.Single(onizleme.Observations).ObservedBalance);
     }
 
     [Fact]

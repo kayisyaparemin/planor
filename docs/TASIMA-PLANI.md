@@ -160,6 +160,14 @@ Geri kalan her şey bu omurgadan sarkar.
       oran ile geçen süre oranı ve aradaki fark (puan). **İkisi aynı güne göre** hesaplanır: son gözlemin
       günü. Bugünle kıyaslanırsa bakiye girilmedikçe harcama donar, süre ilerler ve ekran "harcama geride"
       diyerek yanlış güven verir. Gözlem yoksa tempo yok. Kavram önce `SOZLUK.md`'ye girer.
+- [x] **A30** — dönemin bakiye rotası *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; `A28`'e dayanır)*
+      *(S71: her gün bir nokta, günün başındaki bakiye; aralar plandan, fark günlere yayılır; son nokta ekrandaki
+      rakam; `PeriodBalancePathCalculator`, `ProjectedPaymentAmount` (M8); `I105`–`I107`)*.
+      `V3` Aşama 1'de bulundu (2026-09-30): `S68-6`'yı (çizgi noktaların arasında ve son noktadan sonra
+      plandan çizilir; gözlem yoksa baştan sona plan) iki adım birbirine bırakmış — `T10` günlüğü "`A28`'in
+      işi", `A28` notu f "nokta serisi `V3`'ün" diyor. Hesap her gelir ve ödemeyi kendi gününe koyuyor, yani
+      iş kuralı; Presentation'da yapılamaz (kural 01). `PeriodProgress` dönemin gözlemlerini ve rotayı
+      taşır; `PreviewAsync` taslak gözlemle aynı rotayı verir ("Bakiye gir" önizleme grafiği).
 
 ## Faz I — Infrastructure
 
@@ -313,7 +321,10 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       - Bakiye hiç girilmemişken hero'da planın dönem sonu, "plan değeri · henüz gözlem yok" etiketiyle.
         Bugün gözlem yoksa tahmin `null` dönüyor ve ekranda tire görünüyor (`PeriodProgressCalculator`).
 
-      **Önce:** grafik verisi `H5 → I7a → I7b → A28` (S68), tempo `A29`, kural ve primitifler `T9 → T10`.
+      **Önce:** grafik verisi `H5 → I7a → I7b → A28 → A30` (S68), tempo `A29`, kural ve primitifler `T9 → T10`.
+      **Bölünme** (Aşama 1, 2026-09-30; ~300 satırı ikiye aşıyor): **V3a** ana sayfa (`HeroPager` dahil, iki
+      hero sayfası, bakiye kartı, kalan ödemeler) → **V3b** "Bakiye gir" sayfası (tarih, önizleme, küçük
+      grafik, ertelenmiş kapanışta önce kapanış). İkisi `EK-V3`'ü paylaşır.
       Bu adımlar `/tasima-adimi` ile yürür ama kaynak eski proje değil, bu satırdır (Faz T'deki gibi):
       Aşama 1 mevcut kodu okur, Aşama 3 yeni `S` / `GS` kaydı yazar. **Sonra** ekran, `/tasarim-adimi V3`:
       kart `EK-V3` yerinde yeniden yazılır (GK9 kart anahtarı harf eki alamıyor), `GS20` iptal olur, yerine yeni `GS`.
@@ -436,9 +447,9 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | F | 3 | 4 *(F1 K9 testi için geri açıldı)* |
 | D | 24 | 24 |
 | H | 5 | 5 *(H5 V3 yenilemesi için açıldı ve kapandı)* |
-| A | 27 | 27 *(A22 ve A25 taşınmıyor; A28, A29 V3 yenilemesi için açıldı)* |
+| A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 5 | 14 *(V3 "Rota + Tempo" için geri açıldı; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
+| V | 5 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

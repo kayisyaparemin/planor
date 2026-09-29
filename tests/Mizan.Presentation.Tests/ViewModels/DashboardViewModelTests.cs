@@ -273,6 +273,8 @@ public sealed class DashboardViewModelTests : IDisposable
                 ObservedOn = new DateOnly(2026, 9, 20),
                 ObservedBalance = 12400m
             },
+            Observations = [],
+            Path = new PeriodBalancePath([], []),
             RemainingLines = lines,
             RemainingPlannedTotal = 6450m,
             IsClosable = true,

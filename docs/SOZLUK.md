@@ -56,6 +56,10 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | gidişat | `PeriodProgress` | Açık dönemde planın dediği ile kullanıcının girdiği bakiyeden çıkan tahmin yan yana: harcanan ve kalan yaşam havuzu, KMH faizi, dönem sonu (I31) |
 | gidişat hesaplayıcısı | `PeriodProgressCalculator` | Açık dönem defterinden gidişatı üreten bağımlılıksız yardımcı; KMH'yı `DeficitFinancingRules`'tan, satır durumunu `PeriodPaymentLineClassifier`'dan alır |
 | gidişat servisi | `PeriodProgressService` | Defteri, ayarları ve kartları dar portlardan okuyup kartın güncel ödemesini bulan ve hesabı hesaplayıcıya bırakan ince kabuk |
+| bakiye rotası | `PeriodBalancePath` | Açık dönemin her günü için günün başındaki bakiye: gözlem günlerinde girilen tutar, aralarda ve son gözlemden sonra plandan; iki parça — katedilen (`Travelled`, son gözleme kadar) ve önümüzdeki (`Ahead`, dönem sonuna). Son noktası dönem sonu tahmini, gözlem yoksa planlanan kapanış (S71). `Route` değil: gezinme rotalarıyla (`Routes`) karışır |
+| rota noktası | `BalancePathPoint` | Bakiye rotasında bir gün ve o günün başındaki bakiye (S71) |
+| bakiye rotası hesaplayıcısı | `PeriodBalancePathCalculator` | Açık dönem defterinden bakiye rotasını üreten bağımlılıksız yardımcı; gidişat hesaplayıcısı çağırır, gözlem varsa gidişatın terimlerini günlere dağıtır (S71) |
+| kalan ödemenin sayılan tutarı | `ProjectedPaymentAmount` | Kalan ödeme satırının gidişatta sayılan tutarı: kart satırında kartın bugünkü hâli, diğerlerinde planlanan (I23); gidişat ve bakiye rotası aynı kuralı buradan alır (M8) |
 | harcama temposu | `SpendingPace` | Yaşam havuzundan harcanan oran ile geçen süre oranı ve aradaki fark (puan); ikisi de son gözlemin gününe göre hesaplanır, gözlem yoksa tempo yoktur (S70) |
 | kart karşılaştırması | `PeriodCardComparison` | Bir kartın bu dönemdeki ödemesi: planlanan (kilitli) ile kartın bugünkü hâline göre güncel tutar |
 | gözlenen yaşam harcaması | `ObservedLivingSpend` | Bakiye farkından, bakiyeye yansımış ödemeler ve yatmış gelir hesaba katılarak geri çözülen yaşam harcaması; fiş toplamı değildir (S20) |

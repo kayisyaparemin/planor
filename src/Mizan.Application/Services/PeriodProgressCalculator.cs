@@ -55,6 +55,11 @@ public static class PeriodProgressCalculator
             Pace = CalculatePace(ledger.Plan, ledger.LatestObservation, trajectory?.LivingSpend, allowance),
             Cards = CompareCards(ledger.CurrentPaymentLines, currentCardPayments),
             Observation = ledger.LatestObservation,
+            Observations = ledger.Observations.OrderBy(x => x.ObservedOn).ToArray(),
+            Path = trajectory is null
+                ? PeriodBalancePathCalculator.FromPlan(ledger)
+                : PeriodBalancePathCalculator.FromObservations(
+                    ledger, lines, currentCardPayments, trajectory.RemainingAllowance, trajectory.DeficitInterest),
             RemainingLines = lines.RemainingLines,
             RemainingPlannedTotal = lines.RemainingLines.Sum(x => x.PlannedAmount ?? 0m),
             IsClosable = today >= plan.SettlementAvailableFrom,
@@ -122,11 +127,7 @@ public static class PeriodProgressCalculator
     private static decimal RemainingProjectedTotal(
         IReadOnlyList<PeriodPlanPaymentLine> remainingLines,
         IReadOnlyDictionary<Guid, decimal> currentCardPayments) =>
-        remainingLines.Sum(line =>
-            line.SourceType == PlanPaymentSourceType.CreditCard &&
-            currentCardPayments.TryGetValue(line.SourceEntityId, out var current)
-                ? current
-                : line.PlannedAmount ?? 0m);
+        remainingLines.Sum(line => ProjectedPaymentAmount.Of(line, currentCardPayments));
 
     private static PeriodCardComparison[] CompareCards(
         IReadOnlyList<PeriodPlanPaymentLine> lines,

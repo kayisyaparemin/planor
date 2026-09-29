@@ -4,15 +4,21 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A29** — harcama temposu: `PeriodProgress.Pace`, gözlem gününe göre (S70) |
-| Sıradaki adım | **V3** — ana sayfa yenilemesi (zincir: `A29 → V3` tamam; kural ve primitifler `T9`/`T10` hazır); **V6d2** de açık |
-| Test sayısı | 1742 |
+| Son tamamlanan adım | **A30** — dönemin bakiye rotası: `PeriodProgress.Path`, her gün bir nokta (S71) |
+| Sıradaki adım | **V3a** — ana sayfa (`/tasarim-adimi V3`; ardından **V3b** "Bakiye gir"); **V6d2** de açık |
+| Test sayısı | 1757 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### A30 — dönemin bakiye rotası: her gün bir nokta, aralar plandan; kararlar `S71`'de
+
+`V3` Aşama 1'de bulundu: `S68-6`'yı `T10` `A28`'e, `A28` `V3`'e bırakmıştı; kimse yapmamıştı. Bu yüzden ayrı adım oldu, `V3` de `V3a` (ana sayfa) + `V3b` ("Bakiye gir") olarak bölündü. `PeriodProgress` artık dönemin gözlemlerini (`Observations`) ve rotayı (`Path`: `Travelled` düz, `Ahead` kesikli) taşıyor; önizleme aynı hesaptan geçtiği için taslak gözlem de rotada nokta olur.
+Kararlar: nokta **günün başındaki** bakiye (ilk nokta açılış, son nokta `PeriodEnd`'de dönem sonu — sonraki dönemin açılışıyla aynı gün); iki giriş arası plan olayları kendi günlerinde, açıklanamayan fark günlere eşit; son girişten sonra kalan havuz eşit, KMH faizi son noktada. Son nokta hesaplanır ve ekrandaki rakama kuruşu kuruşuna eşittir (`I107`). Kalan kart satırının tutar kuralı `ProjectedPaymentAmount`'a çıktı (M8).
+**Dikkat:** hareket ertesi günün noktasında görünür (5'indeki kira 6'sında); grafiğin sağ ucu `PeriodEnd`'dir, etiketi `V3a` seçer. Dönem dışına tarihli eski gözlemler (A28 öncesi) en yakın güne çekilir. Testler: `PeriodBalancePathCalculatorTests` (14), önizleme (1); toplam 1.757 test yeşil, 0 hata, 0 uyarı.
 
 ### A29 — harcama temposu: harcanan oran, geçen süre, fark; kararlar `S70`'te
 

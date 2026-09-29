@@ -118,6 +118,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I102` | Harcama temposunda harcanan oran ile geçen süre oranı aynı güne, son gözlemin gününe göre hesaplanır; bugün ilerlese de tempo değişmez, yoksa bakiye girilmedikçe harcama donar ve ekran "geride" diyerek yanlış güven verir (S70). | `Mizan.Application.Tests.Services.SpendingPaceTests.Calculate_BugunGozlemGunundenSonraysa_GecenSureGozlemGunuyleHesaplanir` |
 | `I103` | Bakiye girilmediyse ya da yaşam havuzu 0 ise harcama temposu yoktur; oran tanımsızdır, "yüzde 0 harcandı" denmez (S70). | `Mizan.Application.Tests.Services.SpendingPaceTests.Calculate_HavuzSifirsa_TempoYoktur` |
 | `I104` | Harcanan oran havuz aşılınca 1'i geçer, kırpılmaz; tempo puanı aşımı yansıtır (S70). | `Mizan.Application.Tests.Services.SpendingPaceTests.Calculate_HavuzAsildiysa_HarcananOranBireKirpilmaz` |
+| `I105` | Bakiye rotası dönemin her günü için tek nokta taşır: dönem başından bitiş gününe (`PeriodEnd`, dahil), sıralı; önümüzdeki yolun ilk noktası katedilen yolun son noktasıdır (S71-1, 7). | `Mizan.Application.Tests.Services.PeriodBalancePathCalculatorTests.FromPlan_GozlemYoksa_DonemBasindanBitisGununeHerGunBirNokta` |
+| `I106` | Bakiye rotası her gözlemden girilen tutarla geçer; aralar plandan çizilir, açıklanamayan fark günlere yayılır ve çizgi iki noktaya da tam oturur (S71-3, 4). | `Mizan.Application.Tests.Services.PeriodBalancePathCalculatorTests.FromObservations_HerGozlemdenGirilenTutarlaGecer` |
+| `I107` | Bakiye rotasının son noktası hesaplanır, kopyalanmaz ve ekrandaki rakama kuruşu kuruşuna eşittir: gözlem varsa dönem sonu tahmini, yoksa planlanan kapanış (S71-5, 6, 8). | `Mizan.Application.Tests.Services.PeriodBalancePathCalculatorTests.FromObservations_SonNoktaDonemSonuTahminidir`, `Mizan.Application.Tests.Services.PeriodBalancePathCalculatorTests.FromPlan_GozlemYoksa_SonNoktaPlanlananKapanistir` |
 
 ## Satır eklerken
 
