@@ -38,11 +38,33 @@ public sealed class PeriodProgressService(
     public async Task<PeriodProgress?> GetAsync(CancellationToken cancellationToken = default)
     {
         var ledger = await _ledgerReader.ReadAsync(cancellationToken);
-        if (ledger is null)
-        {
-            return null;
-        }
+        return ledger is null ? null : await CalculateAsync(ledger, cancellationToken);
+    }
 
+    /// <inheritdoc />
+    public async Task<PeriodProgress> PreviewAsync(
+        decimal balance,
+        DateOnly observedOn,
+        CancellationToken cancellationToken = default)
+    {
+        var ledger = await _ledgerReader.ReadAsync(cancellationToken) ??
+            throw new InvalidOperationException("Önizleme için önce güncel bir dönem planı gerekir.");
+        ObservationDayGuard.EnsureCanObserve(ledger.Plan, observedOn, _clock.Today);
+
+        var draft = new PeriodObservation
+        {
+            PeriodPlanSnapshotId = ledger.Plan.Id,
+            ObservedOn = observedOn,
+            ObservedBalance = balance,
+            RecordedAtUtc = _clock.UtcNow
+        };
+        return await CalculateAsync(
+            ledger with { Observations = PeriodObservationRules.Record(ledger.Observations, draft) },
+            cancellationToken);
+    }
+
+    private async Task<PeriodProgress> CalculateAsync(OpenPeriodLedger ledger, CancellationToken cancellationToken)
+    {
         var settings = await _userSettingsRepository.GetSettingsAsync(cancellationToken);
         var cards = await _creditCardRepository.GetCreditCardsAsync(cancellationToken);
         var period = new CashFlowPeriod(ledger.Plan.PeriodStart, ledger.Plan.PeriodEnd);

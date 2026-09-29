@@ -10,7 +10,7 @@ public sealed class OpenPeriodLedgerTests
     {
         // Hazırla
         var kira = new PeriodPlanPaymentLine { Name = "Kira", PlannedAmount = 15_000m };
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { PaymentLines = [kira] }, [], null, [], []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { PaymentLines = [kira] }, [], [], [], []);
 
         // Uygula
         var satirlar = defter.CurrentPaymentLines;
@@ -32,7 +32,7 @@ public sealed class OpenPeriodLedgerTests
                 new PeriodPlanRevision { RevisionNumber = 1, PaymentLines = [birinci] },
                 new PeriodPlanRevision { RevisionNumber = 2, PaymentLines = [ikinci] }
             ],
-            null,
+            [],
             [],
             []);
 
@@ -47,7 +47,7 @@ public sealed class OpenPeriodLedgerTests
     public void LatestRevision_RevizyonYoksa_NullDondurur()
     {
         // Hazırla
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot(), [], null, [], []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot(), [], [], [], []);
 
         // Uygula
         var sonRevizyon = defter.LatestRevision;
@@ -61,7 +61,7 @@ public sealed class OpenPeriodLedgerTests
     {
         // Hazırla
         var gelir = new PeriodPlanIncomeLine { Name = "Gelir", PlannedAmount = 40_000m };
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [gelir] }, [], null, [], []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [gelir] }, [], [], [], []);
 
         // Uygula
         var satirlar = defter.CurrentIncomeLines;
@@ -77,7 +77,7 @@ public sealed class OpenPeriodLedgerTests
         var dondurulan = new PeriodPlanIncomeLine { Name = "Gelir", PlannedDate = new DateOnly(2026, 9, 15), PlannedAmount = 40_000m };
         var revize = dondurulan with { Id = Guid.NewGuid(), PlannedDate = new DateOnly(2026, 9, 10) };
         var revizyon = new PeriodPlanRevision { RevisionNumber = 1, IncomeLines = [revize] };
-        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [dondurulan] }, [revizyon], null, [], []);
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot { IncomeLines = [dondurulan] }, [revizyon], [], [], []);
 
         // Uygula
         var satirlar = defter.CurrentIncomeLines;
@@ -85,5 +85,28 @@ public sealed class OpenPeriodLedgerTests
         // Doğrula
         Assert.Equal([revize.Id], satirlar.Select(x => x.Id));
         Assert.Same(revizyon, defter.LatestRevision);
+    }
+
+    [Fact]
+    public void LatestObservation_EnGecTarihliGozlemiDoner_GirisSirasinaBakmaz()
+    {
+        // Hazırla — 20'sindeki gözlem önce, geriye tarihli 10'undaki sonra girilmiş
+        var yirmisi = new PeriodObservation { ObservedOn = new DateOnly(2026, 9, 20), ObservedBalance = 5_000m };
+        var onu = new PeriodObservation { ObservedOn = new DateOnly(2026, 9, 10), ObservedBalance = 9_000m };
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot(), [], [yirmisi, onu], [], []);
+
+        // Uygula
+        var son = defter.LatestObservation;
+
+        // Doğrula
+        Assert.Equal(yirmisi, son);
+    }
+
+    [Fact]
+    public void LatestObservation_GozlemYoksa_NullDoner()
+    {
+        var defter = new OpenPeriodLedger(new PeriodPlanSnapshot(), [], [], [], []);
+
+        Assert.Null(defter.LatestObservation);
     }
 }

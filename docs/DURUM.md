@@ -4,9 +4,9 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **T10** — grafik primitiflerinin genişlemesi: tarih eksenli rota, tempo işareti (GS23) |
-| Sıradaki adım | **A28** — gözlem davranışı (V3 zinciri: `A28 → A29 → V3`); **V6d2** de açık |
-| Test sayısı | 1719 |
+| Son tamamlanan adım | **A28** — dönemin gözlemleri: tarihli giriş, önizleme, yansıma kuralları (S68) |
+| Sıradaki adım | **A29** — harcama temposu (V3 zinciri: `A29 → V3`); **V6d2** de açık |
+| Test sayısı | 1734 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
@@ -14,6 +14,11 @@
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
 
+### A28 — dönemin gözlemleri: tarihli giriş, önizleme, vade kuralları; kararlar `S68` "A28 notları"nda
+
+`OpenPeriodLedger` artık dönemin tüm gözlemlerini (`Observations`) taşır, gidişat `LatestObservation`'dan (en geç tarihli) hesaplanır. `ObserveCurrentBalanceAsync(balance, observedOn)` günü `ObservationDayGuard` ile denetler (dönem dışı, gelecek, kapanışı ertelenmiş dönem → hata, `I96`); kapanış gözlem silmez (`I97`). `IPeriodProgressService.PreviewAsync` taslak gözlemi `PeriodObservationRules.Record` ile ekleyip gidişatı hesaplar, hiçbir şey yazmaz (`I100`).
+Sınıflandırıcıda yansıma günle belirlenir: açık işaret için ödeme günü, "Ödedim" cevabı için cevabın günü, ikisi de gözlem gününden önceyse yansımış, aynı gün yansımamış (`I98`, `I99`). `OnboardingService` gözlem yazmaz, iki bağımlılığı azaldı (`I101`): kurulumdan sonra gözlem yokken gidişat rakamları `null`.
+**Dikkat:** ana sayfa şimdilik kurulumdan sonra tire gösterir, ilk bakiye girilince dolar; `V3` bunu "plan değeri · henüz gözlem yok" ile karşılayacak. `DeletePeriodObservationAsync` çağıranı kalmadı ama portta ve depoda duruyor (Infrastructure'a dokunacağı için ayrı iş). Grafik için gözlem serisi `PeriodProgress`'te yok, `V3` ekler. Testler: `PeriodProgressServicePreviewTests` (5), sınıflandırıcı, iş akışı ve defter testleri; toplam 1.734 test yeşil, 0 hata, 0 uyarı.
 ### T10 — grafik primitiflerinin genişlemesi: `AreaTrend` tarih eksenli rota, `RingGauge` tempo işareti; kararlar `GS23`'te
 
 `AreaTrend` yatay ekseni artık tarihtir; üç isteğe bağlı alan geldi: `ProjectionSeries` (son gözlemden kesikli devam, `Indicator`), `Today` (dikey hairline) ve `PlanLevel` (planın dönem sonu, noktalı yatay hairline), ikisi `TextSecondary`. Eşleme matematiği `internal` `ChartScale` yardımcısına çıktı (GK7 primitif sayar, yardımcı saymaz; izinli dosya listesine eklendi). `RingGauge` isteğe bağlı `TimeRatio` ile halkayı kesen tempo işareti çiziyor. Eski alanlar aynen kaldı, `V8` bozulmadı. Yeni token yok; roller `I93`'te doğrulanmış çiftler. `<summary>` soruları değişti (`TASARIM-SISTEMI.md`, `06-tasarim.md`, `DesignChartTests`).

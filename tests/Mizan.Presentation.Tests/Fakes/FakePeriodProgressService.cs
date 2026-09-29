@@ -23,4 +23,11 @@ public sealed class FakePeriodProgressService : IPeriodProgressService
         if (Failure is not null) { return Task.FromException<PeriodProgress?>(Failure); }
         return Pending?.Task ?? Task.FromResult(CurrentProgress);
     }
+
+    /// <summary>Önizlemeyi taklit eder; çağrılan bakiye ve gün kaydedilir.</summary>
+    public Task<PeriodProgress> PreviewAsync(
+        decimal balance,
+        DateOnly observedOn,
+        CancellationToken cancellationToken = default) =>
+        throw new NotImplementedException();
 }

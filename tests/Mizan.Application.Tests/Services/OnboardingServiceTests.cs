@@ -9,8 +9,8 @@ namespace Mizan.Application.Tests.Services;
 
 /// <summary>
 /// Kurulum sihirbazının (OnboardingService) ilk başlangıç ayarlarını, gelirlerini,
-/// enstrümanlarını kaydetmesini ve ilk açık döneme ait canlı gözlem kaydını (PeriodObservation)
-/// oluşturmasını doğrulayan birim testleridir.
+/// enstrümanlarını kaydetmesini ve ilk açık dönemin başlangıç bakiyesinin plandan geldiğini, gözlem yazılmadığını (S68-1)
+/// doğrulayan birim testleridir.
 /// </summary>
 public sealed class OnboardingServiceTests
 {
@@ -26,7 +26,7 @@ public sealed class OnboardingServiceTests
     private readonly CashFlowPeriodCalculator _periodCalculator = new();
 
     [Fact]
-    public async Task InitializeFromOnboardingAsync_BaslangicBakiyesini_IlkAcikDonemGozlemiOlarakKaydeder()
+    public async Task InitializeFromOnboardingAsync_BaslangicBakiyesi_PlaninAcilisBakiyesidirGozlemOlmaz()
     {
         var instrumentWriter = new FinancialInstrumentWriter(_loanRepo, _planRepo, _cardRepo, _expenseRepo);
         var periodCalc = new CashFlowPeriodCalculator();
@@ -48,8 +48,6 @@ public sealed class OnboardingServiceTests
         var service = new OnboardingService(
             planWriter,
             snapshotService,
-            _historyRepo,
-            _observationRepo,
             _clock);
 
         var draft = new OnboardingDraft
@@ -81,8 +79,8 @@ public sealed class OnboardingServiceTests
         var openPlan = history.FindOpenPlan();
         Assert.NotNull(openPlan);
 
-        var observation = Assert.Single(await _observationRepo.GetPeriodObservationsAsync(openPlan.Id));
-        Assert.Equal(25000m, observation.ObservedBalance);
+        Assert.Equal(25000m, openPlan.OpeningBalance);
+        Assert.Empty(await _observationRepo.GetPeriodObservationsAsync(openPlan.Id));
     }
 
     [Fact]
@@ -108,8 +106,6 @@ public sealed class OnboardingServiceTests
         var service = new OnboardingService(
             planWriter,
             snapshotService,
-            _historyRepo,
-            _observationRepo,
             _clock);
 
         var card = new CreditCard

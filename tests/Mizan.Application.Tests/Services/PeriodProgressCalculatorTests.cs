@@ -358,7 +358,7 @@ public sealed class PeriodProgressCalculatorTests
         IReadOnlyList<PeriodPlanRevision>? revizyonlar = null,
         IReadOnlyList<PeriodPaymentMark>? isaretler = null,
         IReadOnlyList<PaymentReminderResponse>? cevaplar = null) =>
-        new(plan, revizyonlar ?? [], gozlem, isaretler ?? [], cevaplar ?? []);
+        new(plan, revizyonlar ?? [], gozlem is null ? [] : [gozlem], isaretler ?? [], cevaplar ?? []);
 
     private static PeriodPlanSnapshot PlanKur(decimal yasamHavuzu, decimal kmhFaizi, decimal kapanis) => new()
     {

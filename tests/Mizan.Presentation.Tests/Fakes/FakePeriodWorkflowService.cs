@@ -53,6 +53,7 @@ public sealed class FakePeriodWorkflowService : IPeriodWorkflowService
     /// <summary>Anlık bakiye gözlemini taklit olarak kaydeder.</summary>
     public Task<PeriodObservation> ObserveCurrentBalanceAsync(
         decimal balance,
+        DateOnly? observedOn = null,
         CancellationToken cancellationToken = default)
     {
         LastObservedBalance = balance;

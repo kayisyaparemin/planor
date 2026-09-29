@@ -243,17 +243,16 @@ public sealed class PeriodPaymentLineClassifierTests
     }
 
     [Fact]
-    public void Classify_CevapSaatiUtcDegilse_YerelSaatOlarakGozlemleKarsilastirilir()
+    public void Classify_CevapYerelSaatliyse_YerelGunOlarakGozlemGunuyleKarsilastirilir()
     {
-        // Hazırla — cevap saatleri yerel (biri açıkça, biri türü belirsiz); gözlem yarım saat sonra
-        var yerelGozlemAni = new DateTimeOffset(new DateTime(2026, 9, 11, 23, 30, 0, DateTimeKind.Local));
+        // Hazırla — cevaplar gözlem gününden önceki günün geç saatinde, yerel (biri açıkça, biri türü belirsiz)
         var defter = Defter(
             [Kart, Kredi],
-            gozlem: Gozlem(new DateOnly(2026, 9, 11)) with { RecordedAtUtc = yerelGozlemAni.ToUniversalTime() },
+            gozlem: Gozlem(new DateOnly(2026, 9, 12)),
             cevaplar:
             [
-                Cevap(Kart, PaymentReminderAnswerKind.Paid, new DateTime(2026, 9, 11, 22, 0, 0, DateTimeKind.Local)),
-                Cevap(Kredi, PaymentReminderAnswerKind.Paid, new DateTime(2026, 9, 11, 23, 0, 0, DateTimeKind.Unspecified))
+                Cevap(Kart, PaymentReminderAnswerKind.Paid, new DateTime(2026, 9, 11, 23, 50, 0, DateTimeKind.Local)),
+                Cevap(Kredi, PaymentReminderAnswerKind.Paid, new DateTime(2026, 9, 11, 23, 59, 0, DateTimeKind.Unspecified))
             ]);
 
         // Uygula
@@ -262,6 +261,67 @@ public sealed class PeriodPaymentLineClassifierTests
         // Doğrula
         Assert.Equal(17_000m, sonuc.SettledBeforeObservation);
         Assert.Equal(0m, sonuc.SettledAfterObservation);
+    }
+
+    // ---------------------------------------------------------------
+    // S68-8 ve açık not b: yansıma günle belirlenir, kayıt zamanıyla değil
+    // ---------------------------------------------------------------
+
+    [Fact]
+    public void Classify_AcikIsaretinOdemeGunuGozlemGunuyse_BakiyeyeYansimamisSayilir()
+    {
+        // Hazırla — kart 10 Eylül'de ödendi işaretlendi; bakiye de 10 Eylül'de girildi
+        var defter = Defter([Kart], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kart, ActualPaymentStatus.Paid, 12_000m, new DateOnly(2026, 9, 10))]);
+
+        // Uygula
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+
+        // Doğrula
+        Assert.Equal(0m, sonuc.SettledBeforeObservation);
+        Assert.Equal(12_000m, sonuc.SettledAfterObservation);
+    }
+
+    [Fact]
+    public void Classify_AcikIsaretinOdemeGunuGozlemdenSonraysa_GozlemdenSonraOdenmisSayilir()
+    {
+        // Hazırla — 14 Eylül bakiyesi girildi, kira 16'sında ödendi diye işaretlendi
+        var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 14)), isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m, new DateOnly(2026, 9, 16))]);
+
+        // Uygula
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 16));
+
+        // Doğrula
+        Assert.Equal(0m, sonuc.SettledBeforeObservation);
+        Assert.Equal(15_000m, sonuc.SettledAfterObservation);
+    }
+
+    [Fact]
+    public void Classify_AcikIsaretinOdemeGunuGozlemdenOnceyse_BakiyeyeYansimisSayilir()
+    {
+        // Hazırla — 14 Eylül bakiyesi girildi, kira 12'sinde ödendi
+        var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 14)), isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m, new DateOnly(2026, 9, 12))]);
+
+        // Uygula
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 14));
+
+        // Doğrula
+        Assert.Equal(15_000m, sonuc.SettledBeforeObservation);
+        Assert.Equal(0m, sonuc.SettledAfterObservation);
+    }
+
+    [Fact]
+    public void Classify_OdedimCevabiGozlemGunuKayitZamanindanBagimsizdir_GeriyeTarihliGozlemdeYanilmaz()
+    {
+        // Hazırla — 12 Eylül bakiyesi 20 Eylül'de girildi (kayıt zamanı 20'si); cevap 13 Eylül'de verildi
+        var gozlem = Gozlem(new DateOnly(2026, 9, 12)) with { RecordedAtUtc = new DateTimeOffset(2026, 9, 20, 10, 0, 0, TimeSpan.Zero) };
+        var defter = Defter([Kart], gozlem: gozlem, cevaplar: [Cevap(Kart, PaymentReminderAnswerKind.Paid, Utc(9, 13, 9))]);
+
+        // Uygula
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 20));
+
+        // Doğrula — cevap gözlem gününden sonra, bakiyede henüz yok
+        Assert.Equal(0m, sonuc.SettledBeforeObservation);
+        Assert.Equal(12_000m, sonuc.SettledAfterObservation);
     }
 
     // ---------------------------------------------------------------
@@ -366,7 +426,7 @@ public sealed class PeriodPaymentLineClassifierTests
         new(
             new PeriodPlanSnapshot { PeriodStart = DonemBasi, PeriodEnd = DonemSonu, PaymentLines = planSatirlari },
             revizyonlar ?? [],
-            gozlem,
+            gozlem is null ? [] : [gozlem],
             isaretler ?? [],
             cevaplar ?? []);
 
@@ -378,8 +438,18 @@ public sealed class PeriodPaymentLineClassifierTests
         RecordedAtUtc = new DateTimeOffset(gun.ToDateTime(new TimeOnly(10, 0)), TimeSpan.Zero)
     };
 
-    private static PeriodPaymentMark Isaret(PeriodPlanPaymentLine satir, ActualPaymentStatus durum, decimal tutar) =>
-        new() { PeriodPlanPaymentLineId = satir.Id, Status = durum, ActualAmount = tutar };
+    private static PeriodPaymentMark Isaret(
+        PeriodPlanPaymentLine satir,
+        ActualPaymentStatus durum,
+        decimal tutar,
+        DateOnly? odemeGunu = null) =>
+        new()
+        {
+            PeriodPlanPaymentLineId = satir.Id,
+            Status = durum,
+            ActualAmount = tutar,
+            ActualPaymentDate = odemeGunu ?? DonemBasi
+        };
 
     private static PaymentReminderResponse Cevap(PeriodPlanPaymentLine satir, PaymentReminderAnswerKind tur, DateTime verilme) => new()
     {

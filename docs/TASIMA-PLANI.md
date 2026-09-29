@@ -141,7 +141,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
       *(S52: BackupRetentionRules saf sınıfına ayrıldı, IBackupService dar portu eklendi, S22 uyarınca HasLegacyDatabase elendi)*
 - [x] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
-- [ ] **A28** — dönemin gözlemleri *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; `H5`'e dayanır)*: bakiye girişi yeni gözlem
+- [x] **A28** — dönemin gözlemleri *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; `H5`'e dayanır)*: bakiye girişi yeni gözlem
       ekler, üzerine yazmaz; `OpenPeriodLedger` dönemin gözlemlerini taşır, gidişat son gözlemi kullanır.
       `IPeriodObservationRepository`'nin tek kayıt dönen imzası listeye döner. "Bakiye gir" sayfası için
       iki ek (konsept, bkz. `V3`):

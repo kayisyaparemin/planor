@@ -7,23 +7,18 @@ namespace Mizan.Application.Services;
 
 /// <summary>
 /// Kurulum sihirbazında toplanan başlangıç verilerini dondurarak ilk finansal planı
-/// ve açık dönemin ilk canlı gözlem kaydını oluşturan uygulama servisidir.
+/// oluşturan uygulama servisidir. İlk gözlem yazılmaz: dönem planın açılış bakiyesiyle başlar, ilk noktayı
+/// kullanıcı girmez (S68-1); eskiden yazılan gözlem çapa günü ilerideyse dönemden önceki güne düşüyordu.
 /// </summary>
 public sealed class OnboardingService(
     OnboardingPlanWriter planWriter,
     FinancialSnapshotService snapshotService,
-    IPeriodHistoryRepository periodHistoryRepository,
-    IPeriodObservationRepository periodObservationRepository,
     IClock clock) : IOnboardingService
 {
     private readonly OnboardingPlanWriter _planWriter =
         planWriter ?? throw new ArgumentNullException(nameof(planWriter));
     private readonly FinancialSnapshotService _snapshotService =
         snapshotService ?? throw new ArgumentNullException(nameof(snapshotService));
-    private readonly IPeriodHistoryRepository _periodHistoryRepository =
-        periodHistoryRepository ?? throw new ArgumentNullException(nameof(periodHistoryRepository));
-    private readonly IPeriodObservationRepository _periodObservationRepository =
-        periodObservationRepository ?? throw new ArgumentNullException(nameof(periodObservationRepository));
     private readonly IClock _clock =
         clock ?? throw new ArgumentNullException(nameof(clock));
 
@@ -51,28 +46,6 @@ public sealed class OnboardingService(
         };
 
         await _snapshotService.EnsureInitialSnapshotAsync(plan, cancellationToken);
-        await RecordInitialObservationAsync(draft.Settings.ProjectionOpeningBalance, cancellationToken);
-    }
-
-    private async Task RecordInitialObservationAsync(decimal openingBalance, CancellationToken cancellationToken)
-    {
-        var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
-        var openPlan = history.FindOpenPlan();
-        if (openPlan is null)
-        {
-            return;
-        }
-
-        var now = _clock.UtcNow;
-        var observation = new PeriodObservation
-        {
-            PeriodPlanSnapshotId = openPlan.Id,
-            ObservedOn = _clock.Today,
-            ObservedBalance = openingBalance,
-            RecordedAtUtc = now
-        };
-
-        await _periodObservationRepository.UpsertPeriodObservationAsync(observation, cancellationToken);
     }
 
     private UserSettings NormalizeSettings(UserSettings settings)

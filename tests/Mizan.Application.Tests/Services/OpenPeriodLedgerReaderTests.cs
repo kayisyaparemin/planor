@@ -53,7 +53,7 @@ public sealed class OpenPeriodLedgerReaderTests
         Assert.NotNull(defter);
         Assert.Equal(plan.Id, defter.Plan.Id);
         Assert.Equal([birinciRevizyon.Id, ikinciRevizyon.Id], defter.Revisions.Select(x => x.Id));
-        Assert.Equal(gozlem.Id, defter.Observation?.Id);
+        Assert.Equal([gozlem.Id], defter.Observations.Select(x => x.Id));
         Assert.Equal([isaret.Id], defter.PaymentMarks.Select(x => x.Id));
         Assert.Equal([cevap.DueKey], defter.ReminderAnswers.Select(x => x.DueKey));
     }
@@ -91,7 +91,7 @@ public sealed class OpenPeriodLedgerReaderTests
 
         // Doğrula
         Assert.NotNull(defter);
-        Assert.Null(defter.Observation);
+        Assert.Empty(defter.Observations);
         Assert.Empty(defter.Revisions);
     }
 

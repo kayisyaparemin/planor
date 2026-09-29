@@ -28,14 +28,19 @@ public interface IPeriodWorkflowService
         PeriodSettlementDraft draft,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Dönem mutabakatını kesinleştirir, yeni dönemin planını dondurur ve açık dönemin gözlem defterini temizler.</summary>
+    /// <summary>Dönem mutabakatını kesinleştirir, yeni dönemin planını dondurur ve gözlemleri yerinde bırakır: dönemin bakiye yolu tarihçede kalır (S68-7).</summary>
     Task<PeriodSettlementResult> FinalizeSettlementAsync(
         PeriodSettlementDraft draft,
         CancellationToken cancellationToken = default);
 
-    /// <summary>Açık döneme ait anlık serbest nakit bakiyesi gözlemini kaydeder veya günceller.</summary>
+    /// <summary>
+    /// Açık döneme yeni bir bakiye gözlemi ekler; aynı günün gözlemi varsa yerine geçer (S68-2). Gün verilmezse bugündür.
+    /// Gün dönemin içinde olmalı ve bugünden sonra olamaz; kapanışı ertelenmiş dönem gözlem almaz, önce kapanış gerekir (S68-4).
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Açık dönem yoksa ya da gün yazılamıyorsa.</exception>
     Task<PeriodObservation> ObserveCurrentBalanceAsync(
         decimal balance,
+        DateOnly? observedOn = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>Açık dönemin planlanan bir ödeme satırına ödeme işareti koyar; aynı satırın işareti yenisiyle değişir ve hiçbir gözlem değişmez (S68-8).</summary>

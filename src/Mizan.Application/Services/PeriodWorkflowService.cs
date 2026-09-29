@@ -78,21 +78,23 @@ public sealed class PeriodWorkflowService(
         ArgumentNullException.ThrowIfNull(draft);
 
         var plan = await _planReader.GetPlanAsync(cancellationToken);
-        var result = await _settlementService.FinalizeAsync(plan, draft, cancellationToken);
-        await _periodObservationRepository.DeletePeriodObservationAsync(draft.PeriodPlanSnapshotId, cancellationToken);
-        return result;
+        return await _settlementService.FinalizeAsync(plan, draft, cancellationToken);
     }
 
     /// <inheritdoc />
     public async Task<PeriodObservation> ObserveCurrentBalanceAsync(
         decimal balance,
+        DateOnly? observedOn = null,
         CancellationToken cancellationToken = default)
     {
         var (openPlan, _) = await ResolveOpenPlanAsync(cancellationToken);
+        var day = observedOn ?? _clock.Today;
+        ObservationDayGuard.EnsureCanObserve(openPlan, day, _clock.Today);
+
         var observation = new PeriodObservation
         {
             PeriodPlanSnapshotId = openPlan.Id,
-            ObservedOn = _clock.Today,
+            ObservedOn = day,
             ObservedBalance = balance,
             RecordedAtUtc = _clock.UtcNow
         };

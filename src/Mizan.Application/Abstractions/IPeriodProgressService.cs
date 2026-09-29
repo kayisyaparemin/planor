@@ -12,4 +12,14 @@ public interface IPeriodProgressService
     /// Açık dönemin gidişatını getirir; henüz plan dondurulmamış veya açık dönem yoksa <c>null</c> döner.
     /// </summary>
     Task<PeriodProgress?> GetAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Kaydetmeden önizleme: verilen bakiyenin verilen güne gözlem olarak girilmesi hâlinde gidişatın nasıl görüneceğini
+    /// hesaplar. Taslak gözlem defterin gözlemlerine eklenir (aynı günün gözlemi yerine geçer), hiçbir şey yazılmaz.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Açık dönem yoksa ya da gün gözlem alamıyorsa; kaydetmeyle aynı kural.</exception>
+    Task<PeriodProgress> PreviewAsync(
+        decimal balance,
+        DateOnly observedOn,
+        CancellationToken cancellationToken = default);
 }

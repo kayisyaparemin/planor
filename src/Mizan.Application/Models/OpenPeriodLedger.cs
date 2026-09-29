@@ -1,3 +1,4 @@
+using Mizan.Domain.Calculations;
 using Mizan.Domain.Models;
 
 namespace Mizan.Application.Models;
@@ -11,16 +12,21 @@ namespace Mizan.Application.Models;
 /// </summary>
 /// <param name="Plan">Dönem başında dondurulan, değişmeyen plan taahhüdü (I23).</param>
 /// <param name="Revisions">Planın dönem içi revizyonları, en eskiden en yeniye (I24).</param>
-/// <param name="Observation">Kullanıcının dönem içi gözlem defteri; hiç bakiye girilmediyse <c>null</c>.</param>
+/// <param name="Observations">Kullanıcının dönem içi gözlemleri, güne göre sıralı; hiç bakiye girilmediyse boş (S68-1). Grafikteki noktalar bunlardır.</param>
 /// <param name="PaymentMarks">Kullanıcının ödeme satırlarına koyduğu işaretler; gözlemden bağımsızdır (S68-8).</param>
 /// <param name="ReminderAnswers">Vadesi bu döneme düşen ödemelere verilmiş "Ödedim" / "Ertele" cevapları.</param>
 public sealed record OpenPeriodLedger(
     PeriodPlanSnapshot Plan,
     IReadOnlyList<PeriodPlanRevision> Revisions,
-    PeriodObservation? Observation,
+    IReadOnlyList<PeriodObservation> Observations,
     IReadOnlyList<PeriodPaymentMark> PaymentMarks,
     IReadOnlyList<PaymentReminderResponse> ReminderAnswers)
 {
+    /// <summary>
+    /// Gidişatın hesaplandığı son gözlem: en geç tarihli olan, giriş sırası değil (S68-3); gözlem yoksa <c>null</c>.
+    /// </summary>
+    public PeriodObservation? LatestObservation => PeriodObservationRules.Latest(Observations);
+
     /// <summary>
     /// Dönem içinde "planım şu an ne" sorusunun cevabı olan son revizyon; revizyon yoksa <c>null</c>
     /// ve cevap dondurulan planın kendisidir (I24).

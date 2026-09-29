@@ -46,6 +46,7 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye; gün başına bir tane, ana sayfa grafiğinde bir nokta (S68) |
 | son gözlem | `PeriodObservationRules.Latest` | Dönemin en geç **tarihli** gözlemi; giriş sırasına bakılmaz. Gidişat ondan hesaplanır (S68) |
 | gözlem kuralları | `PeriodObservationRules` | Gözlemin hangi güne yazılabileceği, aynı güne ikinci girişin öncekinin yerine geçmesi ve son gözlemin seçimi (S68) |
+| gözlem günü koruması | `ObservationDayGuard` | Bir güne bakiye gözlemi yazılıp yazılamayacağını kullanıcıya anlatılabilir hatayla denetleyen yardımcı; kaydetme ve önizleme aynı sebep metnini verir (S68-4) |
 | ödeme işareti | `PeriodPaymentMark` | Kullanıcının açık dönemde bir plan ödeme satırına koyduğu "ödedim / şu tutarda ödedim / ödemedim" işareti; plana bağlıdır, gözlemden bağımsızdır, satır başına en fazla bir tane (S68-8). Eski adı: gözlem ödemesi |
 | güncel ödeme satırları | `OpenPeriodLedger.CurrentPaymentLines` | Dönem içinde "planım şu an ne" sorusunun satırları: son revizyonunkiler, revizyon yoksa dondurulan planınkiler (I24) |
 | ödeme satırı durumu | `PeriodPaymentLineClassification` | Açık dönemin güncel ödeme satırlarının bir güne göre durumu: gözlenen bakiyeye yansımış ödemeler, gözlemden sonra yapılanlar, kalan ve ertelenen satırlar |

@@ -1,4 +1,3 @@
-using Mizan.Domain.Calculations;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
 using Mizan.Domain.Models;
@@ -36,15 +35,14 @@ public sealed class OpenPeriodLedgerReader(
         }
 
         var period = new CashFlowPeriod(openPlan.PeriodStart, openPlan.PeriodEnd);
-        var observation = PeriodObservationRules.Latest(
-            await _periodObservationRepository.GetPeriodObservationsAsync(openPlan.Id, cancellationToken));
+        var observations = await _periodObservationRepository.GetPeriodObservationsAsync(openPlan.Id, cancellationToken);
         var marks = await _periodObservationRepository.GetPaymentMarksAsync(openPlan.Id, cancellationToken);
         var answers = await _paymentReminderRepository.GetResponsesAsync(cancellationToken);
 
         return new OpenPeriodLedger(
             openPlan,
             history.FindRevisions(openPlan.Id),
-            observation,
+            observations,
             marks,
             answers.Where(x => period.Contains(x.DueDate)).ToArray());
     }

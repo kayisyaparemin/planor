@@ -25,9 +25,9 @@ public static class PeriodPaymentLineClassifier
         var marks = ExplicitMarksByDueKey(ledger);
         var answers = LatestAnswersByDueKey(ledger.ReminderAnswers);
         var outcomes = ledger.CurrentPaymentLines
-            .Select(line => FromExplicitMark(line, marks)
-                            ?? FromReminderAnswer(line, answers, ledger.Observation)
-                            ?? FromDueDate(line, ledger.Observation, today))
+            .Select(line => FromExplicitMark(line, marks, ledger.LatestObservation)
+                            ?? FromReminderAnswer(line, answers, ledger.LatestObservation)
+                            ?? FromDueDate(line, ledger.LatestObservation, today))
             .ToArray();
 
         return new PeriodPaymentLineClassification
@@ -47,24 +47,33 @@ public static class PeriodPaymentLineClassifier
         };
     }
 
-    // Açık işaret bakiyeye yansımış sayılır ve planlanan değil, fiilen ödenen tutar düşülür. İşaretin gözlemden
-    // bağımsız olması (S68-8) vade kuralıyla yansıma ayrımını da getirecek; o davranış A28'de.
+    // Açık işaretin ödeme günü son gözlem gününden önceyse ödeme bakiyeye yansımıştır; aynı gün ya da sonraysa
+    // yansımamıştır (S68-8, vade kuralıyla aynı yön). Planlanan değil, fiilen ödenen tutar düşülür.
     private static LineOutcome? FromExplicitMark(
         PeriodPlanPaymentLine line,
-        Dictionary<string, PeriodPaymentMark> marks)
+        Dictionary<string, PeriodPaymentMark> marks,
+        PeriodObservation? observation)
     {
         if (!marks.TryGetValue(DueKey(line), out var mark))
         {
             return null;
         }
 
-        return mark.IsSettled
-            ? new LineOutcome(line, LineState.SettledBeforeObservation, mark.ActualAmount)
-            : new LineOutcome(line, LineState.Remaining, 0m);
+        if (!mark.IsSettled)
+        {
+            return new LineOutcome(line, LineState.Remaining, 0m);
+        }
+
+        var isReflected = observation is null || mark.ActualPaymentDate < observation.ObservedOn;
+        return new LineOutcome(
+            line,
+            isReflected ? LineState.SettledBeforeObservation : LineState.SettledAfterObservation,
+            mark.ActualAmount);
     }
 
-    // "Ertele" denen ödeme vadesi geçse de kalandır. "Ödedim" cevabı gözlemden önce verildiyse
-    // ödeme bakiyeye yansımıştır, sonra verildiyse bakiyede henüz görünmez.
+    // "Ertele" denen ödeme vadesi geçse de kalandır. "Ödedim" cevabı gözlem gününden önceki bir günde verildiyse
+    // ödeme bakiyeye yansımıştır; aynı gün ya da sonra verildiyse bakiyede henüz görünmez (kötümser). Kayıt zamanına
+    // bakılmaz: geriye tarihli gözlemin kayıt zamanı bugündür ve cevabı yanlış tarafa atardı (S68 açık not b).
     private static LineOutcome? FromReminderAnswer(
         PeriodPlanPaymentLine line,
         Dictionary<string, PaymentReminderResponse> answers,
@@ -80,7 +89,7 @@ public static class PeriodPaymentLineClassifier
             return new LineOutcome(line, LineState.Snoozed, 0m);
         }
 
-        return Settled(line, observation is null || AnsweredAtUtc(answer) <= observation.RecordedAtUtc.UtcDateTime);
+        return Settled(line, observation is null || AnsweredOn(answer) < observation.ObservedOn);
     }
 
     // Gözlem günü düşen ödeme bakiyeye henüz yansımamış sayılır: yanılırsak dönem sonu kötümser çıkar.
@@ -126,9 +135,12 @@ public static class PeriodPaymentLineClassifier
             .GroupBy(x => x.DueKey, StringComparer.Ordinal)
             .ToDictionary(x => x.Key, x => x.OrderBy(AnsweredAtUtc).Last(), StringComparer.Ordinal);
 
-    // Cevap zamanı yerel DateTime, gözlem zamanı UTC; türü belirsiz saat yerel sayılır.
-    // AnsweredAt'in DateTimeOffset'e geçmesi kural 05 gereği ayrı bir düzeltmedir (A15a notu).
+    // Cevap zamanı yerel DateTime; türü belirsiz saat yerel sayılır. AnsweredAt'in DateTimeOffset'e geçmesi
+    // kural 05 gereği ayrı bir düzeltmedir (A15a notu).
     private static DateTime AnsweredAtUtc(PaymentReminderResponse answer) => answer.AnsweredAt.ToUniversalTime();
+
+    private static DateOnly AnsweredOn(PaymentReminderResponse answer) =>
+        DateOnly.FromDateTime(answer.AnsweredAt.Kind == DateTimeKind.Utc ? answer.AnsweredAt.ToLocalTime() : answer.AnsweredAt);
 
     private static string DueKey(PeriodPlanPaymentLine line) =>
         PaymentReminderPlanner.DueKey(line.SourceEntityId, line.Name, line.PlannedDate);

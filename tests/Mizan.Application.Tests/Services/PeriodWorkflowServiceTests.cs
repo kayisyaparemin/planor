@@ -203,7 +203,7 @@ public sealed class PeriodWorkflowServiceTests
     }
 
     [Fact]
-    public async Task FinalizeSettlementAsync_DonemiKapatir_VeGozlemDefteriniSiler()
+    public async Task FinalizeSettlementAsync_DonemiKapatir_GozlemleriSilmez()
     {
         var service = CreateService(out _, out var planReader);
         var samplePlan = CreateSampleFinancialPlan();
@@ -242,7 +242,7 @@ public sealed class PeriodWorkflowServiceTests
         Assert.NotNull(result.NewPlan);
         Assert.Equal(SettlementDate, result.NewPlan.PeriodStart);
 
-        Assert.Empty(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
+        Assert.Single(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
     }
 
     [Fact]
@@ -299,6 +299,59 @@ public sealed class PeriodWorkflowServiceTests
 
         var kayit = Assert.Single(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
         Assert.Equal(18_500m, kayit.ObservedBalance);
+    }
+
+
+    [Fact]
+    public async Task ObserveCurrentBalanceAsync_GeriyeTarihliGiris_SeriyeKendiGunuyleGirer()
+    {
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+        _clock.SetDate(new DateOnly(2026, 9, 20));
+        await service.ObserveCurrentBalanceAsync(20_000m);
+
+        var geriye = await service.ObserveCurrentBalanceAsync(30_000m, new DateOnly(2026, 9, 10));
+
+        Assert.Equal(new DateOnly(2026, 9, 10), geriye.ObservedOn);
+        var kayitlar = await _observationRepo.GetPeriodObservationsAsync(plan.Id);
+        Assert.Equal([new DateOnly(2026, 9, 10), new DateOnly(2026, 9, 20)], kayitlar.Select(x => x.ObservedOn));
+    }
+
+    [Fact]
+    public async Task ObserveCurrentBalanceAsync_GelecekGun_Reddeder()
+    {
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+        _clock.SetDate(new DateOnly(2026, 9, 10));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.ObserveCurrentBalanceAsync(20_000m, new DateOnly(2026, 9, 11)));
+        Assert.Empty(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
+    }
+
+    [Fact]
+    public async Task ObserveCurrentBalanceAsync_DonemBasindanOncekiGun_Reddeder()
+    {
+        var service = CreateService(out _, out _);
+        await SeedCurrentPlanAsync();
+        _clock.SetDate(new DateOnly(2026, 9, 10));
+
+        var hata = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.ObserveCurrentBalanceAsync(20_000m, new DateOnly(2026, 8, 31)));
+        Assert.Contains("dönemin dışında", hata.Message);
+    }
+
+    [Fact]
+    public async Task ObserveCurrentBalanceAsync_KapanisiErtelenmisDonem_OnceKapanisiIster()
+    {
+        var service = CreateService(out _, out _);
+        var plan = await SeedCurrentPlanAsync();
+        _clock.SetDate(new DateOnly(2026, 10, 3));
+
+        var hata = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => service.ObserveCurrentBalanceAsync(20_000m, new DateOnly(2026, 9, 30)));
+        Assert.Contains("kapanış", hata.Message);
+        Assert.Empty(await _observationRepo.GetPeriodObservationsAsync(plan.Id));
     }
 
     [Fact]

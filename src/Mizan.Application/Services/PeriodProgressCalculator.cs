@@ -53,7 +53,7 @@ public static class PeriodProgressCalculator
             ProjectedDeficitInterest = trajectory?.DeficitInterest,
             ProjectedEndingBalance = trajectory?.EndingBalance,
             Cards = CompareCards(ledger.CurrentPaymentLines, currentCardPayments),
-            Observation = ledger.Observation,
+            Observation = ledger.LatestObservation,
             RemainingLines = lines.RemainingLines,
             RemainingPlannedTotal = lines.RemainingLines.Sum(x => x.PlannedAmount ?? 0m),
             IsClosable = today >= plan.SettlementAvailableFrom,
@@ -71,7 +71,7 @@ public static class PeriodProgressCalculator
         decimal plannedAllowance,
         decimal deficitFinancingInterestRate)
     {
-        if (ledger.Observation is not { } observation)
+        if (ledger.LatestObservation is not { } observation)
         {
             return null;
         }
