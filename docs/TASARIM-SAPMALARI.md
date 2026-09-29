@@ -262,6 +262,17 @@ daha kullanılmaz.
 | **Etkiler** | `06-tasarim.md` GK4, `TASARIM-SISTEMI.md` § Grafikler, `EKRAN-KARTLARI.md` bütçe biçimi, `DesignBudgetAnalyzer`, `ScreenCardDocument`, `I57`; `GS20`'yi `V3` iptal edecek; `HeroPager` bileşeni `V3`'te yazılır |
 | **Durum** | uygulandı (`T9`) |
 
+### GS23 — `AreaTrend` tarih eksenli olur ve rota çizer; `RingGauge` tempo işareti taşır
+
+| | |
+|---|---|
+| **Tür** | primitif genişlemesi (GK7: beşinci primitif yok; kaynak eski proje değil, bugünkü kod) |
+| **Konsept** | `ana-sayfa-rota-tempo.png`: 1. sayfada gerçek noktalar düz çizgi ve alan, son gözlemden dönem sonu tahminine kesikli devam, "bugün" işareti, planın dönem sonu; 2. sayfada halka, doluluğun yanında geçen süreyi de gösteriyor. |
+| **Neden değiştirildi** | Bugünkü `AreaTrend` x eksenini sıra numarasından kuruyor, tarih bilmiyor; "bugün" işareti ve dönem sonuna uzanan devam çizilemiyor. `RingGauge` yalnız doluluğu söylüyor; harcamanın süreye göre hızlı mı yavaş mı olduğu (tempo) halkada görünmüyor. |
+| **Yeni** | (1) `AreaTrend` x eksenini **hep tarihe göre** kurar; eksen ilk ve son noktanın (kesikli devam dahil) tarih aralığıdır. 12 dönem kullanımı (`V8`) aynı alanlarla çalışır, yalnız aylar 28–31 gün olduğu için aralıklar çok az eşitsizleşir. (2) İsteğe bağlı üç yeni alan: `ProjectionSeries` (son gözlemden sonraki kesikli devam), `Today` (dikey hairline), `PlanLevel` (planın dönem sonu için yatay hairline, `ChartThreshold` tipiyle). Mevcut `Series`, `PlannedSeries`, `Threshold` aynen kalır. (3) `RingGauge` isteğe bağlı `TimeRatio` (0–1) alır: halkayı kesen kısa bir radyal işaret çizer. (4) Yeni token yok. Roller: tahmin devamı = `Indicator` kesikli, bugün = `TextSecondary` düz hairline, plan seviyesi = `TextSecondary` hairline, tempo işareti = `TextSecondary`. Hepsi `SurfaceCard` üstünde `I93` ile doğrulanmış çiftler. (5) Çizgi noktalar arasında ve sonrasında nasıl gideceği (`S68-6`) primitifin değil verinin işidir: primitif verilen noktaları bağlar. (6) `<summary>` soruları: `AreaTrend` "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?", `RingGauge` "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?". (7) `AreaTrend` 200 satırı aşmasın diye x/y eşleme `ChartScale` (`internal`) yardımcısına çıkar; GK7 primitif sayısını sınırlar, yardımcıyı değil. (8) `StackedBar` değişmez: iki satır kararı `V11`'in Aşama 4'ünde verilir. |
+| **Etkiler** | `TASARIM-SISTEMI.md` § Grafikler (soru tablosu, rol → token), `DesignChartTests`, `V3` (kullanır), `V8` (etkilenmez), `V11` (StackedBar kararı) |
+| **Durum** | uygulandı (`T10`) |
+
 ---
 
 ## Konsept otorite değildir

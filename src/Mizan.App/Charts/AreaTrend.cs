@@ -4,12 +4,18 @@ using Mizan.Presentation.Charts;
 namespace Mizan.App.Charts;
 
 /// <summary>
-/// "Seviye zamanla eşiğin altına iniyor mu?" sorusunu cevaplar.
-/// Dönem sonu bakiyesi 12 dönem boyunca sıfırın altına düşüyorsa kullanıcının
-/// bunu tek bakışta görmesi gerekiyor; sayı listesi bu yönü göstermiyordu.
+/// "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" sorusunu cevaplar.
+/// Dönem sonu bakiyesi 12 dönem boyunca sıfırın altına düşüyorsa kullanıcının bunu tek bakışta
+/// görmesi gerekiyor; ana sayfada ise girilen bakiyelerden dönem sonu tahminine giden rota,
+/// bugünün yeri ve planın dönem sonu aynı çizimde durur. Yatay eksen tarihtir: nokta aralığı
+/// gün sayısını yansıtır.
 /// </summary>
 public sealed class AreaTrend : IDrawable
 {
+    private static readonly float[] PlannedDash = [4f, 4f];
+    private static readonly float[] ThresholdDash = [3f, 3f];
+    private static readonly float[] PlanLevelDash = [1f, 3f];
+
     /// <summary>
     /// Gerçekleşen veya ana projeksiyon zaman serisi.
     /// </summary>
@@ -26,6 +32,22 @@ public sealed class AreaTrend : IDrawable
     public ChartThreshold? Threshold { get; set; }
 
     /// <summary>
+    /// Son gözlemden dönem sonu tahminine kesikli devam. İlk noktası son gözlemdir; çizgi
+    /// <see cref="Series"/>'in bittiği yerden başlasın diye.
+    /// </summary>
+    public ChartSeries? ProjectionSeries { get; set; }
+
+    /// <summary>
+    /// "Bugün" günü; verilirse o tarihte dikey ince çizgi çizilir. Serilerin tarih aralığı dışındaysa çizilmez.
+    /// </summary>
+    public DateOnly? Today { get; set; }
+
+    /// <summary>
+    /// Planın dönem sonu seviyesi (ince yatay çizgi); plana göre önde mi geride mi olunduğunu gösterir.
+    /// </summary>
+    public ChartThreshold? PlanLevel { get; set; }
+
+    /// <summary>
     /// Çizim yüzeyine alan dolgulu trend grafiğini çizer.
     /// </summary>
     /// <param name="canvas">Çizim tuvali.</param>
@@ -35,95 +57,98 @@ public sealed class AreaTrend : IDrawable
         if (canvas == null || dirtyRect.Width <= 0 || dirtyRect.Height <= 0) { return; }
         if (Series == null || Series.Points.Count == 0) { return; }
 
-        var (min, max) = CalculateBounds();
-        var range = Math.Max(max - min, 0.0001f);
+        var scale = BuildScale(dirtyRect);
 
-        DrawAreaFill(canvas, dirtyRect, min, range);
-        DrawThresholdLine(canvas, dirtyRect, min, range);
-        DrawPlannedLine(canvas, dirtyRect, min, range);
-        DrawActualLine(canvas, dirtyRect, min, range);
+        DrawAreaFill(canvas, scale);
+        DrawThresholdLine(canvas, scale, dirtyRect);
+        DrawPlanLevel(canvas, scale, dirtyRect);
+        DrawPlannedLine(canvas, scale);
+        DrawProjection(canvas, scale);
+        DrawActualLine(canvas, scale);
+        DrawTodayLine(canvas, scale, dirtyRect);
     }
 
-    private (float Min, float Max) CalculateBounds()
+    private ChartScale BuildScale(RectF rect)
     {
-        var allValues = Series!.Points.Select(p => (float)p.Value).ToList();
-        if (PlannedSeries != null)
-        {
-            allValues.AddRange(PlannedSeries.Points.Select(p => (float)p.Value));
-        }
-        if (Threshold != null)
-        {
-            allValues.Add((float)Threshold.Value);
-        }
+        var points = new List<ChartPoint>(Series!.Points);
+        if (PlannedSeries != null) { points.AddRange(PlannedSeries.Points); }
+        if (ProjectionSeries != null) { points.AddRange(ProjectionSeries.Points); }
 
-        return (allValues.Min(), allValues.Max());
+        var levels = points.Select(p => p.Value).ToList();
+        if (Threshold != null) { levels.Add(Threshold.Value); }
+        if (PlanLevel != null) { levels.Add(PlanLevel.Value); }
+
+        return new ChartScale(rect, points.Min(p => p.Date), points.Max(p => p.Date), levels.Min(), levels.Max());
     }
 
-    private void DrawAreaFill(ICanvas canvas, RectF rect, float min, float range)
+    private void DrawAreaFill(ICanvas canvas, ChartScale scale)
     {
-        var points = Series!.Points;
-        var fillPath = new PathF();
-        var stepX = points.Count > 1 ? rect.Width / (points.Count - 1) : rect.Width;
-
-        fillPath.MoveTo(rect.Left, rect.Bottom);
-        for (var i = 0; i < points.Count; i++)
-        {
-            var x = rect.Left + (i * stepX);
-            var y = rect.Bottom - (((float)points[i].Value - min) / range * rect.Height);
-            fillPath.LineTo(x, y);
-        }
-
-        var lastX = rect.Left + ((points.Count - 1) * stepX);
-        fillPath.LineTo(lastX, rect.Bottom);
-        fillPath.Close();
-
         canvas.FillColor = ChartColorResolver.ResolveColor("SurfaceChart");
-        canvas.FillPath(fillPath);
+        canvas.FillPath(scale.AreaPath(Series!.Points));
     }
 
-    private void DrawThresholdLine(ICanvas canvas, RectF rect, float min, float range)
+    private void DrawThresholdLine(ICanvas canvas, ChartScale scale, RectF rect)
     {
         if (Threshold == null) { return; }
 
-        var y = rect.Bottom - (((float)Threshold.Value - min) / range * rect.Height);
+        var y = scale.Y(Threshold.Value);
         canvas.StrokeColor = ChartColorResolver.ResolveColor("NegativeText");
         canvas.StrokeSize = 1f;
-        canvas.StrokeDashPattern = new[] { 3f, 3f };
+        canvas.StrokeDashPattern = ThresholdDash;
         canvas.DrawLine(rect.Left, y, rect.Right, y);
         canvas.StrokeDashPattern = null;
     }
 
-    private void DrawPlannedLine(ICanvas canvas, RectF rect, float min, float range)
+    private void DrawPlanLevel(ICanvas canvas, ChartScale scale, RectF rect)
     {
-        if (PlannedSeries == null || PlannedSeries.Points.Count == 0) { return; }
+        if (PlanLevel == null) { return; }
 
-        var path = BuildLinePath(PlannedSeries.Points, rect, min, range);
+        var y = scale.Y(PlanLevel.Value);
         canvas.StrokeColor = ChartColorResolver.ResolveColor("TextSecondary");
-        canvas.StrokeSize = 1.5f;
-        canvas.StrokeDashPattern = new[] { 4f, 4f };
-        canvas.DrawPath(path);
+        canvas.StrokeSize = 1f;
+        canvas.StrokeDashPattern = PlanLevelDash;
+        canvas.DrawLine(rect.Left, y, rect.Right, y);
         canvas.StrokeDashPattern = null;
     }
 
-    private void DrawActualLine(ICanvas canvas, RectF rect, float min, float range)
+    private void DrawPlannedLine(ICanvas canvas, ChartScale scale)
     {
-        var path = BuildLinePath(Series!.Points, rect, min, range);
+        if (PlannedSeries == null || PlannedSeries.Points.Count == 0) { return; }
+
+        canvas.StrokeColor = ChartColorResolver.ResolveColor("TextSecondary");
+        canvas.StrokeSize = 1.5f;
+        canvas.StrokeDashPattern = PlannedDash;
+        canvas.DrawPath(scale.LinePath(PlannedSeries.Points));
+        canvas.StrokeDashPattern = null;
+    }
+
+    private void DrawProjection(ICanvas canvas, ChartScale scale)
+    {
+        if (ProjectionSeries == null || ProjectionSeries.Points.Count == 0) { return; }
+
         canvas.StrokeColor = ChartColorResolver.ResolveColor("Indicator");
         canvas.StrokeSize = 2f;
         canvas.StrokeLineCap = LineCap.Round;
-        canvas.DrawPath(path);
+        canvas.StrokeDashPattern = PlannedDash;
+        canvas.DrawPath(scale.LinePath(ProjectionSeries.Points));
+        canvas.StrokeDashPattern = null;
     }
 
-    private static PathF BuildLinePath(IReadOnlyList<ChartPoint> points, RectF rect, float min, float range)
+    private void DrawActualLine(ICanvas canvas, ChartScale scale)
     {
-        var path = new PathF();
-        var stepX = points.Count > 1 ? rect.Width / (points.Count - 1) : rect.Width;
-        for (var i = 0; i < points.Count; i++)
-        {
-            var x = rect.Left + (i * stepX);
-            var y = rect.Bottom - (((float)points[i].Value - min) / range * rect.Height);
-            if (i == 0) { path.MoveTo(x, y); } else { path.LineTo(x, y); }
-        }
-        return path;
+        canvas.StrokeColor = ChartColorResolver.ResolveColor("Indicator");
+        canvas.StrokeSize = 2f;
+        canvas.StrokeLineCap = LineCap.Round;
+        canvas.DrawPath(scale.LinePath(Series!.Points));
+    }
+
+    private void DrawTodayLine(ICanvas canvas, ChartScale scale, RectF rect)
+    {
+        if (Today is not { } today || !scale.Contains(today)) { return; }
+
+        var x = scale.X(today);
+        canvas.StrokeColor = ChartColorResolver.ResolveColor("TextSecondary");
+        canvas.StrokeSize = 1f;
+        canvas.DrawLine(x, rect.Top, x, rect.Bottom);
     }
 }

@@ -4,15 +4,20 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **T9** — kaydırılan hero: GK4 "aynı anda ≤ 1 grafik" oldu (GS22) |
-| Sıradaki adım | **A28** — gözlem davranışı (V3 zinciri: `A28 → A29 → T10 → V3`); **V6d2** de açık |
-| Test sayısı | 1712 |
+| Son tamamlanan adım | **T10** — grafik primitiflerinin genişlemesi: tarih eksenli rota, tempo işareti (GS23) |
+| Sıradaki adım | **A28** — gözlem davranışı (V3 zinciri: `A28 → A29 → V3`); **V6d2** de açık |
+| Test sayısı | 1719 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### T10 — grafik primitiflerinin genişlemesi: `AreaTrend` tarih eksenli rota, `RingGauge` tempo işareti; kararlar `GS23`'te
+
+`AreaTrend` yatay ekseni artık tarihtir; üç isteğe bağlı alan geldi: `ProjectionSeries` (son gözlemden kesikli devam, `Indicator`), `Today` (dikey hairline) ve `PlanLevel` (planın dönem sonu, noktalı yatay hairline), ikisi `TextSecondary`. Eşleme matematiği `internal` `ChartScale` yardımcısına çıktı (GK7 primitif sayar, yardımcı saymaz; izinli dosya listesine eklendi). `RingGauge` isteğe bağlı `TimeRatio` ile halkayı kesen tempo işareti çiziyor. Eski alanlar aynen kaldı, `V8` bozulmadı. Yeni token yok; roller `I93`'te doğrulanmış çiftler. `<summary>` soruları değişti (`TASARIM-SISTEMI.md`, `06-tasarim.md`, `DesignChartTests`).
+**Dikkat:** primitifler yalnız çizer; rota çizgisinin plan olaylarından nasıl çıktığı (`S68-6`) veriyi üreten `A28`'in işi, tempo değeri `A29`'un. `StackedBar` bilerek değişmedi (iki satır kararı `V11` Aşama 4'te). Çizim doğruluğu kaynak metniyle denetlenir (`Mizan.App` test edilemez); **emülatörde gözle bakılmadı**, halkanın yay yönü ve işaretin hizası `V3`'te ekranla doğrulanmalı. Sıra: T10, `A28`/`A29`'dan önce yapıldı (onların tiplerine dokunmuyor); `V3` hâlâ ikisini bekler. Koruyan: `I94`, `I95`. Toplam 1.719 test yeşil, 0 hata, 0 uyarı.
 
 ### T9 — kaydırılan hero: GK4 sınırı "aynı anda görünen grafik" oldu; kararlar `GS22`'de
 

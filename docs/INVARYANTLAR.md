@@ -107,6 +107,8 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I91` | v2 → v3 göçü bakiyeli gözlemi aynı kimlik, gün ve değerle taşır (kayıt zamanı eski son yazma anıdır), bakiyesiz eski satırı eler (S68-9). | `Mizan.Infrastructure.Tests.Persistence.ObservationShapeMigrationTests.EnsureInitializedAsync_V2denYukseltilirken_BakiyeliGozlemTasinirBakiyesizElenir` | `I7b2` |
 | `I92` | Grafik sınırı gözün aynı anda gördüğüdür: kaydırılan hero (`HeroPager`) en fazla bir tane, en fazla iki sayfalı, sayfa başına en fazla bir grafikli olur; pager'ın yanında ayrı grafik durursa ekran iki grafiklidir ve kırmızıdır (GS22). | `Mizan.Architecture.Tests.Design.DesignHeroPagerTests.HeroPager_DisindaGrafikVarsa_AyniAndaIkiGrafikOlur` | `T9` |
 | `I93` | Kaydırılan kartın zemini `SurfaceCard`'dır; grafiği ve önizlemeyi taşıyan `Indicator`, `TextSecondary`, `NegativeText`, `PositiveText` çiftleri o zeminde kontrast tablosunda durur ve iki temada eşiği geçer (GS22). | `Mizan.Architecture.Tests.Design.DesignHeroPagerTests.KaydirilanKartZemini_SurfaceCard_KontrastCiftleriTablodaDurur` | `T9` |
+| `I94` | `AreaTrend` yatay ekseni tarihtir, sıra numarası değil: iki nokta arasındaki mesafe aradaki gün sayısıyla orantılıdır; böylece "bugün" işareti ve kesikli devam doğru güne düşer (GS23). | `Mizan.Architecture.Tests.Design.DesignChartRouteTests.AreaTrend_YatayEksenTarihtir_SiraNumarasiDegil` |
+| `I95` | `RingGauge` tempo işareti yalnız geçen süre oranı verilince çizilir ve `TextSecondary` ile boyanır; oran yoksa halka eskisi gibi yalnız doluluktur (GS23). | `Mizan.Architecture.Tests.Design.DesignChartRouteTests.RingGauge_ZamanIsareti_OrandaNullIseCizilmez` |
 
 ## Satır eklerken
 

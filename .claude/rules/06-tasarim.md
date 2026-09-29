@@ -174,7 +174,7 @@ zorunlu kılıyor; bu kural içeriğini kısıtlıyor):
 
 ```csharp
 /// <summary>
-/// "Seviye zamanla eşiğin altına iniyor mu?" sorusunu cevaplar.
+/// "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" sorusunu cevaplar.
 /// Dönem sonu bakiyesi 12 dönem boyunca sıfırın altına düşüyorsa kullanıcının
 /// bunu tek bakışta görmesi gerekiyor; sayı listesi bu yönü göstermiyordu.
 /// </summary>

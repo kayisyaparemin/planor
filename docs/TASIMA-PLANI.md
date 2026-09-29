@@ -276,7 +276,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       hepsi geçiyor. Ya `SurfaceCard` ya token değişikliği (`GS`); kontrast tablosuna yeni çiftler.
       "Bakiye gir" sayfasındaki önizleme kartı da aynı zemin sorusu: koyu temada `PositiveText` /
       `SurfaceHero` 4,25 < 4,5.
-- [ ] **T10** — grafik primitiflerinin genişlemesi *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; GK7: beşinci primitif yok)*.
+- [x] **T10** — grafik primitiflerinin genişlemesi *(GS23; koruyan: I94, I95)* *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`; GK7: beşinci primitif yok)*.
       `AreaTrend`: gerçek noktalar düz çizgi ve alan, son gözlemden dönem sonu tahminine kesikli devam,
       "bugün" işareti, plan çizgisi (planın dönem sonu). `RingGauge`: dolulukla birlikte zaman işareti
       (tempo). İkisinin de `<summary>`'deki sorusu değişir; eklemeler isteğe bağlı olur, `AreaTrend`'in

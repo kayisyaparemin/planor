@@ -403,9 +403,9 @@ cümle olarak taşır.
 | Primitif | Cevapladığı soru | Girdi |
 |---|---|---|
 | `Sparkline` | "Yön ne, yukarı mı aşağı mı?" | Tek seri, eksen yok, etiket yok. |
-| `AreaTrend` | "Seviye zamanla eşiğin altına iniyor mu?" | Tek seri + bir eşik çizgisi. |
+| `AreaTrend` | "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" | Bir seri (tarih eksenli) + isteğe bağlı eşik, plan serisi, kesikli devam, bugün ve plan seviyesi (`GS23`). |
 | `StackedBar` | "Bu dönem neyden oluşuyor?" | ≤ 4 kategori. |
-| `RingGauge` | "Ne kadarı tamamlandı?" | Tek oran (0–1). |
+| `RingGauge` | "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?" | Tek oran (0–1) + isteğe bağlı geçen süre oranı (0–1) (`GS23`). |
 
 **Ekranda aynı anda en fazla bir grafik görünür.** İkinci bir grafik gerekiyorsa o ekran iki
 ekrandır; tek istisna `HeroPager`: en fazla bir kaydırılan kart, en fazla iki sayfa, sayfa
@@ -440,6 +440,10 @@ konuşur.
 | Eşik | `NegativeText` | Kesikli yatay çizgi |
 | Alan dolgusu | `SurfaceChart` | Dolgu |
 | `RingGauge` dolu / boş | `Indicator` / `BorderSubtle` | Halka |
+| Tahmin devamı (`ProjectionSeries`) | `Indicator` | Kesikli çizgi, `StrokeHairline` × 2 |
+| Bugün (`Today`) | `TextSecondary` | Dikey hairline |
+| Plan seviyesi (`PlanLevel`) | `TextSecondary` | Noktalı yatay hairline |
+| Tempo işareti (`TimeRatio`) | `TextSecondary` | Halkayı kesen kısa işaret |
 
 `IDrawable` renkleri **çizim anında** `Application.Current.Resources`'tan okur, kurucuda
 saklamaz. Tema değişince `GraphicsView.Invalidate()` çağrılır; yoksa grafik eski temada kalır.

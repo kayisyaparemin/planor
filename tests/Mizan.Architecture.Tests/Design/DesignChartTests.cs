@@ -21,9 +21,9 @@ public sealed class DesignChartTests
     private static readonly Dictionary<string, string> PrimitiveQuestions = new()
     {
         ["Sparkline"] = "Yön ne, yukarı mı aşağı mı?",
-        ["AreaTrend"] = "Seviye zamanla eşiğin altına iniyor mu?",
+        ["AreaTrend"] = "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?",
         ["StackedBar"] = "Bu dönem neyden oluşuyor?",
-        ["RingGauge"] = "Ne kadarı tamamlandı?"
+        ["RingGauge"] = "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?"
     };
 
     [Fact]
@@ -36,8 +36,8 @@ public sealed class DesignChartTests
             .Select(Path.GetFileNameWithoutExtension)
             .ToList();
 
-        // 4 primitif ve ChartColorResolver yardımcısı dışında dosya bulunamaz
-        var allowedFiles = AllowedChartPrimitives.Concat(["ChartColorResolver"]).ToList();
+        // 4 primitif ile ChartColorResolver ve ChartScale yardımcıları dışında dosya bulunamaz
+        var allowedFiles = AllowedChartPrimitives.Concat(["ChartColorResolver", "ChartScale"]).ToList();
 
         foreach (var file in csFiles)
         {
