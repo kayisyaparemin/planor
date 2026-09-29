@@ -8,7 +8,8 @@ namespace Mizan.Domain.Models;
 /// </summary>
 /// <remarks>
 /// Bu kayıt snapshot zincirinin dışındadır; yazılması veya güncellenmesi finansal planı
-/// veya dondurulmuş dönem planını mutasyona uğratmaz. Açık plan başına tek kayıt tutulur.
+/// veya dondurulmuş dönem planını mutasyona uğratmaz. Gün başına tek gözlem tutulur; hangi güne
+/// yazılabileceği ve hangisinin son gözlem olduğu <see cref="Calculations.PeriodObservationRules"/>'ta (S68).
 /// </remarks>
 public sealed record PeriodObservation
 {

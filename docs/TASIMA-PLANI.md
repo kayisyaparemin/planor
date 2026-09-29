@@ -72,7 +72,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 - [x] **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları (`PeriodObservationPayment`) — *S20 kararıyla spekülatif `PeriodObservationFlow` elendi*
 - [x] **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` *(eski `FinancialReviewCommit` — S12 gereği adlandırıldı)*
-- [ ] **H5** — dönem içinde birden fazla gözlem *(V3 yenilemesi — bkz. `V3`)*. Sözlük gözlemi "dönem
+- [x] **H5** — dönem içinde birden fazla gözlem *(V3 yenilemesi — bkz. `V3`)*. Sözlük gözlemi "dönem
       içinde kullanıcının girdiği anlık bakiye" diye tanımlıyor, ama kod dönem başına **tek** kayıt tutuyor
       ve her bakiye girişinde üzerine yazıyor (`period_observations.PeriodPlanSnapshotId UNIQUE`,
       `PeriodWorkflowService.ObserveCurrentBalanceAsync`). Artık her bakiye girişi yeni bir gözlem olur,
@@ -85,7 +85,10 @@ Geri kalan her şey bu omurgadan sarkar.
         tarihiyle girilirse biten dönemin aralığı dışında kalır; tarih biten dönemin son gününe mi
         kenetlenir, yoksa bu durumda giriş kapanışın bakiyesi mi sayılır?
 
-      Yeni `S` kaydı.
+      Yeni `S` kaydı. *(S68: işaret döneme bağlanır ve `PeriodPaymentMark` olur, aynı gün ikinci giriş
+      öncekinin yerine geçer, kapanış gözlemleri silmez, kapanmamış biten döneme bakiye yazılmaz — önce kapanış.
+      H5 yalnız kuralları getirdi: `PeriodObservationRules`, `I80`–`I82`. Model şekli şemayla birlikte `I7b`'de;
+      sıra `H5 → I7a → I7b → A28`.)*
 
 ## Faz A — Application
 
@@ -148,7 +151,11 @@ Geri kalan her şey bu omurgadan sarkar.
       - **Önizleme:** kaydetmeden, girilen bakiyeyle gidişatı hesaplayan salt okuma
         (`PeriodProgressCalculator` bağımlılıksız; taslak gözlemi deftere ekleyip hesaplar).
 
-      Aşama 1'de ~300 satırı aşarsa bölünür.
+      Aşama 1'de ~300 satırı aşarsa bölünür. **`I7b`'den sonra** (S68). S68'den gelenler: kapanış gözlemleri
+      silmez (7); ödeme işaretinin bakiyeye yansıması ödeme gününe göre (8); kapanmamış biten döneme gözlem
+      yazılmaz, "Bakiye gir" önce kapanışı ister (4, `PeriodObservationRules.CanObserveOn`). Açık notlar: kurulum
+      gözlemi dönemden önceki güne düşebiliyor; hatırlatıcı cevabı gözlemle zaman damgasıyla kıyaslanıyor,
+      geriye tarihli gözlemde bu yanıltır.
 - [ ] **A29** — harcama temposu *(V3 yenilemesi — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
       oran ile geçen süre oranı ve aradaki fark (puan). **İkisi aynı güne göre** hesaplanır: son gözlemin
       günü. Bugünle kıyaslanırsa bakiye girilmedikçe harcama donar, süre ilerler ve ekran "harcama geride"
@@ -193,9 +200,12 @@ Geri kalan her şey bu omurgadan sarkar.
   - [ ] **I7a** — göç altyapısı: sürüm sürüm ilerleyen, işlem içinde çalışan yükseltme; eski sürümlü
         yedek geri yüklenince yükseltilir (`BackupDatabaseValidator` bugün yalnız "daha yeni"yi reddediyor).
         Emülatördeki telefon verisiyle (v1) denenir.
-  - [ ] **I7b** — v2: `period_observations`'ta dönem başına tek kayıt kısıtı kalkar, ödeme işaretleri
-        `H5`'in kararına göre taşınır, depo listeyle çalışır (`A28`). Mevcut kayıt dönemin ilk gözlemi
-        olarak kalır; kopyalama gerekmez.
+  - [ ] **I7b** — v2 ve gözlem modelinin yeni şekli (S68-2, 8, 9): `period_observations`'ta dönem başına tek
+        kayıt kısıtı yerine `(PeriodPlanSnapshotId, ObservedOn)` UNIQUE; ödeme işareti gözlemden ayrılır, plana
+        bağlanır ve `PeriodPaymentMark` olur; bakiye zorunlu, `ObservedLivingSpend` ve `Note` çıkar, tek kayıt
+        zamanı. Port listeyle ve işaretlerle çalışır; Application yalnız derlenecek kadar uyarlanır, davranış
+        `A28`'de. Mevcut kayıt dönemin ilk gözlemi olarak kalır; kopyalama gerekmez. Dört katmana dokunur,
+        Aşama 1'de bölünebilir.
 
 ## Faz T — Tasarım Sistemi (Planör)
 
@@ -259,6 +269,8 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       (tempo). İkisinin de `<summary>`'deki sorusu değişir; eklemeler isteğe bağlı olur, `AreaTrend`'in
       12 dönem kullanımı (`V8`) bozulmaz. Rol → token eşlemesine yeni roller. `V11`'in Aşama 4'ünde plan /
       gerçekleşen çubukları kalırsa `StackedBar` iki satır çizer.
+      S68-6: çizgi noktaların arasında ve son noktadan sonra plandan çizilir — her gelir ve ödeme kendi gününde
+      bakiyeyi değiştirir, kalan yaşam gideri dönem sonuna iner; gözlem yoksa çizgi baştan sona plandır.
 
 ## Faz V — Ekranlar
 
@@ -282,12 +294,12 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       - "Dönemi kapat" butonu yalnız kapanış ertelendiyse görünür ve `V11`'in özet sayfasını açar.
       - **"Bakiye gir" ayrı bir sayfa** (✕ ile kapanır): tutar, son giriş ve tarihi, gözlem tarihi
         (varsayılan bugün, "Değiştir"), kaydetmeden önce "bu girişle dönem sonu tahmini" önizlemesi ve
-        küçük grafik. Sayfa `EK-V3`'e ikinci sayfa olarak yazılır (GK9 kartı dosya adından eşliyor);
-        `V11`'deki "Değiştir" de bu sayfayı açar. Tarih ve önizleme `A28`'de.
+        küçük grafik. Sayfa `EK-V3`'e ikinci sayfa olarak yazılır (GK9 kartı dosya adından eşliyor).
+        Kapanış ertelenmişken sayfa önce kapanışı ister (S68-4). Tarih ve önizleme `A28`'de.
       - Bakiye hiç girilmemişken hero'da planın dönem sonu, "plan değeri · henüz gözlem yok" etiketiyle.
         Bugün gözlem yoksa tahmin `null` dönüyor ve ekranda tire görünüyor (`PeriodProgressCalculator`).
 
-      **Önce:** grafik verisi `H5 → A28 → I7a → I7b`, tempo `A29`, kural ve primitifler `T9 → T10`.
+      **Önce:** grafik verisi `H5 → I7a → I7b → A28` (S68), tempo `A29`, kural ve primitifler `T9 → T10`.
       Bu adımlar `/tasima-adimi` ile yürür ama kaynak eski proje değil, bu satırdır (Faz T'deki gibi):
       Aşama 1 mevcut kodu okur, Aşama 3 yeni `S` / `GS` kaydı yazar. **Sonra** ekran, `/tasarim-adimi V3`:
       kart `EK-V3` yerinde yeniden yazılır (GK9 kart anahtarı harf eki alamıyor), `GS20` iptal olur, yerine yeni `GS`.
@@ -363,7 +375,9 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`)*. Çapa günü uygulama açılınca kendiliğinden
       açılır: dönem sonu, plana göre fark, farkın kaynağı ve tek "Dönemi kapat". ✕ ile kapatmak ertelemek
       demek; ana sayfada "Dönemi kapat" kalır ve bu sayfayı açar. Kapanış bakiyesinin yanındaki "Değiştir"
-      "Bakiye gir" sayfasını (`V3`) açar; girişin hangi tarihe yazılacağı `H5`'te. Birden fazla dönem
+      bakiyeyi kapanışın içinde değiştirir, gözlem yazmaz ve "Bakiye gir"i açmaz (S68-5): "planlandığı gibi"
+      denirse planın dönem sonu, değilse kullanıcının söylediği farklardan çıkan bakiye. Kapanmamış biten
+      döneme bakiye yazılmaz (S68-4). Birden fazla dönem
       geçtiyse sırayla. Eski çok adımlı sihirbaz taşınmaz; ödemeler ve yaşam harcaması dönemin
       kayıtlarından gelir.
       - Farkın kaynağı: yaşam gideri (planlanan / harcanan), ödemeler (kaçı ödendi), bakiye eksiye
@@ -375,7 +389,8 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         aynı bilgiyi "Farkın kaynağı" kartı veriyor. Kalırsa `StackedBar` iki satır çizmeli (`T10`). Hero
         kartın zemini `T9`'daki kontrast kararına bağlı. Ertelenen kapanış her açılışta yeniden mi açılır,
         yoksa yalnız ana sayfadaki buton mu kalır?
-- [ ] **V12** — geçmiş + geçmiş ayrıntısı
+- [ ] **V12** — geçmiş + geçmiş ayrıntısı *(S68-6, 7: kapanan dönemin gözlemleri saklanır; ayrıntıda
+      dönemin bakiye çizgisi çizilebilir)*
 - [ ] **V13** — ayarlar + düzen değişikliği
 
 ## Faz K — Kalkanlar
@@ -405,7 +420,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 |---|---|---|
 | F | 3 | 4 *(F1 K9 testi için geri açıldı)* |
 | D | 24 | 24 |
-| H | 4 | 5 *(H5 V3 yenilemesi için açıldı)* |
+| H | 5 | 5 *(H5 V3 yenilemesi için açıldı ve kapandı)* |
 | A | 25 | 27 *(A22 ve A25 taşınmıyor; A28, A29 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |

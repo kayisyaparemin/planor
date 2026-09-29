@@ -93,6 +93,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I77` | Dönem kapanışı fiilî ödemenin uygulandığı kartı harcamalarıyla birlikte yazar; kapanıştan sonra kart eski bakiyeyle kalmaz. | `Mizan.Infrastructure.Tests.Persistence.Repositories.SqlitePeriodSettlementInstrumentTests.CommitPeriodSettlementAsync_KartGuncellenince_KartiVeHarcamalariniYazar` | `I2d` düzeltmesi |
 | `I78` | Düzenli gelir ve yeni tutarları tek işlemde yazılır: bir tutar yazılamazsa gelir de yazılmaz, tutarı olmayan gelir kalmaz; var olan tutar kayıtlarına dokunulmaz (S67-3). | `Mizan.Infrastructure.Tests.Persistence.Repositories.SqliteRecurringIncomeRepositoryTests.UpsertRecurringIncomeWithAmountsAsync_TutarYazilamazsa_GelirDeYazilmaz` | `V6d1` |
 | `I79` | Yeni bir düzenli geliri ilk tutarıyla kaydetmek tek plan revizyonu doğurur (S67-3). | `Mizan.Application.Tests.Services.IncomePlanServiceTests.SaveRecurringIncomeAsync_YeniGelirVeIlkTutari_TekYazmadaTekRevizyonlaKaydeder` | `V6d1` |
+| `I80` | Bir günde tek bakiye gözlemi olur: aynı gün ikinci kez bakiye girilirse yeni tutar öncekinin yerine geçer, grafikte o güne tek nokta düşer (S68-2). | `Mizan.Domain.Tests.Calculations.PeriodObservationRulesTests.Record_AyniGunIkinciGiris_OncekininYerineGecer` | `H5` |
+| `I81` | Gidişat en geç tarihli gözlemden hesaplanır, en son girilenden değil: sonradan girilen geriye tarihli bir bakiye son gözlemi değiştirmez (S68-3). | `Mizan.Domain.Tests.Calculations.PeriodObservationRulesTests.Latest_GeriyeTarihliGirisSonraYapilsaDa_EnGecTarihliGozlemiDoner` | `H5` |
+| `I82` | Bakiye gözlemi yalnız açık dönemin içindeki, bugünden sonra olmayan bir güne yazılır. Dönem bitmiş ama kapanmamışsa hiçbir güne gözlem yazılmaz; o bakiyede yeni dönemin hareketleri vardır ve biten dönemin sonunu kapanış belirler (S68-4). | `Mizan.Domain.Tests.Calculations.PeriodObservationRulesTests.CanObserveOn_DonemBittiKapanmadi_HicbirGuneYazilamaz` | `H5` |
 
 ## Satır eklerken
 

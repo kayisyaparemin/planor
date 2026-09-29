@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6d1** — gelir formu: düzenli gelirin tanımı, ekle / düzenle |
-| Sıradaki adım | **V6d2** — gelir formu: tutar değişiklikleri |
-| Test sayısı | 1655 |
+| Son tamamlanan adım | **H5** — dönem içinde birden fazla gözlem: kararlar ve gözlem kuralları |
+| Sıradaki adım | **I7a** — göç altyapısı (V3 zinciri: `H5 → I7a → I7b → A28`); **V6d2** de açık |
+| Test sayısı | 1671 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### H5 — dönem içinde birden fazla gözlem: `PeriodObservationRules`; kararlar `S68`'de
+
+Kaynak eski proje değil, bugünkü kod: dönem başına tek gözlem vardı ve her bakiye girişi öncekinin üzerine yazıyordu; ana sayfa grafiğinin (`V3`) çizeceği bakiye yolu yoktu. Kullanıcının tarifi: dönem 100.000 ile başlar, 3 gün sonra 97.000, 10 gün sonra 65.000 girilir; her giriş grafikte bir nokta. Kararlar (`S68`): ödeme işareti gözlemden ayrılır ve döneme bağlanır (`PeriodPaymentMark`); aynı gün ikinci giriş öncekinin yerine geçer; kapanış gözlemleri silmez (`V12` dönemin çizgisini çizebilsin); kapanmamış biten döneme bakiye yazılmaz, önce kapanış — biten dönemin sonunu kapanış belirler ("planlandığı gibi" ya da söylenen farklar), çizgi noktaların arasında ve sonrasında plandan çizilir.
+Aşama 1'de görüldü: model değişikliği dört katmanı derlemeden düşürüyor ve v1 şeması yeni şekli saklayamıyor. Bu yüzden bölündü: H5 yalnız Domain kurallarını getirdi (`CanObserveOn`, `Record`, `Latest`; 47 satır, `I80`–`I82`); model şekli ve işaretin ayrılması şemayla birlikte `I7b`'de. Sıra değişti: `H5 → I7a → I7b → A28`.
+Kalan bulgular (`S68` açık notlar): `ObservePaymentAsync`'i hiçbir ekran çağırmıyor, işaret koymak bugün gözlemin gününü kaydırıyor; `ObservedLivingSpend` hiç yazılmıyor, kapanış taslağına 0 gidiyor; kurulum gözlemi dönemden önceki güne düşebiliyor.
+**Dikkat:** `V11`'in planı değişti: kapanıştaki "Değiştir" artık "Bakiye gir"i açmıyor, bakiyeyi kapanışın içinde değiştiriyor. 16 yeni Domain testi; toplam 1.671 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V6d1 — düzenli gelir formu: `IncomeFormViewModel`, `IncomeDefinitionViewModel`, `IncomeFormPage`; gelir tutarı yatış gününe göre çözülür
 

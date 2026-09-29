@@ -43,7 +43,9 @@ aslında bir sonraki ödeme tarihini tutuyordu. Böyle bir şey bu tabloda gör�
 | fiilî yaşam gideri kırılımı | `ActualLivingBreakdown` | Serbest yaşam havuzundan fiilen yapılan harcamaların kategori dökümü |
 | fiilî ödeme durumu | `ActualPaymentStatus` | Ödemenin yapılıp yapılmadığı veya farklı tutarla gerçekleştiği durumu |
 | plansız akış türü | `ActualFlowType` | Plansız nakit hareketinin gelir mi ödeme mi olduğunu belirten yön |
-| gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye |
+| gözlem | `PeriodObservation` | Dönem içinde kullanıcının girdiği anlık bakiye; gün başına bir tane, ana sayfa grafiğinde bir nokta (S68) |
+| son gözlem | `PeriodObservationRules.Latest` | Dönemin en geç **tarihli** gözlemi; giriş sırasına bakılmaz. Gidişat ondan hesaplanır (S68) |
+| gözlem kuralları | `PeriodObservationRules` | Gözlemin hangi güne yazılabileceği, aynı güne ikinci girişin öncekinin yerine geçmesi ve son gözlemin seçimi (S68) |
 | gözlem ödemesi | `PeriodObservationPayment` | Dondurulan plan ödeme satırının dönem içi gözlem defterindeki ara gerçekleşme kaydı |
 | güncel ödeme satırları | `OpenPeriodLedger.CurrentPaymentLines` | Dönem içinde "planım şu an ne" sorusunun satırları: son revizyonunkiler, revizyon yoksa dondurulan planınkiler (I24) |
 | ödeme satırı durumu | `PeriodPaymentLineClassification` | Açık dönemin güncel ödeme satırlarının bir güne göre durumu: gözlenen bakiyeye yansımış ödemeler, gözlemden sonra yapılanlar, kalan ve ertelenen satırlar |
