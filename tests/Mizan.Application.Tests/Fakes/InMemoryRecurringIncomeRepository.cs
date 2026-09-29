@@ -9,6 +9,10 @@ namespace Mizan.Application.Tests.Fakes;
 public sealed class InMemoryRecurringIncomeRepository : IRecurringIncomeRepository
 {
     private readonly Dictionary<Guid, RecurringIncome> _incomes = [];
+    private readonly Dictionary<Guid, IncomeAmountHistory> _histories = [];
+
+    /// <summary>Gelirin tutarlarıyla birlikte tek çağrıda yazıldığı kayıt sayısı (S67-3).</summary>
+    public int CombinedWriteCount { get; private set; }
 
     public Task<IReadOnlyList<RecurringIncome>> GetRecurringIncomesAsync(CancellationToken cancellationToken = default)
     {
@@ -24,14 +28,26 @@ public sealed class InMemoryRecurringIncomeRepository : IRecurringIncomeReposito
         return Task.CompletedTask;
     }
 
+    public Task UpsertRecurringIncomeWithAmountsAsync(
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        CombinedWriteCount++;
+        _incomes[income.Id] = income;
+        foreach (var amount in newAmounts)
+        {
+            _histories[amount.Id] = amount;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task DeleteRecurringIncomeAsync(Guid id, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         _incomes.Remove(id);
         return Task.CompletedTask;
     }
-
-    private readonly Dictionary<Guid, IncomeAmountHistory> _histories = [];
 
     public Task<IReadOnlyList<IncomeAmountHistory>> GetIncomeAmountHistoriesAsync(CancellationToken cancellationToken = default)
     {
@@ -46,13 +62,6 @@ public sealed class InMemoryRecurringIncomeRepository : IRecurringIncomeReposito
     {
         cancellationToken.ThrowIfCancellationRequested();
         _histories[history.Id] = history;
-        return Task.CompletedTask;
-    }
-
-    public Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        _histories.Remove(id);
         return Task.CompletedTask;
     }
 }

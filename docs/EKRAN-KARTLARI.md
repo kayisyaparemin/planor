@@ -1217,6 +1217,174 @@ Konsept karşılığı **yok** (`GS2`). Form, erken ödeme `ListCard`'ı, giriş
 düzeni `EK-V6b`'den; faiz kartındaki `MetricRow` satırları `EK-V3`'ten (`GS20`); kararın bedelini
 gösterme fikri `EK-V7`'den. Renk ve ses Planör marka token'larından (`GS7`).
 
+## EK-V6d — Gelir formu
+
+> Sayfa dosyaları: `IncomeFormPage.xaml` (düzenli gelir), `AdHocIncomeFormPage.xaml` (tek seferlik gelir)
+> Adım **V6d** üç alt adımda: `V6d1` düzenli gelirin tanımı + "Ekle" / "Düzenle", `V6d2` tutar
+> değişiklikleri, `V6d3` tek seferlik gelir. Kapı A ve B ortak (iki sayfa), Kapı C her alt adımda ayrı.
+> Davranış kararları: `S67`.
+> **V6d1 tamamlandı** (Kapı C onaylı): form kartı (gelir adı, yeni gelirde aylık net tutar, ödeme günü),
+> Kaydet / Vazgeç, Finansal Yapı'da "Ekle → Düzenli gelir" ve düzenli gelir satırında "Düzenle"; gelir ve
+> ilk tutarı tek işlemde yazılır, tutar yatış gününe göre çözülür (`S67`-2–4, `I4`, `I78`, `I79`).
+> Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
+> gövdesi olarak okunur (`EK-V6b`, `EK-V6c` ile aynı).
+
+**Eski hâl:** `CommitmentsPage.xaml` düzenli gelir formu 3 `<Label>` (ortak başlık, açıklama, "Ne eklemek
+istiyorsun?" ve durum mesajıyla ~7), 2 giriş + tarih; tek seferlik gelir ortak senaryo formundan
+(`ScenarioConditionFormView`, 4 `<Label>`, ortaklarla ~7; 3 giriş). Düzenleme yoktu. ViewModel:
+`CommitmentsViewModel` (gelir payı ~35 satır), `ScenarioConditionForm` (403 satır / 2 dosya, ortak).
+
+### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Bu gelir ne, ayın kaçında yatıyor, ne kadar?" | ~7 etiket; gün sorulmuyordu (`S3`), düzenleme yoktu |
+| S2 | "Şu an ne kadar alıyorum, ileride ne zaman değişecek?" | Cevapsız: her tutar ayrı "gelir" satırıydı, zam ile ikinci gelir ayırt edilemiyordu (`S2`) |
+| S3 | "Bir zammı nasıl girerim, vazgeçersem nasıl silerim?" | Aynı formdan yeni kayıt; silme listedeki Sil düğmesi |
+| S4 | "Tek seferlik bir geliri nasıl eklerim, nasıl düzeltirim?" | Ortak senaryo formu, "Plan adı" diliyle ~7 etiket; düzenleme yok |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Gelir adı, aylık net tutar (yalnız yeni gelirde), ödeme günü | **Satır** (form kartı: `Eyebrow` + `Entry`, kurulumdaki sıra ve adlar) | S1 · `V6d1` |
+| Kaydet / Vazgeç | **Aksiyon** (`ActionFill` / `SecondaryButton`) | S1 · gelir ve tutarları tek işlemde yazar; değişiklik varsa çıkış onayı |
+| Finansal Yapı "Ekle"de "Düzenli gelir", "Tek seferlik gelir"; gelir satırında "Düzenle" | **Aksiyon / Satır** (mevcut diyaloglara seçenek) | `EK-V6` S3, S4 · `V6d1`, `V6d3` |
+| Yürürlükteki ve ileri tarihli tutarlar (tarih · tutar), simülatörden gelenler dahil | **Kart** (`ListCard`, ≤ 4 satır + "+N daha" yerinde, `GS21`) | S2 · `V6d2` · yalnız düzenlemede |
+| Tutar değişikliği girişi (yeni tutar, geçerlilik tarihi) | **Kart** ("Tutar değişikliği ekle" ile açılan giriş bloğu) | S3 · `V6d2` |
+| Planlı değişikliği silme | **Satır** (dokun → diyalog → Sil; yürürlüğe girmiş satırda bilgi diyaloğu) | S3 · `V6d2` |
+| Tek seferlik gelir: açıklama, tutar, tarih | **Satır** (ayrı sayfada form kartı) | S4 · `V6d3` |
+| Yürürlükten kalkmış tutarlar | **Çıkar** | Veride kalır (kural 05); geçmiş `V12`'nin işi |
+| Tutar kaydının açıklaması ("Başlangıç Tutarı", simülatör adı), "Planlanan gelir" rozeti | **Çıkar** | Kararı değiştirmiyor; tarih zaten söylüyor (`EK-V6c`'deki "Simülatörden uygulandı" gibi) |
+| Form açıklaması, "Plan adı", başarı ve durum mesajı, spinner | **Çıkar** | Başlık yeter; hata diyalogla; `GS14` |
+| Toplam / yıllık gelir | **Çıkar** | Dönem toplamı `EK-V3` / `EK-V9`'un işi |
+| Geliri sonlandırma (pasife alma, bitiş tarihi) | **Çıkar** | Pasife alan bir yol yok; gelir bitince listeden silinir |
+| Geçerlilik tarihinin anlamını anlatan cümle | **Çıkar** | Tutar yatış gününe göre çözülür (`S67`-4); tarih yatışla aynı anlamda |
+| Hero rakam | **Yok** | Form sayfası |
+
+### 3. Bütçe
+
+`IncomeFormPage.xaml` (V6d1 + V6d2):
+
+```
+Hero rakam    0 / 1     hero yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          3 / 4     form kartı (V6d1), tutarlar ListCard + giriş bloğu (V6d2); analizci yalnız ListCard'ı sayar
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     NavRow yok
+Label         7 / 28    form 3 (V6d1) + satır şablonu 2 + giriş 2 (V6d2); DataTemplate içi bir kez (şablon ContentPage.Resources'ta)
+Cumle_        0 / 3     açıklama cümlesi yok
+```
+
+`AdHocIncomeFormPage.xaml` (V6d3):
+
+```
+Hero rakam    0 / 1     hero yok
+Hero yüzey    0 / 1     hero yüzey yok
+Kart          1 / 4     form kartı
+Grafik        0 / 1     grafik yok
+NavRow        0 / 5     NavRow yok
+Label         3 / 28    açıklama, tutar, tarih
+Cumle_        0 / 3     açıklama cümlesi yok
+```
+
+### 4. Blok şeması
+
+`IncomeFormPage.xaml`:
+
+```
+┌─ PageHeader ──────────────────────────────────────────────────────┐
+│ Baslik_YeniGelir | Baslik_GeliriDuzenle  TypeTitle / TextPrimary   │  ← S1   üst etiket yok, aksiyon yok
+└────────────────────────────────────────────────────────────────────┘
+┌─ Form kartı (Border SurfaceCard / RadiusCard / CardPadding) ───────┐  V6d1
+│ Etiket_GelirAdi  "GELİR ADI"          Eyebrow                      │  ← S1
+│ [ Entry  "Örn. Kira geliri, emekli aylığı" ]       tam genişlik    │
+│ Etiket_AylikNetTutar  "AYLIK NET TUTAR"   Eyebrow  · yalnız yeni   │  ← S1  ilk tutar bugünden yürürlükte
+│ [ Entry Numeric "0" ]                              tam genişlik    │
+│ Etiket_OdemeGunu  "ÖDEME GÜNÜ"         Eyebrow                     │  ← S1
+│ [ Entry Numeric "1–31" ]                           tam genişlik    │
+└────────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_AylikNetTutar  "AYLIK NET TUTAR" ────────────────┐  V6d2 · ← S2 · yalnız düzenlemede
+│ 28 Eylül 2026 itibarıyla   TypeBody (Bicim_Itibariyla)  45.000 ₺   │  ← S2  yürürlükteki tutar
+│ 15 Ocak 2027 itibarıyla                                 50.000 ₺   │  ← S2  ileri tarihli; Figure
+│   … tarihe göre, en fazla 4 satır; fazlası: +N daha, yerinde açılır (GS21)
+│   dokun (ileri tarihli) → ChooseAsync(tarih, "Vazgeç", "Sil")       │  ← S3  silme Kaydet'e kadar bekler
+│   dokun (yürürlükteki)  → ShowAlertAsync: yürürlüğe girmiş tutar    │
+│                           silinmez, yeni tutar ekle                │
+└────────────────────────────────────────────────────────────────────┘
+[ Aksiyon_TutarDegisikligiEkle "Tutar değişikliği ekle"  SecondaryButton ]  V6d2 · ← S3 · giriş kapalıyken
+┌─ Giriş bloğu (Border SurfaceCard / RadiusCard / CardPadding) ──────┐  V6d2 · ← S3 · açıkken
+│ Etiket_YeniTutar "YENİ TUTAR"   Etiket_GecerlilikTarihi "GEÇERLİLİK TARİHİ" │  Grid *,*
+│ [ Entry Numeric "0" ]           [ DatePicker ≥ bugün ]             │  ← S3  varsayılan: sonraki ödeme günü
+│ [ Aksiyon_Ekle  ActionFill ]  [ Aksiyon_Vazgec  SecondaryButton ]  │  ← S3  hata → diyalog, giriş açık kalır
+└────────────────────────────────────────────────────────────────────┘
+[ Aksiyon_Kaydet  ActionFill ]     [ Aksiyon_Vazgec  SecondaryButton ]    V6d1 · ← S1 · Grid *,*
+  Vazgeç / geri oku / geri tuşu → değişiklik varsa
+    ConfirmAsync("Kaydetmeden çık", "Yaptığın değişiklikler kaydedilmeyecek.", "Çık", "Kal")
+```
+
+`AdHocIncomeFormPage.xaml` (V6d3):
+
+```
+┌─ PageHeader ──────────────────────────────────────────────────────┐
+│ Baslik_TekSeferlikGelir | Baslik_GeliriDuzenle  TypeTitle          │  ← S4   üst etiket yok, aksiyon yok
+└────────────────────────────────────────────────────────────────────┘
+┌─ Form kartı (Border SurfaceCard / RadiusCard / CardPadding) ───────┐
+│ Etiket_Aciklama  "AÇIKLAMA"            Eyebrow                     │  ← S4  zorunlu
+│ [ Entry  "Örn. Yıl sonu primi, vergi iadesi" ]     tam genişlik    │
+│ Etiket_Tutar "TUTAR"            Etiket_Tarih "TARİH"               │  ← S4  Grid *,*
+│ [ Entry Numeric "0" ]           [ DatePicker ≥ bugün, varsayılan bugün ] │
+└────────────────────────────────────────────────────────────────────┘
+[ Aksiyon_Kaydet  ActionFill ]     [ Aksiyon_Vazgec  SecondaryButton ]    ← S4 · Grid *,*
+  Vazgeç / geri oku / geri tuşu → değişiklik varsa aynı onay
+```
+
+Finansal Yapı'daki değişiklik (`EK-V6`):
+
+```
+Ekle           → ChooseAsync("Ne eklemek istiyorsun?", "Vazgeç", null,
+                             "Düzenli gelir", "Tek seferlik gelir", "Kredi kartı", "Kredi")
+                   listenin grup sırası; "Düzenli gelir" V6d1'de, "Tek seferlik gelir" V6d3'te gelir
+                   Düzenli gelir → Routes.IncomeForm · Tek seferlik gelir → Routes.AdHocIncomeForm
+Gelir satırı   → ChooseAsync(ad, "Vazgeç", "Sil", "Düzenle")
+                   düzenli: Routes.IncomeForm + incomeId (V6d1) · tek seferlik: Routes.AdHocIncomeForm + adHocIncomeId (V6d3)
+```
+
+Uygulama notları:
+- Rotalar: `Routes.IncomeForm` (`income-form`) + `IncomeIdParameter` (`incomeId`); `Routes.AdHocIncomeForm`
+  (`ad-hoc-income-form`) + `AdHocIncomeIdParameter` (`adHocIncomeId`). Kaydedince `NavigateBackAsync`.
+  Vazgeç, Shell geri oku (`BackButtonBehavior`) ve cihazın geri tuşu aynı `CancelCommand`'a gider (`EK-V6b`).
+- Tutar girişi V7'nin Türkçe okuyucusuyla (`I60`). Ad boş, tutar ≤ 0, gün 1–31 dışı → diyalog.
+- Yeni gelirin ilk tutarı bugünden yürürlüğe girer, açıklaması boş. Düzenleme yüklenen gelirin üstüne `with`
+  ile kurulur: aktiflik ve tutar geçmişi korunur (`I73`). Ödeme günü değişince tutarlar değişmez.
+- Kaydet `IIncomePlanService.SaveRecurringIncomeAsync(gelir, eklenecek tutarlar[, silinecek kimlikler])`
+  ile tek işlem, tek plan revizyonu (`S67`-3). Tutar yatış gününe göre çözülür (`S67`-4, `I4`).
+- Tutarlar (`V6d2`): `IncomeAmountsViewModel` çocuğu (`LoanPrepaymentsViewModel` deseni; portu, diyaloğu
+  ve saati ebeveynden alır, form 5 bağımlılıkta kalır). Satır ham veri taşır (`IncomeAmountRow`: kimlik,
+  geçerlilik tarihi, tutar, silinebilir mi). Liste: bugün yürürlükteki son tutar + ileri tarihliler; hiçbiri
+  yürürlükte değilse (ileride başlayan gelir) yalnız ileri tarihliler. Silinebilir = geçerlilik tarihi ≥ bugün;
+  en az bir tutar kalır. Aynı tarihte ikinci tutar "Ekle"de reddedilir. Satır şablonu `ContentPage.Resources`'ta.
+  Tarih metni `Bicim_Itibariyla` ("{0} itibarıyla"; ek uyumu gerektirmediği için "…'den itibaren" değil).
+- `HasChanges` tutar listesini de sayar (eklenen ya da silinen kimlik var mı).
+- Tek seferlik gelir (`V6d3`): düzenleme `with`; tarih en erken bugün (liste yalnız bugün ve sonrasını gösterir,
+  `S62`-5), varsayılan bugün. `SaveAdHocIncomeAsync` (mevcut).
+- Metinler yeni `IncomeFormStrings.json`'da (iki sayfa ortak). "maaş" geçmez (`S11`).
+- Yeni bileşen yok. Yeni converter yok (`Tarih`, `Para` mevcut).
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Yeni gelir: form boş alanlarla açılır (StateBlock yok); tutar listesi ve "Tutar değişikliği ekle" yeni gelirde görünmez. Tek seferlik: boş form, tarih bugün. |
+| Yükleniyor | Düzenlemede üç `SkeletonBlock`; spinner yok (`GS14`). Yeni kayıtta yükleme yok. |
+| Hata | Gelir okunamazsa `StateBlock` (Hata, `Close` ikonu, `Hata_GelirYuklenemedi`, `Aksiyon_TekrarDene` → yükle). Gelir bulunamazsa diyalog ve geri dönüş. Kaydetme hatasında diyalog; form olduğu gibi kalır. |
+
+### 6. Konsept ilişkisi
+
+Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `EK-V4` Adım 2'den (kurulumun gelir
+adımı); tutar `ListCard`'ı, giriş bloğu ve Kaydet / Vazgeç düzeni `EK-V6b` ve `EK-V6c`'den. Renk ve ses
+Planör marka token'larından (`GS7`).
+
 ### EK-V5 — İlk düzen seçimi
 Konsept karşılığı **yok.** `V6`'ya dayanır.
 
@@ -1261,6 +1429,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
 | EK-V6c | Kredi formu | 14 | 16 | ✅ V6c1 + V6c2 + V6c3 |
+| EK-V6d | Gelir formu | 14 | 3 | 🟡 V6d1 (V6d2, V6d3 açık) |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |

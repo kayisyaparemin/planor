@@ -26,24 +26,33 @@ public sealed class IncomePlanServiceTests
     }
 
     [Fact]
-    public async Task SaveRecurringIncomeAsync_ValidIncome_SavesAndTriggersChange()
+    public async Task SaveRecurringIncomeAsync_YeniGelirVeIlkTutari_TekYazmadaTekRevizyonlaKaydeder()
     {
         var sut = CreateSut();
-        var incomeId = Guid.NewGuid();
-        var income = new RecurringIncome
-        {
-            Id = incomeId,
-            Name = "Maaş Geliri",
-            PaymentDay = 15
-        };
+        var income = new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 };
+        var firstAmount = new IncomeAmountHistory { Amount = 12_500m, EffectiveDate = new DateOnly(2026, 10, 12) };
 
-        await sut.SaveRecurringIncomeAsync(income);
+        await sut.SaveRecurringIncomeAsync(income, [firstAmount]);
 
-        var saved = await _recurringIncomeRepository.GetRecurringIncomesAsync();
-        Assert.Single(saved);
-        Assert.Equal(incomeId, saved[0].Id);
+        Assert.Equal(income, Assert.Single(await _recurringIncomeRepository.GetRecurringIncomesAsync()));
+        var saved = Assert.Single(await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync());
+        Assert.Equal(income.Id, saved.RecurringIncomeId);
+        Assert.Equal(12_500m, saved.Amount);
+        Assert.Equal(1, _recurringIncomeRepository.CombinedWriteCount);
+        Assert.Equal(["Gelir planı değişti"], _changeRecorder.RecordedTriggers);
+    }
+
+    [Fact]
+    public async Task SaveRecurringIncomeAsync_EklenecekTutarYoksa_YalnizGeliriYazarTekRevizyonDogurur()
+    {
+        var sut = CreateSut();
+        var income = new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 };
+
+        await sut.SaveRecurringIncomeAsync(income with { Name = "Dükkân kirası" }, []);
+
+        Assert.Equal("Dükkân kirası", Assert.Single(await _recurringIncomeRepository.GetRecurringIncomesAsync()).Name);
+        Assert.Empty(await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync());
         Assert.Single(_changeRecorder.RecordedTriggers);
-        Assert.Equal("Gelir planı değişti", _changeRecorder.RecordedTriggers[0]);
     }
 
     [Theory]
@@ -58,8 +67,23 @@ public sealed class IncomePlanServiceTests
             PaymentDay = day
         };
 
-        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => sut.SaveRecurringIncomeAsync(income));
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => sut.SaveRecurringIncomeAsync(income, []));
         Assert.Empty(await _recurringIncomeRepository.GetRecurringIncomesAsync());
+        Assert.Empty(_changeRecorder.RecordedTriggers);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1000)]
+    public async Task SaveRecurringIncomeAsync_TutarSifirVeyaEksiyse_HicbirSeyYazmaz(decimal amount)
+    {
+        var sut = CreateSut();
+        var income = new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 };
+        var firstAmount = new IncomeAmountHistory { Amount = amount, EffectiveDate = new DateOnly(2026, 10, 12) };
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.SaveRecurringIncomeAsync(income, [firstAmount]));
+        Assert.Empty(await _recurringIncomeRepository.GetRecurringIncomesAsync());
+        Assert.Empty(await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync());
         Assert.Empty(_changeRecorder.RecordedTriggers);
     }
 
@@ -78,66 +102,6 @@ public sealed class IncomePlanServiceTests
         await sut.DeleteRecurringIncomeAsync(id);
 
         Assert.Empty(await _recurringIncomeRepository.GetRecurringIncomesAsync());
-        Assert.Single(_changeRecorder.RecordedTriggers);
-        Assert.Equal("Gelir planı değişti", _changeRecorder.RecordedTriggers[0]);
-    }
-
-    [Fact]
-    public async Task SaveIncomeAmountHistoryAsync_ValidHistory_SavesAndTriggersChange()
-    {
-        var sut = CreateSut();
-        var history = new IncomeAmountHistory
-        {
-            Id = Guid.NewGuid(),
-            RecurringIncomeId = Guid.NewGuid(),
-            EffectiveDate = new DateOnly(2026, 1, 1),
-            Amount = 50_000m
-        };
-
-        await sut.SaveIncomeAmountHistoryAsync(history);
-
-        var saved = await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync();
-        Assert.Single(saved);
-        Assert.Equal(history.Id, saved[0].Id);
-        Assert.Single(_changeRecorder.RecordedTriggers);
-        Assert.Equal("Gelir planı değişti", _changeRecorder.RecordedTriggers[0]);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1000)]
-    public async Task SaveIncomeAmountHistoryAsync_ZeroOrNegativeAmount_ThrowsInvalidOperationException(decimal amount)
-    {
-        var sut = CreateSut();
-        var history = new IncomeAmountHistory
-        {
-            Id = Guid.NewGuid(),
-            RecurringIncomeId = Guid.NewGuid(),
-            EffectiveDate = new DateOnly(2026, 1, 1),
-            Amount = amount
-        };
-
-        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.SaveIncomeAmountHistoryAsync(history));
-        Assert.Empty(await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync());
-        Assert.Empty(_changeRecorder.RecordedTriggers);
-    }
-
-    [Fact]
-    public async Task DeleteIncomeAmountHistoryAsync_ValidId_DeletesAndTriggersChange()
-    {
-        var sut = CreateSut();
-        var id = Guid.NewGuid();
-        await _recurringIncomeRepository.UpsertIncomeAmountHistoryAsync(new IncomeAmountHistory
-        {
-            Id = id,
-            RecurringIncomeId = Guid.NewGuid(),
-            EffectiveDate = new DateOnly(2026, 1, 1),
-            Amount = 20_000m
-        });
-
-        await sut.DeleteIncomeAmountHistoryAsync(id);
-
-        Assert.Empty(await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync());
         Assert.Single(_changeRecorder.RecordedTriggers);
         Assert.Equal("Gelir planı değişti", _changeRecorder.RecordedTriggers[0]);
     }

@@ -106,18 +106,19 @@ public sealed class IncomeProjectionCalculatorTests
     }
 
     [Fact]
-    public void Calculate_DonemIciZamVarsa_DonemBaslangicindakiTutariKullanir()
+    public void Calculate_ZamYatistanSonraYururlugeGirerse_OYatisEskiTutarla()
     {
+        // Dönem [10 Aralık, 10 Ocak), yatış 15 Aralık; zam 1 Ocak'ta, yani yatıştan sonra.
         var period = new CashFlowPeriod(new DateOnly(2026, 12, 10), new DateOnly(2027, 1, 10));
         var streamId = Guid.NewGuid();
         var streams = new[]
         {
-            new RecurringIncome { Id = streamId, Name = "Maaş", PaymentDay = 15, IsActive = true }
+            new RecurringIncome { Id = streamId, Name = "Gelir", PaymentDay = 15, IsActive = true }
         };
         var history = new[]
         {
             new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 50_000m, EffectiveDate = new DateOnly(2026, 1, 1) },
-            new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 75_000m, EffectiveDate = new DateOnly(2027, 1, 1) } // Dönem içinde
+            new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 75_000m, EffectiveDate = new DateOnly(2027, 1, 1) }
         };
 
         var result = _calculator.Calculate(period, streams, history, []);
@@ -125,6 +126,62 @@ public sealed class IncomeProjectionCalculatorTests
         Assert.Single(result.Items);
         Assert.Equal(50_000m, result.Items[0].Amount);
         Assert.Equal(50_000m, result.RecurringTotal);
+    }
+
+    [Fact]
+    public void Calculate_ZamDonemIcindeYatistanOnceYururlugeGirerse_OYatisYeniTutarla()
+    {
+        // S67-4: çapa 1, gelir günü 15; "15 Ocak'tan itibaren 60.000" 15 Ocak yatışına uygulanır.
+        var period = new CashFlowPeriod(new DateOnly(2027, 1, 1), new DateOnly(2027, 2, 1));
+        var streamId = Guid.NewGuid();
+        var streams = new[] { new RecurringIncome { Id = streamId, Name = "Gelir", PaymentDay = 15 } };
+        var history = new[]
+        {
+            new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 50_000m, EffectiveDate = new DateOnly(2026, 1, 1) },
+            new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 60_000m, EffectiveDate = new DateOnly(2027, 1, 15) }
+        };
+
+        var result = _calculator.Calculate(period, streams, history, []);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(new DateOnly(2027, 1, 15), item.SourceDate);
+        Assert.Equal(60_000m, item.Amount);
+    }
+
+    [Fact]
+    public void Calculate_DonemIcindeEklenenGelirYatisGunuSonraysa_BuDonemeGirer()
+    {
+        // S67-4: çapa 1; ayın 12'sinde eklenen "her ayın 20'si 10.000" bu dönemin 20'sinde yatar.
+        var period = new CashFlowPeriod(new DateOnly(2026, 10, 1), new DateOnly(2026, 11, 1));
+        var streamId = Guid.NewGuid();
+        var streams = new[] { new RecurringIncome { Id = streamId, Name = "Kira", PaymentDay = 20 } };
+        var history = new[]
+        {
+            new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 10_000m, EffectiveDate = new DateOnly(2026, 10, 12) }
+        };
+
+        var result = _calculator.Calculate(period, streams, history, []);
+
+        var item = Assert.Single(result.Items);
+        Assert.Equal(new DateOnly(2026, 10, 20), item.SourceDate);
+        Assert.Equal(10_000m, result.RecurringTotal);
+    }
+
+    [Fact]
+    public void Calculate_DonemIcindeEklenenGelirYatisGunuGecmisse_BuDonemeGirmez()
+    {
+        var period = new CashFlowPeriod(new DateOnly(2026, 10, 1), new DateOnly(2026, 11, 1));
+        var streamId = Guid.NewGuid();
+        var streams = new[] { new RecurringIncome { Id = streamId, Name = "Kira", PaymentDay = 5 } };
+        var history = new[]
+        {
+            new IncomeAmountHistory { RecurringIncomeId = streamId, Amount = 10_000m, EffectiveDate = new DateOnly(2026, 10, 12) }
+        };
+
+        var result = _calculator.Calculate(period, streams, history, []);
+
+        Assert.Empty(result.Items);
+        Assert.Equal(0m, result.RecurringTotal);
     }
 
     [Fact]

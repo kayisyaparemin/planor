@@ -143,21 +143,47 @@ public sealed class SqliteRecurringIncomeRepositoryTests : IDisposable
     }
 
     [Fact]
-    public async Task DeleteIncomeAmountHistoryAsync_YalnizBelirtilenTutarGecmisiniSiler()
+    public async Task UpsertRecurringIncomeWithAmountsAsync_YeniGelirVeIlkTutariniBirlikteYazar()
     {
         var repository = new SqliteRecurringIncomeRepository(_connection);
-        var incomeId = Guid.NewGuid();
-        await repository.UpsertRecurringIncomeAsync(new RecurringIncome { Id = incomeId, Name = "Gelir", PaymentDay = 1 });
+        var income = new RecurringIncome { Id = Guid.NewGuid(), Name = "Kira geliri", PaymentDay = 20 };
+        var first = Amount(income.Id, 12_500m, new DateOnly(2026, 10, 12));
 
-        var h1 = new IncomeAmountHistory { Id = Guid.NewGuid(), RecurringIncomeId = incomeId, Amount = 1000m, EffectiveDate = new DateOnly(2026, 1, 1), Description = "H1" };
-        var h2 = new IncomeAmountHistory { Id = Guid.NewGuid(), RecurringIncomeId = incomeId, Amount = 2000m, EffectiveDate = new DateOnly(2026, 2, 1), Description = "H2" };
-        await repository.UpsertIncomeAmountHistoryAsync(h1);
-        await repository.UpsertIncomeAmountHistoryAsync(h2);
+        await repository.UpsertRecurringIncomeWithAmountsAsync(income, [first]);
 
-        await repository.DeleteIncomeAmountHistoryAsync(h1.Id);
-
-        var remaining = await repository.GetIncomeAmountHistoriesAsync();
-        Assert.Single(remaining);
-        Assert.Equal(h2.Id, remaining[0].Id);
+        Assert.Equal(income, Assert.Single(await repository.GetRecurringIncomesAsync()));
+        Assert.Equal([first], await repository.GetIncomeAmountHistoriesAsync());
     }
+
+    [Fact]
+    public async Task UpsertRecurringIncomeWithAmountsAsync_KayitliGelirde_VarOlanTutarlaraDokunmazYenileriEkler()
+    {
+        var repository = new SqliteRecurringIncomeRepository(_connection);
+        var income = new RecurringIncome { Id = Guid.NewGuid(), Name = "Kira geliri", PaymentDay = 20 };
+        var first = Amount(income.Id, 12_500m, new DateOnly(2026, 1, 1));
+        await repository.UpsertRecurringIncomeWithAmountsAsync(income, [first]);
+        var raise = Amount(income.Id, 14_000m, new DateOnly(2027, 1, 20));
+
+        await repository.UpsertRecurringIncomeWithAmountsAsync(income with { Name = "Dükkân kirası", PaymentDay = 5 }, [raise]);
+
+        var saved = Assert.Single(await repository.GetRecurringIncomesAsync());
+        Assert.Equal(("Dükkân kirası", 5), (saved.Name, saved.PaymentDay));
+        Assert.Equal([first, raise], await repository.GetIncomeAmountHistoriesAsync());
+    }
+
+    [Fact]
+    public async Task UpsertRecurringIncomeWithAmountsAsync_TutarYazilamazsa_GelirDeYazilmaz()
+    {
+        var repository = new SqliteRecurringIncomeRepository(_connection);
+        var income = new RecurringIncome { Id = Guid.NewGuid(), Name = "Kira geliri", PaymentDay = 20 };
+        var first = Amount(income.Id, 12_500m, new DateOnly(2026, 10, 12));
+
+        await Assert.ThrowsAsync<SQLiteException>(() => repository.UpsertRecurringIncomeWithAmountsAsync(income, [first, first]));
+
+        Assert.Empty(await repository.GetRecurringIncomesAsync());
+        Assert.Empty(await repository.GetIncomeAmountHistoriesAsync());
+    }
+
+    private static IncomeAmountHistory Amount(Guid incomeId, decimal amount, DateOnly effectiveDate) =>
+        new() { Id = Guid.NewGuid(), RecurringIncomeId = incomeId, Amount = amount, EffectiveDate = effectiveDate };
 }

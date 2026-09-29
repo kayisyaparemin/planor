@@ -23,6 +23,7 @@ public sealed class IncomeProjectionCalculator
 
     /// <summary>
     /// Dönem için geçerli düzenli gelir akışlarını geçmişleriyle birlikte çözümler ve tek seferlik gelirlerle birleştirerek dönem gelir özetini hesaplar.
+    /// Her akışın tutarı o dönemdeki yatış gününde yürürlükte olan kayıttır (S67-4, I4).
     /// </summary>
     /// <param name="period">Gelirlerin hesaplanacağı nakit akış dönemi.</param>
     /// <param name="streams">Tanımlı düzenli gelir akışları kümesi.</param>
@@ -42,7 +43,11 @@ public sealed class IncomeProjectionCalculator
         ArgumentNullException.ThrowIfNull(history);
         ArgumentNullException.ThrowIfNull(adHocIncomes);
 
-        var resolved = _incomeResolver.Resolve(period.Start, streams, history);
+        // S67-4: tutar dönem başında değil, yatış gününde çözülür. Gelir kendi gününde yattığı için (S3)
+        // "15 Ocak'tan itibaren" 15 Ocak yatışına uygulanır, dönem ortasında eklenen gelir o dönemde yatar.
+        var historyList = history.ToList();
+        var resolved = streams.SelectMany(stream =>
+            _incomeResolver.Resolve(ResolvePaymentDate(period, stream.PaymentDay), [stream], historyList));
         return Calculate(period, resolved, adHocIncomes, prePeriodIncomeStart);
     }
 

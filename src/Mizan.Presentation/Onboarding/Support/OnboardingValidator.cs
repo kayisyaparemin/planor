@@ -5,6 +5,8 @@ namespace Mizan.Presentation.Onboarding.Support;
 /// </summary>
 internal static class OnboardingValidator
 {
+    private const string IncomeNameMessage = "Lütfen gelirin adını gir.";
+
     public static string? ValidatePeriodDay(int day)
     {
         if (day is < 1 or > 31) { return "Dönem başlangıç günü 1 ile 31 arasında olmalıdır."; }
@@ -13,8 +15,15 @@ internal static class OnboardingValidator
 
     public static string? ValidateIncome(string? name, decimal? amount, int day)
     {
-        if (string.IsNullOrWhiteSpace(name)) { return "Lütfen gelirin adını gir."; }
+        if (string.IsNullOrWhiteSpace(name)) { return IncomeNameMessage; }
         if (amount is null or <= 0m) { return "Lütfen geçerli bir aylık net tutar gir."; }
+        return ValidateIncomeDefinition(name, day);
+    }
+
+    // Gelir formunda kayıtlı gelirin tutarı sorulmaz (S67-2); ad ve gün aynı mesajlarla denetlenir.
+    public static string? ValidateIncomeDefinition(string? name, int day)
+    {
+        if (string.IsNullOrWhiteSpace(name)) { return IncomeNameMessage; }
         if (day is < 1 or > 31) { return "Ödeme günü 1 ile 31 arasında olmalıdır."; }
         return null;
     }

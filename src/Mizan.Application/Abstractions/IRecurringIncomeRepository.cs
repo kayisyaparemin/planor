@@ -3,7 +3,7 @@ using Mizan.Domain.Models;
 namespace Mizan.Application.Abstractions;
 
 /// <summary>
-/// Maaş, kira veya serbest meslek gibi dönemsel tekrarlayan düzenli gelir akışlarının
+/// Kira, emekli aylığı veya serbest meslek gibi dönemsel tekrarlayan düzenli gelir akışlarının
 /// kalıcı veri deposuna erişimini ve yönetimini sağlayan dar port arayüzü.
 /// </summary>
 public interface IRecurringIncomeRepository
@@ -19,6 +19,13 @@ public interface IRecurringIncomeRepository
     Task UpsertRecurringIncomeAsync(RecurringIncome income, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Bir düzenli gelir akışını ve ona eklenecek tutar kayıtlarını tek işlemde yazar: biri yazılamazsa
+    /// hiçbiri yazılmaz. Akışın var olan tutar kayıtlarına dokunulmaz (S67-3).
+    /// </summary>
+    Task UpsertRecurringIncomeWithAmountsAsync(
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Belirtilen düzenli gelir akışını ve geçmişini kalıcı olarak siler.
     /// </summary>
     Task DeleteRecurringIncomeAsync(Guid id, CancellationToken cancellationToken = default);
@@ -32,9 +39,4 @@ public interface IRecurringIncomeRepository
     /// Düzenli bir gelir akışına ait tutar veya zam geçmişi kaydeder veya günceller.
     /// </summary>
     Task UpsertIncomeAmountHistoryAsync(IncomeAmountHistory history, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Belirtilen tutar geçmişi kaydını kalıcı olarak siler.
-    /// </summary>
-    Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default);
 }

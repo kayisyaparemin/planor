@@ -111,4 +111,22 @@ public static class RecordFormAutomationIds
 
     /// <summary>Kredi formu: erken ödeme girişini kapatan buton kimliği.</summary>
     public const string BtnCancelLoanPrepayment = "btn-cancel-loan-prepayment";
+
+    /// <summary>Gelir formu sayfası kimliği.</summary>
+    public const string PageIncomeForm = "page-income-form";
+
+    /// <summary>Gelir formu: gelir adı girişi kimliği.</summary>
+    public const string InputIncomeName = "input-income-name";
+
+    /// <summary>Gelir formu: yeni gelirin aylık net tutarı girişi kimliği.</summary>
+    public const string InputIncomeAmount = "input-income-amount";
+
+    /// <summary>Gelir formu: ödeme günü girişi kimliği.</summary>
+    public const string InputIncomePaymentDay = "input-income-payment-day";
+
+    /// <summary>Gelir formu: kaydet butonu kimliği.</summary>
+    public const string BtnSaveIncome = "btn-save-income";
+
+    /// <summary>Gelir formu: vazgeç butonu kimliği.</summary>
+    public const string BtnCancelIncome = "btn-cancel-income";
 }

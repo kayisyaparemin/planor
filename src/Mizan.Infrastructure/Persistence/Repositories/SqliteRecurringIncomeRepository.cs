@@ -36,16 +36,27 @@ public sealed class SqliteRecurringIncomeRepository(SQLiteAsyncConnection connec
     {
         ArgumentNullException.ThrowIfNull(income);
         cancellationToken.ThrowIfCancellationRequested();
+        await _connection.UpsertAsync(ToEntity(income));
+    }
 
-        var entity = new RecurringIncomeEntity
+    /// <inheritdoc />
+    public async Task UpsertRecurringIncomeWithAmountsAsync(
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(income);
+        ArgumentNullException.ThrowIfNull(newAmounts);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Tutar kayıtları etkin tarihlidir: yalnız eklenir, var olan kayıt güncellenmez (kural 05).
+        // Aynı kimlik ikinci kez gelirse ekleme düşer ve işlem geliri de geri alır (S67-3).
+        await _connection.RunInTransactionAsync(conn =>
         {
-            Id = income.Id.ToString(),
-            Name = income.Name,
-            PaymentDay = income.PaymentDay,
-            IsActive = income.IsActive
-        };
-
-        await _connection.UpsertAsync(entity);
+            conn.Upsert(ToEntity(income));
+            foreach (var amount in newAmounts)
+            {
+                conn.Insert(ToEntity(amount));
+            }
+        });
     }
 
     /// <inheritdoc />
@@ -78,23 +89,23 @@ public sealed class SqliteRecurringIncomeRepository(SQLiteAsyncConnection connec
     {
         ArgumentNullException.ThrowIfNull(history);
         cancellationToken.ThrowIfCancellationRequested();
-
-        var entity = new IncomeAmountHistoryEntity
-        {
-            Id = history.Id.ToString(),
-            RecurringIncomeId = history.RecurringIncomeId.ToString(),
-            Amount = history.Amount,
-            EffectiveDate = history.EffectiveDate.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
-            Description = history.Description
-        };
-
-        await _connection.UpsertAsync(entity);
+        await _connection.UpsertAsync(ToEntity(history));
     }
 
-    /// <inheritdoc />
-    public async Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default)
+    private static RecurringIncomeEntity ToEntity(RecurringIncome income) => new()
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        await _connection.DeleteAsync<IncomeAmountHistoryEntity>(id.ToString());
-    }
+        Id = income.Id.ToString(),
+        Name = income.Name,
+        PaymentDay = income.PaymentDay,
+        IsActive = income.IsActive
+    };
+
+    private static IncomeAmountHistoryEntity ToEntity(IncomeAmountHistory history) => new()
+    {
+        Id = history.Id.ToString(),
+        RecurringIncomeId = history.RecurringIncomeId.ToString(),
+        Amount = history.Amount,
+        EffectiveDate = history.EffectiveDate.ToString(DatabaseConstants.DateFormat, CultureInfo.InvariantCulture),
+        Description = history.Description
+    };
 }

@@ -11,7 +11,8 @@ internal sealed class FakeIncomePlanService : IIncomePlanService
     public List<Guid> DeletedRecurringIncomeIds { get; } = [];
     public List<Guid> DeletedAdHocIncomeIds { get; } = [];
 
-    public Task SaveRecurringIncomeAsync(RecurringIncome income, CancellationToken cancellationToken = default) =>
+    public Task SaveRecurringIncomeAsync(
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default) =>
         Task.CompletedTask;
 
     public Task DeleteRecurringIncomeAsync(Guid id, CancellationToken cancellationToken = default)
@@ -19,12 +20,6 @@ internal sealed class FakeIncomePlanService : IIncomePlanService
         DeletedRecurringIncomeIds.Add(id);
         return Task.CompletedTask;
     }
-
-    public Task SaveIncomeAmountHistoryAsync(IncomeAmountHistory history, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
-
-    public Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
 
     public Task SaveAdHocIncomeAsync(AdHocIncome income, CancellationToken cancellationToken = default) =>
         Task.CompletedTask;

@@ -190,8 +190,9 @@ public static class MauiProgram
 
         services.AddTransient<CardFormViewModel>();
         services.AddTransient<CardFormPage>();
-
         services.AddTransient<LoanFormViewModel>();
         services.AddTransient<LoanFormPage>();
+        services.AddTransient<IncomeFormViewModel>();
+        services.AddTransient<IncomeFormPage>();
     }
 }

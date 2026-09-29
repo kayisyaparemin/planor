@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6c3** — kredi formu: planlı erken ödemeler; V6c tamam |
-| Sıradaki adım | **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir |
-| Test sayısı | 1631 |
+| Son tamamlanan adım | **V6d1** — gelir formu: düzenli gelirin tanımı, ekle / düzenle |
+| Sıradaki adım | **V6d2** — gelir formu: tutar değişiklikleri |
+| Test sayısı | 1655 |
 | Şema sürümü | v1 |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6d1 — düzenli gelir formu: `IncomeFormViewModel`, `IncomeDefinitionViewModel`, `IncomeFormPage`; gelir tutarı yatış gününe göre çözülür
+
+Eskide gelir, `CommitmentsPage` içinde ~7 etiketlik bir "maaş kaydı" formuydu: gün sorulmuyordu, düzenleme yoktu, zam da ikinci gelir de yeni kayıttı (`S2`). Aşama 1'de V6d ~800 satır çıktı; üçe bölündü (Kapı A ve B ortak, `S67`, `EK-V6d`). Bu adım düzenli gelirin tanımını getirdi: gelir adı, ödeme günü, yeni gelirde aylık net tutar (alan adları kurulumla aynı). Finansal Yapı "Ekle"de ilk seçenek "Düzenli gelir", gelir satırında "Düzenle". Düzenleme tutar sormaz; tutar geçmişi etkin tarihlidir, `V6d2`'de liste olarak gelir. Sayfa 98 satır / 3 Label; ViewModel 146 + 67 satır (5 bağımlılık).
+Karar (`S67`-3): yeni gelir ilk tutarıyla tek işlemde ve tek plan revizyonuyla yazılır (`IIncomePlanService.SaveRecurringIncomeAsync(gelir, yeni tutarlar)`); tutar kayıtları yalnız eklenir. Çağıranı kalmayan `SaveIncomeAmountHistoryAsync`, `DeleteIncomeAmountHistoryAsync` porttan, depo silme metodu depodan çıktı (6 → 4 metot).
+Karar (`S67`-4, `I4` yeniden yazıldı): gelirin tutarı dönem başında değil **yatış gününde** yürürlükte olan kayıttır. Eskisi, dönemin gelir gününde başladığı modelden kalmaydı: ayın 12'sinde eklenen "her ayın 20'si" geliri bu döneme girmiyor, "15 Ocak'tan itibaren" zammı 15 Ocak yatışına uygulanmıyordu (`S31` ile aynı gerekçe). Değişiklik `IncomeProjectionCalculator`'da 4 satır; dondurulmuş dönemler değişmez, kurulum ve simülatör aynı kurala geçer.
+**Dikkat:** `MauiProgram.cs` 198 satır, kayıt metodu 39 satır; `V6d3`'ün iki kaydı metodu 40'ın üstüne çıkarır. Kural 01 "DI kayıtları yalnız `MauiProgram.cs`'de" diyor; `V6d3` Aşama 1'de kullanıcıya sorulacak. Kullanılmayan `Etiket_GelirPlaniOzet` ("Maaş ve yan gelirler") yasaklı terim taşıyor, `/duzeltme` tür T işi (K9 testi yok, `F1`).
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 1/4 (form kartı; analizci 0), Grafik 0/1, NavRow 0/5, Label 3/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı. 30 yeni test, 6 test kaldırılan metotlarla çıktı (3 Domain, 4 Application, 3 Infrastructure, 20 sunum); toplam 1.655 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### Düzeltme — `INSERT OR REPLACE` alt kayıtları siliyordu; dönem kapanışı kartları ve taksitleri yazmıyordu
 

@@ -14,6 +14,7 @@ public sealed class IncomePlanService(
     IPlanChangeRecorder planChangeRecorder) : IIncomePlanService
 {
     private const string IncomeChangeTrigger = "Gelir planı değişti";
+    private const string AmountMustBePositiveMessage = "Gelir tutarı sıfırdan büyük olmalıdır.";
 
     private readonly IRecurringIncomeRepository _recurringIncomeRepository =
         recurringIncomeRepository ?? throw new ArgumentNullException(nameof(recurringIncomeRepository));
@@ -23,13 +24,21 @@ public sealed class IncomePlanService(
         planChangeRecorder ?? throw new ArgumentNullException(nameof(planChangeRecorder));
 
     /// <inheritdoc />
-    public async Task SaveRecurringIncomeAsync(RecurringIncome income, CancellationToken cancellationToken = default)
+    public async Task SaveRecurringIncomeAsync(
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(income);
+        ArgumentNullException.ThrowIfNull(newAmounts);
         cancellationToken.ThrowIfCancellationRequested();
 
         CalendarRules.ValidateDay(income.PaymentDay);
-        await _recurringIncomeRepository.UpsertRecurringIncomeAsync(income, cancellationToken);
+        if (newAmounts.Any(x => x.Amount <= 0m))
+        {
+            throw new InvalidOperationException(AmountMustBePositiveMessage);
+        }
+
+        var bound = newAmounts.Select(x => x with { RecurringIncomeId = income.Id }).ToArray();
+        await _recurringIncomeRepository.UpsertRecurringIncomeWithAmountsAsync(income, bound, cancellationToken);
         await _planChangeRecorder.RecordChangeAsync(IncomeChangeTrigger, cancellationToken);
     }
 
@@ -42,29 +51,6 @@ public sealed class IncomePlanService(
     }
 
     /// <inheritdoc />
-    public async Task SaveIncomeAmountHistoryAsync(IncomeAmountHistory history, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(history);
-        cancellationToken.ThrowIfCancellationRequested();
-
-        if (history.Amount <= 0m)
-        {
-            throw new InvalidOperationException("Gelir tutarı sıfırdan büyük olmalıdır.");
-        }
-
-        await _recurringIncomeRepository.UpsertIncomeAmountHistoryAsync(history, cancellationToken);
-        await _planChangeRecorder.RecordChangeAsync(IncomeChangeTrigger, cancellationToken);
-    }
-
-    /// <inheritdoc />
-    public async Task DeleteIncomeAmountHistoryAsync(Guid id, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        await _recurringIncomeRepository.DeleteIncomeAmountHistoryAsync(id, cancellationToken);
-        await _planChangeRecorder.RecordChangeAsync(IncomeChangeTrigger, cancellationToken);
-    }
-
-    /// <inheritdoc />
     public async Task SaveAdHocIncomeAsync(AdHocIncome income, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(income);
@@ -72,7 +58,7 @@ public sealed class IncomePlanService(
 
         if (income.Amount <= 0m)
         {
-            throw new InvalidOperationException("Gelir tutarı sıfırdan büyük olmalıdır.");
+            throw new InvalidOperationException(AmountMustBePositiveMessage);
         }
 
         await _adHocIncomeRepository.UpsertAdHocIncomeAsync(income, cancellationToken);

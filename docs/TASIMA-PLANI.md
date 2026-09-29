@@ -252,7 +252,15 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           planlarının taksitlerini, gelir kaydında tutar geçmişini siliyor — `/duzeltme` işi. Kredi formunun
           kaydı tek işleme geçtiği için bu yoldan artık silinmiyor. **Düzeltildi** (tür B, `I73`–`I77`):
           `INSERT OR REPLACE` yasaklandı, kapanış kartları ve taksitleri de yazıyor.)*
-  - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir
+  - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir. Aşama 1'de ~800 satır
+        çıktığı için üçe bölündü; Kapı A ve B ortak, Kapı C her alt adımda ayrı.
+    - [x] **V6d1** — `IncomeFormPage`: düzenli gelirin tanımı (ad, ödeme günü; yeni gelirde aylık net tutar),
+          ekle / düzenle; Finansal Yapı "Ekle"de "Düzenli gelir", gelir satırında "Düzenle"; gelir ve
+          tutarı tek işlemde kaydedilir
+    - [ ] **V6d2** — aynı sayfaya tutar değişiklikleri: yürürlükteki ve ileri tarihli tutarlar
+          (simülatörden gelenler dahil), yeni tutar girişi, planlı değişikliği silme
+    - [ ] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
+          "Ekle"de "Tek seferlik gelir"
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
 - [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*
 - [ ] **V8** — 12 dönem
@@ -293,6 +301,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
 | I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
 | T | 6 | 8 *(T7, T8 V7 Kapı C'de açıldı)* |
-| V | 5 | 14 *(V6 sekiz alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3 tamam)* |
+| V | 5 | 14 *(V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

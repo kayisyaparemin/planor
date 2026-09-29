@@ -100,10 +100,48 @@ public sealed class FinancialStructureViewModelTests
 
         await _viewModel.AddCommand.ExecuteAsync(null);
 
-        Assert.Equal(["Kredi kartı", "Kredi"], _dialog.LastChooseOptions);
+        Assert.Equal(["Düzenli gelir", "Kredi kartı", "Kredi"], _dialog.LastChooseOptions);
         Assert.Null(_dialog.LastChooseDestruction);
         Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
         Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task Add_DuzenliGelirSecilince_GelirFormunuKimliksizAcar()
+    {
+        _dialog.NextChooseResponse = "Düzenli gelir";
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.Equal(Routes.IncomeForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task SelectRecord_DuzenliGelir_DuzenleVeSilSunar()
+    {
+        var (income, histories) = Income("Kira geliri", 20, true, (12_500m, new DateOnly(2026, 1, 1)));
+        var row = await LoadWith(new FinancialPlan { RecurringIncomes = [income], IncomeHistories = histories }, vm => vm.Incomes);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal("Kira geliri", _dialog.LastChooseTitle);
+        Assert.Equal(["Düzenle"], _dialog.LastChooseOptions);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_DuzenliGelirDuzenle_GelirFormunuGelirKimligiyleAcar()
+    {
+        var (income, histories) = Income("Kira geliri", 20, true, (12_500m, new DateOnly(2026, 1, 1)));
+        var row = await LoadWith(new FinancialPlan { RecurringIncomes = [income], IncomeHistories = histories }, vm => vm.Incomes);
+        _dialog.NextChooseResponse = "Düzenle";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal(Routes.IncomeForm, _navigation.LastNavigatedRoute);
+        Assert.Equal(income.Id.ToString(), _navigation.LastParameters?[Routes.IncomeIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
     }
 
     [Fact]

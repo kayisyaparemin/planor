@@ -10,7 +10,8 @@ namespace Mizan.Presentation.ViewModels;
 /// <summary>
 /// Finansal Yapı ekranının görünüm modelidir: plana giren kayıtları dört grupta sunar ve satıra
 /// dokununca tek diyalogla kart kontrolünü ya da kaydın formunu açar veya kaydı siler (EK-V6, S62).
-/// Başlıktaki "Ekle" kayıt türünü sorar; formlar ayrı sayfalardır (kart: S63, kredi: S64, diğerleri V6d–V6e).
+/// Başlıktaki "Ekle" kayıt türünü sorar; formlar ayrı sayfalardır (kart: S63, kredi: S64, düzenli gelir: S67,
+/// diğerleri V6d3–V6e).
 /// </summary>
 public sealed partial class FinancialStructureViewModel : ViewModelBase
 {
@@ -19,6 +20,7 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
     private const string ManagePaymentText = "Ödemeyi yönet";
     private const string EditText = "Düzenle";
     private const string AddTitle = "Ne eklemek istiyorsun?";
+    private const string RecurringIncomeText = "Düzenli gelir";
     private const string CreditCardText = "Kredi kartı";
     private const string LoanText = "Kredi";
     private const string DeleteConfirmTitle = "Kaydı sil";
@@ -65,20 +67,30 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
         SetBusy(false);
     }
 
-    /// <summary>Eklenebilecek kayıt türlerini sorar ve seçilen türün formunu açar (S63-1, S64-1).</summary>
+    /// <summary>
+    /// Eklenebilecek kayıt türlerini listenin grup sırasıyla sorar ve seçilen türün formunu açar
+    /// (S63-1, S64-1, S67-1).
+    /// </summary>
     [RelayCommand]
     private async Task AddAsync()
     {
-        var choice = await _dialogService.ChooseAsync(AddTitle, CancelText, null, CreditCardText, LoanText);
-        if (choice is CreditCardText or LoanText)
+        var choice = await _dialogService.ChooseAsync(AddTitle, CancelText, null, RecurringIncomeText, CreditCardText, LoanText);
+        var route = choice switch
         {
-            await _navigationService.NavigateToAsync(choice == LoanText ? Routes.LoanForm : Routes.CardForm);
+            RecurringIncomeText => Routes.IncomeForm,
+            CreditCardText => Routes.CardForm,
+            LoanText => Routes.LoanForm,
+            _ => null
+        };
+        if (route is not null)
+        {
+            await _navigationService.NavigateToAsync(route);
         }
     }
 
     /// <summary>
-    /// Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme, kartta ve kredide düzenleme,
-    /// her türde silme.
+    /// Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme, kartta, kredide ve düzenli
+    /// gelirde düzenleme, her türde silme.
     /// </summary>
     [RelayCommand]
     private async Task SelectRecordAsync(FinancialRecordRow? row)
@@ -91,7 +103,7 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
         string[] options = row.Kind switch
         {
             FinancialRecordKind.CreditCard => [ManagePaymentText, EditText],
-            FinancialRecordKind.Loan => [EditText],
+            FinancialRecordKind.Loan or FinancialRecordKind.RecurringIncome => [EditText],
             _ => []
         };
         var choice = await _dialogService.ChooseAsync(row.Name, CancelText, DeleteText, options);
@@ -109,9 +121,16 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
         }
     }
 
-    private Task OpenFormAsync(FinancialRecordRow row) => row.Kind == FinancialRecordKind.Loan
-        ? _navigationService.NavigateToAsync(Routes.LoanForm, new Dictionary<string, object> { [Routes.LoanIdParameter] = row.Id })
-        : _navigationService.NavigateToAsync(Routes.CardForm, new Dictionary<string, object> { [Routes.CardIdParameter] = row.Id });
+    private Task OpenFormAsync(FinancialRecordRow row)
+    {
+        var (route, parameter) = row.Kind switch
+        {
+            FinancialRecordKind.Loan => (Routes.LoanForm, Routes.LoanIdParameter),
+            FinancialRecordKind.RecurringIncome => (Routes.IncomeForm, Routes.IncomeIdParameter),
+            _ => (Routes.CardForm, Routes.CardIdParameter)
+        };
+        return _navigationService.NavigateToAsync(route, new Dictionary<string, object> { [parameter] = row.Id });
+    }
 
     private async Task DeleteAsync(FinancialRecordRow row)
     {

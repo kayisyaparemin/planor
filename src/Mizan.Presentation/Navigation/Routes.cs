@@ -41,6 +41,12 @@ public static class Routes
     /// <summary>Kredi formunun hangi krediyi düzenleyeceğini taşıyan sorgu parametresi.</summary>
     public const string LoanIdParameter = "loanId";
 
+    /// <summary>Düzenli gelir ekleme / düzenleme formu rotası; <see cref="IncomeIdParameter"/> verilirse düzenleme.</summary>
+    public const string IncomeForm = "income-form";
+
+    /// <summary>Gelir formunun hangi düzenli geliri düzenleyeceğini taşıyan sorgu parametresi.</summary>
+    public const string IncomeIdParameter = "incomeId";
+
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";
 

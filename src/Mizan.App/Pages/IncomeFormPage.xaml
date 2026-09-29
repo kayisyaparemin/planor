@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.IncomeFormPage"
+             x:DataType="vm:IncomeFormViewModel"
+             AutomationId="{x:Static auto:RecordFormAutomationIds.PageIncomeForm}">
+
+    <!-- EK-V6d: Düzenli gelir formu (V6d1 tanım). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S1: yeni gelir ya da düzenleme -->
+            <comp:PageHeader Title="{x:Static strings:IncomeFormStrings.Baslik_YeniGelir}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding IsEditing}" Value="True">
+                        <Setter Property="Title" Value="{x:Static strings:IncomeFormStrings.Baslik_GeliriDuzenle}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: gelirin tanımı + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S1: form kartı; alanlar kurulumun gelir adımıyla aynı sırada ve adla (S67-2) -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:IncomeFormStrings.Etiket_GelirAdi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.Name}"
+                                   Placeholder="{x:Static strings:IncomeFormStrings.YerTutucu_GelirAdi}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputIncomeName}" />
+                        </VerticalStackLayout>
+                        <!-- Yalnız yeni gelirde: ilk tutar bugünden yürürlüğe girer; kayıtlı gelirin tutarı geçmiştir -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding Fields.ShowsAmount}">
+                            <Label Text="{x:Static strings:IncomeFormStrings.Etiket_AylikNetTutar}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.AmountInput}"
+                                   Placeholder="{x:Static strings:IncomeFormStrings.YerTutucu_Tutar}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputIncomeAmount}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:IncomeFormStrings.Etiket_OdemeGunu}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Fields.PaymentDayInput}"
+                                   Placeholder="{x:Static strings:IncomeFormStrings.YerTutucu_Gun}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputIncomePaymentDay}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S1: kaydet geliri ve ilk tutarını tek işlemde yazıp listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:IncomeFormStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnSaveIncome}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:IncomeFormStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelIncome}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek gelir okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:IncomeFormStrings.Hata_GelirYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding RetryCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
