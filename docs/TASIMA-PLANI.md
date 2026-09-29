@@ -72,6 +72,20 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **H2** — dönem gerçekleşmesi: `PeriodActual`, `ActualPayment`, `ActualFlow`
 - [x] **H3** — dönem gözlem defteri: `PeriodObservation` ve çocukları (`PeriodObservationPayment`) — *S20 kararıyla spekülatif `PeriodObservationFlow` elendi*
 - [x] **H4** — checkpoint taahhüdü: `PeriodSettlementCommit` *(eski `FinancialReviewCommit` — S12 gereği adlandırıldı)*
+- [ ] **H5** — dönem içinde birden fazla gözlem *(V3 yenilemesi — bkz. `V3`)*. Sözlük gözlemi "dönem
+      içinde kullanıcının girdiği anlık bakiye" diye tanımlıyor, ama kod dönem başına **tek** kayıt tutuyor
+      ve her bakiye girişinde üzerine yazıyor (`period_observations.PeriodPlanSnapshotId UNIQUE`,
+      `PeriodWorkflowService.ObserveCurrentBalanceAsync`). Artık her bakiye girişi yeni bir gözlem olur,
+      "son gözlem" en yenisidir; ana sayfa grafiği dönemin gözlemlerini çizer. Aşama 3 kararları:
+      - Ödeme işaretleri (`PeriodObservationPayment`) bugün bu tek kaydın çocuğu ve bakiyeden bağımsız
+        yazılıyor (`ObservePaymentAsync`). Dönemin kendisine mi bağlanır, her gözlem mi taşır?
+      - Aynı gün ikinci giriş öncekinin yerine mi geçer (gün başına tek gözlem, UNIQUE indeksle)?
+      - Dönem kapanınca gözlemler silinir mi (bugün `FinalizeSettlementAsync` siliyor), `V12` için kalır mı?
+      - Dönem bitmiş ama kapanmamışken (kapanış ertelendi) girilen bakiye hangi döneme yazılır? Bugünün
+        tarihiyle girilirse biten dönemin aralığı dışında kalır; tarih biten dönemin son gününe mi
+        kenetlenir, yoksa bu durumda giriş kapanışın bakiyesi mi sayılır?
+
+      Yeni `S` kaydı.
 
 ## Faz A — Application
 
@@ -124,6 +138,21 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A26** — yedekleme: `BackupService`, `IProfileBackupArchive`
       *(S52: BackupRetentionRules saf sınıfına ayrıldı, IBackupService dar portu eklendi, S22 uyarınca HasLegacyDatabase elendi)*
 - [x] **A27** — telemetri portu: `ITelemetryService` *(`Abstractions/` altında — düğüm T9)*
+- [ ] **A28** — dönemin gözlemleri *(V3 yenilemesi — bkz. `V3`; `H5`'e dayanır)*: bakiye girişi yeni gözlem
+      ekler, üzerine yazmaz; `OpenPeriodLedger` dönemin gözlemlerini taşır, gidişat son gözlemi kullanır.
+      `IPeriodObservationRepository`'nin tek kayıt dönen imzası listeye döner. "Bakiye gir" sayfası için
+      iki ek (konsept, bkz. `V3`):
+      - **Gözlem tarihi seçilir** (varsayılan bugün). Bugün `ObserveCurrentBalanceAsync` tarihi
+        `_clock.Today`'den alıyor. Geriye tarihli gözlem serinin ortasına girer; "son gözlem" giriş
+        sırasına değil tarihe göredir. Tarih dönem içinde olmalı, gelecek olamaz.
+      - **Önizleme:** kaydetmeden, girilen bakiyeyle gidişatı hesaplayan salt okuma
+        (`PeriodProgressCalculator` bağımlılıksız; taslak gözlemi deftere ekleyip hesaplar).
+
+      Aşama 1'de ~300 satırı aşarsa bölünür.
+- [ ] **A29** — harcama temposu *(V3 yenilemesi — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
+      oran ile geçen süre oranı ve aradaki fark (puan). **İkisi aynı güne göre** hesaplanır: son gözlemin
+      günü. Bugünle kıyaslanırsa bakiye girilmedikçe harcama donar, süre ilerler ve ekran "harcama geride"
+      diyerek yanlış güven verir. Gözlem yoksa tempo yok. Kavram önce `SOZLUK.md`'ye girer.
 
 ## Faz I — Infrastructure
 
@@ -159,6 +188,14 @@ Geri kalan her şey bu omurgadan sarkar.
       `allowBackup` kapalı, Sentry paketi yasak)
       *(eskinin açığı: maske yalnız `event.Message`'ı kapsıyordu; exception metni, breadcrumb,
       extra ve ekran görüntüsü açıkta kalıyordu. `AttachScreenshot` varsayılan olarak kapalı.)*
+- [ ] **I7** — ilk şema yükseltmesi, v1 → v2 *(V3 yenilemesi — bkz. `V3`)*. Bugün `DatabaseSchema` yalnız
+      boş veritabanını v1'e kurar; v1'i yükseltecek bir yol yok. İki alt adım:
+  - [ ] **I7a** — göç altyapısı: sürüm sürüm ilerleyen, işlem içinde çalışan yükseltme; eski sürümlü
+        yedek geri yüklenince yükseltilir (`BackupDatabaseValidator` bugün yalnız "daha yeni"yi reddediyor).
+        Emülatördeki telefon verisiyle (v1) denenir.
+  - [ ] **I7b** — v2: `period_observations`'ta dönem başına tek kayıt kısıtı kalkar, ödeme işaretleri
+        `H5`'in kararına göre taşınır, depo listeyle çalışır (`A28`). Mevcut kayıt dönemin ilk gözlemi
+        olarak kalır; kopyalama gerekmez.
 
 ## Faz T — Tasarım Sistemi (Planör)
 
@@ -205,6 +242,23 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       diyalog; `MauiDialogService` arkasında, ViewModel'ler değişmeden. *(V7 Kapı C)*
       Tarih seçicinin açılan penceresi de Android'in sistem penceresi; `V6c3` Kapı C'de yalnız düğme
       rengi düzeltildi (`Platforms/Android/Resources/values/styles.xml`), tasarımı bu işin kapsamında.
+- [ ] **T9** — kaydırılan hero: **GK4 kural değişikliği** *(V3 yenilemesi — bkz. `V3`. Kullanıcı kararı,
+      2026-09-29: ana sayfada iki görünüm; açılışta grafik, sağa kaydırınca halka)*. Bugün
+      `DesignBudgetAnalyzer` her `GraphicsView`'ü sayıyor, sınır 1. Önerilen kural: ekranda **aynı anda**
+      en fazla bir grafik görünür; sayfada en fazla bir kaydırılan hero, en fazla iki sayfa, sayfa başına
+      bir grafik. Kural metni (`06-tasarim.md`, `TASARIM-SISTEMI.md`), analizci ve ekran kartındaki bütçe
+      satırının biçimi birlikte değişir. Hero rakam 1 kalır: halkanın ortasındaki tutar `TypeTitle`.
+      Kaydırılan kartın zemini de burada seçilir: `SurfaceHero` koyu temada grafiği taşımıyor
+      (`Indicator` 2,92 < 3,0; `NegativeText` 4,18 ve `TextSecondary` 4,05 < 4,5), `SurfaceCard`'da
+      hepsi geçiyor. Ya `SurfaceCard` ya token değişikliği (`GS`); kontrast tablosuna yeni çiftler.
+      "Bakiye gir" sayfasındaki önizleme kartı da aynı zemin sorusu: koyu temada `PositiveText` /
+      `SurfaceHero` 4,25 < 4,5.
+- [ ] **T10** — grafik primitiflerinin genişlemesi *(V3 yenilemesi — bkz. `V3`; GK7: beşinci primitif yok)*.
+      `AreaTrend`: gerçek noktalar düz çizgi ve alan, son gözlemden dönem sonu tahminine kesikli devam,
+      "bugün" işareti, plan çizgisi (planın dönem sonu). `RingGauge`: dolulukla birlikte zaman işareti
+      (tempo). İkisinin de `<summary>`'deki sorusu değişir; eklemeler isteğe bağlı olur, `AreaTrend`'in
+      12 dönem kullanımı (`V8`) bozulmaz. Rol → token eşlemesine yeni roller. `V11`'in Aşama 4'ünde plan /
+      gerçekleşen çubukları kalırsa `StackedBar` iki satır çizer.
 
 ## Faz V — Ekranlar
 
@@ -212,7 +266,46 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
 - [x] **V1** — profil seçimi
 - [x] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
-- [x] **V3** — ana sayfa (dashboard)
+- [ ] **V3** — ana sayfa (dashboard). ⚠️ **Geri açıldı (2026-09-29): "Rota + Tempo" yenilemesi.**
+      İlk hâl (`GS20`: halka + hero rakam + gözlem kartı + gezinme satırları) tamamlanmıştı. Yeni yerleşim
+      Claude Design'da üretilen D yönü: `docs/assets/konsept/ana-sayfa-rota-tempo.png` (dolu hâl, iki tema,
+      yükleniyor) ve `ana-sayfa-rota-tempo-durumlar.png` (boş, bakiye hiç girilmemiş, kapanış ertelenmiş,
+      hata, "Bakiye gir" sayfası) ve `ana-sayfa-rota-tempo-kapanis.png` (halka sayfasının gözlemsiz hâli;
+      aynı görüntüdeki kapanış sayfası `V11`'in). Görüntüler **yalnız bu ekranın yerleşim konseptidir**:
+      renkleri token değildir, grafiğindeki iniş çıkışlar bugün hiçbir veriye dayanmıyor (bkz. `H5`).
+      - Kaydırılan kart, iki sayfa, iki nokta; açılışta her zaman 1. sayfa.
+        1. Dönem sonu tahmini (hero rakam) + plana göre fark (`PlannedEndingBalance` hazır) + bakiye trendi (`AreaTrend`).
+        2. Kalan yaşam gideri + tempo halkası (`RingGauge`) + harcanan / geçen süre + tek tempo cümlesi.
+      - Bankadaki bakiye (son gözlem ve tarihi) + "Bakiye gir"; hatırlatıcı kartı; kalan ödemeler
+        (adet · toplam, ilk satırlar, "Tümünü gör").
+      - Başlıkta dönem aralığı ve gün sayacı. Gezinme satırları ve ayarlar ikonu kalkar; yan menü karşılıyor.
+      - "Dönemi kapat" butonu yalnız kapanış ertelendiyse görünür ve `V11`'in özet sayfasını açar.
+      - **"Bakiye gir" ayrı bir sayfa** (✕ ile kapanır): tutar, son giriş ve tarihi, gözlem tarihi
+        (varsayılan bugün, "Değiştir"), kaydetmeden önce "bu girişle dönem sonu tahmini" önizlemesi ve
+        küçük grafik. Sayfa `EK-V3`'e ikinci sayfa olarak yazılır (GK9 kartı dosya adından eşliyor);
+        `V11`'deki "Değiştir" de bu sayfayı açar. Tarih ve önizleme `A28`'de.
+      - Bakiye hiç girilmemişken hero'da planın dönem sonu, "plan değeri · henüz gözlem yok" etiketiyle.
+        Bugün gözlem yoksa tahmin `null` dönüyor ve ekranda tire görünüyor (`PeriodProgressCalculator`).
+
+      **Önce:** grafik verisi `H5 → A28 → I7a → I7b`, tempo `A29`, kural ve primitifler `T9 → T10`.
+      Bu adımlar `/tasima-adimi` ile yürür ama kaynak eski proje değil, bu satırdır (Faz T'deki gibi):
+      Aşama 1 mevcut kodu okur, Aşama 3 yeni `S` / `GS` kaydı yazar. **Sonra** ekran, `/tasarim-adimi V3`:
+      kart `EK-V3` yerinde yeniden yazılır (GK9 kart anahtarı harf eki alamıyor), `GS20` iptal olur, yerine yeni `GS`.
+
+      Ekran adımının Aşama 4 kararları:
+      - Kart bütçesi: kapanış ertelenmişken konseptte kaydırılan kart, kapanış kartı, bakiye kartı ve
+        kalan ödemeler var; hatırlatıcı da görünürse 5 kart olur (sınır 4). Kapanış kartı bakiye kartıyla
+        birleşir ya da hatırlatıcıyla aynı yeri paylaşır.
+      - Kapanış kartının cümlesi ("Son bakiyeyi gir ve kapat") `V11` kararıyla uyuşmalı: kart özet
+        sayfasını açar, bakiye girmek zorunlu değil.
+      - Boş hâlde konsept ikon yerine kesikli bir grafik yer tutucusu çiziyor; bütün ekranlar aynı
+        `StateBlock`'u kullanıyor (`T5`).
+      - Hata metni ("Yerel kayıt açılamadı") her yükleme hatasına uymuyor; hata veritabanından değil
+        hesaptan da gelebilir.
+      - Kaydırma mekanizması: `CarouselView` dikey `ScrollView` içinde kaydırma çakışması riski taşıyor.
+      - Başlıktaki bitiş tarihi `PeriodEnd`'in bir gün öncesi; dönem sonu döneme dahil değil.
+      - Cümle bütçesi sınırda: "İlk bakiyeyle gidişat çizilir", "Harcama temposu ilk bakiye girişiyle
+        hesaplanır" ve boş hâlin cümlesi 3/3. Tempo cümlesi sayı taşıdığı için `Bicim_`, sayılmaz.
 - [x] **V4** — kurulum sihirbazı *(eskide 958 satır / 3 partial — 8 ContentView adımı + OnboardingPlanWriter ile daraltıldı)*.
       Kapı C'de V3 ana sayfasının **dolu** hâli de iki temada kontrol edildi ve onaylandı.
 - [x] **V7** — kart kontrol — **V6 ve V10'dan ÖNCE.** Eskide `CommitmentsPage` ve
@@ -266,7 +359,22 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 - [ ] **V8** — 12 dönem
 - [ ] **V9** — dönem ayrıntısı
 - [ ] **V10** — simülatör *(eskide 1.034 satır / 4 partial)*
-- [ ] **V11** — dönem kapanışı sihirbazı
+- [ ] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
+      `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`)*. Çapa günü uygulama açılınca kendiliğinden
+      açılır: dönem sonu, plana göre fark, farkın kaynağı ve tek "Dönemi kapat". ✕ ile kapatmak ertelemek
+      demek; ana sayfada "Dönemi kapat" kalır ve bu sayfayı açar. Kapanış bakiyesinin yanındaki "Değiştir"
+      "Bakiye gir" sayfasını (`V3`) açar; girişin hangi tarihe yazılacağı `H5`'te. Birden fazla dönem
+      geçtiyse sırayla. Eski çok adımlı sihirbaz taşınmaz; ödemeler ve yaşam harcaması dönemin
+      kayıtlarından gelir.
+      - Farkın kaynağı: yaşam gideri (planlanan / harcanan), ödemeler (kaçı ödendi), bakiye eksiye
+        düştüyse KMH faizi. **Gelir satırı yok** (kullanıcı kararı): uygulama gelirin gerçekte ne kadar
+        yattığını bilmiyor, planlandığı gün planlanan tutarla yattığını varsayıyor
+        (`PeriodProgressCalculator.IncomeReceivedBy`, `PeriodActualBuilder`). **Bilinen sınır:** eksik yatan
+        gelir yaşam giderinde fazla harcama gibi görünür. Aşama 3'te `S` kaydı olarak yazılır.
+      - Aşama 4: konseptteki Plan / Gerçekleşen çubukları bilgi eklemiyor; fark bu ölçekte görünmüyor ve
+        aynı bilgiyi "Farkın kaynağı" kartı veriyor. Kalırsa `StackedBar` iki satır çizmeli (`T10`). Hero
+        kartın zemini `T9`'daki kontrast kararına bağlı. Ertelenen kapanış her açılışta yeniden mi açılır,
+        yoksa yalnız ana sayfadaki buton mu kalır?
 - [ ] **V12** — geçmiş + geçmiş ayrıntısı
 - [ ] **V13** — ayarlar + düzen değişikliği
 
@@ -297,10 +405,10 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 |---|---|---|
 | F | 3 | 4 *(F1 K9 testi için geri açıldı)* |
 | D | 24 | 24 |
-| H | 4 | 4 |
-| A | 25 | 25 *(A22 ve A25 taşınmıyor)* |
-| I | 5 | 5 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60)* |
-| T | 6 | 8 *(T7, T8 V7 Kapı C'de açıldı)* |
-| V | 5 | 14 *(V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
+| H | 4 | 5 *(H5 V3 yenilemesi için açıldı)* |
+| A | 25 | 27 *(A22 ve A25 taşınmıyor; A28, A29 V3 yenilemesi için açıldı)* |
+| I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
+| T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
+| V | 5 | 14 *(V3 "Rota + Tempo" için geri açıldı; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |
