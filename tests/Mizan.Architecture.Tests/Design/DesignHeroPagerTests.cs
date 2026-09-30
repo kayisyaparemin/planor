@@ -93,13 +93,17 @@ public sealed class DesignHeroPagerTests
     }
 
     [Fact]
-    public void KaydirilanKartZemini_SurfaceCard_KontrastCiftleriTablodaDurur()
+    public void KaydirilanKartZemini_SurfaceChart_KontrastCiftleriTablodaDurur()
     {
+        // GS24 (V3a Kapı C): kaydırılan kart konseptteki gibi tonlu zeminde durur; SurfaceHero koyu temada
+        // metni taşımadığı için (GS22) ton SurfaceChart'tır. Kartın bütün metin ve çizgi rolleri tabloda olmalı.
         var pairs = DesignSystemDocument.GetContrastPairs();
+        var pager = File.ReadAllText(Path.Combine(SolutionPaths.SourceDirectory, "Mizan.App", "Components", "HeroPager.xaml"));
 
-        foreach (var text in new[] { "Indicator", "TextSecondary", "NegativeText", "PositiveText" })
+        Assert.Contains("BackgroundColor=\"{DynamicResource SurfaceChart}\"", pager, StringComparison.Ordinal);
+        foreach (var text in new[] { "TextPrimary", "Indicator", "TextSecondary", "NegativeText", "PositiveText" })
         {
-            Assert.Contains(pairs, p => p.TextToken == text && p.SurfaceToken == "SurfaceCard");
+            Assert.Contains(pairs, p => p.TextToken == text && p.SurfaceToken == "SurfaceChart");
         }
     }
 }

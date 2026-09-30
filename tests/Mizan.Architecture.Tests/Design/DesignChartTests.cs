@@ -184,7 +184,7 @@ public sealed class DesignChartTests
         Assert.Contains("DrawPath", sparkline, StringComparison.Ordinal);
 
         var areaTrend = File.ReadAllText(Path.Combine(chartsDir, "AreaTrend.cs"));
-        Assert.Contains("ChartColorResolver.ResolveColor(\"SurfaceChart\")", areaTrend, StringComparison.Ordinal);
+        Assert.Contains("ChartColorResolver.ResolveTint(\"Indicator\")", areaTrend, StringComparison.Ordinal);
         Assert.Contains("ChartColorResolver.ResolveColor(\"NegativeText\")", areaTrend, StringComparison.Ordinal);
         Assert.Contains("StrokeDashPattern", areaTrend, StringComparison.Ordinal);
 
@@ -193,6 +193,6 @@ public sealed class DesignChartTests
 
         var ringGauge = File.ReadAllText(Path.Combine(chartsDir, "RingGauge.cs"));
         Assert.Contains("DrawArc", ringGauge, StringComparison.Ordinal);
-        Assert.Contains("ChartColorResolver.ResolveColor(\"BorderSubtle\")", ringGauge, StringComparison.Ordinal);
+        Assert.Contains("ChartColorResolver.ResolveTint(\"Indicator\")", ringGauge, StringComparison.Ordinal);
     }
 }

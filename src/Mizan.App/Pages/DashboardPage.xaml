@@ -11,219 +11,286 @@
              x:DataType="vm:DashboardViewModel"
              AutomationId="{x:Static auto:AutomationIds.PageDashboard}">
 
-    <!-- EK-V3: Ana Sayfa (Dashboard) -->
+    <!-- EK-V3: Ana sayfa, "Rota + Tempo" (GS24, S72) -->
+
+    <ContentPage.Resources>
+        <!-- Kalan ödeme satırı: ad, vade, tutar (S72-9) -->
+        <DataTemplate x:Key="OdemeSatiri" x:DataType="models:DashboardRemainingItem">
+            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space3}">
+                <VerticalStackLayout Grid.Column="0" Spacing="{StaticResource Space1}">
+                    <Label Text="{Binding Name}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding DueDate, Converter={StaticResource Tarih}}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <!-- Başlık kabuk çubuğunda: dönem aralığı ve gün sayacı; dönem yoksa sayfanın adı (S5) -->
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*, Auto"
+              ColumnSpacing="{StaticResource Space2}"
+              Padding="{StaticResource TitleBarPadding}">
+            <Label Grid.Column="0"
+                   Text="{x:Static strings:Strings.Baslik_AnaSayfa}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center"
+                   IsVisible="{Binding HasActivePeriod, Converter={StaticResource Tersi}}" />
+            <Label Grid.Column="0"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center"
+                   IsVisible="{Binding HasActivePeriod}">
+                <Label.Text>
+                    <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_DonemAraligi}">
+                        <Binding Path="PeriodStart" Converter="{StaticResource Tarih}" />
+                        <Binding Path="PeriodLastDay" Converter="{StaticResource Tarih}" />
+                    </MultiBinding>
+                </Label.Text>
+            </Label>
+
+            <!-- Sağda gün sayacı; dönem bittiyse "Bitti" -->
+            <Grid Grid.Column="1"
+                  IsVisible="{Binding HasActivePeriod}">
+                <Label Style="{StaticResource Caption}"
+                       VerticalTextAlignment="Center"
+                       IsVisible="{Binding IsPeriodEnded, Converter={StaticResource Tersi}}">
+                    <Label.Text>
+                        <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_GunSayaci}">
+                            <Binding Path="ElapsedDays" />
+                            <Binding Path="TotalDays" />
+                        </MultiBinding>
+                    </Label.Text>
+                </Label>
+                <Label Text="{x:Static strings:DashboardStrings.Etiket_Bitti}"
+                       Style="{StaticResource Caption}"
+                       VerticalTextAlignment="Center"
+                       IsVisible="{Binding IsPeriodEnded}" />
+            </Grid>
+        </Grid>
+    </Shell.TitleView>
+
     <ScrollView>
         <VerticalStackLayout Spacing="{StaticResource Space4}"
                              Padding="{StaticResource PagePadding}">
 
-            <!-- Sayfa Başlığı ve Ayarlar Aksiyonu -->
-            <comp:PageHeader Title="{x:Static strings:Strings.Baslik_AnaSayfa}"
-                             ActionIcon="{x:Static icons:Icons.Settings}"
-                             ActionCommand="{Binding OpenSettingsCommand}"
-                             AutomationId="{x:Static auto:AutomationIds.BtnDashboardSettings}" />
-
-            <!-- İskelet Yükleme Durumu -->
-            <VerticalStackLayout Spacing="{StaticResource Space3}"
+            <!-- Yükleniyor: kart şeklinde iskeletler -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
                                  AutomationId="{x:Static auto:AutomationIds.StateLoading}"
                                  IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
                 <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
                 <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
-                <comp:SkeletonBlock HeightRequest="{StaticResource Space5}" />
             </VerticalStackLayout>
 
-            <!-- Dolu İçerik Durumu -->
             <VerticalStackLayout Spacing="{StaticResource Space4}"
                                  IsVisible="{Binding IsContent}">
 
-                <!-- Dönem Çubuğu -->
-                <comp:PeriodRail PeriodName="{Binding PeriodStart, Converter={StaticResource Tarih}, ConverterParameter='d MMMM yyyy', StringFormat={x:Static strings:Strings.Bicim_DonemAdi}}"
-                                 Progress="{Binding PeriodElapsedRatio}"
-                                 IsVisible="{Binding HasActivePeriod}">
-                    <comp:PeriodRail.DayCountText>
-                        <MultiBinding StringFormat="{x:Static strings:Strings.Bicim_DonemGunSayaci}">
-                            <Binding Path="ElapsedDays" />
-                            <Binding Path="TotalDays" />
-                            <Binding Path="PeriodEnd" Converter="{StaticResource Tarih}" />
-                        </MultiBinding>
-                    </comp:PeriodRail.DayCountText>
-                </comp:PeriodRail>
+                <!-- Kaydırılan hero: her yüklemede 1. sayfa -->
+                <comp:HeroPager Position="{Binding HeroPageIndex}"
+                                AutomationId="{x:Static auto:AutomationIds.CardDashboardHero}">
 
-                <!-- Görsel Merkez: Bütçe Durumu ve Dönem Sonu Tahmini -->
+                    <!-- 1. sayfa: dönem sonu ve oraya giden yol (S1) -->
+                    <comp:HeroPage>
+                        <VerticalStackLayout Spacing="{StaticResource Space2}">
+                            <Label Text="{x:Static strings:DashboardStrings.Etiket_DonemSonuTahmini}"
+                                   Style="{StaticResource Eyebrow}"
+                                   IsVisible="{Binding HasObservation}" />
+                            <Label Text="{x:Static strings:DashboardStrings.Etiket_PlanlananDonemSonu}"
+                                   Style="{StaticResource Eyebrow}"
+                                   IsVisible="{Binding HasObservation, Converter={StaticResource Tersi}}" />
+
+                            <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
+                                   Style="{StaticResource HeroFigure}"
+                                   AutomationId="{x:Static auto:AutomationIds.LblProjectedEnding}" />
+
+                            <HorizontalStackLayout Spacing="{StaticResource Space2}"
+                                                   IsVisible="{Binding HasObservation}">
+                                <Label Text="{Binding EndingDeviation, Converter={StaticResource Para}, ConverterParameter=Isaretli, StringFormat={x:Static strings:DashboardStrings.Bicim_PlanaGore}}"
+                                       Style="{StaticResource Caption}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsBehindPlan}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsAheadOfPlan}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{Binding PlannedEndingBalance, Converter={StaticResource Para}, StringFormat={x:Static strings:DashboardStrings.Bicim_Plan}}"
+                                       Style="{StaticResource Caption}" />
+                            </HorizontalStackLayout>
+
+                            <!-- Rota: katedilen düz, önümüzdeki kesikli, bugün ve plan seviyesi ince çizgi -->
+                            <GraphicsView Drawable="{Binding Trend, Converter={StaticResource TrendGrafigi}}"
+                                          HeightRequest="{StaticResource ChartHeight}"
+                                          InputTransparent="True" />
+
+                            <Grid ColumnDefinitions="*, *">
+                                <Label Grid.Column="0"
+                                       Text="{Binding PeriodStart, Converter={StaticResource Tarih}}"
+                                       Style="{StaticResource Caption}" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding PeriodLastDay, Converter={StaticResource Tarih}}"
+                                       Style="{StaticResource Caption}"
+                                       HorizontalTextAlignment="End" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </comp:HeroPage>
+
+                    <!-- 2. sayfa: yaşam giderinin temposu (S2) -->
+                    <comp:HeroPage>
+                        <VerticalStackLayout Spacing="{StaticResource Space3}">
+                            <Grid HorizontalOptions="Center"
+                                  WidthRequest="{StaticResource ChartHeight}"
+                                  HeightRequest="{StaticResource ChartHeight}">
+                                <GraphicsView Drawable="{Binding Gauge, Converter={StaticResource HalkaGosterge}}"
+                                              InputTransparent="True" />
+
+                                <VerticalStackLayout HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     Spacing="{StaticResource Space1}"
+                                                     IsVisible="{Binding HasObservation}">
+                                    <Label Text="{x:Static strings:DashboardStrings.Etiket_KalanYasamGideri}"
+                                           Style="{StaticResource Caption}"
+                                           HorizontalTextAlignment="Center" />
+                                    <Label Text="{Binding RemainingVariableExpenseAllowance, Converter={StaticResource Para}}"
+                                           FontSize="{StaticResource TypeTitle}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{DynamicResource TextPrimary}"
+                                           HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+
+                                <Label Text="{x:Static strings:DashboardStrings.Etiket_BakiyeGirilmedi}"
+                                       FontSize="{StaticResource TypeBody}"
+                                       TextColor="{DynamicResource TextSecondary}"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       IsVisible="{Binding HasObservation, Converter={StaticResource Tersi}}" />
+                            </Grid>
+
+                            <comp:MetricRow LabelText="{x:Static strings:DashboardStrings.Etiket_Harcanan}"
+                                            ValueText="{Binding SpentRatio, Converter={StaticResource Yuzde}, ConverterParameter=N0}"
+                                            IsVisible="{Binding HasPace}" />
+                            <comp:MetricRow LabelText="{x:Static strings:DashboardStrings.Etiket_GecenSure}"
+                                            ValueText="{Binding PaceElapsedRatio, Converter={StaticResource Yuzde}, ConverterParameter=N0}"
+                                            IsVisible="{Binding HasPace}" />
+
+                            <Label Text="{Binding PaceGapPoints, Converter={StaticResource TempoCumlesi}}"
+                                   Style="{StaticResource Caption}"
+                                   IsVisible="{Binding HasPace}" />
+                            <Label Text="{x:Static strings:DashboardStrings.Cumle_TempoIlkBakiye}"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="Center"
+                                   IsVisible="{Binding HasObservation, Converter={StaticResource Tersi}}" />
+                        </VerticalStackLayout>
+                    </comp:HeroPage>
+                </comp:HeroPager>
+
+                <!-- Bakiye kartı: son bakiye (S3); dönem bittiyse aynı yerde kapanış (S5, S68-4) -->
                 <Border BackgroundColor="{DynamicResource SurfaceCard}"
                         Stroke="{DynamicResource BorderSubtle}"
                         StrokeThickness="{StaticResource StrokeHairline}"
                         Padding="{StaticResource CardPadding}"
-                        IsVisible="{Binding HasActivePeriod}"
-                        AutomationId="{x:Static auto:AutomationIds.CardVisualCenter}">
+                        AutomationId="{x:Static auto:AutomationIds.CardBalance}">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
                     </Border.StrokeShape>
 
-                    <Grid ColumnDefinitions="1*, 3*" ColumnSpacing="{StaticResource Space4}">
-                        <!-- Halka Gösterge: sütunun genişliği kadar kare; ham ölçü yok -->
-                        <GraphicsView Grid.Column="0"
-                                      Drawable="{Binding BudgetRatio, Converter={StaticResource HalkaGosterge}}"
-                                      HeightRequest="{Binding Width, Source={RelativeSource Self}}"
-                                      VerticalOptions="Center"
-                                      AutomationId="{x:Static auto:AutomationIds.GaugeBudgetRatio}" />
-
-                        <!-- Metrikler -->
-                        <VerticalStackLayout Grid.Column="1"
-                                             Spacing="{StaticResource Space2}"
-                                             VerticalOptions="Center">
-                            <Label Text="{x:Static strings:Strings.Etiket_DonemSonuTahmini}"
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space3}">
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="{StaticResource Space1}"
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding IsPeriodEnded, Converter={StaticResource Tersi}}">
+                            <Label Text="{x:Static strings:DashboardStrings.Etiket_BankadakiBakiye}"
                                    Style="{StaticResource Eyebrow}" />
-
-                            <Label Text="{Binding ProjectedEndingBalance, Converter={StaticResource Para}}"
-                                   Style="{StaticResource HeroFigure}"
-                                   TextColor="{DynamicResource TextPrimary}"
-                                   AutomationId="{x:Static auto:AutomationIds.LblProjectedEnding}" />
-
-                            <Grid ColumnDefinitions="*, *" ColumnSpacing="{StaticResource Space2}">
-                                <VerticalStackLayout Grid.Column="0" Spacing="{StaticResource Space1}">
-                                    <Label Text="{x:Static strings:Strings.Etiket_KalanButce}"
-                                           Style="{StaticResource Caption}" />
-                                    <Label Text="{Binding RemainingVariableExpenseAllowance, Converter={StaticResource Para}}"
-                                           FontSize="{StaticResource TypeBody}"
-                                           FontFamily="OpenSansSemibold"
-                                           TextColor="{DynamicResource TextPrimary}" />
-                                </VerticalStackLayout>
-
-                                <VerticalStackLayout Grid.Column="1" Spacing="{StaticResource Space1}">
-                                    <Label Text="{x:Static strings:Strings.Etiket_Harcanan}"
-                                           Style="{StaticResource Caption}" />
-                                    <Label Text="{Binding ObservedLivingSpend, Converter={StaticResource Para}}"
-                                           FontSize="{StaticResource TypeBody}"
-                                           FontFamily="OpenSansSemibold"
-                                           TextColor="{DynamicResource TextSecondary}" />
-                                </VerticalStackLayout>
-                            </Grid>
+                            <HorizontalStackLayout Spacing="{StaticResource Space2}"
+                                                   IsVisible="{Binding HasObservation}">
+                                <Label Text="{Binding LastObservedBalance, Converter={StaticResource Para}}"
+                                       Style="{StaticResource Figure}"
+                                       VerticalTextAlignment="End" />
+                                <Label Text="{Binding LastObservedOn, Converter={StaticResource Tarih}}"
+                                       Style="{StaticResource Caption}"
+                                       VerticalTextAlignment="End" />
+                            </HorizontalStackLayout>
+                            <Label Text="{x:Static strings:DashboardStrings.Etiket_HenuzGirilmedi}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   TextColor="{DynamicResource TextSecondary}"
+                                   IsVisible="{Binding HasObservation, Converter={StaticResource Tersi}}" />
                         </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="{x:Static strings:DashboardStrings.Aksiyon_BakiyeGir}"
+                                Command="{Binding OpenBalanceEntryCommand}"
+                                VerticalOptions="Center"
+                                IsVisible="{Binding IsPeriodEnded, Converter={StaticResource Tersi}}"
+                                AutomationId="{x:Static auto:AutomationIds.BtnBalanceEntry}" />
+
+                        <VerticalStackLayout Grid.Column="0"
+                                             Spacing="{StaticResource Space1}"
+                                             VerticalOptions="Center"
+                                             IsVisible="{Binding IsPeriodEnded}">
+                            <Label Text="{x:Static strings:DashboardStrings.Etiket_DonemBitti}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Text="{Binding PeriodLastDay, Converter={StaticResource Tarih}}"
+                                   Style="{StaticResource Figure}" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1"
+                                Text="{x:Static strings:DashboardStrings.Aksiyon_DonemiKapat}"
+                                Command="{Binding ClosePeriodCommand}"
+                                VerticalOptions="Center"
+                                IsVisible="{Binding IsPeriodEnded}"
+                                AutomationId="{x:Static auto:AutomationIds.BtnClosePeriod}" />
                     </Grid>
                 </Border>
 
-                <!-- Hero Gözlem Kartı -->
-                <comp:HeroInputCard LabelText="{x:Static strings:Strings.Etiket_GuncelBakiye}"
-                                    AmountText="{Binding CurrentBalanceInput, Mode=TwoWay}"
-                                    Placeholder="{x:Static strings:Strings.YerTutucu_Bakiye}"
-                                    ActionText="{x:Static strings:Strings.Aksiyon_GozlemiKaydet}"
-                                    ActionCommand="{Binding SaveObservationCommand}"
-                                    HintText="{x:Static strings:Strings.Cumle_GozlemIpucu}"
-                                    IsVisible="{Binding HasActivePeriod}"
-                                    AutomationId="{x:Static auto:AutomationIds.InputTodayBalance}" />
-
-                <!-- Hatırlatıcı Kartı (HeroInputCard'ın hemen altında) -->
+                <!-- Hatırlatıcı (EK-V2): aktif kayıt yoksa görünmez (S4) -->
                 <comp:ReminderCard IsVisible="{Binding Reminders.HasActiveReminder}"
                                    Title="{Binding Reminders.PaymentName}"
                                    Message="{Binding Reminders.Message}"
-                                   PrimaryActionText="{x:Static strings:Strings.Aksiyon_Odedim}"
+                                   PrimaryActionText="{x:Static strings:DashboardStrings.Aksiyon_Odedim}"
                                    PrimaryActionCommand="{Binding Reminders.MarkAsPaidCommand}"
-                                   SecondaryActionText="{x:Static strings:Strings.Aksiyon_Ertele}"
+                                   SecondaryActionText="{x:Static strings:DashboardStrings.Aksiyon_Ertele}"
                                    SecondaryActionCommand="{Binding Reminders.SnoozeCommand}" />
 
-                <!-- Kalan Yükümlülükler (İkonlu Satırlar) -->
-                <VerticalStackLayout Spacing="{StaticResource Space2}"
-                                     IsVisible="{Binding HasRemainingLines}"
-                                     AutomationId="{x:Static auto:AutomationIds.ListRemainingPayments}">
-                    <Label Text="{x:Static strings:Strings.Etiket_KalanOdemeler}"
-                           Style="{StaticResource Eyebrow}" />
-
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding RemainingLines}"
-                                         Spacing="{StaticResource Space2}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:DashboardRemainingItem">
-                                <Grid ColumnDefinitions="Auto, *, Auto"
-                                      ColumnSpacing="{StaticResource Space3}"
-                                      Padding="{StaticResource Space2}">
-                                    <Border Grid.Column="0"
-                                            WidthRequest="{StaticResource Space6}"
-                                            HeightRequest="{StaticResource Space6}"
-                                            BackgroundColor="{DynamicResource SurfaceSunken}"
-                                            Stroke="Transparent"
-                                            Padding="{StaticResource Space1}">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="{StaticResource RadiusPill}" />
-                                        </Border.StrokeShape>
-                                        <Label Text="{x:Static icons:Icons.Payments}"
-                                               FontFamily="MaterialSymbols"
-                                               FontSize="{StaticResource IconSmall}"
-                                               TextColor="{DynamicResource Indicator}"
-                                               HorizontalTextAlignment="Center"
-                                               VerticalTextAlignment="Center" />
-                                    </Border>
-
-                                    <VerticalStackLayout Grid.Column="1"
-                                                         VerticalOptions="Center"
-                                                         Spacing="{StaticResource Space1}">
-                                        <Label Text="{Binding Name}"
-                                               FontSize="{StaticResource TypeBody}"
-                                               TextColor="{DynamicResource TextPrimary}" />
-                                        <Label Text="{Binding DueDate, Converter={StaticResource Tarih}}"
-                                               Style="{StaticResource Caption}" />
-                                    </VerticalStackLayout>
-
-                                    <Label Grid.Column="2"
-                                           Text="{Binding Amount, Converter={StaticResource Para}}"
-                                           FontSize="{StaticResource TypeBody}"
-                                           FontFamily="OpenSansSemibold"
-                                           TextColor="{DynamicResource TextPrimary}"
-                                           VerticalTextAlignment="Center" />
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-
-                    <!-- Taşma: üçten fazla kalan ödeme varsa dönem ayrıntısına gider -->
-                    <comp:NavRow IconGlyph="{x:Static icons:Icons.Payments}"
-                                 Title="{Binding OverflowCount, StringFormat={x:Static strings:Strings.Bicim_FazlaOdeme}}"
-                                 Subtitle="{Binding RemainingPlannedTotal, Converter={StaticResource Para}, StringFormat={x:Static strings:Strings.Bicim_ToplamTutar}}"
-                                 Command="{Binding OpenRemainingDetailCommand}"
-                                 IsVisible="{Binding HasOverflow}" />
-                </VerticalStackLayout>
-
-                <!-- Dönemi Kapat Butonu -->
-                <Button Text="{x:Static strings:Strings.Aksiyon_DonemiKapat}"
-                        AutomationId="{x:Static auto:AutomationIds.BtnClosePeriod}"
-                        Command="{Binding ClosePeriodCommand}"
-                        IsVisible="{Binding IsPeriodClosable}" />
-
-                <!-- Gezinme Satırları -->
-                <VerticalStackLayout Spacing="{StaticResource Space1}">
-                    <comp:NavRow IconGlyph="{x:Static icons:Icons.Schedule}"
-                                 Title="{x:Static strings:Strings.Baslik_NavGelecekDonemler}"
-                                 Subtitle="{x:Static strings:Strings.Etiket_GelecekDonemOzet}"
-                                 Command="{Binding OpenProjectionCommand}" />
-
-                    <comp:NavRow IconGlyph="{x:Static icons:Icons.Schedule}"
-                                 Title="{x:Static strings:Strings.Baslik_Gecmis}"
-                                 Subtitle="{x:Static strings:Strings.Etiket_GecmisOzet}"
-                                 Command="{Binding OpenHistoryCommand}" />
-
-                    <comp:NavRow IconGlyph="{x:Static icons:Icons.Payments}"
-                                 Title="{x:Static strings:Strings.Baslik_FinansalYapi}"
-                                 Subtitle="{x:Static strings:Strings.Etiket_OdemePlanOzet}"
-                                 Command="{Binding OpenFinancialStructureCommand}" />
-
-                    <comp:NavRow IconGlyph="{x:Static icons:Icons.Insights}"
-                                 Title="{x:Static strings:Strings.Baslik_NavSimulator}"
-                                 Subtitle="{x:Static strings:Strings.Etiket_SimulatorOzet}"
-                                 Command="{Binding OpenSimulationCommand}" />
-                </VerticalStackLayout>
+                <!-- Kalan ödemeler: en fazla üç satır; fazlası dönem ayrıntısına (S4) -->
+                <comp:ListCard EyebrowText="{x:Static strings:DashboardStrings.Etiket_KalanOdemeler}"
+                               ItemsSource="{Binding RemainingLines}"
+                               ItemTemplate="{StaticResource OdemeSatiri}"
+                               OverflowCommand="{Binding OpenRemainingDetailCommand}"
+                               AutomationId="{x:Static auto:AutomationIds.ListRemainingPayments}">
+                    <comp:ListCard.NoteText>
+                        <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_OdemeAdediToplam}">
+                            <Binding Path="RemainingCount" />
+                            <Binding Path="RemainingPlannedTotal" Converter="{StaticResource Para}" />
+                        </MultiBinding>
+                    </comp:ListCard.NoteText>
+                    <comp:ListCard.Triggers>
+                        <DataTrigger TargetType="comp:ListCard" Binding="{Binding HasOverflow}" Value="True">
+                            <Setter Property="OverflowText" Value="{x:Static strings:DashboardStrings.Aksiyon_TumunuGor}" />
+                        </DataTrigger>
+                    </comp:ListCard.Triggers>
+                </comp:ListCard>
             </VerticalStackLayout>
 
-            <!-- Boş Durum (Açık Dönem Yok) -->
+            <!-- Boş: açık dönem yok -->
             <comp:StateBlock CurrentState="Empty"
                              IconGlyph="{x:Static icons:Icons.AccountBalance}"
-                             Message="{x:Static strings:Strings.Cumle_AcikDonemYokRehber}"
+                             Message="{x:Static strings:DashboardStrings.Cumle_AcikDonemYokRehber}"
                              ActionText="{x:Static strings:Strings.Aksiyon_TemizBasla}"
                              ActionCommand="{Binding OpenOnboardingCommand}"
                              IsVisible="{Binding IsEmpty}"
                              AutomationId="{x:Static auto:AutomationIds.StateEmpty}" />
 
-            <!-- Hata Durumu -->
+            <!-- Hata: genel metin, hata hesaptan da gelebilir -->
             <comp:StateBlock CurrentState="Error"
                              IconGlyph="{x:Static icons:Icons.Close}"
-                             Message="{x:Static strings:Strings.Hata_DashboardYuklenemedi}"
+                             Message="{x:Static strings:DashboardStrings.Hata_DashboardYuklenemedi}"
                              ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
                              ActionCommand="{Binding LoadCommand}"
                              IsVisible="{Binding IsError}" />

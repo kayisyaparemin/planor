@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
 using Mizan.Application.Models;
 using Mizan.Application.Services;
 using Mizan.Domain.Models;
+using Mizan.Presentation.Charts;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Navigation;
 using Mizan.Presentation.Tests.Fakes;
@@ -11,103 +11,270 @@ using Xunit;
 namespace Mizan.Presentation.Tests.ViewModels;
 
 /// <summary>
-/// Ana sayfa görünüm modelinin dönem gidişatı yükleme, bütçe oranı hesaplama,
-/// gözlem kaydetme ve gezinme aksiyonlarını doğrulayan birim testleri.
+/// Ana sayfa görünüm modelinin (EK-V3, S72) davranışı: dönem sonu tahmin ya da plan, bakiye rotası, harcama
+/// temposu, son bakiye, biten dönem, kalan ödemeler, üç durum ve gezinme.
 /// </summary>
 public sealed class DashboardViewModelTests : IDisposable
 {
+    private static readonly DateOnly Start = new(2026, 9, 10);
+    private static readonly DateOnly End = new(2026, 10, 10);
+    private static readonly DateOnly Today = new(2026, 9, 30);
+
     private readonly FakePeriodProgressService _progressService = new();
-    private readonly FakePeriodWorkflowService _workflowService = new();
     private readonly FakeNavigationService _navigation = new();
-    private readonly FakePaymentReminderService _reminderService = new();
-    private readonly FakePaymentReminderScheduler _scheduler = new();
-    private readonly FakeDialogService _dialog = new();
-    private readonly SabitSaat _clock = new(new DateOnly(2026, 9, 27));
     private readonly ProfileService _profileService;
-    private readonly ReminderCardViewModel _reminders;
     private readonly DashboardViewModel _viewModel;
 
     public DashboardViewModelTests()
     {
-        _profileService = new ProfileService(new FakeProfileRepository(), new FakeProfileStoreSwitch(), _clock);
-        _reminders = new ReminderCardViewModel(_reminderService, _scheduler, _dialog, _clock, _profileService);
-        _viewModel = new DashboardViewModel(
-            _progressService,
-            _workflowService,
-            _navigation,
-            _reminders);
+        var clock = new SabitSaat(Today);
+        _profileService = new ProfileService(new FakeProfileRepository(), new FakeProfileStoreSwitch(), clock);
+        var reminders = new ReminderCardViewModel(
+            new FakePaymentReminderService(), new FakePaymentReminderScheduler(), new FakeDialogService(), clock, _profileService);
+        _viewModel = new DashboardViewModel(_progressService, _navigation, reminders);
     }
 
     [Fact]
-    public async Task YukleAsync_AcikDonemVarsa_GidisatVeButceOraniDoldurulur()
+    public async Task Yukle_BakiyeGirildiyse_DonemSonuTahmindirVePlanaGoreGeridedir()
     {
-        _progressService.CurrentProgress = CreateSampleProgress();
+        _progressService.CurrentProgress = Progress(projected: 41723m, planned: 43900m);
 
         await _viewModel.LoadAsync();
 
-        Assert.Equal(new DateOnly(2026, 9, 15), _viewModel.PeriodStart);
-        Assert.Equal(new DateOnly(2026, 10, 15), _viewModel.PeriodEnd);
-        Assert.Equal(41723m, _viewModel.ProjectedEndingBalance);
-        Assert.Equal(40554m, _viewModel.PlannedEndingBalance);
-        Assert.Equal(0.68, _viewModel.BudgetRatio, 2);
         Assert.Equal(ScreenState.Content, _viewModel.State);
-    }
-
-    [Fact]
-    public async Task YukleAsync_GozlemVarsa_GozlemAlanlariDoldurulur()
-    {
-        _progressService.CurrentProgress = CreateSampleProgress();
-
-        await _viewModel.LoadAsync();
-
+        Assert.True(_viewModel.HasActivePeriod);
         Assert.True(_viewModel.HasObservation);
-        Assert.Equal(12400m, _viewModel.LastObservedBalance);
-        Assert.Equal(new DateOnly(2026, 9, 20), _viewModel.LastObservedOn);
+        Assert.Equal(41723m, _viewModel.EndingBalance);
+        Assert.Equal(43900m, _viewModel.PlannedEndingBalance);
+        Assert.Equal(-2177m, _viewModel.EndingDeviation);
+        Assert.True(_viewModel.IsBehindPlan);
+        Assert.False(_viewModel.IsAheadOfPlan);
     }
 
     [Fact]
-    public async Task YukleAsync_KalanOdemelerVarsa_RemainingLinesListesiDoldurulur()
+    public async Task Yukle_TahminPlaninUstundeyse_PlaninOnundedir()
     {
-        _progressService.CurrentProgress = CreateSampleProgress();
+        _progressService.CurrentProgress = Progress(projected: 44380m, planned: 43900m);
 
         await _viewModel.LoadAsync();
 
-        Assert.True(_viewModel.HasRemainingLines);
+        Assert.Equal(480m, _viewModel.EndingDeviation);
+        Assert.True(_viewModel.IsAheadOfPlan);
+        Assert.False(_viewModel.IsBehindPlan);
+    }
+
+    [Fact]
+    public async Task Yukle_BakiyeGirilmediyse_DonemSonuPlandirFarkYoktur()
+    {
+        _progressService.CurrentProgress = Progress(projected: null, planned: 43900m);
+
+        await _viewModel.LoadAsync();
+
+        Assert.False(_viewModel.HasObservation);
+        Assert.Equal(43900m, _viewModel.EndingBalance);
+        Assert.Null(_viewModel.EndingDeviation);
+        Assert.False(_viewModel.IsBehindPlan);
+        Assert.False(_viewModel.IsAheadOfPlan);
+        Assert.Null(_viewModel.LastObservedBalance);
+        Assert.Null(_viewModel.LastObservedOn);
+    }
+
+    [Fact]
+    public async Task Yukle_RotaGrafigi_KatedilenYolDuzOnumuzdekiYolKesiklidir()
+    {
+        _progressService.CurrentProgress = Progress(projected: 41723m, planned: 43900m);
+
+        await _viewModel.LoadAsync();
+
+        var trend = Assert.IsType<ChartTrend>(_viewModel.Trend);
+        Assert.Equal([new ChartPoint(Start, 60000m), new ChartPoint(new DateOnly(2026, 9, 27), 58940m)], trend.Series.Points);
+        Assert.Equal([new ChartPoint(new DateOnly(2026, 9, 27), 58940m), new ChartPoint(End, 41723m)], trend.Projection!.Points);
+        Assert.Equal(Today, trend.Today);
+        Assert.Equal(43900m, trend.PlanLevel!.Value);
+        Assert.Equal([new ChartPoint(new DateOnly(2026, 9, 27), 58940m)], trend.Markers!.Points);
+    }
+
+    [Fact]
+    public async Task Yukle_BakiyeGirilmediyse_GrafikteNoktaYoktur()
+    {
+        _progressService.CurrentProgress = Progress(projected: null);
+
+        await _viewModel.LoadAsync();
+
+        Assert.Empty(Assert.IsType<ChartTrend>(_viewModel.Trend).Markers!.Points);
+    }
+
+    [Fact]
+    public async Task Yukle_BakiyeGirilmediyse_RotaAcilistanKesikliPlandir()
+    {
+        _progressService.CurrentProgress = Progress(projected: null, planned: 43900m);
+
+        await _viewModel.LoadAsync();
+
+        var trend = Assert.IsType<ChartTrend>(_viewModel.Trend);
+        Assert.Equal([new ChartPoint(Start, 60000m)], trend.Series.Points);
+        Assert.Equal(new ChartPoint(End, 43900m), trend.Projection!.Points[^1]);
+    }
+
+    [Fact]
+    public async Task Yukle_Tempo_HalkaHarcananOraniVeGecenSureyiTasir()
+    {
+        _progressService.CurrentProgress = Progress(pace: new SpendingPace(new DateOnly(2026, 9, 27), 0.71m, 0.67m));
+
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.HasPace);
+        Assert.Equal(0.71m, _viewModel.SpentRatio);
+        Assert.Equal(0.67m, _viewModel.PaceElapsedRatio);
+        Assert.Equal(4, _viewModel.PaceGapPoints);
+        Assert.Equal(new ChartGauge(0.71m, 0.67m), _viewModel.Gauge);
+        Assert.Equal(8600m, _viewModel.RemainingVariableExpenseAllowance);
+    }
+
+    [Fact]
+    public async Task Yukle_HavuzAsildiysa_HalkaDoyarOranKirpilmaz()
+    {
+        _progressService.CurrentProgress = Progress(pace: new SpendingPace(new DateOnly(2026, 9, 27), 1.12m, 0.5m));
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(1.12m, _viewModel.SpentRatio);
+        Assert.Equal(new ChartGauge(1m, 0.5m), _viewModel.Gauge);
+        Assert.Equal(62, _viewModel.PaceGapPoints);
+    }
+
+    [Theory]
+    [InlineData(0.535, 4)]
+    [InlineData(0.465, -4)]
+    [InlineData(0.504, 0)]
+    [InlineData(0.5, 0)]
+    public async Task Yukle_TempoPuani_TamSayiyaSifirdanUzagaYuvarlanir(double spent, int expected)
+    {
+        _progressService.CurrentProgress = Progress(pace: new SpendingPace(new DateOnly(2026, 9, 27), (decimal)spent, 0.5m));
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(expected, _viewModel.PaceGapPoints);
+    }
+
+    [Fact]
+    public async Task Yukle_TempoYoksa_HalkaBosIsaretYok()
+    {
+        _progressService.CurrentProgress = Progress(projected: null, pace: null);
+
+        await _viewModel.LoadAsync();
+
+        Assert.False(_viewModel.HasPace);
+        Assert.Null(_viewModel.SpentRatio);
+        Assert.Null(_viewModel.PaceElapsedRatio);
+        Assert.Null(_viewModel.PaceGapPoints);
+        Assert.Equal(new ChartGauge(0m, null), _viewModel.Gauge);
+    }
+
+    [Fact]
+    public async Task Yukle_Baslik_SonGunDonemBitisininBirGunOncesidir()
+    {
+        _progressService.CurrentProgress = Progress();
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(Start, _viewModel.PeriodStart);
+        Assert.Equal(new DateOnly(2026, 10, 9), _viewModel.PeriodLastDay);
+        Assert.Equal(20, _viewModel.ElapsedDays);
+        Assert.Equal(30, _viewModel.TotalDays);
+        Assert.False(_viewModel.IsPeriodEnded);
+    }
+
+    [Fact]
+    public async Task Yukle_DonemBitmisKapanmamissa_DonemBittiSayilir()
+    {
+        _progressService.CurrentProgress = Progress(isClosable: true);
+
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.IsPeriodEnded);
+    }
+
+    [Fact]
+    public async Task Yukle_SonBakiye_SonGozlemdenGelir()
+    {
+        _progressService.CurrentProgress = Progress();
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(58940m, _viewModel.LastObservedBalance);
+        Assert.Equal(new DateOnly(2026, 9, 27), _viewModel.LastObservedOn);
+    }
+
+    [Fact]
+    public async Task Yukle_KalanOdemeler_SatirAdVadeVeTutarTasir()
+    {
+        _progressService.CurrentProgress = Progress(lineCount: 3);
+
+        await _viewModel.LoadAsync();
+
         Assert.Equal(3, _viewModel.RemainingLines.Count);
-        Assert.Equal(6450m, _viewModel.RemainingPlannedTotal);
-        Assert.Equal("Giyim", _viewModel.RemainingLines[0].Name);
-        Assert.Equal(4500m, _viewModel.RemainingLines[0].Amount);
+        Assert.Equal("Ödeme 0", _viewModel.RemainingLines[0].Name);
+        Assert.Equal(new DateOnly(2026, 10, 1), _viewModel.RemainingLines[0].DueDate);
+        Assert.Equal(1000m, _viewModel.RemainingLines[0].Amount);
+        Assert.Equal(3, _viewModel.RemainingCount);
+        Assert.Equal(3000m, _viewModel.RemainingPlannedTotal);
         Assert.False(_viewModel.HasOverflow);
     }
 
     [Fact]
-    public async Task YukleAsync_UctenFazlaKalanOdemeVarsa_IlkUcuGosterilirKalaniTasmaSayilir()
+    public async Task Yukle_UctenFazlaKalanOdemeVarsa_IlkUcuGorunurTasmaVardir()
     {
-        _progressService.CurrentProgress = CreateSampleProgress(lineCount: 5);
+        _progressService.CurrentProgress = Progress(lineCount: 5);
 
         await _viewModel.LoadAsync();
 
         Assert.Equal(3, _viewModel.RemainingLines.Count);
         Assert.Equal(5, _viewModel.RemainingCount);
-        Assert.Equal(2, _viewModel.OverflowCount);
         Assert.True(_viewModel.HasOverflow);
     }
 
     [Fact]
-    public async Task YukleAsync_AcikDonemVarsa_KalanButceVeHarcananHamDegerOlarakSunulur()
+    public async Task Yukle_KalanOdemeYoksa_ListeBosTasmaYoktur()
     {
-        _progressService.CurrentProgress = CreateSampleProgress();
+        _progressService.CurrentProgress = Progress(lineCount: 0);
 
         await _viewModel.LoadAsync();
 
-        Assert.Equal(6800m, _viewModel.RemainingVariableExpenseAllowance);
-        Assert.Equal(3200m, _viewModel.ObservedLivingSpend);
-        Assert.Equal(12, _viewModel.ElapsedDays);
-        Assert.Equal(30, _viewModel.TotalDays);
+        Assert.Empty(_viewModel.RemainingLines);
+        Assert.Equal(0, _viewModel.RemainingCount);
+        Assert.False(_viewModel.HasOverflow);
     }
 
     [Fact]
-    public async Task YukleAsync_GidisatOkunamazsa_ScreenStateErrorOlur()
+    public async Task Yukle_IkinciSayfadaykenYuklenirse_IlkSayfayaDoner()
+    {
+        _progressService.CurrentProgress = Progress();
+        _viewModel.HeroPageIndex = 1;
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(0, _viewModel.HeroPageIndex);
+    }
+
+    [Fact]
+    public async Task Yukle_AcikDonemYoksa_BosDurumdurOncekiVeriSilinir()
+    {
+        _progressService.CurrentProgress = Progress();
+        await _viewModel.LoadAsync();
+        _progressService.CurrentProgress = null;
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(ScreenState.Empty, _viewModel.State);
+        Assert.False(_viewModel.HasActivePeriod);
+        Assert.Null(_viewModel.EndingBalance);
+        Assert.Null(_viewModel.Trend);
+        Assert.Empty(_viewModel.RemainingLines);
+    }
+
+    [Fact]
+    public async Task Yukle_GidisatOkunamazsa_HataDurumudur()
     {
         _progressService.Failure = new InvalidOperationException("Gidişat okunamadı.");
 
@@ -118,7 +285,7 @@ public sealed class DashboardViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task YukleAsync_Surerken_ScreenStateLoadingOlur()
+    public async Task Yukle_Surerken_YukleniyorDurumudur()
     {
         var pending = new TaskCompletionSource<PeriodProgress?>();
         _progressService.Pending = pending;
@@ -131,159 +298,77 @@ public sealed class DashboardViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task YukleAsync_PlanYoksa_ScreenStateEmptyOlur()
-    {
-        _progressService.CurrentProgress = null;
-
-        await _viewModel.LoadAsync();
-
-        Assert.Equal(ScreenState.Empty, _viewModel.State);
-        Assert.Null(_viewModel.ProjectedEndingBalance);
-    }
-
-    [Fact]
-    public async Task GozlemKaydetAsync_GecerliTutarGirilince_WorkflowaIletilirVeYenidenYuklenir()
-    {
-        _progressService.CurrentProgress = CreateSampleProgress();
-        _viewModel.CurrentBalanceInput = "15000";
-
-        await _viewModel.SaveObservationAsync();
-
-        Assert.Equal(15000m, _workflowService.LastObservedBalance);
-        Assert.Equal(string.Empty, _viewModel.CurrentBalanceInput);
-    }
-
-    [Fact]
-    public async Task YukleAsync_DonemKapanisiGeldiyse_AlertGosterilir()
-    {
-        _progressService.CurrentProgress = CreateSampleProgress();
-        _workflowService.Availability = new PeriodSettlementAvailability
-        {
-            HasCurrentSnapshot = true,
-            IsDue = true,
-            CurrentSnapshot = null,
-            PendingPlan = null
-        };
-
-        await _viewModel.LoadAsync();
-
-        Assert.True(_viewModel.HasActiveAlert);
-    }
-
-    [Fact]
     public async Task GezinmeKomutlari_DogruRotalariAcar()
     {
+        await _viewModel.OpenBalanceEntryAsync();
+        Assert.Equal(Routes.BalanceEntry, _navigation.LastNavigatedRoute);
+
         await _viewModel.ClosePeriodAsync();
         Assert.Equal(Routes.PeriodSettlement, _navigation.LastNavigatedRoute);
 
-        await _viewModel.OpenProjectionAsync();
-        Assert.Equal(Routes.Projection, _navigation.LastNavigatedRoute);
+        await _viewModel.OpenRemainingDetailAsync();
+        Assert.Equal(Routes.PeriodDetail, _navigation.LastNavigatedRoute);
 
-        await _viewModel.OpenHistoryAsync();
-        Assert.Equal(Routes.History, _navigation.LastNavigatedRoute);
-
-        await _viewModel.OpenFinancialStructureAsync();
-        Assert.Equal(Routes.FinancialStructure, _navigation.LastNavigatedRoute);
-
-        await _viewModel.OpenSimulationAsync();
-        Assert.Equal(Routes.Simulation, _navigation.LastNavigatedRoute);
-
-        await _viewModel.OpenSettingsAsync();
-        Assert.Equal(Routes.Settings, _navigation.LastNavigatedRoute);
+        await _viewModel.OpenOnboardingAsync();
+        Assert.Equal(Routes.Onboarding, _navigation.LastNavigatedRoute);
     }
 
-    private static PeriodProgress CreateSampleProgress(int lineCount = 3)
+    private static PeriodProgress Progress(
+        decimal? projected = 41723m,
+        decimal planned = 43900m,
+        SpendingPace? pace = null,
+        bool isClosable = false,
+        int lineCount = 2)
     {
         var planId = Guid.NewGuid();
-        var snoozedId = Guid.NewGuid();
-        var lines = new List<PeriodPlanPaymentLine>
+        var observedOn = new DateOnly(2026, 9, 27);
+        var observation = projected is null
+            ? null
+            : new PeriodObservation { PeriodPlanSnapshotId = planId, ObservedOn = observedOn, ObservedBalance = 58940m };
+        var path = observation is null
+            ? new PeriodBalancePath([new(Start, 60000m)], [new(Start, 60000m), new(new DateOnly(2026, 9, 15), 45000m), new(End, planned)])
+            : new PeriodBalancePath([new(Start, 60000m), new(observedOn, 58940m)], [new(observedOn, 58940m), new(End, projected!.Value)]);
+        var lines = Enumerable.Range(0, lineCount).Select(i => new PeriodPlanPaymentLine
         {
-            new()
-            {
-                Id = Guid.NewGuid(),
-                PeriodPlanSnapshotId = planId,
-                PlannedDate = new DateOnly(2026, 9, 21),
-                Name = "Giyim",
-                PlannedAmount = 4500m,
-                SourceType = PlanPaymentSourceType.InstallmentPayment,
-                Detail = "Taksit",
-                IsEstimate = false
-            },
-            new()
-            {
-                Id = snoozedId,
-                PeriodPlanSnapshotId = planId,
-                PlannedDate = new DateOnly(2026, 9, 24),
-                Name = "Market",
-                PlannedAmount = 1200m,
-                SourceType = PlanPaymentSourceType.OtherScheduledPayment,
-                Detail = string.Empty,
-                IsEstimate = false
-            },
-            new()
-            {
-                Id = Guid.NewGuid(),
-                PeriodPlanSnapshotId = planId,
-                PlannedDate = new DateOnly(2026, 9, 27),
-                Name = "Denizbank",
-                PlannedAmount = 750m,
-                SourceType = PlanPaymentSourceType.CreditCard,
-                Detail = "Ekstre",
-                IsEstimate = false
-            }
-        };
-        for (var i = lines.Count; i < lineCount; i++)
-        {
-            lines.Add(new()
-            {
-                Id = Guid.NewGuid(),
-                PeriodPlanSnapshotId = planId,
-                PlannedDate = new DateOnly(2026, 10, 1).AddDays(i),
-                Name = $"Ek ödeme {i}",
-                PlannedAmount = 100m,
-                SourceType = PlanPaymentSourceType.OtherScheduledPayment,
-                Detail = string.Empty,
-                IsEstimate = false
-            });
-        }
+            Id = Guid.NewGuid(),
+            PeriodPlanSnapshotId = planId,
+            PlannedDate = new DateOnly(2026, 10, 1).AddDays(i),
+            Name = $"Ödeme {i}",
+            PlannedAmount = 1000m,
+            SourceType = PlanPaymentSourceType.OtherScheduledPayment,
+            Detail = string.Empty,
+            IsEstimate = false
+        }).ToList();
 
         return new PeriodProgress
         {
             PeriodPlanSnapshotId = planId,
-            PeriodStart = new DateOnly(2026, 9, 15),
-            PeriodEnd = new DateOnly(2026, 10, 15),
-            Today = new DateOnly(2026, 9, 27),
-            ElapsedDays = 12,
+            PeriodStart = Start,
+            PeriodEnd = End,
+            Today = Today,
+            ElapsedDays = 20,
             TotalDays = 30,
             RevisionCount = 0,
             PlannedIncome = 50000m,
             PlannedMandatoryPayments = 15000m,
-            PlannedEndingBalance = 40554m,
-            PlannedVariableExpenseAllowance = 10000m,
+            PlannedEndingBalance = planned,
+            PlannedVariableExpenseAllowance = 29650m,
             PlannedDeficitInterest = 0m,
-            ObservedLivingSpend = 3200m,
-            RemainingVariableExpenseAllowance = 6800m,
-            ProjectedDeficitInterest = 0m,
-            ProjectedEndingBalance = 41723m,
-            Pace = null,
+            ObservedLivingSpend = observation is null ? null : 21050m,
+            RemainingVariableExpenseAllowance = observation is null ? null : 8600m,
+            ProjectedDeficitInterest = observation is null ? null : 0m,
+            ProjectedEndingBalance = projected,
+            Pace = pace,
             Cards = [],
-            Observation = new PeriodObservation
-            {
-                PeriodPlanSnapshotId = planId,
-                ObservedOn = new DateOnly(2026, 9, 20),
-                ObservedBalance = 12400m
-            },
-            Observations = [],
-            Path = new PeriodBalancePath([], []),
+            Observation = observation,
+            Observations = observation is null ? [] : [observation],
+            Path = path,
             RemainingLines = lines,
-            RemainingPlannedTotal = 6450m,
-            IsClosable = true,
-            SnoozedLineIds = new HashSet<Guid> { snoozedId }
+            RemainingPlannedTotal = lines.Sum(l => l.PlannedAmount ?? 0m),
+            IsClosable = isClosable,
+            SnoozedLineIds = new HashSet<Guid>()
         };
     }
 
-    public void Dispose()
-    {
-        _profileService.Dispose();
-    }
+    public void Dispose() => _profileService.Dispose();
 }

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Mizan.App.Components.HeroPager"
+             x:Name="Root">
+    <!-- İçerik açıkça yazılır: bileşenin ContentProperty'si sayfalardır (Pages), bu ağaç değil -->
+    <ContentView.Content>
+        <VerticalStackLayout>
+            <!-- Tonlu zemin: kart sayfadaki diğer kartlardan ayrılır (GS24); metin çiftleri kontrast tablosunda -->
+            <Border BackgroundColor="{DynamicResource SurfaceChart}"
+                    Stroke="{DynamicResource BorderSubtle}"
+                    StrokeThickness="{StaticResource StrokeHairline}"
+                    Padding="{StaticResource CardPadding}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+                </Border.StrokeShape>
+
+                <!-- Sayfalar üst üste durur; görünmeyen saydamdır, kart kaydırınca boy değiştirmez.
+                     Yatay kaydırmayı Android dokunma dinleyicisi yakalar (HeroPagerSwipeListener). -->
+                <Grid x:Name="PageHost" />
+            </Border>
+
+            <!-- Noktalar: etkin sayfa uzun çubuk, diğeri nokta; dokunulunca o sayfa açılır -->
+            <HorizontalStackLayout x:Name="Dots"
+                                   HorizontalOptions="Center">
+                <Grid MinimumHeightRequest="48"
+                      MinimumWidthRequest="48">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnFirstDotTapped" />
+                    </Grid.GestureRecognizers>
+                    <Border x:Name="FirstActive"
+                            BackgroundColor="{DynamicResource Indicator}"
+                            WidthRequest="{StaticResource Space4}"
+                            HeightRequest="{StaticResource Space2}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{StaticResource RadiusPill}" />
+                        </Border.StrokeShape>
+                    </Border>
+                    <Border x:Name="FirstIdle"
+                            BackgroundColor="{DynamicResource TextMuted}"
+                            WidthRequest="{StaticResource Space2}"
+                            HeightRequest="{StaticResource Space2}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{StaticResource RadiusPill}" />
+                        </Border.StrokeShape>
+                    </Border>
+                </Grid>
+
+                <Grid MinimumHeightRequest="48"
+                      MinimumWidthRequest="48">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSecondDotTapped" />
+                    </Grid.GestureRecognizers>
+                    <Border x:Name="SecondActive"
+                            BackgroundColor="{DynamicResource Indicator}"
+                            WidthRequest="{StaticResource Space4}"
+                            HeightRequest="{StaticResource Space2}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{StaticResource RadiusPill}" />
+                        </Border.StrokeShape>
+                    </Border>
+                    <Border x:Name="SecondIdle"
+                            BackgroundColor="{DynamicResource TextMuted}"
+                            WidthRequest="{StaticResource Space2}"
+                            HeightRequest="{StaticResource Space2}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="{StaticResource RadiusPill}" />
+                        </Border.StrokeShape>
+                    </Border>
+                </Grid>
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ContentView.Content>
+</ContentView>

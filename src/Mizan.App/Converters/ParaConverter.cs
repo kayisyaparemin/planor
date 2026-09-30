@@ -4,18 +4,25 @@ namespace Mizan.App.Converters;
 
 /// <summary>
 /// ViewModel'in sunduğu ham tutarı ekranda "41.723 ₺" biçimine çevirir. ViewModel metin üretmez;
-/// para biçimi ve kültürü yalnız burada tanımlıdır (.claude/rules/03-mvvm.md).
+/// para biçimi ve kültürü yalnız burada tanımlıdır (.claude/rules/03-mvvm.md). Parametre
+/// <c>Isaretli</c> ise artı tutar "+480 ₺" yazılır: plana göre fark gibi yönü olan tutarlarda işaret,
+/// renge bakmadan okunabilsin diye.
 /// </summary>
 public sealed class ParaConverter : IValueConverter
 {
     private static readonly CultureInfo Tr = CultureInfo.GetCultureInfo("tr-TR");
+    private const string Isaretli = "Isaretli";
 
     // Tutar henüz bilinmiyorsa (örn. gözlem yok) sıfır yerine boşluğu dürüstçe gösterir.
     private const string Bilinmiyor = "—";
 
     /// <inheritdoc />
-    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
-        value is decimal amount ? amount.ToString("N0", Tr) + " ₺" : Bilinmiyor;
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not decimal amount) { return Bilinmiyor; }
+        var sign = amount > 0m && Isaretli.Equals(parameter as string, StringComparison.Ordinal) ? "+" : string.Empty;
+        return sign + amount.ToString("N0", Tr) + " ₺";
+    }
 
     /// <inheritdoc />
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>

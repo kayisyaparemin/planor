@@ -79,44 +79,11 @@ public static class Strings
     /// <summary>Dönem durumu etiket metni.</summary>
     public const string Etiket_DonemDurumu = "DÖNEM DURUMU";
 
-    /// <summary>Dönem sonu tahmini etiket metni.</summary>
-    public const string Etiket_DonemSonuTahmini = "DÖNEM SONU TAHMİNİ";
-
-    /// <summary>Kalan bütçe etiket metni.</summary>
-    public const string Etiket_KalanButce = "KALAN BÜTÇE";
-
-    /// <summary>Harcanan etiket metni.</summary>
-    public const string Etiket_Harcanan = "HARCANAN";
-
-    /// <summary>Kalan ödemeler etiket metni.</summary>
-    public const string Etiket_KalanOdemeler = "KALAN ÖDEMELER";
-
     /// <summary>Dönem kontrol başlığı.</summary>
     public const string Baslik_GozlemKontrolu = "Dönem Ortası Kontrolü";
 
-    /// <summary>Gözlem kaydet butonu.</summary>
-    public const string Aksiyon_GozlemiKaydet = "Gözlemi Kaydet";
-
-    /// <summary>Güncel bakiye giriş etiketi.</summary>
-    public const string Etiket_GuncelBakiye = "GÜNCEL BAKİYE";
-
-    /// <summary>Gözlem giriş alanı yer tutucusu.</summary>
-    public const string YerTutucu_Bakiye = "0 ₺";
-
-    /// <summary>Gözlem açıklama ipucu cümlesi.</summary>
-    public const string Cumle_GozlemIpucu = "Girilen bakiye dönem projeksiyonunu anında günceller.";
-
-    /// <summary>Dönemi kapat butonu.</summary>
-    public const string Aksiyon_DonemiKapat = "Dönemi Kapat";
-
     /// <summary>Dönem kapatmaya hazır bildirim metni.</summary>
     public const string Cumle_DonemKapatBildirimi = "Dönem süresi tamamlandı. Kapanış bakiyesini onaylayıp kapatabilirsin.";
-
-    /// <summary>Gelecek dönemler gezinme başlığı.</summary>
-    public const string Baslik_NavGelecekDonemler = "Gelecek Dönemler";
-
-    /// <summary>Gelecek dönemler özet alt yazısı.</summary>
-    public const string Etiket_GelecekDonemOzet = "12 dönemlik nakit akışı";
 
     /// <summary>Gelir planı gezinme başlığı.</summary>
     public const string Baslik_NavGelirPlani = "Gelir Planı";
@@ -127,42 +94,6 @@ public static class Strings
     /// <summary>Ödeme planları gezinme başlığı.</summary>
     public const string Baslik_NavOdemePlanlari = "Ödeme Planları";
 
-    /// <summary>Ödeme planları özet alt yazısı.</summary>
-    public const string Etiket_OdemePlanOzet = "Kredi ve kart ödemeleri";
-
-    /// <summary>Simülatör gezinme başlığı.</summary>
-    public const string Baslik_NavSimulator = "Simülatör";
-
-    /// <summary>Simülatör özet alt yazısı.</summary>
-    public const string Etiket_SimulatorOzet = "Karar senaryoları";
-
-    /// <summary>Geçmiş dönemler özet alt yazısı.</summary>
-    public const string Etiket_GecmisOzet = "Kapanan dönem kayıtları";
-
     /// <summary>Açık dönem bulunmadığı durum metni.</summary>
     public const string Durum_AcikDonemYok = "Henüz açık bir nakit akış dönemi yok.";
-
-    /// <summary>Açık dönem yok rehber cümlesi.</summary>
-    public const string Cumle_AcikDonemYokRehber = "Yeni bir dönem planlamak için gelir ve giderlerini kurabilirsin.";
-
-    /// <summary>Dashboard verileri yüklenemedi hatası.</summary>
-    public const string Hata_DashboardYuklenemedi = "Ana sayfa verileri yüklenirken bir sorun oluştu.";
-
-    /// <summary>Hatırlatıcı ödedim aksiyonu.</summary>
-    public const string Aksiyon_Odedim = "Ödedim";
-
-    /// <summary>Hatırlatıcı ertele aksiyonu.</summary>
-    public const string Aksiyon_Ertele = "Ertele";
-
-    /// <summary>Dönem adı şablonu; {0} dönem başlangıç tarihi.</summary>
-    public const string Bicim_DonemAdi = "{0} Dönemi";
-
-    /// <summary>Dönem gün sayacı şablonu; {0} geçen gün, {1} toplam gün, {2} dönem sonu tarihi.</summary>
-    public const string Bicim_DonemGunSayaci = "{0}/{1} gün · {2}";
-
-    /// <summary>Ana sayfada gösterilmeyen kalan ödeme sayısı şablonu.</summary>
-    public const string Bicim_FazlaOdeme = "+{0} ödeme daha";
-
-    /// <summary>Toplam tutar şablonu; {0} biçimlenmiş tutar.</summary>
-    public const string Bicim_ToplamTutar = "Toplam: {0}";
 }

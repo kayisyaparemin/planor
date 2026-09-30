@@ -3,8 +3,8 @@ using Mizan.Presentation.ViewModels;
 namespace Mizan.App.Pages;
 
 /// <summary>
-/// Kullanıcının aktif nakit akış döneminin gidişatını, kalan bütçe halkasını,
-/// acil hatırlatıcılarını ve dönem sonu projeksiyonunu sunan ana sayfa.
+/// Açık dönemin sonunda ne kalacağını ve bakiyenin oraya giden yolunu, yaşam giderinin temposunu,
+/// son girilen bakiyeyi, acil hatırlatıcıyı ve kalan ödemeleri sunan ana sayfa (EK-V3).
 /// </summary>
 public partial class DashboardPage : ContentPage
 {

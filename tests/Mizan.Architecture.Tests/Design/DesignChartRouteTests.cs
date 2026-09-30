@@ -83,4 +83,43 @@ public sealed class DesignChartRouteTests
 
         Assert.Contains("TimeRatio is not { } ", ringGauge, StringComparison.Ordinal);
     }
+    [Fact]
+    public void RingGauge_TepedenSaatYonundeCizer_IsaretAyniYondeDurur()
+    {
+        // MAUI açıyı saat 3'ten saatin tersine sayar: tepe 90 derecedir, saat yönü açıyı azaltır. İlk hâl
+        // tepeyi -90 (saat 6) sanıyordu; halka ters döndü, işaret %47'de saat 12'de durdu (V3a Kapı C).
+        var ringGauge = Read("RingGauge.cs");
+
+        Assert.Contains("TopAngle = 90f", ringGauge, StringComparison.Ordinal);
+        Assert.Contains("TopAngle - sweepAngle, true", ringGauge, StringComparison.Ordinal);
+        Assert.Contains("TopAngle - (", ringGauge, StringComparison.Ordinal);
+        Assert.DoesNotContain("-90f", ringGauge, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AreaTrend_BakiyeGunleriNoktaDonemSonuIciBosHalkaCizilir()
+    {
+        var areaTrend = Read("AreaTrend.cs");
+
+        Assert.Contains("ChartSeries? MarkerSeries", areaTrend, StringComparison.Ordinal);
+        Assert.Contains("DrawMarkers", areaTrend, StringComparison.Ordinal);
+        Assert.Contains("DrawEndRing", areaTrend, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AreaTrend_BugunCizgisiKesiklidir()
+    {
+        var areaTrend = Read("AreaTrend.cs");
+        var today = areaTrend[areaTrend.IndexOf("private void DrawTodayLine", StringComparison.Ordinal)..];
+
+        Assert.Contains("StrokeDashPattern = TodayDash", today, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Dolgu_VeHalkaIzi_GostergeRengininSaydamTonudur()
+    {
+        // Kaydırılan kart tonlu zeminde (SurfaceChart) durur; dolgu o zeminle aynı renkte kalırsa kaybolur (GS24).
+        Assert.Contains("ResolveTint(\"Indicator\")", Read("AreaTrend.cs"), StringComparison.Ordinal);
+        Assert.Contains("ResolveTint(\"Indicator\")", Read("RingGauge.cs"), StringComparison.Ordinal);
+    }
 }

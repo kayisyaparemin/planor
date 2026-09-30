@@ -80,14 +80,14 @@ public static class AutomationIds
     /// <summary>Bu dönemi kapat butonu kimliği.</summary>
     public const string BtnClosePeriod = "btn-close-period";
 
-    /// <summary>Ana sayfa ayarlar başlık butonu kimliği.</summary>
-    public const string BtnDashboardSettings = "btn-dashboard-settings";
+    /// <summary>Ana sayfanın kaydırılan hero kartı (dönem sonu ve tempo) kimliği.</summary>
+    public const string CardDashboardHero = "card-dashboard-hero";
 
-    /// <summary>Görsel merkez özet kartı kimliği.</summary>
-    public const string CardVisualCenter = "card-visual-center";
+    /// <summary>Ana sayfanın bakiye kartı (son bakiye ya da biten dönem) kimliği.</summary>
+    public const string CardBalance = "card-balance";
 
-    /// <summary>Bütçe oranı halka grafik göstergesi kimliği.</summary>
-    public const string GaugeBudgetRatio = "gauge-budget-ratio";
+    /// <summary>"Bakiye gir" sayfasını açan buton kimliği.</summary>
+    public const string BtnBalanceEntry = "btn-balance-entry";
 
     /// <summary>Dönem sonu tahmini metin etiketi kimliği.</summary>
     public const string LblProjectedEnding = "lbl-projected-ending";

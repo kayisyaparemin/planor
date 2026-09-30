@@ -55,4 +55,7 @@ public static class Routes
 
     /// <summary>Dönem mutabakatı ve kapanışı sihirbazı rotası.</summary>
     public const string PeriodSettlement = "period-settlement";
+
+    /// <summary>"Bakiye gir" sayfası rotası: tutar, gözlem günü ve kaydetmeden önce önizleme (S72-8, sayfası V3b).</summary>
+    public const string BalanceEntry = "balance-entry";
 }

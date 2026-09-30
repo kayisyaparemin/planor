@@ -15,6 +15,17 @@ public static class ChartColorResolver
     private static readonly Color DefaultSurfaceChart = Color.FromArgb("#233040");
     private static readonly Color DefaultBorderSubtle = Color.FromArgb("#343B46");
 
+    // Dolgu ve halka izi çizgi renginin bu kadar saydam tonudur (GS24): zemin tonlu da olsa düz de olsa seçilir.
+    private const float TintAlpha = 0.2f;
+
+    /// <summary>
+    /// Bir token'ın saydam tonunu çözer. Grafik dolgusu ve halka izi ayrı bir zemin token'ı olsaydı, grafiği taşıyan
+    /// kartın zemini o token'a eşit olduğunda kaybolurdu; çizgi renginin tonu her zeminde çizginin ailesinde kalır.
+    /// </summary>
+    /// <param name="tokenName">Tasarım sistemindeki renk token adı.</param>
+    /// <returns>Token renginin saydam hâli.</returns>
+    public static Color ResolveTint(string tokenName) => ResolveColor(tokenName).WithAlpha(TintAlpha);
+
     /// <summary>
     /// Belirtilen tasarım sistemi token adını çalışma zamanı kaynaklarından çözer; bulunamazsa fallback renk döner.
     /// </summary>

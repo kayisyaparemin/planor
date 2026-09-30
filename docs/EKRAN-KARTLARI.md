@@ -24,125 +24,143 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 ## EK-V3 — Ana sayfa
 
 > Sayfa dosyası: `DashboardPage.xaml`
-> Adım V3 ile tamamlandı (Alternatif B / GS20, Kapı C kararlarıyla).
+> "Rota + Tempo" yenilemesi (`GS24`, `S72`): `V3a` bu sayfa, tamamlandı (Kapı C kararları `GS24`'te);
+> `V3b`'nin "Bakiye gir" sayfası bu karta ikinci sayfa olarak eklenecek. İlk hâl (`GS20`) iptal.
 
-**Eski hâl:** `MainPage.xaml` 425 satır, **54 `<Label>`**, 5 kart, 11 buton, 1 geliştirici dökümü.
+**Önceki hâl (`V3`, `GS20`):** `DashboardPage.xaml` 233 satır, 11 `<Label>`, 3 kart, 1 buton, 5 `NavRow`, 1 grafik (halka).
+**Eski proje:** `MainPage.xaml` 425 satır, **54 `<Label>`**, 5 kart, 11 buton, 1 geliştirici dökümü.
 
 ### 1. Sorular
 
-| Kod | Soru | Eskide nasıl cevaplanıyordu |
+| Kod | Soru | Önceki hâl nasıl cevaplıyordu |
 |---|---|---|
-| S1 | "Bu dönem param yetecek mi / dönem sonunda elimde ne kalacak?" | PLAN kartı + GİDİŞAT'ın "Dönem sonu" matrisi (8 etiket) |
-| S2 | "Bugün elimde ne var ve bunu sisteme nasıl işlerim?" | Mevcut tutar kartı (4 etiket, 2 açıklama cümlesi, entry, buton) |
-| S3 | "Bu dönem daha ne ödeyeceğim?" | KALAN kartı (3 + şablon 4 etiket + toplam) |
-| S4 | "Plandan saptım mı, durumum ne?" | GİDİŞAT kartı — **dört metin matrisi, ~28 etiket** |
-| S5 | "Diğer bölümlere nereden giderim?" | 6 ayrı buton |
+| S1 | "Dönem sonunda elimde ne kalacak, plana göre neredeyim?" | Eyebrow + hero rakam (2 etiket); plan ve fark yok, grafik yok, bakiye girilmemişse tire |
+| S2 | "Yaşam giderinden ne kaldı, harcamam süreye göre hızlı mı?" | Kalan oran halkası + kalan / harcanan (4 etiket); süre ayrı çubukta ve bugüne göre (`S70`) |
+| S3 | "Bankada şu an ne var, en son ne zaman girdim?" | Yarım: giriş kutucuğu vardı, son bakiye ve tarihi ekrana bağlı değildi |
+| S4 | "Bu dönem daha ne ödeyeceğim, bugün ödemem gereken var mı?" | Hatırlatıcı + ≤ 3 ikonlu satır + "+N ödeme daha" (5 etiket) |
+| S5 | "Dönem bitti mi, kapatmam gerekiyor mu?" | Dönem çubuğundaki gün sayacı + "Dönemi Kapat" butonu |
 
-### 2. Kesme kararları (GS20 — Alternatif B)
+### 2. Kesme kararları (`GS24`)
 
 | Bilgi / Öğe | Karar | Gerekçe |
 |---|---|---|
-| Bütçe doluluk halkası | **Grafik** (`RingGauge`) | S1, S4: Kalan yaşam havuzu / bütçe oranını tek bakışta hissettiren görsel merkez (GK4: 1/1 grafik) |
-| Dönem sonu projeksiyonu | **Hero rakam** | S1 ekranın asıl sorusu; görsel merkez kartında halkanın yanında `HeroFigure`, `TextPrimary` |
-| Kalan bütçe / harcanan | **Satır** (hero'nun altında iki değer) | S1, S4: halkanın gösterdiği oranın tutar karşılığı (Kapı C: "Planlanan" notunun yerine) |
-| Mevcut tutar girişi | **Hero yüzey** (`HeroInputCard`) | S2 hem soru hem aksiyon; çelik mavisi hero kartı |
-| Dönem ilerlemesi | **Satır** (`PeriodRail`) | S1 takvim bağlamı; başlığın altında tek şerit |
-| Kalan ödemeler | **Satır** (ikonlu satır, ≤ 3 satır + "+N ödeme daha" `NavRow`) | S3 tarama sorusu; ağır kart kutusu yerine hafif ikonlu satırlar; taşma dönem ayrıntısına gider |
-| Hatırlatıcı bildirimi | **Kart** (`ReminderCard`) | S3/S1 acil ödeme; çocuk kart, aktif kayıt yoksa görünmez |
-| Öncelikli uyarı / bildirim | **Çıkar** | Kapı C: GK4 `InfoBanner`'ı hero yüzey sayar, `HeroInputCard` ile sınırı aşar; kapanış sinyali "Dönemi Kapat" butonudur |
-| Gezinme (4 hedef) | **Satır** (`NavRow × 4`) | S5 rotalar; 12 Dönem, Geçmiş, Finansal Yapı, Simülatör |
-| Dönemi kapat | **Aksiyon** (`ActionFill`) | S1 dönemi tamamlama aksiyonu |
-| Yaşam gideri 3 kolon | **Derine** → `EK-V9` | Kategori kırılımı dönem ayrıntısının işi |
-| Kredi kartı plan/mevcut tablosu | **Derine** → `EK-V7` | Kart kontrol ekranı zaten bunu gösteriyor |
-| KMH faizi plan/mevcut | **Derine** → `EK-V9` | İkinci seviye ayrıntı |
-| "Hesaplama detayı (geliştirme)" | **Çıkar** | GS5 kuralı; hiçbir kullanıcı sorusuna bağlanmıyor |
-| `StatusMessage` hata etiketi | **Çıkar** | Hata durumu `StateBlock` veya diyalogla yönetilir |
-| İkinci gözlem açıklaması | **Çıkar** | GK5 cümle bütçesi; tek net cümle |
+| Dönem sonu (tahmin; bakiye yoksa plan) | **Hero** (`HeroFigure`), kaydırılan kartın 1. sayfası | S1 ekranın asıl sorusu; bakiye yokken planın dediği gösterilir, tire değil (`S72-1`) |
+| Plana göre fark + plan tutarı | **Satır** (hero'nun altında) | S1; yalnız bakiye girildiyse (`S72-2`), fark işaretli ve semantik renkli |
+| Bakiye rotası | **Grafik** (`AreaTrend`), 1. sayfa | S1 "oraya nasıl gidiyorum": `Travelled` düz, `Ahead` kesikli, `Today`, `PlanLevel` (`S71`); bakiye yokken planın rotası |
+| Dönemin ilk ve son günü | **Satır** (grafiğin altında iki etiket) | Grafiğin tarih ekseni; son gün `PeriodEnd − 1` (`S72-7`) |
+| Kalan yaşam gideri | **Şema** (`RingGauge` ortasında, `TypeTitle`), 2. sayfa | S2; halka dolgusu harcanan oran, işareti geçen süre (`S72-3`) |
+| Harcanan % / geçen süre % | **Satır** (2 × `MetricRow`) | S2 halkanın sayı karşılığı; ikisi de son bakiyenin gününe göre |
+| Tempo cümlesi | **Satır** (`Bicim_`, bir tek `Cumle_` "aynı hızda") | S2'nin tek cümlelik cevabı (`S72-4`) |
+| Son bakiye + tarihi + "Bakiye gir" | **Kart** | S3; giriş ayrı sayfa (`V3b`, `S72-8`) |
+| Dönem bitti + son gün + "Dönemi kapat" | **Kart** (bakiye kartının yerinde) | S5; biten döneme bakiye yazılamaz (`S68-4`), cümle yok (`V11`) |
+| Hatırlatıcı | **Kart** (`ReminderCard`, `EK-V2`) | S4 acil ödeme; aktif kayıt yoksa görünmez |
+| Kalan ödemeler | **Kart** (`ListCard`, ≤ 3 satır: ad, vade, tutar) | S4 tarama sorusu; adet ve toplam kartın notunda |
+| Tüm kalan ödemeler | **Derine** → `EK-V9` ("Tümünü gör", yalnız gizli satır varsa) | S4'ün ikinci seviyesi |
+| Dönem aralığı + gün sayacı / "Bitti" | **Satır** (başlık, `Shell.TitleView`) | S5 takvim bağlamı |
+| Gezinme satırları × 4, ayarlar ikonu | **Çıkar** | Aynı hedefler yan menüde |
+| Dönem çubuğu (`PeriodRail`) | **Çıkar** | Aralık ve sayaç başlıkta, geçen süre halkanın işaretinde |
+| Ödeme satırı ikonları | **Çıkar** | GK6: kart başına en fazla bir ikon |
+| Harcanan tutarı | **Çıkar** | S2 oranı soruyor |
+| Halkadaki "10 gün kaldı" | **Çıkar** | Başlıktaki gün sayacıyla aynı bilgi |
+| Grafikteki "Bugün" / "Plan" yazıları, gözlem noktası işareti | **Çıkar** | `AreaTrend` yazı ve işaret çizmez; çizgiler kalır, rota gözlem gününde kırılır |
+| Sayfa içi bakiye girişi (`HeroInputCard`) | **Çıkar** → `V3b` | Tarih ve önizlemeyle ayrı sayfa |
 
-### 3. Bütçe (Alternatif B — uygulanan)
-
-```
-Hero rakam    1 / 1     dönem sonu projeksiyonu (ProjectedEndingBalance)
-Hero yüzey    1 / 1     HeroInputCard
-Kart          3 / 4     görsel merkez (RingGauge + hero), HeroInputCard, ReminderCard (çocuk)
-Grafik        1 / 1     RingGauge (kalan bütçe oranı halkası)
-NavRow        5 / 5     12 Dönem, Geçmiş, Finansal Yapı, Simülatör + "+N ödeme daha" taşması
-Label        11 / 28    sayfa XAML'inde sayılan (bileşen içleri hariç)
-Cumle_        2 / 3     Cumle_GozlemIpucu, Cumle_AcikDonemYokRehber (boş durum)
-```
-
-### 4. Blok şeması (Alternatif B)
+### 3. Bütçe
 
 ```
-┌─ PageHeader ─────────────────────────────────────────┐
-│ Etiket_Slogan          TypeEyebrow / TextSecondary   │
-│ Baslik_AnaSayfa        TypeTitle   / TextPrimary     │  [Settings]
-└──────────────────────────────────────────────────────┘
-┌─ PeriodRail ─────────────────────────────────────────┐  ← S1
-│ Dönem adı              TypeSection / TextPrimary     │
-│ 4/30 gün · 15 Ekim     TypeCaption / TextSecondary   │
-│ ▓▓▓▓░░░░░░░░░          Indicator   / RadiusPill      │
-└──────────────────────────────────────────────────────┘
-┌─ Görsel Merkez: Bütçe & Dönem Sonu (SurfaceCard) ────┐  ← S1, S4
-│ ┌─ RingGauge ─┐  Etiket_DonemSonuTahmini  (Eyebrow)  │
-│ │   ╭─────╮   │  41.723 ₺                 (HeroFigure)│
-│ │   │ %68 │   │  KALAN BÜTÇE     HARCANAN  (Caption)  │
-│ │   ╰─────╯   │  6.800 ₺         3.200 ₺   (TypeBody) │
-│ └ 1* sütun, kare ┘  3* sütun                          │
-└──────────────────────────────────────────────────────┘
-┌─ HeroInputCard         SurfaceHero / RadiusHero ─────┐  ← S2
-│ Etiket_MevcutTutar     TypeEyebrow / TextOnHero      │
-│ [ Entry  SurfaceSunken ]  [ Kaydet   ActionFill ]    │
-│ Cumle_GozlemNotu       TypeCaption / TextOnHeroSec.  │
-└──────────────────────────────────────────────────────┘
-┌─ ReminderCard (HasActiveReminder == true) ───────────┐  ← S3
-│ [Notifications]  {Title} (TypeSection)               │
-│                  {Message} (TypeBody)                │
-│ [ Ertele  SecondaryButton ]  [ Ödedim  ActionFill ]  │
-└──────────────────────────────────────────────────────┘
-┌─ Kalan Yükümlülükler (İkonlu Satırlar Deseni) ───────┐  ← S3
-│ Etiket_Kalan           TypeEyebrow / TextSecondary   │
-│ [Payments]   21 Eyl  Giyim                    4.500 ₺│
-│ [Payments]   24 Eyl  Market                   1.200 ₺│
-│ [CreditCard] 27 Eyl  Denizbank                  750 ₺│
-│ +4 ödeme daha (Toplam: 11.249 ₺)  ChevronRight/NavRow│
-└──────────────────────────────────────────────────────┘
-[ Aksiyon_DonemiKapat    ActionFill  / RadiusCard ]       ← S1
-┌─ NavRow × 4 (SurfaceCard / RadiusCard) ──────────────┐  ← S5
-│ [Insights]   Önümüzdeki 12 dönem                ›    │
-│ [Schedule]   Geçmiş dönemler                    ›    │
-│ [Payments]   Finansal yapıyı yönet              ›    │
-│ [Insights]   Simülatörü aç                      ›    │
-└──────────────────────────────────────────────────────┘
+Hero rakam    1 / 1     dönem sonu (tahmin ya da plan)
+Hero yüzey    0 / 1     kaydırılan kart tonlu SurfaceChart (GS24), SurfaceHero değil; HeroInputCard kalktı
+Kart          4 / 4     HeroPager, bakiye/kapanış kartı, ReminderCard, ListCard
+Grafik        1 / 1     aynı anda: 1. sayfada AreaTrend, 2. sayfada RingGauge
+Hero sayfa    2 / 2
+NavRow        0 / 5
+Label        25 / 28    başlık 4, 1. sayfa 7, 2. sayfa 5, bakiye kartı 6, ödeme satırı şablonu 3
+Cumle_        3 / 3     Cumle_TempoAyniHiz, Cumle_TempoIlkBakiye, Cumle_AcikDonemYokRehber
 ```
 
-Dönem planı henüz yokken veya kurulum tamamlanmamışken (Boş Durum):
+Analizci kartı 2 sayar: ham `Border` (bakiye kartı) ve `ReminderCard` onun listesinde yok. Etiketi 28
+sayar: `<Label.Text>` (2) ve `<Label.Triggers>` (1) özellik öğelerini de `<Label` sayıyor. Bütçe
+dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML'inde görünmez; yine sayılır.
+
+### 4. Blok şeması
 
 ```
-┌─ PageHeader ─────────────────────────────────────────┐
-│ Baslik_AnaSayfa        TypeTitle   / TextPrimary     │  [Settings]
-└──────────────────────────────────────────────────────┘
-┌─ StateBlock (Empty) ─────────────────────────────────┐  ← S1
-│ [AccountBalance]                                     │
-│ Cumle_AcikDonemYokRehber                             │
-│ [ Aksiyon_TemizBasla ]  → Onboarding (V4)            │
-└──────────────────────────────────────────────────────┘
+┌─ Shell.TitleView ────────────────────────────────────────────┐  ← S5
+│ [☰ kabuk]  10 Eylül – 9 Ekim                 20 / 30 gün      │
+│            Bicim_DonemAraligi                Bicim_GunSayaci  │
+│            TypeSection / TextPrimary         TypeCaption / TextSecondary
+│            dönem bittiyse sağda Etiket_Bitti; dönem yoksa Baslik_AnaSayfa
+└──────────────────────────────────────────────────────────────┘
+┌─ HeroPager   SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐
+│ ┌ HeroPage 1 ────────────────────────────────────────────────┐ │  ← S1
+│ │ Etiket_DonemSonuTahmini  (bakiye yoksa Etiket_PlanlananDonemSonu)  Eyebrow
+│ │ 41.723 ₺                                HeroFigure / TextPrimary
+│ │ Plana göre −2.177 ₺  ·  Plan 43.900 ₺   TypeCaption; fark NegativeText /
+│ │   (yalnız bakiye girildiyse)            PositiveText, plan TextSecondary
+│ │ AreaTrend   yükseklik ChartHeight                          │ │
+│ │   Travelled: düz Indicator + Indicator %20 dolgu           │ │
+│ │   Ahead: kesikli Indicator, sonu içi boş halka             │ │
+│ │   bakiye günleri dolu nokta · Today: kesikli TextSecondary │ │
+│ │   PlanLevel: noktalı TextSecondary                         │ │
+│ │ 10 Eylül                                        9 Ekim     │ │  Caption
+│ └────────────────────────────────────────────────────────────┘ │
+│ ┌ HeroPage 2 ────────────────────────────────────────────────┐ │  ← S2
+│ │           ╭ RingGauge  ChartHeight × ChartHeight ╮          │ │
+│ │           │   Etiket_KalanYasamGideri    Caption │          │ │
+│ │           │   8.600 ₺                    TypeTitle / TextPrimary
+│ │           ╰ dolgu Indicator = harcanan · işaret TextSecondary = geçen süre
+│ │ MetricRow  Etiket_Harcanan ......................... %71    │ │
+│ │ MetricRow  Etiket_GecenSure ........................ %67    │ │
+│ │ Harcama, geçen sürenin 4 puan önünde.   TypeCaption / TextSecondary
+│ │ bakiye yoksa: halka boş, ortada Etiket_BakiyeGirilmedi,     │ │
+│ │   MetricRow'lar yok, altta Cumle_TempoIlkBakiye             │ │
+│ └────────────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────────┘
+                    ▬  •    etkin uzun çubuk Indicator, diğeri nokta TextMuted; dokunulabilir
+┌─ Bakiye kartı (ham Border)  SurfaceCard / BorderSubtle / RadiusCard ─┐  ← S3
+│ Etiket_BankadakiBakiye                     Eyebrow                   │
+│ 58.940 ₺   27 Eylül        Figure / TextPrimary · Caption            │
+│ (bakiye yoksa Etiket_HenuzGirilmedi  TypeBody / TextSecondary)       │
+│                                  [ Aksiyon_BakiyeGir   ActionFill ]  │
+├─ aynı yer, dönem bittiyse ──────────────────────────────────────────┤  ← S5
+│ Etiket_DonemBitti                          Eyebrow                   │
+│ 9 Ekim                     Figure / TextPrimary                      │
+│                                  [ Aksiyon_DonemiKapat ActionFill ]  │
+└──────────────────────────────────────────────────────────────────────┘
+┌─ ReminderCard (HasActiveReminder) — EK-V2, değişmedi ────────────────┐  ← S4
+└──────────────────────────────────────────────────────────────────────┘
+┌─ ListCard ───────────────────────────────────────────────────────────┐  ← S4
+│ Etiket_KalanOdemeler               4 ödeme · 24.009 ₺  (Bicim_OdemeAdediToplam)
+│ Kredi taksiti                                   12.450 ₺             │  TypeBody / TextPrimary · Figure
+│ 1 Ekim                                                               │  Caption
+│ … en fazla 3 satır                                                   │
+│ Aksiyon_TumunuGor                                          ›         │  yalnız gizli satır varsa → V9
+└──────────────────────────────────────────────────────────────────────┘
 ```
+
+Yeni ölçü token'ı `ChartHeight` (144): `HeightRequest` literali yasak (GK3) ve iki hero sayfasının
+görseli aynı yükseklikte durmalı. `HeroPager` iki sayfayı üst üste ölçer (görünmeyen sayfa saydam),
+kart kaydırınca boy değiştirmez. Açılışta ve her yüklemede 1. sayfa.
 
 ### 5. Üç durum
 
 | Durum | Görünen |
 |---|---|
-| Boş | `StateBlock`: `AccountBalance` ikonu + `Cumle_AcikDonemYokRehber` + `Aksiyon_TemizBasla` (kurulum sihirbazı V4'te bağlanır). |
-| Yükleniyor | Üç `SkeletonBlock` (spinner yok). `LoadAsync` her yüklemede önce `ScreenState.Loading`'e geçer. |
-| Hata | `StateBlock`: `Close` ikonu + `Hata_DashboardYuklenemedi` + `Aksiyon_TekrarDene` (yüklemeyi yeniden çalıştırır). |
+| Boş | `StateBlock`: `AccountBalance` ikonu + `Cumle_AcikDonemYokRehber` + `Aksiyon_TemizBasla` (kurulum sihirbazı). Başlıkta `Baslik_AnaSayfa`. |
+| Yükleniyor | Kart şeklinde üç `SkeletonBlock` (kaydırılan kart, bakiye kartı, liste); spinner yok. Başlıkta dönem gelene kadar `Baslik_AnaSayfa`. |
+| Hata | `StateBlock`: `Close` ikonu + `Hata_DashboardYuklenemedi` + `Aksiyon_TekrarDene`. Başlıkta `Baslik_AnaSayfa`. Metin genel kalır: hata hesaptan da gelebilir. |
 
-Görsel kontrol (Kapı C): boş hâl iki temada onaylandı. Dolu hâl V3'te açık dönem
-oluşturulamadığı için görülemedi; kontrolü V4'ün Kapı C'sine taşındı.
+Dolu hâlin iki çeşidi durum değil, içeriktir ve şemada yazılı: bakiye hiç girilmemiş (plan rakamı,
+plan rotası, boş halka) ve dönem bitmiş ama kapanmamış (bakiye kartının yerinde kapanış).
 
 ### 6. Konsept ilişkisi
 
-Konsept panel 1 (Ana Sayfa) temel ilham kaynağıdır. `GS20` kararı ile dikey kart blokları sadeleştirilmiş; T4'te üretilen `RingGauge` primitifi bütçe durumunu özetleyen tek görsel merkez olarak konumlandırılmıştır.
+Claude Design'da üretilen D yönü: `docs/assets/konsept/ana-sayfa-rota-tempo.png` (dolu, iki tema,
+yükleniyor), `ana-sayfa-rota-tempo-durumlar.png` (boş, bakiye girilmemiş, kapanış, hata) ve
+`ana-sayfa-rota-tempo-kapanis.png` (halka sayfasının bakiyesiz hâli). Yerleşim oradan; renkler
+token'lardan. Konseptten sapmalar `GS24`'te: kapanış bakiye kartının yerinde, grafikte yazı ve
+gözlem işareti yok, "10 gün kaldı" yok, bakiyesiz grafik planın rotası, ödeme satırı 3 ve ikonsuz,
+boş hâlde ortak `StateBlock`.
 
 ---
 

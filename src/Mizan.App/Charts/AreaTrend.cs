@@ -15,6 +15,9 @@ public sealed class AreaTrend : IDrawable
     private static readonly float[] PlannedDash = [4f, 4f];
     private static readonly float[] ThresholdDash = [3f, 3f];
     private static readonly float[] PlanLevelDash = [1f, 3f];
+    private static readonly float[] TodayDash = [2f, 3f];
+    private const float MarkerRadius = 3.5f;
+    private const float EndRingRadius = 4f;
 
     /// <summary>
     /// Gerçekleşen veya ana projeksiyon zaman serisi.
@@ -48,6 +51,12 @@ public sealed class AreaTrend : IDrawable
     public ChartThreshold? PlanLevel { get; set; }
 
     /// <summary>
+    /// Nokta işareti konan günler: kullanıcının bakiye girdiği günler. Çizgi o günlerde kırılır; nokta, kırılmanın
+    /// tahmin değil girilen bir tutar olduğunu söyler. Verilmezse işaret çizilmez.
+    /// </summary>
+    public ChartSeries? MarkerSeries { get; set; }
+
+    /// <summary>
     /// Çizim yüzeyine alan dolgulu trend grafiğini çizer.
     /// </summary>
     /// <param name="canvas">Çizim tuvali.</param>
@@ -66,6 +75,8 @@ public sealed class AreaTrend : IDrawable
         DrawProjection(canvas, scale);
         DrawActualLine(canvas, scale);
         DrawTodayLine(canvas, scale, dirtyRect);
+        DrawMarkers(canvas, scale);
+        DrawEndRing(canvas, scale);
     }
 
     private ChartScale BuildScale(RectF rect)
@@ -83,7 +94,7 @@ public sealed class AreaTrend : IDrawable
 
     private void DrawAreaFill(ICanvas canvas, ChartScale scale)
     {
-        canvas.FillColor = ChartColorResolver.ResolveColor("SurfaceChart");
+        canvas.FillColor = ChartColorResolver.ResolveTint("Indicator");
         canvas.FillPath(scale.AreaPath(Series!.Points));
     }
 
@@ -149,6 +160,31 @@ public sealed class AreaTrend : IDrawable
         var x = scale.X(today);
         canvas.StrokeColor = ChartColorResolver.ResolveColor("TextSecondary");
         canvas.StrokeSize = 1f;
+        // Kesikli: düz çizgi rotayı ikiye bölen bir kenar gibi okunuyordu (V3a Kapı C).
+        canvas.StrokeDashPattern = TodayDash;
         canvas.DrawLine(x, rect.Top, x, rect.Bottom);
+        canvas.StrokeDashPattern = null;
+    }
+
+    private void DrawMarkers(ICanvas canvas, ChartScale scale)
+    {
+        if (MarkerSeries == null) { return; }
+
+        canvas.FillColor = ChartColorResolver.ResolveColor("Indicator");
+        foreach (var point in MarkerSeries.Points.Where(point => scale.Contains(point.Date)))
+        {
+            canvas.FillCircle(scale.X(point.Date), scale.Y(point.Value), MarkerRadius);
+        }
+    }
+
+    private void DrawEndRing(ICanvas canvas, ChartScale scale)
+    {
+        // Kesikli devamın sonu dönem sonudur: içi boş halka "henüz olmadı, tahmin" der.
+        if (ProjectionSeries is not { Points.Count: > 0 } projection) { return; }
+
+        var end = projection.Points[^1];
+        canvas.StrokeColor = ChartColorResolver.ResolveColor("Indicator");
+        canvas.StrokeSize = 2f;
+        canvas.DrawCircle(scale.X(end.Date), scale.Y(end.Value), EndRingRadius);
     }
 }

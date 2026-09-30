@@ -17,6 +17,9 @@
             <conv:ParaConverter x:Key="Para" />
             <conv:TarihConverter x:Key="Tarih" />
             <conv:HalkaGostergeConverter x:Key="HalkaGosterge" />
+            <conv:TrendGrafigiConverter x:Key="TrendGrafigi" />
+            <conv:TempoCumlesiConverter x:Key="TempoCumlesi" />
+            <conv:TersConverter x:Key="Tersi" />
             <conv:TarihSeciciConverter x:Key="TarihSecici" />
             <conv:OdemeKuraliConverter x:Key="OdemeKurali" />
             <conv:VarsayilanOdemeConverter x:Key="VarsayilanOdeme" />

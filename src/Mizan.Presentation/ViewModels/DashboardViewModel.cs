@@ -1,69 +1,77 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
-using Mizan.Domain.Models;
+using Mizan.Presentation.Charts;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Navigation;
 
 namespace Mizan.Presentation.ViewModels;
 
 /// <summary>
-/// Ana sayfa ekranının açık dönem gidişatını, bütçe oranını ve kalan ödemelerini sunan görünüm modelidir.
+/// Ana sayfanın görünüm modeli: açık dönemin sonunda ne kalacağını ve bakiyenin oraya nasıl gittiğini, yaşam
+/// giderinin temposunu, son girilen bakiyeyi ve kalan ödemeleri tek ekranda sunar (EK-V3, S72). Bakiye girişi
+/// ayrı sayfadır (V3b); bu model yalnız okur.
 /// </summary>
 public sealed partial class DashboardViewModel : ViewModelBase
 {
-    private static readonly CultureInfo Tr = CultureInfo.GetCultureInfo("tr-TR");
-
-    // EK-V3 kesme kararı: ana sayfada en fazla üç kalan ödeme satırı; kalanı "+N ödeme daha" satırına düşer.
+    // EK-V3 kesme kararı: kalan ödemeler kartında en fazla üç satır; fazlası "Tümünü gör" ile dönem ayrıntısına.
     private const int VisibleRemainingLimit = 3;
+    // Rol anahtarları (TASARIM-SISTEMI § Rol → token): katedilen yol düz, önümüzdeki yol kesikli.
+    private const string TravelledKey = "actual";
+    private const string AheadKey = "projection";
+    // Bakiyenin girildiği günler grafikte nokta olur (S68-1).
+    private const string MarkerKey = "observation";
 
     private readonly IPeriodProgressService _progressService;
-    private readonly IPeriodWorkflowService _workflowService;
     private readonly INavigationService _navigationService;
-    private readonly ReminderCardViewModel _reminders;
 
     /// <summary>Vadesi gelen veya ertelenmiş acil ödemeleri yöneten çocuk görünüm modeli.</summary>
-    public ReminderCardViewModel Reminders => _reminders;
+    public ReminderCardViewModel Reminders { get; }
 
-    /// <summary>Bu dönemden kalan planlı ödeme satırları listesi.</summary>
+    /// <summary>Kalan ödemelerden kartta görünen ilk satırlar.</summary>
     public ObservableCollection<DashboardRemainingItem> RemainingLines { get; } = [];
 
-    [ObservableProperty] private DateOnly? periodStart; [ObservableProperty] private DateOnly? periodEnd;
-    [ObservableProperty] private int elapsedDays; [ObservableProperty] private int totalDays;
-    [ObservableProperty] private double periodElapsedRatio;
-    [ObservableProperty] private decimal? projectedEndingBalance; [ObservableProperty] private decimal? plannedEndingBalance;
-    [ObservableProperty] private double budgetRatio;
-    [ObservableProperty] private bool isPeriodClosable;
-    [ObservableProperty] private string currentBalanceInput = string.Empty;
-    [ObservableProperty] private decimal? lastObservedBalance; [ObservableProperty] private DateOnly? lastObservedOn;
-    [ObservableProperty] private bool hasObservation; [ObservableProperty] private bool isSavingObservation;
-    [ObservableProperty] private bool hasActiveAlert;
-    [ObservableProperty] private decimal remainingPlannedTotal;
-    [ObservableProperty] private bool hasRemainingLines; [ObservableProperty] private int remainingCount;
-    [ObservableProperty] private int overflowCount; [ObservableProperty] private bool hasOverflow;
     [ObservableProperty] private bool hasActivePeriod;
-    [ObservableProperty] private decimal? remainingVariableExpenseAllowance; [ObservableProperty] private decimal? observedLivingSpend;
+    [ObservableProperty] private DateOnly? periodStart; [ObservableProperty] private DateOnly? periodLastDay;
+    [ObservableProperty] private int elapsedDays; [ObservableProperty] private int totalDays;
+    [ObservableProperty] private bool isPeriodEnded;
+    [ObservableProperty] private int heroPageIndex;
 
-    /// <summary>Ana sayfa görünüm modelini gerekli dört dar portla başlatır (Kural M3).</summary>
+    [ObservableProperty] private bool hasObservation;
+    [ObservableProperty] private decimal? endingBalance; [ObservableProperty] private decimal? plannedEndingBalance;
+    [ObservableProperty] private decimal? endingDeviation;
+    [ObservableProperty] private bool isBehindPlan; [ObservableProperty] private bool isAheadOfPlan;
+    [ObservableProperty] private ChartTrend? trend;
+
+    [ObservableProperty] private decimal? remainingVariableExpenseAllowance;
+    [ObservableProperty] private bool hasPace;
+    [ObservableProperty] private decimal? spentRatio; [ObservableProperty] private decimal? paceElapsedRatio;
+    [ObservableProperty] private int? paceGapPoints;
+    [ObservableProperty] private ChartGauge? gauge;
+
+    [ObservableProperty] private decimal? lastObservedBalance; [ObservableProperty] private DateOnly? lastObservedOn;
+
+    [ObservableProperty] private int remainingCount; [ObservableProperty] private decimal remainingPlannedTotal;
+    [ObservableProperty] private bool hasOverflow;
+
+    /// <summary>Ana sayfa görünüm modelini gidişat okuma portu, gezinme portu ve hatırlatıcı kartıyla başlatır.</summary>
     public DashboardViewModel(
-        IPeriodProgressService progressService, IPeriodWorkflowService workflowService,
-        INavigationService navigationService, ReminderCardViewModel reminders)
+        IPeriodProgressService progressService, INavigationService navigationService, ReminderCardViewModel reminders)
     {
         _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
-        _workflowService = workflowService ?? throw new ArgumentNullException(nameof(workflowService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-        _reminders = reminders ?? throw new ArgumentNullException(nameof(reminders));
+        Reminders = reminders ?? throw new ArgumentNullException(nameof(reminders));
     }
 
-    /// <summary>Açık dönemin gidişat verilerini, bildirimlerini ve hatırlatıcı durumlarını yükler.</summary>
+    /// <summary>Açık dönemin gidişatını ve hatırlatıcıyı yükler; kaydırılan kart her yüklemede ilk sayfaya döner.</summary>
     [RelayCommand]
     public async Task LoadAsync()
     {
         SetBusy(true);
         State = ScreenState.Loading;
+        HeroPageIndex = 0;
         try
         {
             var progress = await _progressService.GetAsync();
@@ -73,9 +81,11 @@ public sealed partial class DashboardViewModel : ViewModelBase
                 return;
             }
 
-            ApplyProgress(progress);
-            await CheckSettlementAlertAsync();
-            await _reminders.LoadAsync();
+            ApplyPeriod(progress);
+            ApplyEnding(progress);
+            ApplyPace(progress);
+            ApplyRemainingLines(progress);
+            await Reminders.LoadAsync();
             State = ScreenState.Content;
         }
         catch (Exception ex)
@@ -90,56 +100,44 @@ public sealed partial class DashboardViewModel : ViewModelBase
         }
     }
 
-    /// <summary>Kullanıcının girdiği anlık nakit bakiye gözlemini kaydeder.</summary>
-    [RelayCommand]
-    public async Task SaveObservationAsync()
+    private void ApplyPeriod(PeriodProgress progress)
     {
-        var text = (CurrentBalanceInput ?? string.Empty).Trim();
-        if (!decimal.TryParse(text, NumberStyles.Number, Tr, out var amount))
-        {
-            return;
-        }
-
-        IsSavingObservation = true;
-        try
-        {
-            await _workflowService.ObserveCurrentBalanceAsync(amount);
-            CurrentBalanceInput = string.Empty;
-            await LoadAsync();
-        }
-        finally
-        {
-            IsSavingObservation = false;
-        }
-    }
-
-    private void ApplyProgress(PeriodProgress progress)
-    {
+        HasActivePeriod = true;
         PeriodStart = progress.PeriodStart;
-        PeriodEnd = progress.PeriodEnd;
+        PeriodLastDay = progress.PeriodEnd.AddDays(-1); // PeriodEnd sonraki dönemin ilk günü (S72-7)
         ElapsedDays = progress.ElapsedDays;
         TotalDays = progress.TotalDays;
-        PeriodElapsedRatio = progress.TotalDays > 0 ? (double)progress.ElapsedDays / progress.TotalDays : 0.0;
-        ProjectedEndingBalance = progress.ProjectedEndingBalance;
-        PlannedEndingBalance = progress.PlannedEndingBalance;
-        BudgetRatio = CalculateBudgetRatio(progress);
-        IsPeriodClosable = progress.IsClosable;
-        RemainingVariableExpenseAllowance = progress.RemainingVariableExpenseAllowance;
-        ObservedLivingSpend = progress.ObservedLivingSpend;
-        HasObservation = progress.Observation is not null;
+        IsPeriodEnded = progress.IsClosable;
         LastObservedBalance = progress.Observation?.ObservedBalance;
         LastObservedOn = progress.Observation?.ObservedOn;
-        HasActivePeriod = true;
-        ApplyRemainingLines(progress);
     }
 
-    private static double CalculateBudgetRatio(PeriodProgress progress)
+    private void ApplyEnding(PeriodProgress progress)
     {
-        if (progress.PlannedVariableExpenseAllowance <= 0m || !progress.RemainingVariableExpenseAllowance.HasValue)
-        {
-            return 1.0;
-        }
-        return Math.Clamp((double)(progress.RemainingVariableExpenseAllowance.Value / progress.PlannedVariableExpenseAllowance), 0.0, 1.0);
+        HasObservation = progress.Observation is not null;
+        PlannedEndingBalance = progress.PlannedEndingBalance;
+        EndingBalance = progress.ProjectedEndingBalance ?? progress.PlannedEndingBalance; // S72-1
+        EndingDeviation = progress.EndingDeviation;
+        IsBehindPlan = EndingDeviation < 0m;
+        IsAheadOfPlan = EndingDeviation > 0m;
+        Trend = new ChartTrend(
+            ToSeries(TravelledKey, progress.Path.Travelled),
+            ToSeries(AheadKey, progress.Path.Ahead),
+            progress.Today,
+            new ChartThreshold(progress.PlannedEndingBalance),
+            new ChartSeries(MarkerKey, progress.Observations.Select(observation => new ChartPoint(observation.ObservedOn, observation.ObservedBalance)).ToList()));
+    }
+
+    private void ApplyPace(PeriodProgress progress)
+    {
+        var pace = progress.Pace;
+        RemainingVariableExpenseAllowance = progress.RemainingVariableExpenseAllowance;
+        HasPace = pace is not null;
+        SpentRatio = pace?.SpentRatio;
+        PaceElapsedRatio = pace?.ElapsedRatio;
+        PaceGapPoints = pace is null ? null : (int)Math.Round(pace.GapPoints, MidpointRounding.AwayFromZero);
+        // Halka 1'de doyar; aşım oranı kırpılmadan SpentRatio'da kalır (S70-5).
+        Gauge = pace is null ? new ChartGauge(0m, null) : new ChartGauge(Math.Clamp(pace.SpentRatio, 0m, 1m), pace.ElapsedRatio);
     }
 
     private void ApplyRemainingLines(PeriodProgress progress)
@@ -149,45 +147,33 @@ public sealed partial class DashboardViewModel : ViewModelBase
         {
             RemainingLines.Add(new DashboardRemainingItem
             {
-                DueDate = line.PlannedDate, Name = line.Name, Amount = line.PlannedAmount ?? 0m,
-                Detail = line.Detail, IsSnoozed = progress.IsSnoozed(line.Id), IsOverdue = line.PlannedDate < progress.Today
+                DueDate = line.PlannedDate, Name = line.Name, Amount = line.PlannedAmount ?? 0m
             });
         }
         RemainingCount = progress.RemainingLines.Count;
-        HasRemainingLines = RemainingCount > 0;
-        OverflowCount = Math.Max(0, RemainingCount - VisibleRemainingLimit);
-        HasOverflow = OverflowCount > 0;
         RemainingPlannedTotal = progress.RemainingPlannedTotal;
+        HasOverflow = RemainingCount > VisibleRemainingLimit;
     }
 
-    private async Task CheckSettlementAlertAsync()
-    {
-        var availability = await _workflowService.GetSettlementAvailabilityAsync();
-        HasActiveAlert = availability.IsDue;
-    }
+    private static ChartSeries ToSeries(string key, IReadOnlyList<BalancePathPoint> points) =>
+        new(key, points.Select(point => new ChartPoint(point.Date, point.Balance)).ToList());
 
     private void ShowEmptyState()
     {
         RemainingLines.Clear();
-        HasRemainingLines = HasOverflow = HasObservation = HasActiveAlert = HasActivePeriod = false;
-        ProjectedEndingBalance = PlannedEndingBalance = null;
+        HasActivePeriod = HasObservation = HasPace = HasOverflow = IsPeriodEnded = false;
+        EndingBalance = EndingDeviation = LastObservedBalance = null;
+        Trend = null;
+        Gauge = null;
         State = ScreenState.Empty;
     }
 
-    /// <summary>Dönem kapanış ve mutabakat sihirbazına yönlendirir.</summary>
+    /// <summary>"Bakiye gir" sayfasını açar (V3b).</summary>
+    [RelayCommand] public Task OpenBalanceEntryAsync() => _navigationService.NavigateToAsync(Routes.BalanceEntry);
+    /// <summary>Biten dönemin kapanışını açar (V11).</summary>
     [RelayCommand] public Task ClosePeriodAsync() => _navigationService.NavigateToAsync(Routes.PeriodSettlement);
-    /// <summary>12 Dönem projeksiyon sayfasına yönlendirir.</summary>
-    [RelayCommand] public Task OpenProjectionAsync() => _navigationService.NavigateToAsync(Routes.Projection);
-    /// <summary>Geçmiş dönemler sayfasına yönlendirir.</summary>
-    [RelayCommand] public Task OpenHistoryAsync() => _navigationService.NavigateToAsync(Routes.History);
-    /// <summary>Finansal yapı sayfasına yönlendirir.</summary>
-    [RelayCommand] public Task OpenFinancialStructureAsync() => _navigationService.NavigateToAsync(Routes.FinancialStructure);
-    /// <summary>What-If simülatörü sayfasına yönlendirir.</summary>
-    [RelayCommand] public Task OpenSimulationAsync() => _navigationService.NavigateToAsync(Routes.Simulation);
-    /// <summary>Ayarlar sayfasına yönlendirir.</summary>
-    [RelayCommand] public Task OpenSettingsAsync() => _navigationService.NavigateToAsync(Routes.Settings);
-    /// <summary>Dönem ayrıntısı sayfasına yönlendirir.</summary>
+    /// <summary>Kalan ödemelerin tamamını gösteren dönem ayrıntısını açar (V9).</summary>
     [RelayCommand] public Task OpenRemainingDetailAsync() => _navigationService.NavigateToAsync(Routes.PeriodDetail);
-    /// <summary>İlk kurulum sihirbazı sayfasına yönlendirir.</summary>
+    /// <summary>Açık dönem yokken kurulum sihirbazını açar.</summary>
     [RelayCommand] public Task OpenOnboardingAsync() => _navigationService.NavigateToAsync(Routes.Onboarding);
 }

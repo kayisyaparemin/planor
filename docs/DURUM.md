@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **A30** — dönemin bakiye rotası: `PeriodProgress.Path`, her gün bir nokta (S71) |
-| Sıradaki adım | **V3a** — ana sayfa (`/tasarim-adimi V3`; ardından **V3b** "Bakiye gir"); **V6d2** de açık |
-| Test sayısı | 1757 |
+| Son tamamlanan adım | **V3a** — ana sayfa "Rota + Tempo": kaydırılan hero, bakiye kartı, kalan ödemeler (S72, GS24) |
+| Sıradaki adım | **V3b** — "Bakiye gir" sayfası (`/tasarim-adimi V3`); **V6d2** de açık |
+| Test sayısı | 1774 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V3a — ana sayfa "Rota + Tempo": kaydırılan hero, bakiye kartı, kalan ödemeler; kararlar `S72`, `GS24`'te
+
+Ana sayfa yeniden yazıldı (`/tasarim-adimi`, kaynak eski proje değil). Kaydırılan kartın 1. sayfası dönem sonu rakamı, plana göre fark ve bakiye rotası; 2. sayfası kalan yaşam gideri halkası, harcanan / geçen süre ve tek tempo cümlesi. Altında son bakiye ve "Bakiye Gir", hatırlatıcı, kalan ödemeler (`ListCard`, en fazla 3 satır). Bakiye girilmemişken rakam planın dönem sonudur (tire yok), grafik planın rotası; biten dönemde bakiye kartının yerinde "Dönem bitti" ve "Dönemi Kapat" (`S68-4`). Gezinme satırları, ayarlar ikonu, dönem çubuğu ve sayfa içi bakiye kutucuğu kalktı. ViewModel 3 bağımlılık (`IPeriodWorkflowService` çıktı: kapanış tek kaynaktan, `IsClosable`), 179 satır; sayfa 300 satır. Yeni bileşen `HeroPager` (`GS22`'nin öngördüğü), grafik verisi `ChartTrend` / `ChartGauge`.
+Kapı C: ilk bakış "çok çirkin" ve "kaydırmak zor" oldu. Halkanın T10'dan kalan açı hatası (MAUI açıyı saatin tersine sayıyor; halka ters, işaret yanlış yerdeydi, `I110`) düzeltildi. Kart tonlu `SurfaceChart` zeminine geçti (`I93` güncellendi, tabloya 4 çift). Dolgu ve halka izi göstergenin %20 tonu oldu. Grafiğe bakiye noktaları, dönem sonu halkası ve kesikli bugün çizgisi geldi. Android dikey kaydırmasının parmağı çalması `HeroPagerSwipeListener` ile önlendi; başlıktaki sayaç `TitleBarPadding` ile kesilmiyor.
+**Dikkat:** "Bakiye Gir" `Routes.BalanceEntry`'ye gidiyor ama sayfası `V3b`'de, arada düğme boşta (kullanıcı kararı); "Dönemi Kapat" (V11) ve "Tümünü Gör" (V9) de kayıtlı olmayan rotalara gidiyor. Görsel bütçe analizcisi `<Label.Text>` / `<Label.Triggers>` özellik öğelerini de etiket sayıyor: sayfada 25 gerçek etiket var, analizci 28 diyor. Bu bir `/duzeltme` işi; ters görünürlük bu yüzden `TersConverter` ile yazıldı. Grafiğin solundaki dik yükseliş gerçek veri (dönemin ilk günü yatan gelir, `S71`). Açık temada kart/sayfa zemini yakınlığı ve büyük harf etiketler paletten ve stilden geliyor, değişmedi.
+Bütçe: Hero rakam 1/1, Hero yüzey 0/1, Kart 4/4 (analizci 2), Grafik 1/1 (aynı anda), Hero sayfa 2/2, NavRow 0/5, Label 25/28 (analizci 28), Cumle_ 3/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). Testler: `DashboardViewModelTests` 11 → 24; grafik ve hero kalkanlarına 4 yeni test; toplam 1.774 test yeşil, 0 hata, 0 uyarı.
 
 ### A30 — dönemin bakiye rotası: her gün bir nokta, aralar plandan; kararlar `S71`'de
 

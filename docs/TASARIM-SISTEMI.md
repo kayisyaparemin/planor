@@ -102,7 +102,7 @@ değer iki temada farklı rollere düşüyor. `#F3F4F6` koyu temada **birincil m
 | `SurfaceCard` | `#272D36` | `#F3F4F6` | Kart, liste kabı, grafik kartı. |
 | `SurfaceSunken` | `#13161B` | `#D9DDE3` | Giriş alanı (`Entry`, `Picker`), iskelet yükleme bloğu. |
 | `SurfaceHero` | `#2B4C6F` | `#CFDBE8` | Ekranın tek hero kartı ve bilgi şeridi. Ekranda **en fazla bir kez**. |
-| `SurfaceChart` | `#233040` | `#DDE5EE` | Grafik dolgusu, ikincil şerit. |
+| `SurfaceChart` | `#233040` | `#DDE5EE` | Kaydırılan hero kartının tonlu zemini (`GS24`), ikincil şerit. |
 
 ### Çizgiler
 
@@ -258,6 +258,8 @@ Yarıçaplar Planör'ün "endüstriyel ciddiyet" tarifine göre keskinleşti (`G
 | Token | Değer | Nerede |
 |---|---:|---|
 | `StrokeHairline` | 1 | Tek çizgi kalınlığı. Başka kalınlık yok. |
+| `ChartHeight` | 144 | Kart içindeki grafik yüzeyinin yüksekliği; `RingGauge` için kare kenarı. Kaydırılan hero'nun iki sayfası aynı boyda durur (`GS24`). |
+| `TitleBarPadding` | 0,0,16,0 | Kabuk başlığındaki özel içerik (`Shell.TitleView`); Android araç çubuğu sağ kenara boşluk bırakmıyor. |
 
 Dokunma hedefi: **en az 48×48**. Bu bir token değil, sınır; `MinimumHeightRequest="48"`
 bileşenlerin içinde tanımlıdır ve ekranda tekrarlanmaz.
@@ -291,6 +293,10 @@ Eşik kuralı: gövde metni **4,5**; ≥ 19 pt metin ve arayüz öğesi (buton k
 | `Indicator` | `Backdrop` | 3,0 | 5,2 | 4,6 |
 | `Indicator` | `SurfaceCard` | 3,0 | 4,6 | 5,2 |
 | `Indicator` | `SurfaceChart` | 3,0 | 4,4 | 4,5 |
+| `TextPrimary` | `SurfaceChart` | 4,5 | 12,2 | 12,4 |
+| `TextSecondary` | `SurfaceChart` | 4,5 | 6,1 | 5,4 |
+| `PositiveText` | `SurfaceChart` | 4,5 | 6,4 | 5,2 |
+| `NegativeText` | `SurfaceChart` | 4,5 | 6,3 | 5,3 |
 | `PositiveText` | `SurfaceCard` | 4,5 | 6,6 | 6,0 |
 | `NegativeText` | `SurfaceCard` | 4,5 | 6,5 | 6,1 |
 | `WarningText` | `SurfaceCard` | 4,5 | 7,4 | 6,1 |
@@ -381,6 +387,7 @@ o ekranın XAML'inde durur.
 | `ChartCard` | Başlık + lejant çipi + grafik yüzeyi | "Eylül 2026 / Deterministik Projeksiyon" |
 | `StateBlock` | Boş / yükleniyor / hata, üç durum tek bileşen | Konseptte yok, türetildi |
 | `ReminderCard` | Hatırlatıcı metni + iki aksiyon | "Ödedim / Ertele" bildirimi |
+| `HeroPager` | `SurfaceCard` kart, iki `HeroPage`, altında dokunulabilir iki nokta; yatay kaydırma, animasyonsuz | "Rota + Tempo" kaydırılan hero (`GS22`, `GS24`) |
 
 `ListCard` sınırı **4 satır**. Daha fazlası varsa kart "+7 daha" satırı gösterir ve detay
 sayfasına gider. Sebep: dördüncü satırdan sonra kullanıcı okumuyor, tarıyor.
@@ -409,8 +416,8 @@ cümle olarak taşır.
 
 **Ekranda aynı anda en fazla bir grafik görünür.** İkinci bir grafik gerekiyorsa o ekran iki
 ekrandır; tek istisna `HeroPager`: en fazla bir kaydırılan kart, en fazla iki sayfa, sayfa
-başına bir grafik (`GS22`). Kaydırılan kartın zemini `SurfaceCard`'dır: `Indicator`,
-`TextSecondary`, `NegativeText` ve `PositiveText` çiftleri o zeminde kontrast tablosunda durur.
+başına bir grafik (`GS22`). Kaydırılan kartın zemini tonlu `SurfaceChart`'tır (`GS24`): `TextPrimary`,
+`Indicator`, `TextSecondary`, `NegativeText` ve `PositiveText` çiftleri o zeminde kontrast tablosunda durur.
 
 ### Veri sözleşmesi
 
@@ -438,12 +445,14 @@ konuşur.
 | `actual` / tek seri | `Indicator` | Düz çizgi, `StrokeHairline` × 2 |
 | `planned` | `TextSecondary` | Kesikli çizgi |
 | Eşik | `NegativeText` | Kesikli yatay çizgi |
-| Alan dolgusu | `SurfaceChart` | Dolgu |
-| `RingGauge` dolu / boş | `Indicator` / `BorderSubtle` | Halka |
+| Alan dolgusu | `Indicator`, %20 saydam (`ResolveTint`) | Dolgu; tonlu kartta da düz kartta da seçilir (`GS24`) |
+| `RingGauge` dolu / iz | `Indicator` / `Indicator` %20 saydam | Halka, tepeden saat yönünde (`GS24`) |
 | Tahmin devamı (`ProjectionSeries`) | `Indicator` | Kesikli çizgi, `StrokeHairline` × 2 |
-| Bugün (`Today`) | `TextSecondary` | Dikey hairline |
+| Bugün (`Today`) | `TextSecondary` | Kesikli dikey hairline |
 | Plan seviyesi (`PlanLevel`) | `TextSecondary` | Noktalı yatay hairline |
 | Tempo işareti (`TimeRatio`) | `TextSecondary` | Halkayı kesen kısa işaret |
+| Bakiye noktası (`MarkerSeries`) | `Indicator` | Dolu nokta: kullanıcının bakiye girdiği gün (`GS24`) |
+| Dönem sonu (kesikli devamın son noktası) | `Indicator` | İçi boş halka: henüz olmamış, tahmin (`GS24`) |
 
 `IDrawable` renkleri **çizim anında** `Application.Current.Resources`'tan okur, kurucuda
 saklamaz. Tema değişince `GraphicsView.Invalidate()` çağrılır; yoksa grafik eski temada kalır.

@@ -21,7 +21,11 @@
     <!-- Çizgi Kalınlığı -->
     <x:Double x:Key="StrokeHairline">1</x:Double>
 
+    <!-- Grafik yüzeyi: kaydırılan hero'nun iki sayfası aynı yükseklikte grafik taşır (EK-V3) -->
+    <x:Double x:Key="ChartHeight">144</x:Double>
     <!-- Türetilmiş Dolgular -->
     <Thickness x:Key="CardPadding">16</Thickness>
     <Thickness x:Key="PagePadding">16,16,16,32</Thickness>
+    <!-- Kabuk başlığındaki özel içerik (Shell.TitleView) Android araç çubuğunun sağ kenarına dayanır -->
+    <Thickness x:Key="TitleBarPadding">0,0,16,0</Thickness>
 </ResourceDictionary>

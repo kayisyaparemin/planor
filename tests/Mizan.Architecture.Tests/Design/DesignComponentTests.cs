@@ -23,11 +23,12 @@ public sealed class DesignComponentTests
         "InfoBanner",
         "ChartCard",
         "StateBlock",
-        "ReminderCard"
+        "ReminderCard",
+        "HeroPager"
     ];
 
     [Fact]
-    public void Bilesenler_Sistemdeki12Bilesen_Mevcut()
+    public void Bilesenler_SistemdekiBilesenler_Mevcut()
     {
         var componentsDir = Path.Combine(SolutionPaths.SourceDirectory, "Mizan.App", "Components");
         Assert.True(Directory.Exists(componentsDir), "src/Mizan.App/Components dizini bulunamadı.");

@@ -10,9 +10,12 @@ namespace Mizan.App.Charts;
 /// </summary>
 public sealed class RingGauge : IDrawable
 {
-    private const float StrokeThickness = 6f;
+    private const float StrokeThickness = 10f;
     private const float TimeMarkerOverhang = 6f;
     private const float TimeMarkerHalfAngle = 1.5f;
+
+    // MAUI açıyı saat 3'ten saatin tersine sayar: tepe 90 derecedir ve saat yönünde ilerlemek açıyı azaltır.
+    private const float TopAngle = 90f;
 
     /// <summary>
     /// Tamamlanma oranı (0.0 ile 1.0 arasında).
@@ -33,7 +36,8 @@ public sealed class RingGauge : IDrawable
     {
         if (canvas == null || dirtyRect.Width <= 0 || dirtyRect.Height <= 0) { return; }
 
-        var size = Math.Min(dirtyRect.Width, dirtyRect.Height) - StrokeThickness;
+        // İşaret halkanın iki yanına taşar; taşan kısım da çizim alanında kalsın.
+        var size = Math.Min(dirtyRect.Width, dirtyRect.Height) - StrokeThickness - TimeMarkerOverhang;
         if (size <= 0) { return; }
 
         var x = dirtyRect.Center.X - (size / 2f);
@@ -49,8 +53,9 @@ public sealed class RingGauge : IDrawable
 
     private static void DrawBackgroundTrack(ICanvas canvas, float x, float y, float size)
     {
-        canvas.StrokeColor = ChartColorResolver.ResolveColor("BorderSubtle");
-        canvas.DrawArc(x, y, size, size, 0f, 360f, false, false);
+        // İz göstergenin saydam tonudur: tonlu kartta da düz kartta da seçilir (GS24).
+        canvas.StrokeColor = ChartColorResolver.ResolveTint("Indicator");
+        canvas.DrawEllipse(x, y, size, size);
     }
 
     private void DrawActiveProgress(ICanvas canvas, float x, float y, float size)
@@ -67,17 +72,16 @@ public sealed class RingGauge : IDrawable
         }
 
         var sweepAngle = clampedRatio * 360f;
-        // Tepeden (saat 12 pozisyonu: -90 derece) başlayarak saat yönünde çizer
-        canvas.DrawArc(x, y, size, size, -90f, -90f + sweepAngle, false, false);
+        canvas.DrawArc(x, y, size, size, TopAngle, TopAngle - sweepAngle, true, false);
     }
 
     private void DrawTimeMarker(ICanvas canvas, float x, float y, float size)
     {
         if (TimeRatio is not { } timeRatio) { return; }
 
-        // İşaret, doluluk yayıyla aynı yay çağrısıyla çizilir ki iki yönün varsayımı ayrışmasın;
-        // yalnız daha kalın ve kısadır, böylece halkanın iki yanına taşıp onu keser.
-        var markerCenter = -90f + (Math.Clamp((float)timeRatio, 0f, 1f) * 360f);
+        // İşaret doluluk yayıyla aynı açı kuralını kullanır ki iki yönün varsayımı ayrışmasın; yalnız daha
+        // kalın ve kısadır, böylece halkanın iki yanına taşıp onu keser.
+        var markerCenter = TopAngle - (Math.Clamp((float)timeRatio, 0f, 1f) * 360f);
         canvas.StrokeColor = ChartColorResolver.ResolveColor("TextSecondary");
         canvas.StrokeSize = StrokeThickness + TimeMarkerOverhang;
         canvas.StrokeLineCap = LineCap.Butt;
