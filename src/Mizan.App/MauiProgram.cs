@@ -20,14 +20,10 @@ using SQLite;
 
 namespace Mizan.App;
 
-/// <summary>
-/// Uygulamanın kompozisyon kökünü kuran, bağımlılıkları kaydeden ve MAUI uygulamasını başlatan sınıf.
-/// </summary>
+/// <summary>Uygulamanın kompozisyon kökünü kuran, bağımlılıkları kaydeden ve MAUI uygulamasını başlatan sınıf.</summary>
 public static class MauiProgram
 {
-    /// <summary>
-    /// MAUI uygulamasını ve servis grafiğini inşa eder.
-    /// </summary>
+    /// <summary>MAUI uygulamasını ve servis grafiğini inşa eder.</summary>
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
@@ -100,8 +96,7 @@ public static class MauiProgram
             AndroidStorageAccess.FolderPath,
             $"Dahili depolama › {AndroidStorageAccess.FolderName}",
             new AndroidStorageAccess()));
-        services.AddSingleton(new BackupOptions(
-            Path.Combine(FileSystem.CacheDirectory, "backup")));
+        services.AddSingleton(new BackupOptions(Path.Combine(FileSystem.CacheDirectory, "backup")));
         services.AddSingleton<IBackupService, BackupService>();
 
         RegisterRepositories(services);
@@ -167,7 +162,11 @@ public static class MauiProgram
         services.AddSingleton<IBackupFilePicker, AndroidBackupFilePicker>();
         services.AddSingleton<IProfileBackupHandler, ProfileBackupHandler>();
         services.AddSingleton<IPaymentReminderScheduler, InMemoryPaymentReminderScheduler>();
+        RegisterScreens(services);
+    }
 
+    private static void RegisterScreens(IServiceCollection services)
+    {
         services.AddTransient<AppShellViewModel>();
         services.AddTransient<AppShell>();
 
@@ -177,6 +176,8 @@ public static class MauiProgram
         services.AddTransient<ReminderCardViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<DashboardPage>();
+        services.AddTransient<BalanceEntryViewModel>();
+        services.AddTransient<BalanceEntryPage>();
 
         services.AddTransient<OnboardingViewModel>();
         services.AddTransient<OnboardingPage>();

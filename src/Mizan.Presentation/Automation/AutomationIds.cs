@@ -71,11 +71,17 @@ public static class AutomationIds
     /// <summary>Ana sayfa kapsayıcı kimliği.</summary>
     public const string PageDashboard = "page-dashboard";
 
-    /// <summary>Bugünkü nakit bakiye giriş alanı kimliği.</summary>
-    public const string InputTodayBalance = "input-today-balance";
+    /// <summary>"Bakiye gir" sayfası kapsayıcı kimliği.</summary>
+    public const string PageBalanceEntry = "page-balance-entry";
 
-    /// <summary>Gözlemi kaydet butonu kimliği.</summary>
-    public const string BtnSaveObservation = "btn-save-observation";
+    /// <summary>"Bakiye gir": bankadaki bakiye giriş alanı kimliği.</summary>
+    public const string InputBalanceAmount = "input-balance-amount";
+
+    /// <summary>"Bakiye gir": bakiyenin yazılacağı günün seçicisi kimliği.</summary>
+    public const string PickerBalanceDate = "picker-balance-date";
+
+    /// <summary>"Bakiye gir": bakiyeyi kaydet butonu kimliği.</summary>
+    public const string BtnSaveBalance = "btn-save-balance";
 
     /// <summary>Bu dönemi kapat butonu kimliği.</summary>
     public const string BtnClosePeriod = "btn-close-period";
@@ -94,12 +100,6 @@ public static class AutomationIds
 
     /// <summary>Kalan ödemeler listesi kimliği.</summary>
     public const string ListRemainingPayments = "list-remaining-payments";
-
-    /// <summary>Ana sayfa öncelikli uyarı bilgi çubuğu kimliği.</summary>
-    public const string BannerDashboardAlert = "banner-dashboard-alert";
-
-    /// <summary>Ana sayfa uyarı aksiyon butonu kimliği.</summary>
-    public const string BtnDashboardAlertAction = "btn-dashboard-alert-action";
 
     /// <summary>Kurulum sihirbazı sayfası kimliği.</summary>
     public const string PageOnboarding = "page-onboarding";

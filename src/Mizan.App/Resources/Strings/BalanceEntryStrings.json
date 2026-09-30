@@ -1,0 +1,15 @@
+{
+  "Baslik_BakiyeGir": "Bakiye Gir",
+  "Etiket_BankadakiBakiye": "BANKADAKİ BAKİYE",
+  "YerTutucu_Tutar": "0",
+  "Etiket_Tl": "₺",
+  "Bicim_SonGiris": "Son giriş {0} · {1}",
+  "Etiket_Bugun": "Bugün",
+  "Etiket_BuGirisleDonemSonu": "BU GİRİŞLE DÖNEM SONU",
+  "Bicim_PlanaGore": "Plana göre {0}",
+  "Bicim_OncekiTahmin": "Önceki tahmin {0}",
+  "Aksiyon_Kaydet": "Kaydet",
+  "Cumle_OnceKapanis": "Dönem bitti. Bakiye girmeden önce dönemi kapat.",
+  "Aksiyon_DonemiKapat": "Dönemi Kapat",
+  "Hata_BakiyeGirisYuklenemedi": "Bakiye bilgileri yüklenirken bir sorun oluştu."
+}

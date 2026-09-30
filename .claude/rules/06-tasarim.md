@@ -110,8 +110,8 @@ Sayfa başına:
 
 Grafik sınırı gözün **aynı anda** gördüğüdür (`GS22`): kaydırılan hero'nun gizli sayfasındaki
 grafik sayılmaz, ama pager'ın yanında ikinci bir grafik duruyorsa ekran iki grafiklidir.
-Kaydırılan kartın zemini tonlu `SurfaceChart`, "Bakiye gir" önizlemesininki `SurfaceCard`'dır
-(`GS24`); `SurfaceHero` koyu temada grafiği taşımaz (kontrast tablosu).
+Kaydırılan kartın ve "Bakiye gir" önizlemesinin zemini tonlu `SurfaceChart`'tır (`GS24`, `GS25`);
+`SurfaceHero` koyu temada grafiği taşımaz (kontrast tablosu).
 
 Sınıra dayandığında **çıkar, küçültme.** Üç yol var:
 

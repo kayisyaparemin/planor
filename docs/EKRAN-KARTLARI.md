@@ -23,9 +23,9 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 
 ## EK-V3 — Ana sayfa
 
-> Sayfa dosyası: `DashboardPage.xaml`
-> "Rota + Tempo" yenilemesi (`GS24`, `S72`): `V3a` bu sayfa, tamamlandı (Kapı C kararları `GS24`'te);
-> `V3b`'nin "Bakiye gir" sayfası bu karta ikinci sayfa olarak eklenecek. İlk hâl (`GS20`) iptal.
+> Sayfa dosyaları: `DashboardPage.xaml` (`V3a`), `BalanceEntryPage.xaml` (`V3b`, aşağıda "Sayfa 2")
+> "Rota + Tempo" yenilemesi (`GS24`, `S72`): `V3a` bu sayfa, tamamlandı (Kapı C kararları `GS24`'te).
+> "Bakiye gir" sayfası bu kartın ikinci sayfasıdır (`S73`, `GS25`), `V3b` ile tamamlandı. İlk hâl (`GS20`) iptal.
 
 **Önceki hâl (`V3`, `GS20`):** `DashboardPage.xaml` 233 satır, 11 `<Label>`, 3 kart, 1 buton, 5 `NavRow`, 1 grafik (halka).
 **Eski proje:** `MainPage.xaml` 425 satır, **54 `<Label>`**, 5 kart, 11 buton, 1 geliştirici dökümü.
@@ -161,6 +161,110 @@ yükleniyor), `ana-sayfa-rota-tempo-durumlar.png` (boş, bakiye girilmemiş, kap
 token'lardan. Konseptten sapmalar `GS24`'te: kapanış bakiye kartının yerinde, grafikte yazı ve
 gözlem işareti yok, "10 gün kaldı" yok, bakiyesiz grafik planın rotası, ödeme satırı 3 ve ikonsuz,
 boş hâlde ortak `StateBlock`.
+
+### Sayfa 2 — "Bakiye gir" (`V3b`)
+
+> Sayfa dosyası: `BalanceEntryPage.xaml` (`Routes.BalanceEntry`). Ana sayfadaki "Bakiye Gir"den açılır,
+> ✕ ya da geri tuşuyla onaysız kapanır. Davranış `S73`, ekran `GS25`.
+
+**Önceki hâl:** sayfa yoktu; `V3a`'dan önce ana sayfada `HeroInputCard` (tutar + düğme, tarih hep bugün, önizleme yok).
+
+#### 1. Sorular
+
+| Kod | Soru | Önceki hâl nasıl cevaplıyordu |
+|---|---|---|
+| S1 | "Bankada ne var, bunu hangi güne yazıyorum?" | Tutar kutusu vardı; gün hep bugündü |
+| S2 | "Bu girişle dönem sonunda ne kalır, plana göre nerede olurum?" | Hiç: etki ancak kaydettikten sonra görülüyordu |
+| S3 | "En son ne girmiştim?" | Bu sayfada yok (ana sayfanın bakiye kartında, `V3a`) |
+
+#### 2. Kesme kararları (`GS25`)
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Girilen bakiye | **Hero** (tutar alanı, `TypeHero`) | S1 sayfanın tek girdisi; eksi (KMH) ve sıfır geçerli (`S73-3`) |
+| ₺ işareti | **Satır** (tutar alanının sağında) | Birim |
+| Son giriş ve tarihi | **Satır** (`Bicim_SonGiris`), yalnız önceki giriş varsa | S3 |
+| Bakiyenin günü | **Satır** (tarih seçici, `[dönem başı, bugün]`; bugünse "Bugün") | S1; varsayılan bugün (`S73-1`) |
+| Bu girişle dönem sonu | **Kart** (önizleme), `TypeTitle` | S2; yalnız geçerli tutar varken (`S73-2`) |
+| Plana göre fark | **Satır** (kartta, işaretli, renk artı/eksiye göre) | S2 |
+| Önceki tahmin | **Satır** (kartta), yalnız önceki giriş varsa | S2 "girişim neyi değiştirdi" (`S73-6`); konseptteki okun yerine |
+| Önizleme rotası | **Grafik** (`AreaTrend`, `ChartHeight`) | S2 "oraya nasıl"; ana sayfanın 1. sayfasıyla aynı roller, taslak giriş noktadır |
+| Kaydet | **Buton** (tam genişlik) | S1 |
+| Dönem bitti + "Dönemi Kapat" | **Durum** (`StateBlock`) | `S68-4`: kapanışı bekleyen döneme bakiye yazılmaz (`S73-5`) |
+| "güncel" kelimesi | **Çıkar** | Geriye tarihli girişte yanlış |
+| Ok (`41.723 → 44.380`) | **Çıkar** → "Önceki tahmin" | GK6: ok bir ikon, `Icons.cs`'te ileri ok yok |
+| Takvim ikonu, "Değiştir" | **Çıkar** | `Icons.cs`'te yok; seçicinin kendisine dokunulur (kullanıcı kararı) |
+| Plan tutarı | **Çıkar** | Ana sayfada var; burada soru "girişim neyi değiştirir" |
+| Grafiğin tarih etiketleri | **Çıkar** | Kısa grafik; ana sayfada var |
+| Aynı gün değiştirme notu | **Çıkar** | `S68-2` sessiz çalışır, önizleme grafiği gösterir |
+
+#### 3. Bütçe
+
+```
+Hero rakam    1 / 1     girilen bakiye (tutar alanı)
+Hero yüzey    0 / 1     önizleme kartı tonlu SurfaceChart (GS25), SurfaceHero değil
+Kart          1 / 4     önizleme kartı (ham Border; analizci 0 sayar)
+Grafik        1 / 1     önizleme rotası
+Hero sayfa    0 / 2
+NavRow        0 / 5
+Label        11 / 28    başlık 1, tutar 2, son giriş 2, bugün 1, önizleme 5
+Cumle_        1 / 3     Cumle_OnceKapanis
+```
+
+Etiket sayımı analizcinin sayımıdır: `<Label.Text>` (son giriş) ve `<Label.Triggers>` (fark) birer etiket sayılır.
+
+#### 4. Blok şeması
+
+```
+┌─ Shell ──────────────────────────────────────────────────────┐
+│ [✕] BackButtonBehavior IconOverride: Icons.Close, IconLarge, │
+│     TextPrimary; komutu yok, geri gezinme onaysız (S73-7)    │
+│ Shell.TitleView: Baslik_BakiyeGir   SectionTitle             │
+└──────────────────────────────────────────────────────────────┘
+┌─ Tutar (kartsız) ────────────────────────────────────────────┐  ← S1
+│ Etiket_BankadakiBakiye                        Eyebrow        │
+│ [ 62.300                                   ]   ₺             │
+│   Entry TypeHero / OpenSansSemibold / TextPrimary,           │
+│   Keyboard Numeric            Etiket_Tl  TypeTitle / TextSecondary
+│ Son giriş 58.940 ₺ · 27 Eylül     Bicim_SonGiris  Caption    │  ← S3
+│   (yalnız önceki giriş varsa)                                │
+└──────────────────────────────────────────────────────────────┘
+┌─ Tarih satırı ───────────────────────────────────────────────┐  ← S1
+│ [ 30.09.2026 ]                                 Bugün         │
+│   DatePicker SurfaceSunken / TextPrimary / TypeBody,         │
+│   Min dönem başı, Max bugün     Etiket_Bugun Caption (bugünse)
+└──────────────────────────────────────────────────────────────┘
+┌─ Önizleme (ham Border) SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐  ← S2
+│ Etiket_BuGirisleDonemSonu                       Eyebrow                  │
+│ 44.380 ₺                        TypeTitle / OpenSansSemibold / TextPrimary
+│ Plana göre +480 ₺     Bicim_PlanaGore  Caption; NegativeText / PositiveText
+│ Önceki tahmin 41.723 ₺  Bicim_OncekiTahmin  Caption (yalnız önceki giriş varsa)
+│ AreaTrend  ChartHeight — ana sayfanın rolleri: Travelled düz + dolgu,    │
+│   Ahead kesikli + dönem sonu halkası, bakiye noktaları (taslak dahil),   │
+│   Today kesikli, PlanLevel noktalı                                       │
+│ yalnız geçerli tutar ve başarılı önizleme varken görünür                 │
+└──────────────────────────────────────────────────────────────────────────┘
+[ Aksiyon_Kaydet                                 ActionFill, tam genişlik ]  ← S1
+```
+
+Ana sayfa ile önizleme aynı grafiği aynı yoldan kurar (`BalancePathTrend`, bağımlılıksız yardımcı, M8).
+Önizleme kartının durumu çocuk görünüm modelindedir (`BalancePreviewViewModel`: ya bütün hâliyle görünür ya
+hiç); sayfa `BalanceEntryViewModel`'e bağlıdır (4 bağımlılık). Klavye kendiliğinden açılmaz (`GS25` 5).
+
+#### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş (dönem bitti, kapanış bekliyor) | `StateBlock`: `Schedule` ikonu + `Cumle_OnceKapanis` + `Aksiyon_DonemiKapat` (`V11` rotası). Açık dönem hiç yoksa sayfa geri döner. |
+| Yükleniyor | İki `SkeletonBlock` (tutar alanı, önizleme kartı yüksekliğinde); spinner yok. |
+| Hata | `StateBlock`: `Close` ikonu + `Hata_BakiyeGirisYuklenemedi` + `Aksiyon_TekrarDene`. Önizleme hatası sayfa durumu değildir: kart gizlenir. Kayıt hatası uyarıyla söylenir, tutar yerinde kalır. |
+
+#### 6. Konsept ilişkisi
+
+`docs/assets/konsept/ana-sayfa-rota-tempo-durumlar.png`, "Bakiye gir · Açık" paneli. Yerleşim oradan,
+renkler token'lardan. Sapmalar `GS25`'te: önizleme ana sayfa kartının tonunda, ok yerine "Önceki
+tahmin", takvim ikonu ve "Değiştir" yok, "güncel" yok, klavye kendiliğinden açılmaz, grafik `ChartHeight`
+ve tarihsiz, plan tutarı yok.
 
 ---
 
@@ -1442,7 +1546,8 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V0 | Kabuk | — | — | ✅ |
 | EK-V1 | Profil seçimi | 10 | 4 | ✅ |
 | EK-V2 | Hatırlatıcı | 15 | 2 | ✅ |
-| EK-V3 | Ana sayfa | 54 | 11 | ✅ |
+| EK-V3 | Ana sayfa | 54 | 25 | ✅ V3a |
+| EK-V3 | "Bakiye gir" (sayfa 2) | — | 11 | ✅ V3b |
 | EK-V4 | Kurulum | 77 | | ⬜ |
 | EK-V5 | İlk düzen | 6 | | ⬜ |
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |

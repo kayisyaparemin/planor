@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.BalanceEntryPage"
+             x:DataType="vm:BalanceEntryViewModel"
+             AutomationId="{x:Static auto:AutomationIds.PageBalanceEntry}">
+
+    <!-- EK-V3 sayfa 2: "Bakiye gir" (S73, GS25). ✕ onaysız geri gider (S73-7) -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior>
+            <BackButtonBehavior.IconOverride>
+                <FontImageSource FontFamily="MaterialSymbols"
+                                 Glyph="{x:Static icons:Icons.Close}"
+                                 Size="{StaticResource IconLarge}"
+                                 Color="{DynamicResource TextPrimary}" />
+            </BackButtonBehavior.IconOverride>
+        </BackButtonBehavior>
+    </Shell.BackButtonBehavior>
+
+    <Shell.TitleView>
+        <Grid Padding="{StaticResource TitleBarPadding}">
+            <Label Text="{x:Static strings:BalanceEntryStrings.Baslik_BakiyeGir}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor: tutar alanı ve önizleme kartı yerinde iskelet -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 AutomationId="{x:Static auto:AutomationIds.StateLoading}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Tutar: sayfanın tek girdisi; eksi (KMH) ve sıfır geçerli (S1, S73-3) -->
+                <VerticalStackLayout Spacing="{StaticResource Space1}">
+                    <Label Text="{x:Static strings:BalanceEntryStrings.Etiket_BankadakiBakiye}"
+                           Style="{StaticResource Eyebrow}" />
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space2}">
+                        <Entry Text="{Binding AmountInput}"
+                               Placeholder="{x:Static strings:BalanceEntryStrings.YerTutucu_Tutar}"
+                               Keyboard="Numeric"
+                               FontSize="{StaticResource TypeHero}"
+                               FontFamily="OpenSansSemibold"
+                               AutomationId="{x:Static auto:AutomationIds.InputBalanceAmount}" />
+                        <Label Grid.Column="1"
+                               Text="{x:Static strings:BalanceEntryStrings.Etiket_Tl}"
+                               FontSize="{StaticResource TypeTitle}"
+                               TextColor="{DynamicResource TextSecondary}"
+                               VerticalTextAlignment="Center" />
+                    </Grid>
+                    <!-- Son giriş (S3): yalnız daha önce bakiye girildiyse -->
+                    <Label Style="{StaticResource Caption}"
+                           IsVisible="{Binding HasLastObservation}">
+                        <Label.Text>
+                            <MultiBinding StringFormat="{x:Static strings:BalanceEntryStrings.Bicim_SonGiris}">
+                                <Binding Path="LastObservedBalance" Converter="{StaticResource Para}" />
+                                <Binding Path="LastObservedOn" Converter="{StaticResource Tarih}" />
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </VerticalStackLayout>
+
+                <!-- Gün: dönem başı ile bugün arası, varsayılan bugün (S1, S73-1) -->
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space3}">
+                    <DatePicker Date="{Binding ObservedOn, Converter={StaticResource TarihSecici}}"
+                                MinimumDate="{Binding EarliestDay, Converter={StaticResource TarihSecici}}"
+                                MaximumDate="{Binding LatestDay, Converter={StaticResource TarihSecici}}"
+                                Format="dd.MM.yyyy"
+                                BackgroundColor="{DynamicResource SurfaceSunken}"
+                                TextColor="{DynamicResource TextPrimary}"
+                                FontSize="{StaticResource TypeBody}"
+                                AutomationId="{x:Static auto:AutomationIds.PickerBalanceDate}" />
+                    <Label Grid.Column="1"
+                           Text="{x:Static strings:BalanceEntryStrings.Etiket_Bugun}"
+                           Style="{StaticResource Caption}"
+                           VerticalTextAlignment="Center"
+                           IsVisible="{Binding IsToday}" />
+                </Grid>
+
+                <!-- Önizleme (S2): kaydetmeden bu girişle dönem sonu; ana sayfa kartının tonunda (GS25) -->
+                <Border BackgroundColor="{DynamicResource SurfaceChart}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        IsVisible="{Binding Preview.IsShown}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:BalanceEntryStrings.Etiket_BuGirisleDonemSonu}"
+                               Style="{StaticResource Eyebrow}" />
+                        <Label Text="{Binding Preview.EndingBalance, Converter={StaticResource Para}}"
+                               FontSize="{StaticResource TypeTitle}"
+                               FontFamily="OpenSansSemibold"
+                               TextColor="{DynamicResource TextPrimary}" />
+                        <Label Text="{Binding Preview.Deviation, Converter={StaticResource Para}, ConverterParameter=Isaretli, StringFormat={x:Static strings:BalanceEntryStrings.Bicim_PlanaGore}}"
+                               Style="{StaticResource Caption}">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding Preview.IsBehindPlan}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding Preview.IsAheadOfPlan}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="{Binding PreviousEndingBalance, Converter={StaticResource Para}, StringFormat={x:Static strings:BalanceEntryStrings.Bicim_OncekiTahmin}}"
+                               Style="{StaticResource Caption}"
+                               IsVisible="{Binding HasLastObservation}" />
+
+                        <!-- Rota: ana sayfanın rolleri; taslak giriş grafikte nokta -->
+                        <GraphicsView Drawable="{Binding Preview.Trend, Converter={StaticResource TrendGrafigi}}"
+                                      HeightRequest="{StaticResource ChartHeight}"
+                                      InputTransparent="True" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="{x:Static strings:BalanceEntryStrings.Aksiyon_Kaydet}"
+                        Command="{Binding SaveCommand}"
+                        AutomationId="{x:Static auto:AutomationIds.BtnSaveBalance}" />
+            </VerticalStackLayout>
+
+            <!-- Boş: dönem bitti, kapanış bekliyor; biten döneme bakiye yazılmaz (S68-4) -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.Schedule}"
+                             Message="{x:Static strings:BalanceEntryStrings.Cumle_OnceKapanis}"
+                             ActionText="{x:Static strings:BalanceEntryStrings.Aksiyon_DonemiKapat}"
+                             ActionCommand="{Binding ClosePeriodCommand}"
+                             IsVisible="{Binding IsEmpty}"
+                             AutomationId="{x:Static auto:AutomationIds.StateEmpty}" />
+
+            <!-- Hata: açık dönem okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:BalanceEntryStrings.Hata_BakiyeGirisYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

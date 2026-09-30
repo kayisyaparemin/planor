@@ -299,7 +299,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
 - [x] **V1** — profil seçimi
 - [x] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
-- [ ] **V3** — ana sayfa (dashboard). ⚠️ **Geri açıldı (2026-09-29): "Rota + Tempo" yenilemesi.**
+- [x] **V3** — ana sayfa (dashboard). **"Rota + Tempo" yenilemesi (2026-09-29 geri açıldı, 2026-09-30 kapandı: `V3a` + `V3b`).**
       *Kaynak eski proje değil:* bugünkü `DashboardPage` ve aşağıdaki konsept görüntüleri.
       İlk hâl (`GS20`: halka + hero rakam + gözlem kartı + gezinme satırları) tamamlanmıştı. Yeni yerleşim
       Claude Design'da üretilen D yönü: `docs/assets/konsept/ana-sayfa-rota-tempo.png` (dolu hâl, iki tema,
@@ -327,7 +327,8 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       grafik, ertelenmiş kapanışta önce kapanış). İkisi `EK-V3`'ü paylaşır.
       - [x] **V3a** — ana sayfa *(2026-09-30; `S72`, `GS24`, `GS20` iptal; `HeroPager` bileşeni; koruyan: I93, I108–I110)*.
             Kapı C'de halkanın açı hatası (T10), tonlu hero zemini, grafik noktaları ve Android kaydırması düzeltildi.
-      - [ ] **V3b** — "Bakiye gir" sayfası (`Routes.BalanceEntry` V3a'da hazır; sayfası yok, düğme boşta)
+      - [x] **V3b** — "Bakiye gir" sayfası *(2026-09-30; `S73`, `GS25`; `BalanceEntryPage`, önizleme kartı `BalancePreviewViewModel`, ortak grafik `BalancePathTrend`; koruyan: I111–I113)*.
+            Tarih dönem başı ile bugün arası, canlı önizleme (son istek kazanır), eksi bakiye, kapanışı bekleyen dönemde önce kapanış.
       Bu adımlar `/tasima-adimi` ile yürür ama kaynak eski proje değil, bu satırdır (Faz T'deki gibi):
       Aşama 1 mevcut kodu okur, Aşama 3 yeni `S` / `GS` kaydı yazar. **Sonra** ekran, `/tasarim-adimi V3`:
       kart `EK-V3` yerinde yeniden yazılır (GK9 kart anahtarı harf eki alamıyor), `GS20` iptal olur, yerine yeni `GS`.
@@ -453,6 +454,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 5 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü, V3a tamam; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
+| V | 6 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

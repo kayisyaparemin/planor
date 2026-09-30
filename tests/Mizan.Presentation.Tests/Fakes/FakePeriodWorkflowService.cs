@@ -50,17 +50,26 @@ public sealed class FakePeriodWorkflowService : IPeriodWorkflowService
         CancellationToken cancellationToken = default) =>
         throw new NotImplementedException();
 
+    /// <summary>Kaydedilen en son bakiye gözleminin istenen günü; gün verilmediyse <c>null</c>.</summary>
+    public DateOnly? LastObservedOn { get; private set; }
+
+    /// <summary>Doluysa ObserveCurrentBalanceAsync bu hatayı fırlatır ve hiçbir şey kaydetmez.</summary>
+    public Exception? ObserveFailure { get; set; }
+
     /// <summary>Anlık bakiye gözlemini taklit olarak kaydeder.</summary>
     public Task<PeriodObservation> ObserveCurrentBalanceAsync(
         decimal balance,
         DateOnly? observedOn = null,
         CancellationToken cancellationToken = default)
     {
+        if (ObserveFailure is not null) { return Task.FromException<PeriodObservation>(ObserveFailure); }
+
         LastObservedBalance = balance;
+        LastObservedOn = observedOn;
         var observation = new PeriodObservation
         {
             PeriodPlanSnapshotId = Guid.NewGuid(),
-            ObservedOn = new DateOnly(2026, 9, 27),
+            ObservedOn = observedOn ?? new DateOnly(2026, 9, 27),
             ObservedBalance = balance
         };
         return Task.FromResult(observation);

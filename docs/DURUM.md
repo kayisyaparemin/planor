@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V3a** — ana sayfa "Rota + Tempo": kaydırılan hero, bakiye kartı, kalan ödemeler (S72, GS24) |
-| Sıradaki adım | **V3b** — "Bakiye gir" sayfası (`/tasarim-adimi V3`); **V6d2** de açık |
-| Test sayısı | 1774 |
+| Son tamamlanan adım | **V3b** — "Bakiye gir" sayfası: tarihli giriş, canlı önizleme, önce kapanış (S73, GS25); `V3` kapandı |
+| Sıradaki adım | açık alt adım **V6d2** — gelir formuna tutar değişiklikleri |
+| Test sayısı | 1798 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V3b — "Bakiye gir" sayfası: tarihli giriş, canlı önizleme, önce kapanış; kararlar `S73`, `GS25`'te
+
+Ana sayfadaki "Bakiye Gir" artık `BalanceEntryPage`'i açıyor (✕ onaysız kapatır). Bakiye dönem başı ile bugün arasındaki bir güne yazılır, varsayılan bugün (`I111`). Geçerli tutar yazıldıkça ya da gün değiştikçe `PreviewAsync` çağrılır; kart bu girişle dönem sonunu, plana göre farkı, önceki tahmini (yalnız önceki giriş varsa) ve rotayı gösterir. Üst üste binen isteklerde son istek kazanır (`I112`). Eksi (KMH) ve sıfır bakiye geçerli (`I113`). Kapanışı bekleyen dönemde sayfa "önce kapanış" der; açık dönem yoksa geri döner.
+Yapı: `BalanceEntryViewModel` (4 bağımlılık, 194 satır), önizleme kartı çocuk `BalancePreviewViewModel` (K3 için ayrıldı), ana sayfa ile ortak grafik kurucu `BalancePathTrend` (M8; `DashboardViewModel` ona geçti). Önizleme kartı ana sayfa kartının tonunda (`SurfaceChart`, kullanıcı kararı; `06-tasarim.md` cümlesi ve `GS22` (6) güncellendi). Ana sayfanın kullanılmayan dört otomasyon kimliği (eski bakiye kutusu, gözlem düğmesi, uyarı bandı) bu sayfanın dört kimliğine yer açtı.
+**Dikkat:** `MauiProgram.cs` **200/200** satırda: ekran kayıtları `RegisterScreens`'e ayrıldı (metot sınırı), iki özet tek satıra indi. Sonraki sayfa kaydı dosya sınırını aşar; kural 01 bütün kayıtları bu dosyada istediği için o adımda kural kararı gerekir. Üretim kodu ~390 satır (Aşama 1 tahmini ~300). "Dönemi Kapat" hâlâ kayıtsız `V11` rotasına gidiyor. Klavye kendiliğinden açılmaz (code-behind kuralı); eksi işaretinin sayı klavyesinden yazılabildiği emülatörde kullanıcıya bırakıldı.
+Bütçe: Hero rakam 1/1, Hero yüzey 0/1, Kart 1/4 (analizci 0), Grafik 1/1, Hero sayfa 0/2, NavRow 0/5, Label 11/28, Cumle_ 1/3. Görsel kontrol: kullanıcı onayladı. Testler: `BalanceEntryViewModelTests` (24 yeni); toplam 1.798 test yeşil, 0 hata, 0 uyarı.
 
 ### V3a — ana sayfa "Rota + Tempo": kaydırılan hero, bakiye kartı, kalan ödemeler; kararlar `S72`, `GS24`'te
 

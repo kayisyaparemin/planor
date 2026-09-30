@@ -24,10 +24,28 @@ public sealed class FakePeriodProgressService : IPeriodProgressService
         return Pending?.Task ?? Task.FromResult(CurrentProgress);
     }
 
+    /// <summary>PreviewAsync'e sırayla gelen bakiye ve gün istekleri.</summary>
+    public List<(decimal Balance, DateOnly ObservedOn)> PreviewRequests { get; } = [];
+
+    /// <summary>Önizlemenin cevabı: istenen bakiye ve günden taslak gidişatı kurar.</summary>
+    public Func<decimal, DateOnly, PeriodProgress>? Preview { get; set; }
+
+    /// <summary>Doluysa PreviewAsync bu hatayı fırlatır; reddedilen günü ya da hesap hatasını taklit eder.</summary>
+    public Exception? PreviewFailure { get; set; }
+
+    /// <summary>Doluysa sıradaki önizleme bu görev tamamlanana kadar bekler; birbirini geçen istekleri taklit eder.</summary>
+    public Queue<TaskCompletionSource<PeriodProgress>> PendingPreviews { get; } = new();
+
     /// <summary>Önizlemeyi taklit eder; çağrılan bakiye ve gün kaydedilir.</summary>
     public Task<PeriodProgress> PreviewAsync(
         decimal balance,
         DateOnly observedOn,
-        CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
+        CancellationToken cancellationToken = default)
+    {
+        PreviewRequests.Add((balance, observedOn));
+        if (PreviewFailure is not null) { return Task.FromException<PeriodProgress>(PreviewFailure); }
+        if (PendingPreviews.Count > 0) { return PendingPreviews.Dequeue().Task; }
+        return Task.FromResult(Preview?.Invoke(balance, observedOn) ??
+            throw new InvalidOperationException("Testte önizleme cevabı ayarlanmadı."));
+    }
 }

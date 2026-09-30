@@ -124,6 +124,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I108` | Bakiye hiç girilmemişken ana sayfanın dönem sonu rakamı planın dönem sonudur ve plana göre fark gösterilmez; rakamın yerinde tire durmaz (S72-1, 2). | `Mizan.Presentation.Tests.ViewModels.DashboardViewModelTests.Yukle_BakiyeGirilmediyse_DonemSonuPlandirFarkYoktur` | `V3a` |
 | `I109` | Ana sayfanın halkası harcanan oranı gösterir ve 1'de doyar; ekrandaki harcanan oran kırpılmaz, tempo puanı tam sayıya sıfırdan uzağa yuvarlanır (S72-3, 4). | `Mizan.Presentation.Tests.ViewModels.DashboardViewModelTests.Yukle_HavuzAsildiysa_HalkaDoyarOranKirpilmaz`, `Mizan.Presentation.Tests.ViewModels.DashboardViewModelTests.Yukle_TempoPuani_TamSayiyaSifirdanUzagaYuvarlanir` | `V3a` |
 | `I110` | Halka tepeden (saat 12) saat yönünde dolar ve süre işareti aynı yönde durur; MAUI açıyı saatin tersine saydığı için tepe 90 derecedir (GS24). | `Mizan.Architecture.Tests.Design.DesignChartRouteTests.RingGauge_TepedenSaatYonundeCizer_IsaretAyniYondeDurur` | `V3a` |
+| `I111` | "Bakiye gir"de bakiyenin günü varsayılan olarak bugündür ve yalnız dönem başı ile bugün arasından seçilir (S73-1). | `Mizan.Presentation.Tests.ViewModels.BalanceEntryViewModelTests.Yukle_AcikDonem_GunBugundurVeDonemBasiIleBugunArasindanSecilir` | `V3b` |
+| `I112` | "Bakiye gir" önizlemesinde üst üste binen isteklerde son istek kazanır: geç gelen eski cevap ekrandaki rakamı değiştirmez (S73-2). | `Mizan.Presentation.Tests.ViewModels.BalanceEntryViewModelTests.Onizleme_IstekleriBirbiriniGecerse_SonIstekKazanir` | `V3b` |
+| `I113` | Banka bakiyesi eksi (KMH) ve sıfır olabilir; noktalı binlik ayraçlı eksi tutar da ("-12.500") okunur (S73-3). | `Mizan.Presentation.Tests.ViewModels.BalanceEntryViewModelTests.Tutar_EksiYaDaSifir_GecerliBakiyeOlarakOnizlenir` | `V3b` |
 
 ## Satır eklerken
 

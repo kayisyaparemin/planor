@@ -18,11 +18,6 @@ public sealed partial class DashboardViewModel : ViewModelBase
 {
     // EK-V3 kesme kararı: kalan ödemeler kartında en fazla üç satır; fazlası "Tümünü gör" ile dönem ayrıntısına.
     private const int VisibleRemainingLimit = 3;
-    // Rol anahtarları (TASARIM-SISTEMI § Rol → token): katedilen yol düz, önümüzdeki yol kesikli.
-    private const string TravelledKey = "actual";
-    private const string AheadKey = "projection";
-    // Bakiyenin girildiği günler grafikte nokta olur (S68-1).
-    private const string MarkerKey = "observation";
 
     private readonly IPeriodProgressService _progressService;
     private readonly INavigationService _navigationService;
@@ -120,12 +115,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
         EndingDeviation = progress.EndingDeviation;
         IsBehindPlan = EndingDeviation < 0m;
         IsAheadOfPlan = EndingDeviation > 0m;
-        Trend = new ChartTrend(
-            ToSeries(TravelledKey, progress.Path.Travelled),
-            ToSeries(AheadKey, progress.Path.Ahead),
-            progress.Today,
-            new ChartThreshold(progress.PlannedEndingBalance),
-            new ChartSeries(MarkerKey, progress.Observations.Select(observation => new ChartPoint(observation.ObservedOn, observation.ObservedBalance)).ToList()));
+        Trend = BalancePathTrend.From(progress);
     }
 
     private void ApplyPace(PeriodProgress progress)
@@ -154,9 +144,6 @@ public sealed partial class DashboardViewModel : ViewModelBase
         RemainingPlannedTotal = progress.RemainingPlannedTotal;
         HasOverflow = RemainingCount > VisibleRemainingLimit;
     }
-
-    private static ChartSeries ToSeries(string key, IReadOnlyList<BalancePathPoint> points) =>
-        new(key, points.Select(point => new ChartPoint(point.Date, point.Balance)).ToList());
 
     private void ShowEmptyState()
     {
