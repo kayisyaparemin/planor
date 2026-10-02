@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V5** — ilk düzen seçimi: taşınmadan elendi (S18, S62, S47; EK-V5); sayfası ve kodu yoktur, bütçe 0 |
-| Sıradaki adım | **V8** — 12 dönem (ya da TASIMA-PLANI.md sırasındaki adım) |
-| Test sayısı | 1901 |
+| Son tamamlanan adım | **V8a** — 12 dönem sayfası (`FuturePeriodsPage`; S74, GS26, EK-V8) |
+| Sıradaki adım | **V8b** — aynı sayfaya erken kapama önerisi kartı (Kapı A ve B V8 ile ortak, yalnız Kapı C ayrı) |
+| Test sayısı | 1924 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V8a — 12 dönem sayfası (`FuturePeriodsPage`): zincir ana sayfanın dönem sonundan, en düşük dönem sonu hero, karo ızgarası; kararlar `S74`, `GS26`, `EK-V8`
+
+Yan menüdeki "12 Dönem" boş sayfadan gerçek ekrana geçti (eski `FutureMonthsPage` 224 satır / 37 Label → 158 satır / 10 Label). Zincir artık ana sayfanın dönem sonundan (bakiye girildiyse tahmin, girilmediyse plan) ve açık dönemin bitişinden başlıyor; eski ekranın "projeksiyon checkpoint'e dayanıyor" uyarısı bu yüzden kalktı (`S74`-1, `I114`). Hesap yeni okuma portunda: `IFutureProjectionService` (4 bağımlılık; `ProjectionBoundary.FirstUnrealizedPeriodStartDate`'i kullanmaz). Açık dönem yoksa ekran boş (`I115`).
+Yerleşim Claude Design konseptinden (Kapı B'den sonra kullanıcı getirdi): tonlu gidişat kartında en düşük dönem sonu (hero), sıfır çizgili `AreaTrend`, "12 dönem sonra" ve "12 dönemde faiz"; altında 3 × 4 karo ızgarası (ay adı, dönem sonu, en düşük kalın, eksiler kırmızı). Faiz ayrı kart olmaktan çıktı, kırılımı `V9`'a. Hedef tutar ("Ne zaman karşılayabilirim?") taşınmadı, `V10`'a not; `TargetAmountCalculator`'ın DI kaydı tüketicisi olmadığı için kalktı.
+Grafiğe iki ek (`GS26`-3, 4): `ChartTrend.Threshold` (init özelliği; kurucu 5 parametrede kaldı) ve `AreaTrend`'de eşik verildiyse dolgunun eşiğe inmesi — eksi dönemler sıfırın altında ayrı cep. Ana sayfa eşik vermediği için değişmedi.
+Dikkat: `MauiProgram.cs` 200 / 200 satırda; bir sonraki ekran kaydı "DI yalnız MauiProgram'da" ile "dosya ≤ 200" kurallarını çakıştıracak, o adımın başında karar gerekli. Konsept PNG'leri (`docs/assets/konsept/12-donem*.png`) kullanıcı dışa aktaracak. Ayrı bulgu: kapanıştan sonra projeksiyon sınırı açık dönemi atlıyor olabilir (`ProjectionBoundaryResolver`); ayrı oturumda `/duzeltme`.
+Bütçe: Hero 1/1, Hero yüzey 0/1, Kart 2/4 (gidişat kartı ve ızgara, ikisi ham Border), Grafik 1/1, NavRow 0/5, Label 10/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 23 yeni test (8 Application, 15 Presentation); toplam 1.924 test yeşil, 0 hata, 0 uyarı.
 
 ### V5 — ilk düzen seçimi: taşınmadan elendi (S18, S62, S47; EK-V5); sayfası ve kodu yoktur, bütçe 0
 

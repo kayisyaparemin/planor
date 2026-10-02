@@ -1,0 +1,10 @@
+{
+  "Etiket_EnDusukDonemSonu": "EN DÜŞÜK DÖNEM SONU",
+  "Bicim_EnDusukDonem": "{0} dönemi sonunda",
+  "Etiket_OnIkiDonemSonra": "12 dönem sonra",
+  "Etiket_OnIkiDonemdeFaiz": "12 dönemde faiz",
+  "Etiket_DonemSonlari": "DÖNEM SONLARI",
+  "Bos_OnIkiDonemYok": "12 dönem, gelir ya da bakiye bilgisi girildiğinde hesaplanır.",
+  "Aksiyon_FinansalYapiyaGit": "Finansal Yapı'ya Git",
+  "Hata_OnIkiDonemHesaplanamadi": "12 dönem şu an hesaplanamadı."
+}

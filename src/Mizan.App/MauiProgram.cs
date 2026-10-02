@@ -69,7 +69,6 @@ public static class MauiProgram
         services.AddSingleton<MandatoryPaymentCalculator>();
         services.AddSingleton<PeriodObligationGrouper>();
         services.AddSingleton<FinancialProjectionCalculator>();
-        services.AddSingleton<TargetAmountCalculator>();
         services.AddSingleton<SimulationCalculator>();
         services.AddSingleton<ScenarioPlanBuilder>();
     }
@@ -149,6 +148,7 @@ public static class MauiProgram
         services.AddSingleton<IIncomePlanService, IncomePlanService>();
         services.AddSingleton<OnboardingPlanWriter>();
         services.AddSingleton<IOnboardingService, OnboardingService>();
+        services.AddSingleton<IFutureProjectionService, FutureProjectionService>();
     }
 
     private static void RegisterPresentationAndAppServices(IServiceCollection services)
@@ -194,5 +194,7 @@ public static class MauiProgram
         services.AddTransient<PaymentPlanFormPage>();
         services.AddTransient<PlannedExpenseFormViewModel>();
         services.AddTransient<PlannedExpenseFormPage>();
+        services.AddTransient<FuturePeriodsViewModel>();
+        services.AddTransient<FuturePeriodsPage>();
     }
 }

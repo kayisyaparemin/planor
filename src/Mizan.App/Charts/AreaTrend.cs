@@ -30,7 +30,8 @@ public sealed class AreaTrend : IDrawable
     public ChartSeries? PlannedSeries { get; set; }
 
     /// <summary>
-    /// Kritik referans seviyesi veya KMH sınırı eşik değeri (kesikli yatay çizgi).
+    /// Kritik referans seviyesi veya KMH sınırı eşik değeri (kesikli yatay çizgi). Verilirse alan dolgusu tabana
+    /// değil eşiğe iner: 12 dönemde sıfırın altına düşen dönemler ayrı bir cep olarak görünür (GS26-4).
     /// </summary>
     public ChartThreshold? Threshold { get; set; }
 
@@ -95,7 +96,7 @@ public sealed class AreaTrend : IDrawable
     private void DrawAreaFill(ICanvas canvas, ChartScale scale)
     {
         canvas.FillColor = ChartColorResolver.ResolveTint("Indicator");
-        canvas.FillPath(scale.AreaPath(Series!.Points));
+        canvas.FillPath(scale.AreaPath(Series!.Points, Threshold?.Value));
     }
 
     private void DrawThresholdLine(ICanvas canvas, ChartScale scale, RectF rect)

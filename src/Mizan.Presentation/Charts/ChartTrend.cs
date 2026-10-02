@@ -15,4 +15,11 @@ public sealed record ChartTrend(
     ChartSeries? Projection,
     DateOnly? Today,
     ChartThreshold? PlanLevel,
-    ChartSeries? Markers);
+    ChartSeries? Markers)
+{
+    /// <summary>
+    /// Eşik çizgisi; verilirse ölçeğe girer ve alan dolgusu tabana değil ona iner. 12 dönem sıfırı verir: sıfıra
+    /// uzaklık güvenlik payıdır, eksi dönemler sıfırın altında ayrı bir cep olur (GS26-3, 4). Ana sayfa vermez.
+    /// </summary>
+    public ChartThreshold? Threshold { get; init; }
+}

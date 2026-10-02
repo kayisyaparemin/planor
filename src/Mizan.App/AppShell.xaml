@@ -53,8 +53,8 @@
                              Color="{DynamicResource TextSecondary}" />
         </FlyoutItem.Icon>
         <ShellContent Title="{x:Static strings:Strings.Baslik_GelecekDonemler}"
-                      Route="future-months-content"
-                      ContentTemplate="{DataTemplate ContentPage}" />
+                      Route="future-periods-content"
+                      ContentTemplate="{DataTemplate pages:FuturePeriodsPage}" />
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_Simulator}"

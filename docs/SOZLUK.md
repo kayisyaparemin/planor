@@ -131,11 +131,12 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | projeksiyon faiz özeti | `ProjectionInterestSummary` | Kredi kartı ve finansman açığı kümülatif faiz maliyetleri özeti |
 | kart projeksiyon durumu | `CreditCardPaymentProjectionStatus` | Kredi kartının belirli bir ekstre döngüsündeki simüle edilen borç, ödeme ve carry faizini kart kimliğiyle sunan sözleşme |
 | finansal projeksiyon hesaplayıcısı | `FinancialProjectionCalculator` | Kullanıcının tüm finansal planını (gelirler, krediler, kredi kartları, vadeli borçlar, büyük harcamalar) 12 nakit akış dönemi boyunca simüle eden ana motor |
-| hedef tutar hesaplayıcısı | `TargetAmountCalculator` | Nakit akış projeksiyonu üzerinde kullanıcının hedef tutarına hangi dönemde ulaştığını deterministik olarak hesaplayan saf Domain motoru |
+| hedef tutar hesaplayıcısı | `TargetAmountCalculator` | Nakit akış projeksiyonu üzerinde kullanıcının hedef tutarına hangi dönemde ulaştığını deterministik olarak hesaplayan saf Domain motoru. Bugün ekranı ve DI kaydı yok: 12 dönemde taşınmadı, soru `V10`'a not (`S74`-5) |
 | projeksiyon başlangıç sınırı | `ProjectionBoundary` | Projeksiyonun başlangıç çapa tarihini, ilk projeksiyon dönemi başlangıcını ve devreden açılış bakiyesini taşıyan sınır sözleşmesi |
 | projeksiyon başlangıç sınırı çözümleyicisi | `ProjectionBoundaryResolver` | Kapanan dönem gerçekleşmelerini ve mevcut durumu analiz ederek projeksiyonun başlangıç çapasını ve ilk açık dönemini belirleyen servis |
 | ana ekran özeti | `DashboardSnapshot` | Aktif dönemi, çapa öncesi açık kalemleri, yaklaşan ilk 5 ödemeyi, 12 dönem sonu nakit dengesini ve en sıkışık dönemi sunan özet sözleşmesi |
 | finansal projeksiyon servisi | `FinancialProjectionService` | Domain projeksiyon motorunu arayüzün ihtiyaç duyduğu Dashboard özeti ve dönem takvimine bağlayan ince uygulama servisi |
+| 12 dönem servisi | `IFutureProjectionService` / `FutureProjectionService` | Açık dönemden sonraki 12 dönemi hesaplayan okuma portu; zinciri ana sayfanın dönem sonundan (bakiye girildiyse tahmin, girilmediyse plan) ve açık dönemin bitişinden başlatır, böylece iki ekran aynı dönem için iki ayrı rakam söylemez (`S74`, `I114`) |
 
 ## Simülasyon
 
@@ -321,6 +322,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | durum bloğu | `StateBlock` | Boş veri veya hata durumlarını kullanıcıya açıklayıp aksiyon aldıran semantik arayüz bileşeni (GS14) |
 | kaydırılan hero | `HeroPager` / `HeroPage` | Tek kart içinde en fazla iki sayfa (her birinde en fazla bir grafik) sunan, yana kaydırılan ana kart; tonlu zeminde (`SurfaceChart`) durur, kaydırınca ya da noktaya dokununca sayfa değişir. Bileşeni `V3a`'da yazıldı, kuralı `GK4` / `GS22` / `GS24` |
 | iskelet bloğu | `SkeletonBlock` | Veri yüklenirken spinner kullanmadan yerleşim zıplamasını önleyen SurfaceSunken zeminli yer tutucu bileşeni (GS14) |
+| dönem karosu | `FuturePeriodTile` | 12 Dönem ızgarasının bir karosu: dönemin ilk günü, dönem sonu, en düşük mü, ay adının yanında yıl yazılır mı. Dönemin kırılımı karoda değil dönem ayrıntısında (`GS26`, `V9`) |
 
 ---
 

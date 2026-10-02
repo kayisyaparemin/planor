@@ -1622,9 +1622,124 @@ Büyük Harcama Formu (`PlannedExpenseFormPage.xaml`):
 
 Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `EK-V6b` ve `EK-V6d`'den; taksit `ListCard`'ı ve giriş bloğu `EK-V6b2` (gelecek harcamalar) deseniyle aynıdır.
 
-### EK-V8 — 12 dönem
-Konsept karşılığı **var** (Simülatör panelindeki dönem kartları deseni). Grafik adayı:
-`AreaTrend` — "seviye 12 dönemde eşiğin altına iniyor mu?"
+## EK-V8 — 12 dönem
+
+> Sayfa dosyası: `FuturePeriodsPage.xaml` (`V8a`; erken kapama kartı `V8b`). Yan menüdeki "12 Dönem" (`//projection`).
+> Davranış `S74`, ekran `GS26`. Ekran hiçbir şey yazmaz.
+
+**Eski proje:** `FutureMonthsPage.xaml` 224 satır, **37 `<Label>`**, 5 kart (sapma uyarısı, faiz, kredi kapatma,
+hedef tutar, boş hâl) + 12 dönem kartı şablonu, 7 buton + görünmez dokunma katmanı, 1 giriş.
+
+### 1. Sorular
+
+| Kod | Soru | Eski ekran nasıl cevaplıyordu |
+|---|---|---|
+| S1 | "Önümüzdeki aylarda param eksiye düşecek mi, en çok hangi dönem sıkışacağım?" | Doğrudan cevap yok: 12 kartı kaydırıp "Dönem sonu" rakamlarını kıyaslamak (12 × 2 etiket) |
+| S2 | "Bir yıl sonra elimde ne olacak, gidişat yukarı mı aşağı mı?" | Uzun kaydırmanın dibindeki son kart; grafik yok |
+| S3 | "Her dönemin sonunda ne kalacak?" | Dönem kartı başına ~18 etiket: dönem, tahsis metni, dönem sonu, gelir / zorunlu / yaşam, devreden açık, 4 çip, ayrıntı butonu |
+| S4 | "Bu gidişatla 12 dönemde ne kadar faiz ödeyeceğim?" | Faiz kartı, 7 etiket |
+| S5 | "Kredimi erken kapatmalı mıyım, hangi gün, ne kazandırır?" (`V8b`) | Kredi başına 3 etiket (2'si üretilmiş cümle), "Simülatörde dene" ve "Krediyi düzenle" |
+
+### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| En düşük dönem sonu + hangi dönem | **Hero** (`HeroFigure`) + açıklama satırı (`TextSecondary`) | S1 ekranın asıl sorusu; kırmızıyı ızgara ve grafik taşır |
+| Zincir başı + 12 dönem sonunun yolu, sıfır çizgisi | **Grafik** (`AreaTrend`, seri + eşik; dolgu sıfıra iner) | S1 / S2 yön; eksi dönemler sıfırın altında cep (`GS26`-3, 4) |
+| Zincir başı ve 12. dönemin son günü | **Satır** (grafiğin altında iki etiket) | Grafiğin tarih ekseni |
+| 12 dönem sonra | **Satır** (`MetricRow`) | S2 |
+| 12 dönemde faiz (toplam) | **Satır** (`MetricRow`), 0 ₺ dahil hep görünür | S4; ayrı kart değil (konsept) |
+| Faiz kırılımı (kart / KMH) | **Derine** → `V9` | Dönem ayrıntısında dönem başına faiz |
+| Bu dönemin sonu (ana sayfadaki rakam) | **Çıkar** | Zincirin başı grafiğin sol ucu (konsept) |
+| Dönem başına ay + dönem sonu | **Kart** (3 × 4 karo ızgara, ham `Border` + `Grid`) | S3; 12'si tek ekran boyunda; en düşük kalın, eksiler `NegativeText` (`GS26`-1) |
+| Dönem başına gelir / zorunlu / yaşam, dönem faizi, kart çipleri | **Derine** → `V9` | S3'ün ikinci seviyesi; karoya dokunma `V9`'da bağlanır |
+| Erken kapama: kredi, önerilen gün ve tutar, net kazanç | **Kart** (`ListCard`), `V8b` | S5; satır krediyi açar, kapama orada planlanır (`S74`-7) |
+| Önerilenden farklı en kârlı gün | **Çıkar** → `V10` | İkinci bir karar noktası; simülatörün sorusu |
+| "Simülatörde dene" | **Derine** → `V10` | Simülatör yok; `V10`'da bağlanır |
+| Sapma uyarısı ("checkpoint'e dayanıyor") | **Çıkar** | Zincir ana sayfanın rakamından başlıyor (`S74`-4) |
+| Hedef tutar ("Ne zaman karşılayabilirim?") | **Çıkar** → `V10` notu | Izgara dönem sonlarını zaten gösteriyor (`S74`-5) |
+| Tahsis metni, "gelirden önce" çipi | **Çıkar** | `S18` |
+| Devreden açık satırı | **Çıkar** | Önceki dönemin eksi sonuyla aynı bilgi |
+| Sayfa eyebrow'u + açıklama cümlesi, "Mevcut dönemi gör" | **Çıkar** | Başlık "12 Dönem" yeter; ana sayfa yan menüde |
+| Spinner, durum satırı | **Çıkar** | `SkeletonBlock` / `StateBlock` (`GS14`) |
+
+### 3. Bütçe
+
+```
+Hero rakam    1 / 1     en düşük dönem sonu
+Hero yüzey    0 / 1     gidişat kartı tonlu SurfaceChart (GS26-2), SurfaceHero değil
+Kart          3 / 4     gidişat kartı, dönem sonları ızgarası, erken kapama ListCard* (V8b)   * yalnız öneri varsa
+Grafik        1 / 1     AreaTrend
+NavRow        0 / 5
+Label        15 / 28    başlık 1, gidişat kartı 5 (eyebrow, hero, açıklama, iki uç tarih), ızgara 4 (eyebrow; karo: ay, tutar + tetikleyici), erken kapama şablonu 5 (ad, durum, kazanç + FormattedText, ok)
+Cumle_        0 / 3
+```
+
+`V8a` sonunda: kart 2 / 4, label 10 / 28 (başlık `Shell.TitleView`, ana sayfadaki gibi). Gidişat kartındaki iki satır `MetricRow` bileşeni; sayfa XAML'inde
+`<Label>` değiller. Analizci ham `Border`'ları kart saymaz; bütçe dürüst sayımdır. Eski ekranın 37 etiketinden 15'e.
+
+### 4. Blok şeması
+
+```
+┌─ Kabuk başlığı ─────────────────────────────────────────────┐
+│ [☰ kabuk]  12 Dönem               Baslik_GelecekDonemler    │
+└─────────────────────────────────────────────────────────────┘
+┌─ Gidişat kartı (ham Border)  SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐
+│ Etiket_EnDusukDonemSonu                 Eyebrow             │  ← S1
+│ −18.250 ₺                               HeroFigure / TextPrimary (eksi de olsa)
+│ 10 Mart 2027 dönemi sonunda             Bicim_EnDusukDonem, Caption / TextSecondary
+│ AreaTrend   yükseklik ChartHeight                           │  ← S1, S2
+│   Series: zincir başı + 12 dönem sonu, düz Indicator        │
+│   dolgu Indicator %20, sıfıra iner: eksi dönemler cep (GS26-4)
+│   Threshold 0: kesikli NegativeText, her zaman ölçekte (GS26-3)
+│ 10 Eki 2026                                 9 Eki 2027      │  Caption: zincir başı · 12. dönemin son günü
+│ MetricRow  Etiket_OnIkiDonemSonra ............ 26.300 ₺     │  ← S2; eksiyse Negative
+│ MetricRow  Etiket_OnIkiDonemdeFaiz ............ 3.750 ₺     │  ← S4; 0 ₺ dahil hep görünür
+└─────────────────────────────────────────────────────────────┘
+┌─ Dönem sonları (ham Border)  SurfaceCard / BorderSubtle / RadiusCard ┐  ← S3
+│ Etiket_DonemSonlari                     Eyebrow             │
+│ ┌───────────┬───────────┬───────────┐  Grid 3 sütun × 4 satır, BindableLayout (satır, sütun dizinden)
+│ │ Ekim 2026 │ Kasım     │ Aralık    │  ay: Caption / TextSecondary; yıl ilk karoda ve Ocak'ta
+│ │ 44.120 ₺  │ 47.900 ₺  │ 38.300 ₺  │  tutar: TypeFigure; en düşük SemiBold, diğerleri Regular;
+│ ├───────────┼───────────┼───────────┤         eksi NegativeText, değilse TextPrimary
+│ │ Ocak 2027 │ Şubat     │ Mart      │
+│ │ 41.050 ₺  │ 45.600 ₺  │ −18.250 ₺ │
+│ │ …                                 │  ayırıcı: aralık StrokeHairline, zemin BorderSubtle
+│ └───────────┴───────────┴───────────┘  karo: zemin SurfaceCard, dolgu Space3
+│ karoya dokunma V9'da bağlanır                               │
+└─────────────────────────────────────────────────────────────┘
+┌─ ListCard (V8b; öneri yoksa ya da hata verdiyse görünmez) ──┐  ← S5
+│ Etiket_ErkenKapama                      Eyebrow             │
+│ Taşıt kredisi                        net +2.950 ₺   ›       │  TypeBody / TextPrimary · "net" Caption + tutar Figure
+│ 18 Eyl 2027 · 21.400 ₺ ile kapat                            │    PositiveText · ChevronRight Indicator
+│   güvenli gün yoksa   Etiket_KapatmakAcikOlusturur          │  Caption: Bicim_KapamaOnerisi
+│   kazandırmıyorsa     Etiket_KapatmakKazandirmiyor          │  bu dördünde kazanç yok
+│   anapara yoksa       Etiket_AnaparaGerekli                 │
+│   kapama planlıysa    Bicim_KapamaPlanli                    │
+│ satıra dokun → Routes.LoanForm + loanId                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+Sıra konseptin sırası. Erken kapama en altta: önerisi listeden sonra gelir (birkaç düzine projeksiyon);
+hazır olunca görünür alanın altında açılır, yerleşim gözün önünde zıplamaz.
+
+Grafik için iki küçük ek (`GS26`-3, 4): `ChartTrend`'e isteğe bağlı `Threshold` (varsayılan `null`) ve
+`AreaTrend`'de eşik verildiyse dolgunun tabana değil eşiğe inmesi. `V3` eşik vermediği için değişmez. Yeni bileşen yok.
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | `StateBlock`: `Schedule` ikonu + `Bos_OnIkiDonemYok` + `Aksiyon_FinansalYapiyaGit`. Açık dönem yoksa ya da plan projeksiyon kuramıyorsa (`S74`-2). Konseptteki "Gelir gününü belirle" alınmadı (`GS26`-5). |
+| Yükleniyor | İki `SkeletonBlock`: gidişat kartı (`ChartHeight`) ve ızgara; spinner yok (`GS14`). Erken kapama kartı yüklemeyi beklemez, hazır olana kadar görünmez. |
+| Hata | `StateBlock`: `Close` ikonu + `Hata_OnIkiDonemHesaplanamadi` ("12 dönem şu an hesaplanamadı.") + `Aksiyon_TekrarDene`. Erken kapamanın hatası sayfayı düşürmez, yalnız kartı gizler (`S74`-7). |
+
+### 6. Konsept ilişkisi
+
+Claude Design, "Planör · 12 Dönem" (2026-10-02): `docs/assets/konsept/12-donem.png` (dolu hâl koyu ve açık,
+eksiye düşmeyen veri) ve `12-donem-durumlar.png` (yükleniyor, boş, hata, erken kapamanın dört hâli).
+Yerleşim oradan, renkler ve tip skalası token'lardan. Konseptten sapmalar `GS26`'da: yazı tipi, kabuk menüsü,
+eşik rengi, ikonlar, erken kapama satır puntoları, boş hâl metni, iskelet.
 
 ### EK-V9 — Dönem ayrıntısı
 Konsept karşılığı **var** (Dönem Ayrıntısı paneli: `InfoBanner` + `ComparisonStrip` +
@@ -1667,7 +1782,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6d | Gelir formu | 14 | 7 + 3 | ✅ V6d1 + V6d2 + V6d3 |
 | EK-V6e | Ödeme formu | 12 | 8 + 4 | ✅ V6e |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
-| EK-V8 | 12 dönem | 37 | | ⬜ |
+| EK-V8 | 12 dönem | 37 | 10 | ✅ V8a (erken kapama V8b) |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
 | EK-V10 | Simülatör | 64 | | ⬜ |
 | EK-V11 | Dönem kapanışı | 50 | | ⬜ |

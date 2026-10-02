@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.FuturePeriodsPage"
+             x:DataType="vm:FuturePeriodsViewModel"
+             AutomationId="{x:Static auto:FuturePeriodsAutomationIds.PageFuturePeriods}">
+
+    <!-- EK-V8: 12 dönem (V8a; erken kapama kartı V8b), S74, GS26 -->
+
+    <ContentPage.Resources>
+        <!-- Dönem karosu: ay ve dönem sonu; en düşük kalın, eksi olumsuz renkte. Yeri sıradan (GS26-1) -->
+        <DataTemplate x:Key="DonemKarosu" x:DataType="models:FuturePeriodTile">
+            <VerticalStackLayout Grid.Row="{Binding Index, Converter={StaticResource IzgaraKonumu}, ConverterParameter=Satir}"
+                                 Grid.Column="{Binding Index, Converter={StaticResource IzgaraKonumu}}"
+                                 BackgroundColor="{DynamicResource SurfaceCard}"
+                                 Padding="{StaticResource Space3}"
+                                 Spacing="{StaticResource Space1}">
+                <Label Text="{Binding ., Converter={StaticResource DonemAyi}}"
+                       Style="{StaticResource Caption}" />
+                <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
+                       FontSize="{StaticResource TypeFigure}"
+                       FontFamily="OpenSansRegular"
+                       TextColor="{DynamicResource TextPrimary}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsLowest}" Value="True">
+                            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsNegative}" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </VerticalStackLayout>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Shell.TitleView>
+        <Grid Padding="{StaticResource TitleBarPadding}">
+            <Label Text="{x:Static strings:Strings.Baslik_GelecekDonemler}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor: gidişat kartı ve ızgara yerinde iskelet; spinner yok (GS14) -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Gidişat kartı: en düşük dönem sonu, yolu, bir yıl sonrası ve faiz (S1, S2, S4) -->
+                <Border BackgroundColor="{DynamicResource SurfaceChart}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        AutomationId="{x:Static auto:FuturePeriodsAutomationIds.CardFutureTrend}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:FuturePeriodsStrings.Etiket_EnDusukDonemSonu}"
+                               Style="{StaticResource Eyebrow}" />
+                        <Label Text="{Binding LowestEndingBalance, Converter={StaticResource Para}}"
+                               Style="{StaticResource HeroFigure}"
+                               AutomationId="{x:Static auto:FuturePeriodsAutomationIds.LblLowestEnding}" />
+                        <Label Text="{Binding LowestPeriodStart, Converter={StaticResource Tarih}, ConverterParameter='d MMMM yyyy', StringFormat={x:Static strings:FuturePeriodsStrings.Bicim_EnDusukDonem}}"
+                               Style="{StaticResource Caption}" />
+
+                        <!-- Zincir başı + 12 dönem sonu; sıfır çizgisi her zaman, dolgu ona iner (GS26-3, 4) -->
+                        <GraphicsView Drawable="{Binding Trend, Converter={StaticResource TrendGrafigi}}"
+                                      HeightRequest="{StaticResource ChartHeight}"
+                                      InputTransparent="True" />
+
+                        <Grid ColumnDefinitions="*, *">
+                            <Label Grid.Column="0"
+                                   Text="{Binding ChainStart, Converter={StaticResource Tarih}, ConverterParameter='d MMM yyyy'}"
+                                   Style="{StaticResource Caption}" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding HorizonLastDay, Converter={StaticResource Tarih}, ConverterParameter='d MMM yyyy'}"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="End" />
+                        </Grid>
+
+                        <comp:MetricRow LabelText="{x:Static strings:FuturePeriodsStrings.Etiket_OnIkiDonemSonra}"
+                                        ValueText="{Binding FinalEndingBalance, Converter={StaticResource Para}}">
+                            <comp:MetricRow.Triggers>
+                                <DataTrigger TargetType="comp:MetricRow" Binding="{Binding IsFinalNegative}" Value="True">
+                                    <Setter Property="Semantic" Value="Negative" />
+                                </DataTrigger>
+                            </comp:MetricRow.Triggers>
+                        </comp:MetricRow>
+                        <comp:MetricRow LabelText="{x:Static strings:FuturePeriodsStrings.Etiket_OnIkiDonemdeFaiz}"
+                                        ValueText="{Binding TotalInterest, Converter={StaticResource Para}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Dönem sonları: 3 × 4 karo, 1 px ayırıcı ızgara aralığından; dokunma V9'da (S3) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        AutomationId="{x:Static auto:FuturePeriodsAutomationIds.GridFuturePeriods}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout>
+                        <Label Text="{x:Static strings:FuturePeriodsStrings.Etiket_DonemSonlari}"
+                               Style="{StaticResource Eyebrow}"
+                               Padding="{StaticResource CardPadding}" />
+                        <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                                 Color="{DynamicResource BorderSubtle}" />
+                        <Grid ColumnDefinitions="*, *, *"
+                              RowDefinitions="Auto, Auto, Auto, Auto"
+                              ColumnSpacing="{StaticResource StrokeHairline}"
+                              RowSpacing="{StaticResource StrokeHairline}"
+                              BackgroundColor="{DynamicResource BorderSubtle}"
+                              BindableLayout.ItemsSource="{Binding Periods}"
+                              BindableLayout.ItemTemplate="{StaticResource DonemKarosu}" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+
+            <!-- Boş: açık dönem yok ya da plan kurulamıyor (S74-2) -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.Schedule}"
+                             Message="{x:Static strings:FuturePeriodsStrings.Bos_OnIkiDonemYok}"
+                             ActionText="{x:Static strings:FuturePeriodsStrings.Aksiyon_FinansalYapiyaGit}"
+                             ActionCommand="{Binding OpenFinancialStructureCommand}"
+                             IsVisible="{Binding IsEmpty}"
+                             AutomationId="{x:Static auto:FuturePeriodsAutomationIds.StateFuturePeriodsEmpty}" />
+
+            <!-- Hata: okuma ya da hesap -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:FuturePeriodsStrings.Hata_OnIkiDonemHesaplanamadi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:FuturePeriodsAutomationIds.StateFuturePeriodsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

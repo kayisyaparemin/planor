@@ -410,7 +410,7 @@ cümle olarak taşır.
 | Primitif | Cevapladığı soru | Girdi |
 |---|---|---|
 | `Sparkline` | "Yön ne, yukarı mı aşağı mı?" | Tek seri, eksen yok, etiket yok. |
-| `AreaTrend` | "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" | Bir seri (tarih eksenli) + isteğe bağlı eşik, plan serisi, kesikli devam, bugün ve plan seviyesi (`GS23`). |
+| `AreaTrend` | "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" | Bir seri (tarih eksenli) + isteğe bağlı eşik, plan serisi, kesikli devam, bugün ve plan seviyesi (`GS23`). Eşik verilirse alan dolgusu tabana değil eşiğe iner (`GS26`-4). |
 | `StackedBar` | "Bu dönem neyden oluşuyor?" | ≤ 4 kategori. |
 | `RingGauge` | "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?" | Tek oran (0–1) + isteğe bağlı geçen süre oranı (0–1) (`GS23`). |
 
@@ -444,7 +444,7 @@ konuşur.
 |---|---|---|
 | `actual` / tek seri | `Indicator` | Düz çizgi, `StrokeHairline` × 2 |
 | `planned` | `TextSecondary` | Kesikli çizgi |
-| Eşik | `NegativeText` | Kesikli yatay çizgi |
+| Eşik | `NegativeText` | Kesikli yatay çizgi; verilirse ölçeğe girer ve alan dolgusu ona iner (12 dönemde sıfır, `GS26`) |
 | Alan dolgusu | `Indicator`, %20 saydam (`ResolveTint`) | Dolgu; tonlu kartta da düz kartta da seçilir (`GS24`) |
 | `RingGauge` dolu / iz | `Indicator` / `Indicator` %20 saydam | Halka, tepeden saat yönünde (`GS24`) |
 | Tahmin devamı (`ProjectionSeries`) | `Indicator` | Kesikli çizgi, `StrokeHairline` × 2 |

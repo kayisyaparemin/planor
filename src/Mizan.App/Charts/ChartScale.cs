@@ -59,16 +59,20 @@ internal readonly struct ChartScale
         return path;
     }
 
-    /// <summary>Noktaların altını alt kenara kadar dolduran kapalı yol.</summary>
-    public PathF AreaPath(IReadOnlyList<ChartPoint> points)
+    /// <summary>
+    /// Çizgiyle taban arasını dolduran kapalı yol. Taban verilmezse alt kenardır; verilirse o tutardır ve tabanın
+    /// altına inen bölüm ayrı bir cep olarak dolar (12 dönemde sıfır: eksi dönemler, GS26-4).
+    /// </summary>
+    public PathF AreaPath(IReadOnlyList<ChartPoint> points, decimal? baseline = null)
     {
+        var baseY = baseline is { } level ? Y(level) : _rect.Bottom;
         var path = new PathF();
-        path.MoveTo(X(points[0].Date), _rect.Bottom);
+        path.MoveTo(X(points[0].Date), baseY);
         foreach (var point in points)
         {
             path.LineTo(X(point.Date), Y(point.Value));
         }
-        path.LineTo(X(points[^1].Date), _rect.Bottom);
+        path.LineTo(X(points[^1].Date), baseY);
         path.Close();
         return path;
     }

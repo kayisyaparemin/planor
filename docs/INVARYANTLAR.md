@@ -127,6 +127,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I111` | "Bakiye gir"de bakiyenin günü varsayılan olarak bugündür ve yalnız dönem başı ile bugün arasından seçilir (S73-1). | `Mizan.Presentation.Tests.ViewModels.BalanceEntryViewModelTests.Yukle_AcikDonem_GunBugundurVeDonemBasiIleBugunArasindanSecilir` | `V3b` |
 | `I112` | "Bakiye gir" önizlemesinde üst üste binen isteklerde son istek kazanır: geç gelen eski cevap ekrandaki rakamı değiştirmez (S73-2). | `Mizan.Presentation.Tests.ViewModels.BalanceEntryViewModelTests.Onizleme_IstekleriBirbiriniGecerse_SonIstekKazanir` | `V3b` |
 | `I113` | Banka bakiyesi eksi (KMH) ve sıfır olabilir; noktalı binlik ayraçlı eksi tutar da ("-12.500") okunur (S73-3). | `Mizan.Presentation.Tests.ViewModels.BalanceEntryViewModelTests.Tutar_EksiYaDaSifir_GecerliBakiyeOlarakOnizlenir` | `V3b` |
+| `I114` | 12 dönemin ilki açık dönemin bittiği gün başlar ve açılış bakiyesi ana sayfanın dönem sonu rakamıdır: bakiye girildiyse tahmin, girilmediyse plan; iki ekran aynı dönem için iki ayrı rakam söylemez (S74-1). | `Mizan.Application.Tests.Services.FutureProjectionServiceTests.Getir_BakiyeGirildiyse_ZincirAnaSayfaninTahmindenVeAcikDonemdenSonraBaslar` | `V8a` |
+| `I115` | Açık dönem yoksa 12 dönem bir rakam uydurmaz, ekran boştur (S74-2). | `Mizan.Application.Tests.Services.FutureProjectionServiceTests.Getir_AcikDonemYoksa_BosDoner` | `V8a` |
+| `I116` | 12 dönemin en düşük dönem sonu birden fazla dönemde eşitse en erkeni gösterilir: kullanıcı ilk sıkışacağı anı görür (EK-V8). | `Mizan.Presentation.Tests.ViewModels.FuturePeriodsViewModelTests.Yukle_EnDusukBirdenFazlaDonemdeyse_IlkiSecilir` | `V8a` |
 
 ## Satır eklerken
 

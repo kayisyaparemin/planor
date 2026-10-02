@@ -20,7 +20,8 @@ public sealed class TrendGrafigiConverter : IValueConverter
                 ProjectionSeries = trend.Projection,
                 Today = trend.Today,
                 PlanLevel = trend.PlanLevel,
-                MarkerSeries = trend.Markers
+                MarkerSeries = trend.Markers,
+                Threshold = trend.Threshold
             }
             : null;
 
