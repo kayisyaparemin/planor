@@ -14,6 +14,15 @@ seçme.
 
 Aşama 1 (keşif) ile başla; ilk cümlede adımı plandaki adıyla söyle.
 
+**Kaynağı eski proje olmayan adımlar.** Plandaki satır ya da fazın girişi "kaynak eski proje değil"
+diyorsa (Faz T, V3 yenilemesi) eski repoya **hiç bakılmaz**; oradaki kod bu adım için ne ipucu ne
+otoritedir. Aşamalar şöyle okunur:
+
+- **Aşama 1:** bu repodaki ilgili kodu oku; raporlanan dosyalar bugünkü dosyalardır.
+- **Aşama 2**, 3. soru: "Bugünkü hâlinde ne eksik ya da yanlış?"
+- **Aşama 3:** üç şık yerine plandaki satırın listelediği kararlar sorulur; yeni davranış `S` kaydı olur.
+- **Aşama 5:** eski testlere bakılmaz.
+
 # İş Akışı — Bir Taşıma Adımı
 
 Eski projeden (`C:\Users\kayis\Documents\mizan`) bu repoya bir parça taşırken izlenecek

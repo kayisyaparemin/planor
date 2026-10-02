@@ -9,12 +9,14 @@ namespace Mizan.Application.Abstractions;
 public interface IIncomePlanService
 {
     /// <summary>
-    /// Düzenli gelir akışını ve ona eklenecek tutar kayıtlarını doğrular, tek işlemde yazar ve tek plan
-    /// revizyonu tetikler. Yeni gelir ilk tutarıyla birlikte gelir; ayrı yazılsaydı arada tutarı olmayan
-    /// bir gelir kalır ve iki revizyon doğardı (S67-3). Tutar kayıtları eklenir, var olanlar değişmez.
+    /// Düzenli gelir akışını, ona eklenecek tutar kayıtlarını ve silinecek planlı tutar değişikliklerini
+    /// doğrular, tek işlemde yazar ve tek plan revizyonu tetikler. Yeni gelir ilk tutarıyla birlikte gelir;
+    /// ayrı yazılsaydı arada tutarı olmayan bir gelir kalır ve iki revizyon doğardı (S67-3). Tutar kayıtları
+    /// değişmez: yalnız eklenir ya da henüz yürürlüğe girmemişse silinir (S67-5, kural 05).
     /// </summary>
     Task SaveRecurringIncomeAsync(
-        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default);
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, IReadOnlyList<Guid> removedAmountIds,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Belirtilen düzenli gelir akışını ve geçmişini siler ve açık dönem varsa plan revizyonu tetikler.

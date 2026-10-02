@@ -19,11 +19,13 @@ public interface IRecurringIncomeRepository
     Task UpsertRecurringIncomeAsync(RecurringIncome income, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Bir düzenli gelir akışını ve ona eklenecek tutar kayıtlarını tek işlemde yazar: biri yazılamazsa
-    /// hiçbiri yazılmaz. Akışın var olan tutar kayıtlarına dokunulmaz (S67-3).
+    /// Bir düzenli gelir akışını yazar, silinmesi istenen tutar kayıtlarını siler ve yeni tutar kayıtlarını
+    /// ekler; hepsi tek işlemdedir: biri yazılamazsa hiçbiri yazılmaz. Yalnız o akışın tutarı silinir;
+    /// akışın diğer tutar kayıtlarına dokunulmaz (S67-3, S67-5).
     /// </summary>
     Task UpsertRecurringIncomeWithAmountsAsync(
-        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default);
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, IReadOnlyList<Guid> removedAmountIds,
+        CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Belirtilen düzenli gelir akışını ve geçmişini kalıcı olarak siler.

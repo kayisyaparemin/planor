@@ -1346,9 +1346,10 @@ gösterme fikri `EK-V7`'den. Renk ve ses Planör marka token'larından (`GS7`).
 > Adım **V6d** üç alt adımda: `V6d1` düzenli gelirin tanımı + "Ekle" / "Düzenle", `V6d2` tutar
 > değişiklikleri, `V6d3` tek seferlik gelir. Kapı A ve B ortak (iki sayfa), Kapı C her alt adımda ayrı.
 > Davranış kararları: `S67`.
-> **V6d1 tamamlandı** (Kapı C onaylı): form kartı (gelir adı, yeni gelirde aylık net tutar, ödeme günü),
+> **V6d1 ve V6d2 tamamlandı** (Kapı C onaylı): form kartı (gelir adı, yeni gelirde aylık net tutar, ödeme günü),
+> tutar değişiklikleri listesi (yürürlükteki ve ileri tarihliler), yeni tutar girişi ve planlı tutar silme,
 > Kaydet / Vazgeç, Finansal Yapı'da "Ekle → Düzenli gelir" ve düzenli gelir satırında "Düzenle"; gelir ve
-> ilk tutarı tek işlemde yazılır, tutar yatış gününe göre çözülür (`S67`-2–4, `I4`, `I78`, `I79`).
+> tutarları tek işlemde yazılır, tutar yatış gününe göre çözülür (`S67`-2–5, `S67` V6d2 notları, `I4`, `I78`, `I79`).
 > Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
 > gövdesi olarak okunur (`EK-V6b`, `EK-V6c` ile aynı).
 
@@ -1431,14 +1432,15 @@ Cumle_        0 / 3     açıklama cümlesi yok
 │ 28 Eylül 2026 itibarıyla   TypeBody (Bicim_Itibariyla)  45.000 ₺   │  ← S2  yürürlükteki tutar
 │ 15 Ocak 2027 itibarıyla                                 50.000 ₺   │  ← S2  ileri tarihli; Figure
 │   … tarihe göre, en fazla 4 satır; fazlası: +N daha, yerinde açılır (GS21)
-│   dokun (ileri tarihli) → ChooseAsync(tarih, "Vazgeç", "Sil")       │  ← S3  silme Kaydet'e kadar bekler
-│   dokun (yürürlükteki)  → ShowAlertAsync: yürürlüğe girmiş tutar    │
-│                           silinmez, yeni tutar ekle                │
+│   dokun (bugün ya da sonra) → ChooseAsync("Tutar değişikliği",     │  ← S3  silme Kaydet'e kadar bekler
+│                               "Vazgeç", "Sil")                     │
+│   dokun (bugünden önce)     → ShowAlertAsync: yürürlüğe girmiş     │
+│                               tutar silinmez, yeni tutar ekle      │
 └────────────────────────────────────────────────────────────────────┘
 [ Aksiyon_TutarDegisikligiEkle "Tutar değişikliği ekle"  SecondaryButton ]  V6d2 · ← S3 · giriş kapalıyken
 ┌─ Giriş bloğu (Border SurfaceCard / RadiusCard / CardPadding) ──────┐  V6d2 · ← S3 · açıkken
 │ Etiket_YeniTutar "YENİ TUTAR"   Etiket_GecerlilikTarihi "GEÇERLİLİK TARİHİ" │  Grid *,*
-│ [ Entry Numeric "0" ]           [ DatePicker ≥ bugün ]             │  ← S3  varsayılan: sonraki ödeme günü
+│ [ Entry Numeric "0" ]           [ DatePicker ≥ bugün ]             │  ← S3  varsayılan: bugünden sonraki ödeme günü
 │ [ Aksiyon_Ekle  ActionFill ]  [ Aksiyon_Vazgec  SecondaryButton ]  │  ← S3  hata → diyalog, giriş açık kalır
 └────────────────────────────────────────────────────────────────────┘
 [ Aksiyon_Kaydet  ActionFill ]     [ Aksiyon_Vazgec  SecondaryButton ]    V6d1 · ← S1 · Grid *,*
@@ -1482,12 +1484,15 @@ Uygulama notları:
   ile kurulur: aktiflik ve tutar geçmişi korunur (`I73`). Ödeme günü değişince tutarlar değişmez.
 - Kaydet `IIncomePlanService.SaveRecurringIncomeAsync(gelir, eklenecek tutarlar[, silinecek kimlikler])`
   ile tek işlem, tek plan revizyonu (`S67`-3). Tutar yatış gününe göre çözülür (`S67`-4, `I4`).
-- Tutarlar (`V6d2`): `IncomeAmountsViewModel` çocuğu (`LoanPrepaymentsViewModel` deseni; portu, diyaloğu
-  ve saati ebeveynden alır, form 5 bağımlılıkta kalır). Satır ham veri taşır (`IncomeAmountRow`: kimlik,
+- Tutarlar (`V6d2`): `IncomeAmountsViewModel` çocuğu (`CardChargesViewModel` deseni; diyaloğu ve saati
+  ebeveynden alır, port gerekmez, form 5 bağımlılıkta kalır). Satır ham veri taşır (`IncomeAmountRow`: kimlik,
   geçerlilik tarihi, tutar, silinebilir mi). Liste: bugün yürürlükteki son tutar + ileri tarihliler; hiçbiri
-  yürürlükte değilse (ileride başlayan gelir) yalnız ileri tarihliler. Silinebilir = geçerlilik tarihi ≥ bugün;
-  en az bir tutar kalır. Aynı tarihte ikinci tutar "Ekle"de reddedilir. Satır şablonu `ContentPage.Resources`'ta.
-  Tarih metni `Bicim_Itibariyla` ("{0} itibarıyla"; ek uyumu gerektirmediği için "…'den itibaren" değil).
+  yürürlükte değilse (ileride başlayan gelir) yalnız ileri tarihliler. Silinebilir = geçerlilik tarihi ≥ bugün.
+  Aynı tarihte ikinci tutar "Ekle"de reddedilir; "en az bir tutar" Kaydet'te (`S67` V6d2 notları a). Kurallar
+  Domain'de `IncomeAmountRules`'ta, ekran ve servis paylaşır. Varsayılan tarih bugünden sonraki ilk ödeme günü,
+  kayıtlı gelirin gününe göre. Silme diyaloğunun başlığı sabit "Tutar değişikliği" (ViewModel tarih biçimlendirmez).
+  Satır şablonu `ContentPage.Resources`'ta. Tarih metni `Bicim_Itibariyla` ("{0} itibarıyla"; ek uyumu
+  gerektirmediği için "…'den itibaren" değil). Tutar bölümü yalnız düzenlemede görünür.
 - `HasChanges` tutar listesini de sayar (eklenen ya da silinen kimlik var mı).
 - Tek seferlik gelir (`V6d3`): düzenleme `with`; tarih en erken bugün (liste yalnız bugün ve sonrasını gösterir,
   `S62`-5), varsayılan bugün. `SaveAdHocIncomeAsync` (mevcut).
@@ -1553,7 +1558,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
 | EK-V6c | Kredi formu | 14 | 16 | ✅ V6c1 + V6c2 + V6c3 |
-| EK-V6d | Gelir formu | 14 | 3 | 🟡 V6d1 (V6d2, V6d3 açık) |
+| EK-V6d | Gelir formu | 14 | 7 | 🟡 V6d1 + V6d2 (V6d3 açık) |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |

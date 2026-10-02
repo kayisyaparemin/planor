@@ -9,5 +9,10 @@
   "YerTutucu_Gun": "1–31",
   "Aksiyon_Kaydet": "Kaydet",
   "Aksiyon_Vazgec": "Vazgeç",
+  "Bicim_Itibariyla": "{0} itibarıyla",
+  "Aksiyon_TutarDegisikligiEkle": "Tutar değişikliği ekle",
+  "Etiket_YeniTutar": "YENİ TUTAR",
+  "Etiket_GecerlilikTarihi": "GEÇERLİLİK TARİHİ",
+  "Aksiyon_Ekle": "Ekle",
   "Hata_GelirYuklenemedi": "Gelir bilgileri okunamadı."
 }

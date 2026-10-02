@@ -12,6 +12,10 @@ namespace Mizan.Infrastructure.Persistence.Repositories;
 /// </summary>
 public sealed class SqliteRecurringIncomeRepository(SQLiteAsyncConnection connection) : IRecurringIncomeRepository
 {
+    // Yalnız bu gelirin tutarı silinir: başka bir gelirin kimliği gelse de ona dokunulmaz.
+    private const string DeleteAmountOfIncomeSql =
+        $"DELETE FROM {DatabaseConstants.TableIncomeAmountHistories} WHERE Id = ? AND RecurringIncomeId = ?";
+
     private readonly SQLiteAsyncConnection _connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
     /// <inheritdoc />
@@ -41,17 +45,25 @@ public sealed class SqliteRecurringIncomeRepository(SQLiteAsyncConnection connec
 
     /// <inheritdoc />
     public async Task UpsertRecurringIncomeWithAmountsAsync(
-        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, IReadOnlyList<Guid> removedAmountIds,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(income);
         ArgumentNullException.ThrowIfNull(newAmounts);
+        ArgumentNullException.ThrowIfNull(removedAmountIds);
         cancellationToken.ThrowIfCancellationRequested();
 
-        // Tutar kayıtları etkin tarihlidir: yalnız eklenir, var olan kayıt güncellenmez (kural 05).
-        // Aynı kimlik ikinci kez gelirse ekleme düşer ve işlem geliri de geri alır (S67-3).
+        // Tutar kayıtları etkin tarihlidir: yalnız eklenir ya da silinir, var olan kayıt güncellenmez (kural 05).
+        // Silme önce gelir: aynı günün tutarı silinip yeniden girilebilir. Aynı kimlik ikinci kez eklenirse
+        // ekleme düşer ve işlem silmeyi de geliri de geri alır (S67-3, S67-5).
         await _connection.RunInTransactionAsync(conn =>
         {
             conn.Upsert(ToEntity(income));
+            foreach (var id in removedAmountIds)
+            {
+                conn.Execute(DeleteAmountOfIncomeSql, id.ToString(), income.Id.ToString());
+            }
+
             foreach (var amount in newAmounts)
             {
                 conn.Insert(ToEntity(amount));

@@ -391,7 +391,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
     - [x] **V6d1** — `IncomeFormPage`: düzenli gelirin tanımı (ad, ödeme günü; yeni gelirde aylık net tutar),
           ekle / düzenle; Finansal Yapı "Ekle"de "Düzenli gelir", gelir satırında "Düzenle"; gelir ve
           tutarı tek işlemde kaydedilir
-    - [ ] **V6d2** — aynı sayfaya tutar değişiklikleri: yürürlükteki ve ileri tarihli tutarlar
+    - [x] **V6d2** — aynı sayfaya tutar değişiklikleri: yürürlükteki ve ileri tarihli tutarlar
           (simülatörden gelenler dahil), yeni tutar girişi, planlı değişikliği silme
     - [ ] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
           "Ekle"de "Tek seferlik gelir"
@@ -454,6 +454,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 6 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1 tamam)* |
+| V | 6 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda: V6a, V6b1, V6b2, V6c1, V6c2, V6c3, V6d1, V6d2 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

@@ -44,13 +44,17 @@ public sealed partial class IncomeFormViewModel : ViewModelBase
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
+        Amounts = new IncomeAmountsViewModel(_dialogService, _clock);
     }
 
     /// <summary>Gelirin tanımı: ad, ödeme günü; yeni gelirde aylık net tutar.</summary>
     public IncomeDefinitionViewModel Fields { get; } = new();
 
-    /// <summary>Form açıldığından beri bir alan değişti mi.</summary>
-    public bool HasChanges => Fields.HasChanges;
+    /// <summary>Kayıtlı gelirin tutarları: liste, yeni tutar girişi ve silme; gelirle birlikte kaydedilir.</summary>
+    public IncomeAmountsViewModel Amounts { get; }
+
+    /// <summary>Form açıldığından beri bir alan değişti mi (tanım alanları ya da tutar değişiklikleri).</summary>
+    public bool HasChanges => Fields.HasChanges || Amounts.HasChanges;
 
     /// <summary>Kimlik verilmezse boş yeni gelir formu, verilirse o gelirin düzenlemesi açılır.</summary>
     [RelayCommand]
@@ -71,8 +75,13 @@ public sealed partial class IncomeFormViewModel : ViewModelBase
                 return;
             }
 
+            var allAmounts = _income is not null
+                ? await _incomeRepository.GetIncomeAmountHistoriesAsync()
+                : [];
+
             IsEditing = _income is not null;
             Fields.Fill(_income);
+            Amounts.Load(_income, allAmounts);
             State = ScreenState.Content;
         }
         catch (Exception ex)
@@ -92,7 +101,7 @@ public sealed partial class IncomeFormViewModel : ViewModelBase
 
     /// <summary>
     /// Formu doğrular, geliri kaydeder ve bir önceki sayfaya döner. Yeni gelirin ilk tutarı bugünden
-    /// yürürlüğe girer ve gelirle aynı işlemde yazılır; düzenleme tutar geçmişine dokunmaz (S67-2, S67-3).
+    /// yürürlüğe girer ve gelirle aynı işlemde yazılır; düzenlemede tutar değişiklikleri tek işlemde yazılır (S67-2, S67-3).
     /// </summary>
     [RelayCommand]
     private async Task SaveAsync()
@@ -110,11 +119,13 @@ public sealed partial class IncomeFormViewModel : ViewModelBase
 
         IReadOnlyList<IncomeAmountHistory> newAmounts = _income is null
             ? [Fields.BuildFirstAmount(income!.Id, _clock.Today)]
-            : [];
+            : Amounts.ToAdded();
+        var removedAmountIds = Amounts.ToRemovedIds();
+
         SetBusy(true);
         try
         {
-            await _incomeService.SaveRecurringIncomeAsync(income!, newAmounts);
+            await _incomeService.SaveRecurringIncomeAsync(income!, newAmounts, removedAmountIds);
             await _navigationService.NavigateBackAsync();
         }
         catch (Exception ex) when (ex is InvalidOperationException or ArgumentException)

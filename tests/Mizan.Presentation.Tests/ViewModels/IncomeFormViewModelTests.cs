@@ -24,8 +24,80 @@ public sealed class IncomeFormViewModelTests
 
     public IncomeFormViewModelTests()
     {
-        var service = new IncomePlanService(_repository, new FakeAdHocIncomeRepository(), _recorder);
-        _viewModel = new IncomeFormViewModel(_repository, service, _navigation, _dialog, new SabitSaat(Today));
+        var clock = new SabitSaat(Today);
+        var service = new IncomePlanService(_repository, new FakeAdHocIncomeRepository(), _recorder, clock);
+        _viewModel = new IncomeFormViewModel(_repository, service, _navigation, _dialog, clock);
+    }
+
+    [Fact]
+    public async Task Load_Duzenlemede_YalnizBuGelirinTutarlariniYukler()
+    {
+        var income = Add(new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 });
+        var current = AddAmount(income.Id, 12_500m, new DateOnly(2026, 7, 20));
+        AddAmount(Guid.NewGuid(), 9_000m, new DateOnly(2026, 7, 5));
+
+        await _viewModel.LoadAsync(income.Id);
+
+        Assert.Equal([current.Id], _viewModel.Amounts.Items.Select(r => r.Id));
+    }
+
+    [Fact]
+    public async Task Save_TutarEklenipPlanliDegisiklikSilinince_GelirleTekIslemdeYazilir()
+    {
+        var income = Add(new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 });
+        var current = AddAmount(income.Id, 12_500m, new DateOnly(2026, 7, 20));
+        var planned = AddAmount(income.Id, 14_000m, new DateOnly(2027, 1, 20));
+        await _viewModel.LoadAsync(income.Id);
+        _dialog.NextChooseResponse = "Sil";
+        await _viewModel.Amounts.SelectCommand.ExecuteAsync(_viewModel.Amounts.Items[1]);
+        _viewModel.Amounts.OpenEntryCommand.Execute(null);
+        _viewModel.Amounts.AmountInput = "15.000";
+        _viewModel.Amounts.EntryDate = new DateOnly(2027, 2, 20);
+        await _viewModel.Amounts.AddCommand.ExecuteAsync(null);
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal(
+            [(current.Id, 12_500m), (_repository.Amounts[^1].Id, 15_000m)],
+            _repository.Amounts.Select(x => (x.Id, x.Amount)));
+        Assert.DoesNotContain(_repository.Amounts, x => x.Id == planned.Id);
+        Assert.Equal(1, _repository.CombinedWriteCount);
+        Assert.Equal(1, _recorder.ChangeCount);
+        Assert.True(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Save_SonTutarSilinipYenisiEklenmezse_UyariVerirKaydetmez()
+    {
+        var income = Add(new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 });
+        AddAmount(income.Id, 1_250m, Today);
+        await _viewModel.LoadAsync(income.Id);
+        _dialog.NextChooseResponse = "Sil";
+        await _viewModel.Amounts.SelectCommand.ExecuteAsync(_viewModel.Amounts.Items[0]);
+
+        await _viewModel.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal(("Gelir kaydedilemedi", "Gelirin en az bir tutarı kalmalı."), (_dialog.LastAlertTitle, _dialog.LastAlertMessage));
+        Assert.Single(_repository.Amounts);
+        Assert.False(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Cancel_YalnizTutarDegistiyse_OnaySorar()
+    {
+        var income = Add(new RecurringIncome { Name = "Kira geliri", PaymentDay = 20 });
+        AddAmount(income.Id, 12_500m, new DateOnly(2026, 7, 20));
+        AddAmount(income.Id, 14_000m, new DateOnly(2027, 1, 20));
+        await _viewModel.LoadAsync(income.Id);
+        _dialog.NextChooseResponse = "Sil";
+        await _viewModel.Amounts.SelectCommand.ExecuteAsync(_viewModel.Amounts.Items[1]);
+        _dialog.NextConfirmResponse = false;
+
+        await _viewModel.CancelCommand.ExecuteAsync(null);
+
+        Assert.True(_viewModel.HasChanges);
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.False(_navigation.NavigateBackCalled);
     }
 
     [Fact]
@@ -204,6 +276,13 @@ public sealed class IncomeFormViewModelTests
     {
         _repository.Incomes[income.Id] = income;
         return income;
+    }
+
+    private IncomeAmountHistory AddAmount(Guid incomeId, decimal amount, DateOnly effectiveDate)
+    {
+        var history = new IncomeAmountHistory { RecurringIncomeId = incomeId, Amount = amount, EffectiveDate = effectiveDate };
+        _repository.Amounts.Add(history);
+        return history;
     }
 
     private void Fill(string name, string amount, string day)

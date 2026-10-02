@@ -39,6 +39,21 @@ public static class IncomeFormStrings
     /// <summary>Formdan çıkan buton.</summary>
     public const string Aksiyon_Vazgec = "Vazgeç";
 
+    /// <summary>Tarih metni biçimi: "{0} itibarıyla".</summary>
+    public const string Bicim_Itibariyla = "{0} itibarıyla";
+
+    /// <summary>Tutar değişikliği giriş bloğunu açan buton.</summary>
+    public const string Aksiyon_TutarDegisikligiEkle = "Tutar değişikliği ekle";
+
+    /// <summary>Yeni tutar girişinin etiketi.</summary>
+    public const string Etiket_YeniTutar = "YENİ TUTAR";
+
+    /// <summary>Yeni tutarın geçerlilik tarihi etiketi.</summary>
+    public const string Etiket_GecerlilikTarihi = "GEÇERLİLİK TARİHİ";
+
+    /// <summary>Tutar değişikliğini listeye ekleyen buton.</summary>
+    public const string Aksiyon_Ekle = "Ekle";
+
     /// <summary>Düzenlenecek gelir okunamadığında gösterilen hata.</summary>
     public const string Hata_GelirYuklenemedi = "Gelir bilgileri okunamadı.";
 }

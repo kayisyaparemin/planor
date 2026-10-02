@@ -29,11 +29,17 @@ public sealed class InMemoryRecurringIncomeRepository : IRecurringIncomeReposito
     }
 
     public Task UpsertRecurringIncomeWithAmountsAsync(
-        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, IReadOnlyList<Guid> removedAmountIds,
+        CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         CombinedWriteCount++;
         _incomes[income.Id] = income;
+        foreach (var id in removedAmountIds.Where(id => _histories.TryGetValue(id, out var x) && x.RecurringIncomeId == income.Id))
+        {
+            _histories.Remove(id);
+        }
+
         foreach (var amount in newAmounts)
         {
             _histories[amount.Id] = amount;

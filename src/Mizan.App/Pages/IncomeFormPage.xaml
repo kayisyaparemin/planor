@@ -5,15 +5,38 @@
              xmlns:icons="clr-namespace:Mizan.App.Icons"
              xmlns:strings="clr-namespace:Mizan.App.Resources"
              xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
              xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
              x:Class="Mizan.App.Pages.IncomeFormPage"
              x:DataType="vm:IncomeFormViewModel"
              AutomationId="{x:Static auto:RecordFormAutomationIds.PageIncomeForm}">
 
-    <!-- EK-V6d: Düzenli gelir formu (V6d1 tanım). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <!-- EK-V6d: Düzenli gelir formu (V6d1 tanım, V6d2 tutar değişiklikleri). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
     <Shell.BackButtonBehavior>
         <BackButtonBehavior Command="{Binding CancelCommand}" />
     </Shell.BackButtonBehavior>
+
+    <ContentPage.Resources>
+        <!-- Tutar satırı: tarih itibarıyla · tutar; dokununca silme veya bilgi sorulur (S67-5) -->
+        <DataTemplate x:Key="TutarSatiri"
+                      x:DataType="models:IncomeAmountRow">
+            <Grid ColumnDefinitions="*, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:IncomeFormViewModel}}, Path=Amounts.SelectCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <Label Text="{Binding EffectiveDate, Converter={StaticResource Tarih}, ConverterParameter='d MMMM yyyy', StringFormat={x:Static strings:IncomeFormStrings.Bicim_Itibariyla}}"
+                       FontSize="{StaticResource TypeBody}"
+                       TextColor="{DynamicResource TextSecondary}"
+                       VerticalTextAlignment="Center" />
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
 
     <ScrollView>
         <VerticalStackLayout Spacing="{StaticResource Space4}"
@@ -68,6 +91,69 @@
                                    Keyboard="Numeric"
                                    AutomationId="{x:Static auto:RecordFormAutomationIds.InputIncomePaymentDay}" />
                         </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S2: tutar değişiklikleri; ≤ 4 satır, fazlası yerinde açılır (GS21); yalnız düzenlemede -->
+                <comp:ListCard EyebrowText="{x:Static strings:IncomeFormStrings.Etiket_AylikNetTutar}"
+                               ItemsSource="{Binding Amounts.Items}"
+                               ItemTemplate="{StaticResource TutarSatiri}"
+                               OverflowText="{Binding Amounts.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Amounts.ExpandCommand}"
+                               IsVisible="{Binding Amounts.HasItems}"
+                               AutomationId="{x:Static auto:RecordFormAutomationIds.ListIncomeAmounts}" />
+
+                <!-- S3: giriş kapalıyken aksiyon görünür; yalnız düzenlemede -->
+                <Button Text="{x:Static strings:IncomeFormStrings.Aksiyon_TutarDegisikligiEkle}"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding Amounts.OpenEntryCommand}"
+                        AutomationId="{x:Static auto:RecordFormAutomationIds.BtnOpenIncomeAmount}"
+                        IsVisible="{Binding IsEditing}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding Amounts.IsEntryOpen}" Value="True">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!-- S3: tutar girişi; yeni tutar ve bugünden sonraki geçerlilik tarihi (S67-5) -->
+                <Border IsVisible="{Binding Amounts.IsEntryOpen}">
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:IncomeFormStrings.Etiket_YeniTutar}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Text="{Binding Amounts.AmountInput}"
+                                       Placeholder="{x:Static strings:IncomeFormStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:RecordFormAutomationIds.InputIncomeNewAmount}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:IncomeFormStrings.Etiket_GecerlilikTarihi}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <DatePicker Date="{Binding Amounts.EntryDate, Converter={StaticResource TarihSecici}}"
+                                            MinimumDate="{Binding Amounts.MinimumDate, Converter={StaticResource TarihSecici}}"
+                                            Format="dd.MM.yyyy"
+                                            BackgroundColor="{DynamicResource SurfaceSunken}"
+                                            TextColor="{DynamicResource TextPrimary}"
+                                            FontSize="{StaticResource TypeBody}"
+                                            AutomationId="{x:Static auto:RecordFormAutomationIds.PickerIncomeEffectiveDate}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <Button Text="{x:Static strings:IncomeFormStrings.Aksiyon_Ekle}"
+                                    Command="{Binding Amounts.AddCommand}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.BtnAddIncomeAmount}" />
+                            <Button Grid.Column="1"
+                                    Text="{x:Static strings:IncomeFormStrings.Aksiyon_Vazgec}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding Amounts.CancelEntryCommand}"
+                                    AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelIncomeAmount}" />
+                        </Grid>
                     </VerticalStackLayout>
                 </Border>
 

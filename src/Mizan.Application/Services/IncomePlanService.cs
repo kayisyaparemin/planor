@@ -11,7 +11,8 @@ namespace Mizan.Application.Services;
 public sealed class IncomePlanService(
     IRecurringIncomeRepository recurringIncomeRepository,
     IAdHocIncomeRepository adHocIncomeRepository,
-    IPlanChangeRecorder planChangeRecorder) : IIncomePlanService
+    IPlanChangeRecorder planChangeRecorder,
+    IClock clock) : IIncomePlanService
 {
     private const string IncomeChangeTrigger = "Gelir planı değişti";
     private const string AmountMustBePositiveMessage = "Gelir tutarı sıfırdan büyük olmalıdır.";
@@ -22,23 +23,31 @@ public sealed class IncomePlanService(
         adHocIncomeRepository ?? throw new ArgumentNullException(nameof(adHocIncomeRepository));
     private readonly IPlanChangeRecorder _planChangeRecorder =
         planChangeRecorder ?? throw new ArgumentNullException(nameof(planChangeRecorder));
+    private readonly IClock _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
     /// <inheritdoc />
     public async Task SaveRecurringIncomeAsync(
-        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, IReadOnlyList<Guid> removedAmountIds,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(income);
         ArgumentNullException.ThrowIfNull(newAmounts);
+        ArgumentNullException.ThrowIfNull(removedAmountIds);
         cancellationToken.ThrowIfCancellationRequested();
 
         CalendarRules.ValidateDay(income.PaymentDay);
-        if (newAmounts.Any(x => x.Amount <= 0m))
+        var bound = newAmounts.Select(x => x with { RecurringIncomeId = income.Id }).ToArray();
+        var existing = (await _recurringIncomeRepository.GetIncomeAmountHistoriesAsync(cancellationToken))
+            .Where(x => x.RecurringIncomeId == income.Id)
+            .ToArray();
+
+        // Ekran aynı kuralları uygular; burada ekran dışından gelen çağrı da reddedilir (S67 V6d2 notları c).
+        if (IncomeAmountRules.CheckChange(existing, bound, removedAmountIds, _clock.Today) is { } error)
         {
-            throw new InvalidOperationException(AmountMustBePositiveMessage);
+            throw new InvalidOperationException(error);
         }
 
-        var bound = newAmounts.Select(x => x with { RecurringIncomeId = income.Id }).ToArray();
-        await _recurringIncomeRepository.UpsertRecurringIncomeWithAmountsAsync(income, bound, cancellationToken);
+        await _recurringIncomeRepository.UpsertRecurringIncomeWithAmountsAsync(income, bound, removedAmountIds, cancellationToken);
         await _planChangeRecorder.RecordChangeAsync(IncomeChangeTrigger, cancellationToken);
     }
 

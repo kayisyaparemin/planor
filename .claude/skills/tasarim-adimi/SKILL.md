@@ -16,6 +16,11 @@ kendin seçme.
 
 Aşama 1 (keşif) ile başla; ilk cümlede adımı plandaki adıyla söyle.
 
+**Kaynağı eski proje olmayan adımlar** (plandaki satır "kaynak eski proje değil" diyorsa):
+`/tasima-adimi`'deki kural geçerli, eski repoya bakılmaz. Aşama 1 bu repodaki sayfayı (varsa) ve
+plandaki konsept görüntülerini okur; "eski ekran bu soruları nasıl cevaplıyordu?" sorusu bugünkü
+sayfa için sorulur.
+
 # İş Akışı — Bir Ekran Adımı
 
 Faz V adımları (`V0`–`V13`) bu protokolle yürür. **On aşama vardır ve hiçbiri atlanamaz.**

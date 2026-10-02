@@ -129,4 +129,22 @@ public static class RecordFormAutomationIds
 
     /// <summary>Gelir formu: vazgeç butonu kimliği.</summary>
     public const string BtnCancelIncome = "btn-cancel-income";
+
+    /// <summary>Gelir formu: tutar değişiklikleri listesi kimliği.</summary>
+    public const string ListIncomeAmounts = "list-income-amounts";
+
+    /// <summary>Gelir formu: tutar değişikliği girişini açan buton kimliği.</summary>
+    public const string BtnOpenIncomeAmount = "btn-open-income-amount";
+
+    /// <summary>Gelir formu: yeni tutar girişi kimliği.</summary>
+    public const string InputIncomeNewAmount = "input-income-new-amount";
+
+    /// <summary>Gelir formu: geçerlilik tarihi seçicisi kimliği.</summary>
+    public const string PickerIncomeEffectiveDate = "picker-income-effective-date";
+
+    /// <summary>Gelir formu: tutar değişikliğini listeye ekleyen buton kimliği.</summary>
+    public const string BtnAddIncomeAmount = "btn-add-income-amount";
+
+    /// <summary>Gelir formu: tutar değişikliği girişini kapatan buton kimliği.</summary>
+    public const string BtnCancelIncomeAmount = "btn-cancel-income-amount";
 }

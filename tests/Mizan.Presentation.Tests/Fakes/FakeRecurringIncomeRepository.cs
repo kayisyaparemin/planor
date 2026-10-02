@@ -27,7 +27,8 @@ internal sealed class FakeRecurringIncomeRepository : IRecurringIncomeRepository
     }
 
     public Task UpsertRecurringIncomeWithAmountsAsync(
-        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, CancellationToken cancellationToken = default)
+        RecurringIncome income, IReadOnlyList<IncomeAmountHistory> newAmounts, IReadOnlyList<Guid> removedAmountIds,
+        CancellationToken cancellationToken = default)
     {
         if (WriteException is not null)
         {
@@ -36,6 +37,7 @@ internal sealed class FakeRecurringIncomeRepository : IRecurringIncomeRepository
 
         CombinedWriteCount++;
         Incomes[income.Id] = income;
+        Amounts.RemoveAll(x => x.RecurringIncomeId == income.Id && removedAmountIds.Contains(x.Id));
         Amounts.AddRange(newAmounts);
         return Task.CompletedTask;
     }

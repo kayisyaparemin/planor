@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V3b** — "Bakiye gir" sayfası: tarihli giriş, canlı önizleme, önce kapanış (S73, GS25); `V3` kapandı |
-| Sıradaki adım | açık alt adım **V6d2** — gelir formuna tutar değişiklikleri |
-| Test sayısı | 1798 |
+| Son tamamlanan adım | **V6d2** — gelir formuna tutar değişiklikleri (S67, EK-V6d); `V6d`'nin 2. alt adımı tamamlandı |
+| Sıradaki adım | açık alt adım **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih) |
+| Test sayısı | 1853 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6d2 — gelir formu: tutar değişiklikleri listesi, yeni tutar girişi, planlı değişikliği silme; kararlar `S67`'de
+
+Kayıtlı bir gelirin düzenlenmesinde tutar geçmişi ve planlı değişiklikler ekrana bağlandı (`IncomeAmountsViewModel`, `CardChargesViewModel` deseniyle port almaz, formu 5 bağımlılıkta tutar). Yürürlükteki tutar ve ileri tarihli değişiklikler (simülatörden gelenler dahil) `ListCard`'da listelenir (en fazla 4 satır, fazlası "+N daha" ile yerinde açılır, `GS21`).
+Giriş bloğu ("Tutar değişikliği ekle") yeni tutar ve geçerlilik tarihini alır (varsayılan bugünden sonraki ilk ödeme günü, `S67` V6d2 notları b). Satıra dokununca ileri tarihli tutar için "Tutar değişikliği" silme diyaloğu açılır; yürürlükteki tutar silinmez, bilgi uyarısı verir. "En az bir tutar kalır" kuralı silerken değil Kaydet'te denetlenir (`S67` a); yanlış girilen ilk tutar silinip aynı güne yenisi girilebilir. Kurallar Domain'de tek yerdedir (`IncomeAmountRules`).
+Silme ve yeni tutarlar gelirle aynı işlemde tek revizyonla yazılır (`IIncomePlanService.SaveRecurringIncomeAsync`, `I78`, `I79`).
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 3/4 (form kartı, tutarlar ListCard + giriş bloğu; analizci 1), Grafik 0/1, NavRow 0/5, Label 7/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 55 yeni test (23 Domain, 13 Application, 11 Presentation, 8 Infrastructure); toplam 1.853 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V3b — "Bakiye gir" sayfası: tarihli giriş, canlı önizleme, önce kapanış; kararlar `S73`, `GS25`'te
 
