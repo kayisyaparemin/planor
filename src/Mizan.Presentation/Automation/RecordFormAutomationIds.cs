@@ -147,4 +147,22 @@ public static class RecordFormAutomationIds
 
     /// <summary>Gelir formu: tutar değişikliği girişini kapatan buton kimliği.</summary>
     public const string BtnCancelIncomeAmount = "btn-cancel-income-amount";
+
+    /// <summary>Tek seferlik gelir formu sayfası kimliği.</summary>
+    public const string PageAdHocIncomeForm = "page-ad-hoc-income-form";
+
+    /// <summary>Tek seferlik gelir formu: açıklama girişi kimliği.</summary>
+    public const string InputAdHocIncomeDescription = "input-ad-hoc-income-description";
+
+    /// <summary>Tek seferlik gelir formu: tutar girişi kimliği.</summary>
+    public const string InputAdHocIncomeAmount = "input-ad-hoc-income-amount";
+
+    /// <summary>Tek seferlik gelir formu: tarih seçicisi kimliği.</summary>
+    public const string PickerAdHocIncomeDate = "picker-ad-hoc-income-date";
+
+    /// <summary>Tek seferlik gelir formu: kaydet butonu kimliği.</summary>
+    public const string BtnSaveAdHocIncome = "btn-save-ad-hoc-income";
+
+    /// <summary>Tek seferlik gelir formu: vazgeç butonu kimliği.</summary>
+    public const string BtnCancelAdHocIncome = "btn-cancel-ad-hoc-income";
 }

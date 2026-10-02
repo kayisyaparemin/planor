@@ -21,6 +21,7 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
     private const string EditText = "Düzenle";
     private const string AddTitle = "Ne eklemek istiyorsun?";
     private const string RecurringIncomeText = "Düzenli gelir";
+    private const string AdHocIncomeText = "Tek seferlik gelir";
     private const string CreditCardText = "Kredi kartı";
     private const string LoanText = "Kredi";
     private const string DeleteConfirmTitle = "Kaydı sil";
@@ -74,10 +75,12 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddAsync()
     {
-        var choice = await _dialogService.ChooseAsync(AddTitle, CancelText, null, RecurringIncomeText, CreditCardText, LoanText);
+        var choice = await _dialogService.ChooseAsync(
+            AddTitle, CancelText, null, RecurringIncomeText, AdHocIncomeText, CreditCardText, LoanText);
         var route = choice switch
         {
             RecurringIncomeText => Routes.IncomeForm,
+            AdHocIncomeText => Routes.AdHocIncomeForm,
             CreditCardText => Routes.CardForm,
             LoanText => Routes.LoanForm,
             _ => null
@@ -89,8 +92,8 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme, kartta, kredide ve düzenli
-    /// gelirde düzenleme, her türde silme.
+    /// Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme, kartta, kredide ve gelirlerde
+    /// düzenleme, her türde silme.
     /// </summary>
     [RelayCommand]
     private async Task SelectRecordAsync(FinancialRecordRow? row)
@@ -103,7 +106,7 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
         string[] options = row.Kind switch
         {
             FinancialRecordKind.CreditCard => [ManagePaymentText, EditText],
-            FinancialRecordKind.Loan or FinancialRecordKind.RecurringIncome => [EditText],
+            FinancialRecordKind.Loan or FinancialRecordKind.RecurringIncome or FinancialRecordKind.AdHocIncome => [EditText],
             _ => []
         };
         var choice = await _dialogService.ChooseAsync(row.Name, CancelText, DeleteText, options);
@@ -127,6 +130,7 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
         {
             FinancialRecordKind.Loan => (Routes.LoanForm, Routes.LoanIdParameter),
             FinancialRecordKind.RecurringIncome => (Routes.IncomeForm, Routes.IncomeIdParameter),
+            FinancialRecordKind.AdHocIncome => (Routes.AdHocIncomeForm, Routes.AdHocIncomeIdParameter),
             _ => (Routes.CardForm, Routes.CardIdParameter)
         };
         return _navigationService.NavigateToAsync(route, new Dictionary<string, object> { [parameter] = row.Id });

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.AdHocIncomeFormPage"
+             x:DataType="vm:AdHocIncomeFormViewModel"
+             AutomationId="{x:Static auto:RecordFormAutomationIds.PageAdHocIncomeForm}">
+
+    <!-- EK-V6d: Tek seferlik gelir formu (V6d3). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S4: yeni tek seferlik gelir ya da düzenleme -->
+            <comp:PageHeader Title="{x:Static strings:IncomeFormStrings.Baslik_TekSeferlikGelir}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding IsEditing}" Value="True">
+                        <Setter Property="Title" Value="{x:Static strings:IncomeFormStrings.Baslik_GeliriDuzenle}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: tek seferlik gelirin tanımı + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S4: form kartı; açıklama, tutar ve tarih (S67-6) -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:IncomeFormStrings.Etiket_Aciklama}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Description}"
+                                   Placeholder="{x:Static strings:IncomeFormStrings.YerTutucu_Aciklama}"
+                                   AutomationId="{x:Static auto:RecordFormAutomationIds.InputAdHocIncomeDescription}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:IncomeFormStrings.Etiket_Tutar}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Text="{Binding AmountInput}"
+                                       Placeholder="{x:Static strings:IncomeFormStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:RecordFormAutomationIds.InputAdHocIncomeAmount}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:IncomeFormStrings.Etiket_Tarih}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <DatePicker Date="{Binding ExactDate, Converter={StaticResource TarihSecici}}"
+                                            MinimumDate="{Binding MinimumDate, Converter={StaticResource TarihSecici}}"
+                                            Format="dd.MM.yyyy"
+                                            BackgroundColor="{DynamicResource SurfaceSunken}"
+                                            TextColor="{DynamicResource TextPrimary}"
+                                            FontSize="{StaticResource TypeBody}"
+                                            AutomationId="{x:Static auto:RecordFormAutomationIds.PickerAdHocIncomeDate}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S4: kaydet geliri yazar ve listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:IncomeFormStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnSaveAdHocIncome}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:IncomeFormStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:RecordFormAutomationIds.BtnCancelAdHocIncome}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek gelir okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:IncomeFormStrings.Hata_GelirYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding RetryCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

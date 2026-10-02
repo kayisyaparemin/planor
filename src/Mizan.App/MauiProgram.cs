@@ -169,32 +169,28 @@ public static class MauiProgram
     {
         services.AddTransient<AppShellViewModel>();
         services.AddTransient<AppShell>();
-
         services.AddTransient<ProfileSelectionViewModel>();
         services.AddTransient<ProfileSelectionPage>();
-
         services.AddTransient<ReminderCardViewModel>();
         services.AddTransient<DashboardViewModel>();
         services.AddTransient<DashboardPage>();
         services.AddTransient<BalanceEntryViewModel>();
         services.AddTransient<BalanceEntryPage>();
-
         services.AddTransient<OnboardingViewModel>();
         services.AddTransient<OnboardingPage>();
-
         services.AddTransient<CardControlViewModel>();
         services.AddTransient<CardControlPage>();
-
         services.AddTransient<FinancialRecordRowBuilder>();
         services.AddTransient<FinancialRecordRemover>();
         services.AddTransient<FinancialStructureViewModel>();
         services.AddTransient<FinancialStructurePage>();
-
         services.AddTransient<CardFormViewModel>();
         services.AddTransient<CardFormPage>();
         services.AddTransient<LoanFormViewModel>();
         services.AddTransient<LoanFormPage>();
         services.AddTransient<IncomeFormViewModel>();
         services.AddTransient<IncomeFormPage>();
+        services.AddTransient<AdHocIncomeFormViewModel>();
+        services.AddTransient<AdHocIncomeFormPage>();
     }
 }

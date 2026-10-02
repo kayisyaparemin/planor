@@ -100,7 +100,7 @@ public sealed class FinancialStructureViewModelTests
 
         await _viewModel.AddCommand.ExecuteAsync(null);
 
-        Assert.Equal(["Düzenli gelir", "Kredi kartı", "Kredi"], _dialog.LastChooseOptions);
+        Assert.Equal(["Düzenli gelir", "Tek seferlik gelir", "Kredi kartı", "Kredi"], _dialog.LastChooseOptions);
         Assert.Null(_dialog.LastChooseDestruction);
         Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
         Assert.Null(_navigation.LastParameters);
@@ -114,6 +114,17 @@ public sealed class FinancialStructureViewModelTests
         await _viewModel.AddCommand.ExecuteAsync(null);
 
         Assert.Equal(Routes.IncomeForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task Add_TekSeferlikGelirSecilince_AdHocGelirFormunuKimliksizAcar()
+    {
+        _dialog.NextChooseResponse = "Tek seferlik gelir";
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.Equal(Routes.AdHocIncomeForm, _navigation.LastNavigatedRoute);
         Assert.Null(_navigation.LastParameters);
     }
 
@@ -141,6 +152,33 @@ public sealed class FinancialStructureViewModelTests
 
         Assert.Equal(Routes.IncomeForm, _navigation.LastNavigatedRoute);
         Assert.Equal(income.Id.ToString(), _navigation.LastParameters?[Routes.IncomeIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
+    public async Task SelectRecord_TekSeferlikGelir_DuzenleVeSilSunar()
+    {
+        var adHoc = new AdHocIncome { Description = "İkramiye", Amount = 15_000m, ExactDate = Today.AddDays(10) };
+        var row = await LoadWith(new FinancialPlan { AdHocIncomes = [adHoc] }, vm => vm.Incomes);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal("İkramiye", _dialog.LastChooseTitle);
+        Assert.Equal(["Düzenle"], _dialog.LastChooseOptions);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_TekSeferlikGelirDuzenle_AdHocIncomeFormunuKimligiyleAcar()
+    {
+        var adHoc = new AdHocIncome { Description = "İkramiye", Amount = 15_000m, ExactDate = Today.AddDays(10) };
+        var row = await LoadWith(new FinancialPlan { AdHocIncomes = [adHoc] }, vm => vm.Incomes);
+        _dialog.NextChooseResponse = "Düzenle";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal(Routes.AdHocIncomeForm, _navigation.LastNavigatedRoute);
+        Assert.Equal(adHoc.Id.ToString(), _navigation.LastParameters?[Routes.AdHocIncomeIdParameter].ToString());
         Assert.Equal(0, _dialog.ConfirmCount);
     }
 

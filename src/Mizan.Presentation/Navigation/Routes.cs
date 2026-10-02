@@ -47,6 +47,12 @@ public static class Routes
     /// <summary>Gelir formunun hangi düzenli geliri düzenleyeceğini taşıyan sorgu parametresi.</summary>
     public const string IncomeIdParameter = "incomeId";
 
+    /// <summary>Tek seferlik gelir ekleme / düzenleme formu rotası; <see cref="AdHocIncomeIdParameter"/> verilirse düzenleme.</summary>
+    public const string AdHocIncomeForm = "ad-hoc-income-form";
+
+    /// <summary>Tek seferlik gelir formunun hangi geliri düzenleyeceğini taşıyan sorgu parametresi.</summary>
+    public const string AdHocIncomeIdParameter = "adHocIncomeId";
+
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";
 

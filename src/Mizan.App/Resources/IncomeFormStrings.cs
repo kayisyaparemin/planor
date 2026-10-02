@@ -12,11 +12,26 @@ public static class IncomeFormStrings
     /// <summary>Yeni düzenli gelir eklerken sayfa başlığı.</summary>
     public const string Baslik_YeniGelir = "Yeni Gelir";
 
+    /// <summary>Yeni tek seferlik gelir eklerken sayfa başlığı.</summary>
+    public const string Baslik_TekSeferlikGelir = "Tek Seferlik Gelir";
+
     /// <summary>Var olan geliri düzenlerken sayfa başlığı.</summary>
     public const string Baslik_GeliriDuzenle = "Geliri Düzenle";
 
     /// <summary>Gelir adı alanının etiketi.</summary>
     public const string Etiket_GelirAdi = "GELİR ADI";
+
+    /// <summary>Tek seferlik gelir açıklama alanının etiketi.</summary>
+    public const string Etiket_Aciklama = "AÇIKLAMA";
+
+    /// <summary>Tutar alanının etiketi.</summary>
+    public const string Etiket_Tutar = "TUTAR";
+
+    /// <summary>Tarih alanının etiketi.</summary>
+    public const string Etiket_Tarih = "TARİH";
+
+    /// <summary>Tek seferlik gelir açıklama alanının yer tutucusu.</summary>
+    public const string YerTutucu_Aciklama = "Örn. Yıl sonu primi, vergi iadesi";
 
     /// <summary>Yeni gelirin aylık net tutarı alanının etiketi.</summary>
     public const string Etiket_AylikNetTutar = "AYLIK NET TUTAR";

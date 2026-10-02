@@ -4,15 +4,21 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6d2** — gelir formuna tutar değişiklikleri (S67, EK-V6d); `V6d`'nin 2. alt adımı tamamlandı |
-| Sıradaki adım | açık alt adım **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih) |
-| Test sayısı | 1853 |
+| Son tamamlanan adım | **V6d3** — tek seferlik gelir formu (S67, S62, EK-V6d); `V6d` tamamlandı |
+| Sıradaki adım | **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama |
+| Test sayısı | 1872 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6d3 — tek seferlik gelir formu (`AdHocIncomeFormPage`): açıklama, tutar, tarih; ekle / düzenle; kararlar `S67`, `S62`'de
+
+Tek seferlik gelirlerin (prim, ikramiye, satış vb.) eklenmesi ve düzenlenmesi müstakil bir form sayfasına taşındı (`AdHocIncomeFormViewModel` 5 bağımlılıkta: repository, income service, nav, dialog, clock; Kural M3). Form tek bir `SurfaceCard` içinde açıklama (zorunlu), tutar (> 0, Türkçe sayı okuyucu) ve tarih (DatePicker ≥ bugün, varsayılan bugün) alanlarını toplar (`S67`-6).
+Finansal Yapı başlığındaki "Ekle" seçicisine listenin grup sırasıyla "Tek seferlik gelir" eklendi; listedeki tek seferlik gelir satırlarına dokununca açılan seçeneklere "Düzenle" geldi (`S62`-2). Kayıt `SaveAdHocIncomeAsync` ile depolanır ve tek revizyon üretir. Düzenlemede var olan gelirin üzerine `with` ile yazılır. Değişiklik varsa çıkışta onay sorulur (`S67`-7).
+Bütçe: Hero rakam 0/1, Hero yüzey 0/1, Kart 1/4 (form kartı Border), Grafik 0/1, NavRow 0/5, Label 3/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 19 yeni test (16 Presentation AdHoc, 3 FinancialStructure); toplam 1.872 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V6d2 — gelir formu: tutar değişiklikleri listesi, yeni tutar girişi, planlı değişikliği silme; kararlar `S67`'de
 

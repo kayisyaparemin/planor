@@ -1346,10 +1346,10 @@ gösterme fikri `EK-V7`'den. Renk ve ses Planör marka token'larından (`GS7`).
 > Adım **V6d** üç alt adımda: `V6d1` düzenli gelirin tanımı + "Ekle" / "Düzenle", `V6d2` tutar
 > değişiklikleri, `V6d3` tek seferlik gelir. Kapı A ve B ortak (iki sayfa), Kapı C her alt adımda ayrı.
 > Davranış kararları: `S67`.
-> **V6d1 ve V6d2 tamamlandı** (Kapı C onaylı): form kartı (gelir adı, yeni gelirde aylık net tutar, ödeme günü),
+> **V6d1, V6d2 ve V6d3 tamamlandı** (Kapı C onaylı): form kartı (gelir adı, yeni gelirde aylık net tutar, ödeme günü),
 > tutar değişiklikleri listesi (yürürlükteki ve ileri tarihliler), yeni tutar girişi ve planlı tutar silme,
-> Kaydet / Vazgeç, Finansal Yapı'da "Ekle → Düzenli gelir" ve düzenli gelir satırında "Düzenle"; gelir ve
-> tutarları tek işlemde yazılır, tutar yatış gününe göre çözülür (`S67`-2–5, `S67` V6d2 notları, `I4`, `I78`, `I79`).
+> tek seferlik gelir formu (açıklama, tutar, tarih), Kaydet / Vazgeç, Finansal Yapı'da "Ekle → Düzenli gelir / Tek seferlik gelir"
+> ve gelir satırında "Düzenle"; gelir ve tutarları tek işlemde yazılır, tutar yatış gününe göre çözülür (`S67`-2–6, `S67` V6d2 notları, `I4`, `I78`, `I79`).
 > Not: kart anahtarı ayrıştırıcısı (`EK-V\d+`) harf ekini tanımaz; bu kart GK9'da `EK-V6`'nın
 > gövdesi olarak okunur (`EK-V6b`, `EK-V6c` ile aynı).
 
@@ -1558,7 +1558,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
 | EK-V6c | Kredi formu | 14 | 16 | ✅ V6c1 + V6c2 + V6c3 |
-| EK-V6d | Gelir formu | 14 | 7 | 🟡 V6d1 + V6d2 (V6d3 açık) |
+| EK-V6d | Gelir formu | 14 | 7 + 3 | ✅ V6d1 + V6d2 + V6d3 |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |

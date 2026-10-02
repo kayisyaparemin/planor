@@ -7,9 +7,17 @@ namespace Mizan.Presentation.Tests.Fakes;
 internal sealed class FakeAdHocIncomeRepository : IAdHocIncomeRepository
 {
     public Dictionary<Guid, AdHocIncome> Incomes { get; } = [];
+    public Exception? ThrowOnGet { get; set; }
 
-    public Task<IReadOnlyList<AdHocIncome>> GetAdHocIncomesAsync(CancellationToken cancellationToken = default) =>
-        Task.FromResult<IReadOnlyList<AdHocIncome>>(Incomes.Values.ToList());
+    public Task<IReadOnlyList<AdHocIncome>> GetAdHocIncomesAsync(CancellationToken cancellationToken = default)
+    {
+        if (ThrowOnGet is not null)
+        {
+            throw ThrowOnGet;
+        }
+
+        return Task.FromResult<IReadOnlyList<AdHocIncome>>(Incomes.Values.ToList());
+    }
 
     public Task UpsertAdHocIncomeAsync(AdHocIncome income, CancellationToken cancellationToken = default)
     {

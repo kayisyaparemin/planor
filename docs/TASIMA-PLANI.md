@@ -386,14 +386,14 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           planlarının taksitlerini, gelir kaydında tutar geçmişini siliyor — `/duzeltme` işi. Kredi formunun
           kaydı tek işleme geçtiği için bu yoldan artık silinmiyor. **Düzeltildi** (tür B, `I73`–`I77`):
           `INSERT OR REPLACE` yasaklandı, kapanış kartları ve taksitleri de yazıyor.)*
-  - [ ] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir. Aşama 1'de ~800 satır
+  - [x] **V6d** — gelir formu: düzenli gelir, tutar değişikliği, tek seferlik gelir. Aşama 1'de ~800 satır
         çıktığı için üçe bölündü; Kapı A ve B ortak, Kapı C her alt adımda ayrı.
     - [x] **V6d1** — `IncomeFormPage`: düzenli gelirin tanımı (ad, ödeme günü; yeni gelirde aylık net tutar),
           ekle / düzenle; Finansal Yapı "Ekle"de "Düzenli gelir", gelir satırında "Düzenle"; gelir ve
           tutarı tek işlemde kaydedilir
     - [x] **V6d2** — aynı sayfaya tutar değişiklikleri: yürürlükteki ve ileri tarihli tutarlar
           (simülatörden gelenler dahil), yeni tutar girişi, planlı değişikliği silme
-    - [ ] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
+    - [x] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
           "Ekle"de "Tek seferlik gelir"
   - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
 - [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*
