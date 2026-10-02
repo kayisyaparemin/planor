@@ -27,7 +27,8 @@ internal static class ScreenCardDocument
     private static readonly HashSet<string> HeadlessExceptions = new(StringComparer.OrdinalIgnoreCase)
     {
         "EK-V0", // Kabuk ve altyapı: AppShell bir sayfa değildir (GK9 istisnası).
-        "EK-V2"  // Hatırlatıcı kartı: sayfasız çocuk ViewModel, ReminderCard bileşenidir.
+        "EK-V2", // Hatırlatıcı kartı: sayfasız çocuk ViewModel, ReminderCard bileşenidir.
+        "EK-V5"  // İlk düzen seçimi: taşınmadan elendi (S18, S62), sayfası yoktur.
     };
 
     /// <summary>

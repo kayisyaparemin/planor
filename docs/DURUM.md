@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama (S65, EK-V6e); `V6` tamamlandı |
-| Sıradaki adım | **V5** — ilk düzen seçimi (ya da TASIMA-PLANI.md sırasındaki adım) |
+| Son tamamlanan adım | **V5** — ilk düzen seçimi: taşınmadan elendi (S18, S62, S47; EK-V5); sayfası ve kodu yoktur, bütçe 0 |
+| Sıradaki adım | **V8** — 12 dönem (ya da TASIMA-PLANI.md sırasındaki adım) |
 | Test sayısı | 1901 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
@@ -13,6 +13,12 @@
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V5 — ilk düzen seçimi: taşınmadan elendi (S18, S62, S47; EK-V5); sayfası ve kodu yoktur, bütçe 0
+
+Eski projedeki `InitialStrategyPage.xaml` (46 satır / 6 Label, 2 Border, 2 RadioButton, 1 Button; harcamaları yapay olarak geçmiş/gelecek döneme kaydıran düzen seçimi), Mizan v2'nin bağımsız dönem çapası (`S1`), çoklu düzenli gelir akışı (`S2`) ve doğal dönemsellik (`S18`, `I16`) ilkeleri doğrultusunda bütünüyle elendi (taşımama hakkı).
+Vadesi `[PeriodStart, PeriodEnd)` aralığına düşen her kalem istisnasız o döneme aittir; likidite farkları dönem içi bakiye rotası ve KMH faiziyle izlenir (`S71`). İlgili Application portları (`GetInitialPaymentStrategySetupAsync`, `CompleteInitialPaymentStrategySetupAsync`) zaten `S47` ile elenmişti.
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 0/4, Grafik 0/1, NavRow 0/5, Label 0/28, Cümle 0/3. Sayfa ve ViewModel üretilmedi. Görsel kontrol: kullanıcı onayladı (sayfa üretilmedi). Toplam 1.901 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V6e — ödeme formu: taksitli ödeme planı (`PaymentPlanFormPage`) + planlı büyük harcama (`PlannedExpenseFormPage`); kararlar `S65`, `S62`, `EK-V6e`'de; `V6` tamamlandı
 

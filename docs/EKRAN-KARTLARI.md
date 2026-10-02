@@ -742,6 +742,20 @@ Genel Sayfa Düzeni:
 
 Konsept panellerindeki *Kurulum (8/8 özeti)* paneli doğrudan referanstır. 8 adımlı ilerleme çubuğu, temiz kart kutusu ve 8. adımdaki metrik özet dökümü konsept yerleşimiyle birebir uyumludur. Paletteki sarı/lacivert renkler emekli edilmiş olup Planör marka token'ları (`ActionFill`, `SurfaceCard`, `Indicator`) kullanılmıştır (`GS7`).
 
+---
+
+## EK-V5 — İlk düzen seçimi
+
+> **Taşınmadan elendi (Taşımama hakkı: `S18`, `S47`, `S62`).** Sayfası yoktur (GK9 istisnası).
+> Eski projedeki `InitialStrategyPage.xaml` (harcamaları yapay olarak geçmiş/gelecek döneme kaydıran düzen seçimi),
+> Mizan v2'deki bağımsız dönem çapası (`S1`), çoklu gelir akışı (`S2`) ve **doğal dönemsellik** (`S18`, `I16`)
+> ilkeleri doğrultusunda bütünüyle kaldırılmıştır. Yarı açık `[PeriodStart, PeriodEnd)` aralığına vadesi
+> düşen her kalem istisnasız o döneme aittir. Likidite ve vade farkları bütçe kaydırmayla değil, dönem içi
+> bakiye rotası ve KMH faiziyle izlenir (`S71`).
+> Bu sebeple arayüzde bir düzen seçimi sayfası veya modalı üretilmemiştir.
+
+---
+
 ## EK-V7 — Kart kontrol
 
 > Sayfa dosyası: `CardControlPage.xaml`
@@ -1608,9 +1622,6 @@ Büyük Harcama Formu (`PlannedExpenseFormPage.xaml`):
 
 Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `EK-V6b` ve `EK-V6d`'den; taksit `ListCard`'ı ve giriş bloğu `EK-V6b2` (gelecek harcamalar) deseniyle aynıdır.
 
-### EK-V5 — İlk düzen seçimi
-Konsept karşılığı **yok.** `V6`'ya dayanır.
-
 ### EK-V8 — 12 dönem
 Konsept karşılığı **var** (Simülatör panelindeki dönem kartları deseni). Grafik adayı:
 `AreaTrend` — "seviye 12 dönemde eşiğin altına iniyor mu?"
@@ -1649,7 +1660,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V3 | Ana sayfa | 54 | 25 | ✅ V3a |
 | EK-V3 | "Bakiye gir" (sayfa 2) | — | 11 | ✅ V3b |
 | EK-V4 | Kurulum | 77 | | ⬜ |
-| EK-V5 | İlk düzen | 6 | | ⬜ |
+| EK-V5 | İlk düzen | 6 | 0 | ➖ Elendi (S18) |
 | EK-V6 | Finansal yapı | 86 | 4 | ✅ V6a (formlar V6b–V6e) |
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
 | EK-V6c | Kredi formu | 14 | 16 | ✅ V6c1 + V6c2 + V6c3 |

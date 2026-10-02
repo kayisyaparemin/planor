@@ -396,7 +396,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
     - [x] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
           "Ekle"de "Tek seferlik gelir"
   - [x] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama (`PaymentPlanFormPage`, `PlannedExpenseFormPage`, `S65`, `EK-V6e`)
-- [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*
+- [x] **V5** — ilk düzen seçimi: taşınmadan elendi (`S18`, `S62`, `S47`; yapay tahsis ve harcama kaydırma yerine doğal dönemsellik; sayfası ve kodu yoktur, bütçe 0)
 - [ ] **V8** — 12 dönem
 - [ ] **V9** — dönem ayrıntısı
 - [ ] **V10** — simülatör *(eskide 1.034 satır / 4 partial)*
