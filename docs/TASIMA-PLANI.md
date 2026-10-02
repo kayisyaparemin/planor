@@ -406,8 +406,12 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
   - [x] **V8b** — aynı sayfaya erken kapama önerisi kartı *(2026-10-03; `S74`-7, `GS26`-6; koruyan: I117, I118)*:
         `IFutureProjectionService.GetPayoffAdviceAsync` (`LoanPayoffAdvisor` aynı zincirde, arka planda), `ListCard`
         kredi başına bir satır (4 sınırı yok), satır krediyi açar. En kârlı gün ve "Simülatörde dene" `V10`'da.
-- [ ] **V9** — dönem ayrıntısı
-- [ ] **V10** — simülatör *(eskide 1.034 satır / 4 partial; `S74`-5: "ne zaman karşılayabilirim?" — hedef tutar — sorusu buraya not, `TargetAmountCalculator` Domain'de bekliyor)*
+- [x] **V9** — dönem ayrıntısı *(2026-10-03; `S75`, `GS27`, `EK-V9`; koruyan: I119–I121)*: `PeriodDetailPage`, 12 Dönem
+      karosundan dönemin ilk günüyle açılır, dönem aynı zincirden seçilir (yeni port yok). Dönem sonu, dönem başına göre,
+      akış (dönem başı, gelir, ödemeler, yaşam gideri, KMH faizi), ödemeler (4 + yerinde açılır, kart satırı Kart Kontrol'e),
+      kart faizi. Ana sayfanın "Tümünü Gör"ü yerinde açılmaya döndü. Ekran kayıtları `Composition/ScreenRegistrations.cs`'e
+      ayrıldı (kural 01 testli). Simülatörün dönem kıyası `V10`'da.
+- [ ] **V10** — simülatör *(eskide 1.034 satır / 4 partial; `S74`-5: "ne zaman karşılayabilirim?" — hedef tutar — sorusu buraya not, `TargetAmountCalculator` Domain'de bekliyor; `S75`-7, 8: dönemin mevcut ↔ senaryo kıyası ve A23b'den kalan metin üreten `DetailMetric` / `DetailSemanticType`'ın kaderi burada)*
 - [ ] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
       `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`; kaynak eski proje değil, eski
       `PeriodReviewPage` okunmaz)*. Çapa günü uygulama açılınca kendiliğinden
@@ -462,6 +466,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 9 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamam; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8)* |
+| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamam; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

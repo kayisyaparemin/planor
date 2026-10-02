@@ -10,12 +10,11 @@ using Mizan.Infrastructure.Persistence;
 using Mizan.Infrastructure.Persistence.Repositories;
 using Mizan.Infrastructure.Telemetry;
 using Mizan.Infrastructure.Time;
-using Mizan.App.Pages;
+using Mizan.App.Composition;
 using Mizan.Presentation.Dialogs;
 using Mizan.Presentation.Navigation;
 using Mizan.Presentation.Presenters;
 using Mizan.Presentation.Services;
-using Mizan.Presentation.ViewModels;
 using SQLite;
 
 namespace Mizan.App;
@@ -153,48 +152,12 @@ public static class MauiProgram
 
     private static void RegisterPresentationAndAppServices(IServiceCollection services)
     {
-        services.AddSingleton<CashFlowPeriodDetailPresenter>();
         services.AddSingleton<SimulatorInsightService>();
         services.AddSingleton<INavigationService, MauiNavigationService>();
         services.AddSingleton<IDialogService, MauiDialogService>();
         services.AddSingleton<IBackupFilePicker, AndroidBackupFilePicker>();
         services.AddSingleton<IProfileBackupHandler, ProfileBackupHandler>();
         services.AddSingleton<IPaymentReminderScheduler, InMemoryPaymentReminderScheduler>();
-        RegisterScreens(services);
-    }
-
-    private static void RegisterScreens(IServiceCollection services)
-    {
-        services.AddTransient<AppShellViewModel>();
-        services.AddTransient<AppShell>();
-        services.AddTransient<ProfileSelectionViewModel>();
-        services.AddTransient<ProfileSelectionPage>();
-        services.AddTransient<ReminderCardViewModel>();
-        services.AddTransient<DashboardViewModel>();
-        services.AddTransient<DashboardPage>();
-        services.AddTransient<BalanceEntryViewModel>();
-        services.AddTransient<BalanceEntryPage>();
-        services.AddTransient<OnboardingViewModel>();
-        services.AddTransient<OnboardingPage>();
-        services.AddTransient<CardControlViewModel>();
-        services.AddTransient<CardControlPage>();
-        services.AddTransient<FinancialRecordRowBuilder>();
-        services.AddTransient<FinancialRecordRemover>();
-        services.AddTransient<FinancialStructureViewModel>();
-        services.AddTransient<FinancialStructurePage>();
-        services.AddTransient<CardFormViewModel>();
-        services.AddTransient<CardFormPage>();
-        services.AddTransient<LoanFormViewModel>();
-        services.AddTransient<LoanFormPage>();
-        services.AddTransient<IncomeFormViewModel>();
-        services.AddTransient<IncomeFormPage>();
-        services.AddTransient<AdHocIncomeFormViewModel>();
-        services.AddTransient<AdHocIncomeFormPage>();
-        services.AddTransient<PaymentPlanFormViewModel>();
-        services.AddTransient<PaymentPlanFormPage>();
-        services.AddTransient<PlannedExpenseFormViewModel>();
-        services.AddTransient<PlannedExpenseFormPage>();
-        services.AddTransient<FuturePeriodsViewModel>();
-        services.AddTransient<FuturePeriodsPage>();
+        services.AddScreens(); // sayfalar ve görünüm modelleri: Composition/ScreenRegistrations.cs
     }
 }

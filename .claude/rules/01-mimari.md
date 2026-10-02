@@ -87,5 +87,7 @@ gizli bir bağımlılıktır. Ortak mantık bağımlılıksız bir yardımcıya 
 
 ## Kompozisyon kökü
 
-Tüm DI kayıtları **yalnız** `src/Mizan.App/MauiProgram.cs` içindedir. Başka hiçbir yerde
-`new` ile servis grafiği kurulmaz — testlerdeki `Fakes/` hariç.
+Tüm DI kayıtları **yalnız** kompozisyon kökündedir: `src/Mizan.App/MauiProgram.cs` ve
+`src/Mizan.App/Composition/` altı (ekran kayıtları `ScreenRegistrations.cs`'te; `MauiProgram.cs` 200 satır
+sınırına dayanınca ayrıldı, V9). Başka hiçbir yerde `new` ile servis grafiği kurulmaz — testlerdeki `Fakes/` hariç.
+Koruyan test: `ArchitectureTests.DiKaydi_YalnizKompozisyonKokundeOlabilir`.

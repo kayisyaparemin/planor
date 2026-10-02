@@ -55,7 +55,7 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 | Dönem bitti + son gün + "Dönemi kapat" | **Kart** (bakiye kartının yerinde) | S5; biten döneme bakiye yazılamaz (`S68-4`), cümle yok (`V11`) |
 | Hatırlatıcı | **Kart** (`ReminderCard`, `EK-V2`) | S4 acil ödeme; aktif kayıt yoksa görünmez |
 | Kalan ödemeler | **Kart** (`ListCard`, ≤ 3 satır: ad, vade, tutar) | S4 tarama sorusu; adet ve toplam kartın notunda |
-| Tüm kalan ödemeler | **Derine** → `EK-V9` ("Tümünü gör", yalnız gizli satır varsa) | S4'ün ikinci seviyesi |
+| Tüm kalan ödemeler | **Kart** içinde yerinde açılır ("+N daha", yalnız gizli satır varsa; `GS21` deseni) | S4'ün ikinci seviyesi; açık dönemin ayrıntısı ana sayfanın kendisi, `EK-V9` yalnız gelecek dönemler (`S75`-9, `GS27`-5; ilk karar "→ `EK-V9`" idi) |
 | Dönem aralığı + gün sayacı / "Bitti" | **Satır** (başlık, `Shell.TitleView`) | S5 takvim bağlamı |
 | Gezinme satırları × 4, ayarlar ikonu | **Çıkar** | Aynı hedefler yan menüde |
 | Dönem çubuğu (`PeriodRail`) | **Çıkar** | Aralık ve sayaç başlıkta, geçen süre halkanın işaretinde |
@@ -134,7 +134,7 @@ dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML
 │ Kredi taksiti                                   12.450 ₺             │  TypeBody / TextPrimary · Figure
 │ 1 Ekim                                                               │  Caption
 │ … en fazla 3 satır                                                   │
-│ Aksiyon_TumunuGor                                          ›         │  yalnız gizli satır varsa → V9
+│ +3 daha                                                              │  yalnız gizli satır varsa; yerinde açılır (S75-9)
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -480,7 +480,7 @@ Konsept panellerinde profil seçimi ekranı yer almamaktadır (`GS2`). Yerleşim
 | Bildirim modu çipleri (Kapalı/Rahat/Agresif) | **Derine** → `EK-V13` | S4: Sistemik ayar; ana sayfa hatırlatıcı kartını meşgul etmemeli |
 | 35 günlük yaklaşan ödemeler listesi | **Derine** → `EK-V3` / `EK-V9` | `ListCard` (kalan ödemeler) zaten bu veriyi sunuyor; mükerrer bilgi |
 | Ertelenenler geçmiş listesi | **Çıkar** | Vadesi gelen ertelenen zaten aktif hatırlatıcı olarak tekrar öne düşer |
-| "Ödediklerin" geçmiş listesi | **Derine** → `EK-V9` | Dönem gerçekleşmesi ve mutabakat ekranında yer alır |
+| "Ödediklerin" geçmiş listesi | **Derine** → `V11` / `EK-V12` | Dönem gerçekleşmesi ve mutabakat ekranında yer alır. İlk karar `EK-V9` idi; dönem ayrıntısı yalnız gelecek dönemleri gösterir (`S75`-7, -9) |
 | "Deneme bildirimi gönder" butonu | **Çıkar** | Geliştirici/test artığı |
 | `StatusMessage` hata etiketi | **Çıkar** | Hata durumu diyalog servisi ile yönetilir |
 
@@ -1653,7 +1653,7 @@ hedef tutar, boş hâl) + 12 dönem kartı şablonu, 7 buton + görünmez dokunm
 | Faiz kırılımı (kart / KMH) | **Derine** → `V9` | Dönem ayrıntısında dönem başına faiz |
 | Bu dönemin sonu (ana sayfadaki rakam) | **Çıkar** | Zincirin başı grafiğin sol ucu (konsept) |
 | Dönem başına ay + dönem sonu | **Kart** (3 × 4 karo ızgara, ham `Border` + `Grid`) | S3; 12'si tek ekran boyunda; en düşük kalın, eksiler `NegativeText` (`GS26`-1) |
-| Dönem başına gelir / zorunlu / yaşam, dönem faizi, kart çipleri | **Derine** → `V9` | S3'ün ikinci seviyesi; karoya dokunma `V9`'da bağlanır |
+| Dönem başına gelir / zorunlu / yaşam, dönem faizi, kart çipleri | **Derine** → `V9` | S3'ün ikinci seviyesi; karo dönem ayrıntısını açar (`V9`, `S75`-1) |
 | Erken kapama: kredi, önerilen gün ve tutar, net kazanç | **Kart** (`ListCard`), `V8b` | S5; satır krediyi açar, kapama orada planlanır (`S74`-7) |
 | Önerilenden farklı en kârlı gün | **Çıkar** → `V10` | İkinci bir karar noktası; simülatörün sorusu |
 | Kredinin ömrü boyunca ödenmeyecek faiz (brüt tasarruf) | **Çıkar** | Net kazanç onu açık faizi düşülmüş hâliyle içeriyor; kredi formunda "Kurtulacağın faiz" var (`V8b` Kapı A) |
@@ -1713,7 +1713,7 @@ tutar `ParaConverter`'ın biçimiyle yazılır.
 │ │ 41.050 ₺  │ 45.600 ₺  │ −18.250 ₺ │
 │ │ …                                 │  ayırıcı: aralık StrokeHairline, zemin BorderSubtle
 │ └───────────┴───────────┴───────────┘  karo: zemin SurfaceCard, dolgu Space3
-│ karoya dokunma V9'da bağlanır                               │
+│ karoya dokun → Routes.PeriodDetail + periodStart (V9, S75-1)  │
 └─────────────────────────────────────────────────────────────┘
 ┌─ ListCard (V8b; öneri yoksa ya da hata verdiyse görünmez) ──┐  ← S5
 │ Etiket_ErkenKapama                      Eyebrow             │
@@ -1751,10 +1751,119 @@ Claude Design, "Planör · 12 Dönem" (2026-10-02), `docs/assets/konsept/` altı
 Yerleşim oradan, renkler ve tip skalası token'lardan. Konseptten sapmalar `GS26`'da: yazı tipi, kabuk menüsü,
 eşik rengi, ikonlar, erken kapama satır puntoları, boş hâl metni, iskelet.
 
-### EK-V9 — Dönem ayrıntısı
-Konsept karşılığı **var** (Dönem Ayrıntısı paneli: `InfoBanner` + `ComparisonStrip` +
-kategori satırları). `EK-V3`'ten devralınan yükler: yaşam gideri kırılımı, KMH faizi.
-Eskide 605 satır / 81 `<Label>`.
+## EK-V9 — Dönem ayrıntısı
+
+> Sayfa dosyası: `PeriodDetailPage.xaml` (`Routes.PeriodDetail` + `Routes.PeriodStartParameter`).
+> 12 Dönem ızgarasında bir karoya dokununca açılır; kabuğun geri okuyla kapanır.
+> Davranış `S75`, ekran `GS27`. Ekran hiçbir şey yazmaz.
+> Durum: tamamlandı (`V9`, 2026-10-03).
+
+**Eski proje:** `CashFlowPeriodDetailPage.xaml` 605 satır, **81 `<Label>`**, 23 `<Border>`, 3 buton, 11 liste;
+ViewModel 123 satır / 4 bağımlılık, metni üreten sunucu 552 satır / 2 `partial`. Üç yerden açılıyordu
+(ana sayfa, 12 dönem, simülatör).
+
+### 1. Sorular
+
+| Kod | Soru | Eski ekran nasıl cevaplıyordu |
+|---|---|---|
+| S1 | "Bu dönemin sonunda elimde ne kalacak, param eriyor mu?" | "DÖNEM SONU" ve "DÖNEM NETİ" kutuları (4 etiket) |
+| S2 | "Bu rakam nereden çıkıyor?" | 4 kutu (8) + "Dönem Akışı" 8–9 satır + kategori kartı (3) + devreden açık kutusu (5): ~19 etiket |
+| S3 | "Bu dönem neleri, hangi gün, ne kadar ödeyeceğim?" | Ödeme başına kart: tarih çipi, ad, kategori, tutar, tahsis metni, 3 çip, kart kararı + 2 dipnot: ~14 etiket |
+| S4 | "Bu dönem faiz doğuyor mu, nereden?" | "Faiz Yükü" + "Kart bazında": 6 etiket |
+
+### 2. Kesme kararları (`GS27`)
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Dönem sonu | **Hero** (`HeroFigure`) | S1; karodaki rakamla aynı (`S75`-1) |
+| Dönem başına göre (dönem sonu − dönem başı) | **Satır** (hero altında, işaretli, renkli) | S1; eski "DÖNEM NETİ", gelir karşılama cümlelerinin yerine |
+| Dönemin ilk ve son günü | **Satır** (`Caption`) | Bağlam; başlıkta ay adı (karonun adı) |
+| Dönem başı · Gelir · Ödemeler · Yaşam gideri · KMH faizi | **Satır** (5 × `MetricRow`; KMH faizi yalnız > 0) | S2; toplamı dönem sonu (`S75`-3) |
+| Ödeme kalemleri (büyük harcamalar dahil) | **Kart** (`ListCard`: ad, gün, tutar; 4 satır + "+N daha" yerinde, `GS21`) | S3; notta adet ve toplam = akıştaki "Ödemeler" |
+| "tahmini" / "Belirlenmedi" | **Satır** içinde (gün satırında / tutarın yerinde) | S3 (`S75`-4) |
+| Kart satırı → Kart Kontrol | **Derine** (yalnız kart satırlarında ›) | Eski kart kararı düğmelerinin yerine (`S75`-6) |
+| Kart faizi, kart başına | **Kart** (`ListCard`, yalnız faiz varsa; toplam notta) | S4; ekstre borcuna eklenir, akışta değil (`S75`-5) |
+| Gelir kalemleri | **Çıkar** | Akışta tek "Gelir" satırı (kullanıcı kararı) |
+| `StackedBar`, `ComparisonStrip`, `InfoBanner` | **Çıkar** | `GS27` (a)(b) |
+| 4 özet kutu, ara toplamlar, kategori toplamları, devreden açık kutusu | **Çıkar** | Hero ve akış satırlarının tekrarı (`S75`-3) |
+| Kategori adı, tahsis metni, "Dönemden Önce" / "Plan Bekliyor" çipleri | **Çıkar** | `S18`; ödemenin adı yeterli |
+| Kart ödeme şekli düğmeleri | **Çıkar** → `EK-V7` | Aynı karar Kart Kontrol'de (`S75`-6) |
+| Hatırlatıcı + "ödediklerin" | **Çıkar** | Ana sayfada (`S75`-7) |
+| Simülasyon blokları, baz ↔ senaryo kıyası | **Çıkar** → `V10` | `S75`-7 |
+| Geliştirici dökümü | **Çıkar** | `GS5` |
+
+### 3. Bütçe
+
+```
+Hero rakam    1 / 1     dönem sonu
+Hero yüzey    0 / 1     akış kartı tonlu SurfaceChart (GS27-1), SurfaceHero değil
+Kart          3 / 4     akış kartı (ham Border), ödemeler ListCard, kart faizi ListCard*   * yalnız faiz varsa
+Grafik        0 / 1
+NavRow        0 / 5
+Label        12 / 28    başlık 1, akış kartı 5 (eyebrow, hero, "dönem başına göre" + tutar, aralık),
+                        ödeme şablonu 4 (ad, gün, tutar, ›), faiz şablonu 2 (kart, tutar)
+Cumle_        0 / 3
+```
+
+Eski ekranın 81 etiketinden 12'ye. Analizci ham `Border`'ı kart saymaz; bütçe dürüst sayımdır.
+
+`V9` sonunda: sayım Aşama 4 ile aynı — hero 1, kart 3 (analizci 2), label 12 (analizci 16: `<Label.Triggers>` ve
+`<Label.Text>` özellik öğelerini de sayıyor), cümle 0. Akıştaki gider satırları `ParaConverter`'ın `Eksi` parametresiyle
+yazılır; ViewModel tutarları artı sunar.
+
+### 4. Blok şeması
+
+```
+┌─ Shell.TitleView ───────────────────────────────────────────┐
+│ [← kabuk]  Ekim 2026       Tarih 'MMMM yyyy', SectionTitle  │  karonun adı
+└─────────────────────────────────────────────────────────────┘
+┌─ Akış kartı (ham Border)  SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐
+│ Etiket_DonemSonu                        Eyebrow             │  ← S1
+│ −18.250 ₺                               HeroFigure / TextPrimary (eksi de olsa)
+│ Dönem başına göre  −3.200 ₺             Caption + Caption işaretli:
+│                                         eksi NegativeText, artı PositiveText, sıfır TextSecondary
+│ 10 Ekim – 9 Kasım                       Bicim_DonemAraligi, Caption / TextSecondary
+│ MetricRow Etiket_DonemBasi ............... −15.050 ₺        │  ← S2; eksiyse Negative
+│ MetricRow Etiket_Gelir ................... +48.000 ₺        │     işaretli
+│ MetricRow Etiket_Odemeler ................ −31.200 ₺        │     zorunlu + büyük harcama
+│ MetricRow Etiket_YasamGideri ............. −20.000 ₺        │
+│ MetricRow Etiket_KmhFaizi ................    −480 ₺        │     yalnız > 0
+└─────────────────────────────────────────────────────────────┘
+┌─ ListCard  (ödeme yoksa görünmez) ──────────────────────────┐  ← S3
+│ Etiket_Odemeler                    7 ödeme · 31.200 ₺       │  NoteText: Bicim_OdemeAdediToplam
+│ Konut kredisi                                 12.450 ₺      │  TypeBody / TextPrimary · Figure
+│ 1 Kas                                                       │  Caption
+│ Bonus kartı                                    8.200 ₺   ›  │  kart satırı: ChevronRight Indicator
+│ 15 Kas · tahmini                                            │  Bicim_TahminiGun
+│ Axess kartı                                Belirlenmedi  ›  │  Etiket_Belirlenmedi, Caption / TextSecondary
+│ … ilk 4 satır                                               │
+│ +3 daha                                                     │  OverflowText (FazlaKayitConverter), yerinde açılır
+│ kart satırına dokun → Routes.CardControl + cardId; diğer satırlar dokunulmaz
+└─────────────────────────────────────────────────────────────┘
+┌─ ListCard  (yalnız kart faizi varsa) ───────────────────────┐  ← S4
+│ Etiket_KartFaizi          640 ₺ · ekstre borcuna eklenir    │  NoteText: Bicim_KartFaiziToplam
+│ Bonus kartı                                      420 ₺      │  TypeBody / TextPrimary · Figure
+│ Axess kartı                                      220 ₺      │  her kart bir satır; 4 sınırı yok (kart sayısı)
+└─────────────────────────────────────────────────────────────┘
+```
+
+Akışın sırası hesabın sırası; satırların toplamı hero'ya kuruşu kuruşuna iner (ekranda tam lira yuvarlanır,
+1 ₺ fark görünebilir). "Büyük harcama" ayrı satır değil: listede adıyla durur ve "Ödemeler" ile listenin notu
+aynı toplamı söyler.
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | `StateBlock`: `Schedule` ikonu + `Bos_DonemBulunamadi` ("Bu dönem artık 12 dönemin içinde değil.") + `Aksiyon_OnIkiDonemeDon` (geri). Zincir kurulamıyorsa ya da dönem zincirde yoksa (`S75`-2). |
+| Yükleniyor | İki `SkeletonBlock`: akış kartı (`ChartHeight`) ve ödeme listesi; spinner yok (`GS14`). |
+| Hata | `StateBlock`: `Close` ikonu + `Hata_DonemHesaplanamadi` ("Dönem şu an hesaplanamadı.") + `Aksiyon_TekrarDene`. |
+
+### 6. Konsept ilişkisi
+
+Yerleşim konseptinin "Dönem Ayrıntısı" paneli tarifiyle biliniyor (`InfoBanner` + `ComparisonStrip` + kategori
+satırları); görüntüsü repoda yok. Ekran 12 Dönem'den türetildi (kullanıcı kararı, 2026-10-03): akış kartı
+gidişat kartının deseni, listeler `ListCard`. Konseptten sapmalar `GS27`'de.
 
 ### EK-V10 — Simülatör
 Konsept karşılığı **var** (Simülatör paneli). Eskide 1.034 satır / 4 `partial`, 64 `<Label>`.
@@ -1793,7 +1902,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6e | Ödeme formu | 12 | 8 + 4 | ✅ V6e |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
-| EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
+| EK-V9 | Dönem ayrıntısı | 81 | 12 | ✅ V9 |
 | EK-V10 | Simülatör | 64 | | ⬜ |
 | EK-V11 | Dönem kapanışı | 50 | | ⬜ |
 | EK-V12 | Geçmiş + ayrıntı | 29 | | ⬜ |

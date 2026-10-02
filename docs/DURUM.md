@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V8b** — 12 dönem sayfasına erken kapama kartı (`FuturePeriodsPage`; S74-7, GS26-6, EK-V8); `V8` tamamlandı |
-| Sıradaki adım | **V9** — dönem ayrıntısı |
-| Test sayısı | 1936 |
+| Son tamamlanan adım | **V9** — dönem ayrıntısı (`PeriodDetailPage`; S75, GS27, EK-V9) |
+| Sıradaki adım | **V10** — simülatör |
+| Test sayısı | 1946 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V9 — dönem ayrıntısı: 12 Dönem karosundan tek dönem, akış dönem sonuna kuruşu kuruşuna, ödemeler ve kart faizi; kararlar `S75`, `GS27`, `EK-V9`
+
+12 Dönem'de bir karoya dokunmak `PeriodDetailPage`'i açıyor (eski `CashFlowPeriodDetailPage` 605 satır / 81 Label → 205 satır / 12 Label). Dönem ilk günüyle (`Routes.PeriodStartParameter`) aynı zincirden seçiliyor; yeni port yok, karodaki rakamla aynı (`I120`). Dönem sonu hero; altında dönem başına göre net değişim ve akış: dönem başı + gelir − ödemeler − yaşam gideri − KMH faizi = dönem sonu (`I119`). Ödemeler 4 satır + "+N daha" yerinde; kart satırı Kart Kontrol'ü açıyor (eski "Tamamını / Asgari öde" düğmeleri yerine). Kart faizi borca eklendiği için akışta değil, ayrı listede. ViewModel 2 bağımlılık, 196 satır.
+Kullanıcı kararları (Kapı A): ana sayfanın "Tümünü Gör"ü dönem ayrıntısına gitmiyor, kalan ödemeleri yerinde açıyor (açık dönemin ayrıntısı ana sayfanın kendisi); gelir kalemleri listelenmiyor; yerleşim 12 Dönem'den türetildi (konsept görseli repoda yok). Kapı B'de "Büyük harcama" ayrı akış satırı olmaktan çıktı: liste notuyla akıştaki "Ödemeler" aynı toplamı söylüyor.
+`MauiProgram.cs` 200/200 sorunu çözüldü: ekran kayıtları `Composition/ScreenRegistrations.cs`'e ayrıldı (164 satır kaldı); kural 01 "kompozisyon kökü = MauiProgram + Composition/" oldu ve testli (`I121`). A23a'nın tüketicisiz, metin üreten `CashFlowPeriodDetailPresenter`'ı ve dört modeli silindi; `DetailMetric` / `DetailSemanticType` simülatör kodu kullandığı için `V10`'a kaldı. `ParaConverter`'a `Eksi` parametresi. EK-V2'nin "Ödediklerin"i `V11` / `V12`'ye yönlendirildi.
+Dikkat: üretim kodu ~400 satır (Aşama 1 tahmini ~280); fark XAML'in biçiminden. Çalışma ağacındaki izlenmeyen `docs/assets/konsept/anasayfa-*.png` bu adımın değil, commit'e girmedi.
+Bütçe: Hero 1/1, Hero yüzey 0/1, Kart 3/4 (akış kartı ham Border, ödemeler ve kart faizi `ListCard`), Grafik 0/1, NavRow 0/5, Label 12/28 (analizci 16), Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 24 yeni test (19 dönem ayrıntısı, 1 12 Dönem, 2 ana sayfa, 2 mimari), 14 sunucu testi silindi; toplam 1.946 test yeşil, 0 hata, 0 uyarı.
 
 ### V8b — 12 dönem sayfasına erken kapama kartı: aynı zincir, kredi başına bir satır, satır krediyi açar; kararlar `S74`-7, `GS26`-6, `EK-V8`
 

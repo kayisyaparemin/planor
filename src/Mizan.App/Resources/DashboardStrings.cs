@@ -72,11 +72,8 @@ public static class DashboardStrings
     /// <summary>Kalan ödemeler kartının etiketi.</summary>
     public const string Etiket_KalanOdemeler = "KALAN ÖDEMELER";
 
-    /// <summary>Kalan ödemeler kartının notu; {0} adet, {1} toplam tutar.</summary>
+    /// <summary>Kalan ödemeler kartının notu; {0} adet, {1} toplam tutar. Dönem ayrıntısının ödeme listesi de kullanır.</summary>
     public const string Bicim_OdemeAdediToplam = "{0} ödeme · {1}";
-
-    /// <summary>Kartta görünmeyen kalan ödemeler varsa dönem ayrıntısını açan satır.</summary>
-    public const string Aksiyon_TumunuGor = "Tümünü Gör";
 
     /// <summary>Hatırlatıcıda ödemenin yapıldığını söyleyen buton.</summary>
     public const string Aksiyon_Odedim = "Ödedim";

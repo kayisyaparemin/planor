@@ -71,6 +71,11 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
     public Task OpenLoanAsync(LoanPayoffRow row) =>
         _navigationService.NavigateToAsync(Routes.LoanForm, new Dictionary<string, object> { [Routes.LoanIdParameter] = row.LoanId });
 
+    /// <summary>Karoya dokunmak o dönemin ayrıntısını açar; dönem ilk günüyle aynı zincirden seçilir (S75-1).</summary>
+    [RelayCommand]
+    public Task OpenPeriodAsync(FuturePeriodTile tile) =>
+        _navigationService.NavigateToAsync(Routes.PeriodDetail, new Dictionary<string, object> { [Routes.PeriodStartParameter] = tile.PeriodStart });
+
     private async Task LoadProjectionAsync()
     {
         SetBusy(true);

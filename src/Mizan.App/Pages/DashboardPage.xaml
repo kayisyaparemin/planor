@@ -258,11 +258,12 @@
                                    SecondaryActionText="{x:Static strings:DashboardStrings.Aksiyon_Ertele}"
                                    SecondaryActionCommand="{Binding Reminders.SnoozeCommand}" />
 
-                <!-- Kalan ödemeler: en fazla üç satır; fazlası dönem ayrıntısına (S4) -->
+                <!-- Kalan ödemeler: üç satır; fazlası "+N daha" ile yerinde açılır (S4, S75-9) -->
                 <comp:ListCard EyebrowText="{x:Static strings:DashboardStrings.Etiket_KalanOdemeler}"
                                ItemsSource="{Binding RemainingLines}"
                                ItemTemplate="{StaticResource OdemeSatiri}"
-                               OverflowCommand="{Binding OpenRemainingDetailCommand}"
+                               OverflowText="{Binding HiddenRemainingCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding ExpandRemainingCommand}"
                                AutomationId="{x:Static auto:AutomationIds.ListRemainingPayments}">
                     <comp:ListCard.NoteText>
                         <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_OdemeAdediToplam}">
@@ -270,11 +271,6 @@
                             <Binding Path="RemainingPlannedTotal" Converter="{StaticResource Para}" />
                         </MultiBinding>
                     </comp:ListCard.NoteText>
-                    <comp:ListCard.Triggers>
-                        <DataTrigger TargetType="comp:ListCard" Binding="{Binding HasOverflow}" Value="True">
-                            <Setter Property="OverflowText" Value="{x:Static strings:DashboardStrings.Aksiyon_TumunuGor}" />
-                        </DataTrigger>
-                    </comp:ListCard.Triggers>
                 </comp:ListCard>
             </VerticalStackLayout>
 

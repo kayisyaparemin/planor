@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.PeriodDetailPage"
+             x:DataType="vm:PeriodDetailViewModel"
+             AutomationId="{x:Static auto:PeriodDetailAutomationIds.PagePeriodDetail}">
+
+    <!-- EK-V9: dönem ayrıntısı, S75, GS27 -->
+
+    <ContentPage.Resources>
+        <!-- Ödeme satırı: ad · gün (tahminiyse işaretli) · tutar ya da "Belirlenmedi"; kart satırı Kart Kontrol'ü açar (S75-6) -->
+        <DataTemplate x:Key="OdemeSatiri" x:DataType="models:PeriodPaymentRow">
+            <Grid ColumnDefinitions="*, Auto, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PeriodDetailViewModel}}, Path=OpenCardControlCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding Name}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding DueDate, Converter={StaticResource Tarih}}"
+                           Style="{StaticResource Caption}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsEstimate}" Value="True">
+                                <Setter Property="Text" Value="{Binding DueDate, Converter={StaticResource Tarih}, StringFormat={x:Static strings:PeriodDetailStrings.Bicim_TahminiGun}}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsUndetermined}" Value="True">
+                            <Setter Property="Text" Value="{x:Static strings:PeriodDetailStrings.Etiket_Belirlenmedi}" />
+                            <Setter Property="FontSize" Value="{StaticResource TypeCaption}" />
+                            <Setter Property="TextColor" Value="{DynamicResource TextSecondary}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+                <Label Grid.Column="2"
+                       Text="{x:Static icons:Icons.ChevronRight}"
+                       FontFamily="MaterialSymbols"
+                       FontSize="{StaticResource IconSmall}"
+                       TextColor="{DynamicResource Indicator}"
+                       VerticalTextAlignment="Center"
+                       IsVisible="{Binding IsCard}" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- Kart faizi satırı: kart · faiz (S75-5) -->
+        <DataTemplate x:Key="FaizSatiri" x:DataType="models:PeriodCardInterestRow">
+            <Grid ColumnDefinitions="*, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Label Text="{Binding CardName}"
+                       FontSize="{StaticResource TypeBody}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       VerticalTextAlignment="Center" />
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <!-- Başlık: karonun adı ("Ekim 2026"); geri oku kabuktan -->
+    <Shell.TitleView>
+        <Grid Padding="{StaticResource TitleBarPadding}">
+            <Label Text="{Binding PeriodStart, Converter={StaticResource Tarih}, ConverterParameter='MMMM yyyy'}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor: akış kartı ve ödeme listesi yerinde iskelet; spinner yok (GS14) -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Akış kartı: dönem sonu ve nereden çıktığı; satırların toplamı hero'ya iner (S1, S2, S75-3) -->
+                <Border BackgroundColor="{DynamicResource SurfaceChart}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        AutomationId="{x:Static auto:PeriodDetailAutomationIds.CardPeriodFlow}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:PeriodDetailStrings.Etiket_DonemSonu}"
+                               Style="{StaticResource Eyebrow}" />
+                        <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
+                               Style="{StaticResource HeroFigure}"
+                               AutomationId="{x:Static auto:PeriodDetailAutomationIds.LblPeriodEnding}" />
+                        <HorizontalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:PeriodDetailStrings.Etiket_DonemBasinaGore}"
+                                   Style="{StaticResource Caption}" />
+                            <Label Text="{Binding NetChange, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                   Style="{StaticResource Caption}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsNetChangeNegative}" Value="True">
+                                        <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsNetChangePositive}" Value="True">
+                                        <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </HorizontalStackLayout>
+                        <Label Style="{StaticResource Caption}">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_DonemAraligi}">
+                                    <Binding Path="PeriodStart" Converter="{StaticResource Tarih}" />
+                                    <Binding Path="PeriodLastDay" Converter="{StaticResource Tarih}" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+
+                        <comp:MetricRow LabelText="{x:Static strings:PeriodDetailStrings.Etiket_DonemBasi}"
+                                        ValueText="{Binding OpeningBalance, Converter={StaticResource Para}}">
+                            <comp:MetricRow.Triggers>
+                                <DataTrigger TargetType="comp:MetricRow" Binding="{Binding IsOpeningNegative}" Value="True">
+                                    <Setter Property="Semantic" Value="Negative" />
+                                </DataTrigger>
+                            </comp:MetricRow.Triggers>
+                        </comp:MetricRow>
+                        <comp:MetricRow LabelText="{x:Static strings:PeriodDetailStrings.Etiket_Gelir}"
+                                        ValueText="{Binding Income, Converter={StaticResource Para}, ConverterParameter=Isaretli}" />
+                        <comp:MetricRow LabelText="{x:Static strings:PeriodDetailStrings.Etiket_Odemeler}"
+                                        ValueText="{Binding PaymentsTotal, Converter={StaticResource Para}, ConverterParameter=Eksi}" />
+                        <comp:MetricRow LabelText="{x:Static strings:PeriodDetailStrings.Etiket_YasamGideri}"
+                                        ValueText="{Binding VariableExpenseAllowance, Converter={StaticResource Para}, ConverterParameter=Eksi}" />
+                        <comp:MetricRow LabelText="{x:Static strings:PeriodDetailStrings.Etiket_KmhFaizi}"
+                                        ValueText="{Binding DeficitInterest, Converter={StaticResource Para}, ConverterParameter=Eksi}"
+                                        IsVisible="{Binding HasDeficitInterest}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Ödemeler: dört satır, fazlası yerinde açılır; not ile akıştaki "Ödemeler" aynı toplam (S3, GS21) -->
+                <comp:ListCard EyebrowText="{x:Static strings:PeriodDetailStrings.Etiket_OdemeListesi}"
+                               ItemsSource="{Binding Payments}"
+                               ItemTemplate="{StaticResource OdemeSatiri}"
+                               OverflowText="{Binding HiddenPaymentCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding ExpandPaymentsCommand}"
+                               IsVisible="{Binding HasPayments}"
+                               AutomationId="{x:Static auto:PeriodDetailAutomationIds.ListPeriodPayments}">
+                    <comp:ListCard.NoteText>
+                        <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_OdemeAdediToplam}">
+                            <Binding Path="PaymentCount" />
+                            <Binding Path="PaymentsTotal" Converter="{StaticResource Para}" />
+                        </MultiBinding>
+                    </comp:ListCard.NoteText>
+                </comp:ListCard>
+
+                <!-- Kart faizi: yalnız faiz doğan kartlar; borca eklenir, akışta yoktur (S4, S75-5) -->
+                <comp:ListCard EyebrowText="{x:Static strings:PeriodDetailStrings.Etiket_KartFaizi}"
+                               NoteText="{Binding CardInterestTotal, Converter={StaticResource Para}, StringFormat={x:Static strings:PeriodDetailStrings.Bicim_KartFaiziToplam}}"
+                               ItemsSource="{Binding CardInterests}"
+                               ItemTemplate="{StaticResource FaizSatiri}"
+                               IsVisible="{Binding HasCardInterest}"
+                               AutomationId="{x:Static auto:PeriodDetailAutomationIds.ListPeriodCardInterest}" />
+            </VerticalStackLayout>
+
+            <!-- Boş: dönem artık 12 dönemin içinde değil ya da zincir kurulamıyor (S75-2) -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.Schedule}"
+                             Message="{x:Static strings:PeriodDetailStrings.Bos_DonemBulunamadi}"
+                             ActionText="{x:Static strings:PeriodDetailStrings.Aksiyon_OnIkiDonemeDon}"
+                             ActionCommand="{Binding GoBackCommand}"
+                             IsVisible="{Binding IsEmpty}"
+                             AutomationId="{x:Static auto:PeriodDetailAutomationIds.StatePeriodDetailEmpty}" />
+
+            <!-- Hata: okuma ya da hesap; "Tekrar dene" aynı dönemi yükler -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:PeriodDetailStrings.Hata_DonemHesaplanamadi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:PeriodDetailAutomationIds.StatePeriodDetailError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -132,6 +132,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I116` | 12 dönemin en düşük dönem sonu birden fazla dönemde eşitse en erkeni gösterilir: kullanıcı ilk sıkışacağı anı görür (EK-V8). | `Mizan.Presentation.Tests.ViewModels.FuturePeriodsViewModelTests.Yukle_EnDusukBirdenFazlaDonemdeyse_IlkiSecilir` | `V8a` |
 | `I117` | Erken kapama önerisi 12 dönemle aynı zincirde koşar: açık dönemin içindeki taksit günleri denenmez, ilk aday zincirin ilk taksit günüdür (S74-7). | `Mizan.Application.Tests.Services.FutureProjectionServiceTests.OneriGetir_AcikDonemTaksiti_DenenmezIlkAday_ZincirdekiIlkTaksittir` | `V8b` |
 | `I118` | Erken kapama önerisinin hatası 12 dönemi düşürmez: sayfa içerikte kalır, yalnız kart gizlenir (S74-7). | `Mizan.Presentation.Tests.ViewModels.FuturePeriodsPayoffTests.Yukle_OneriHesaplanamazsa_SayfaDusmezKartGorunmez` | `V8b` |
+| `I119` | Dönem ayrıntısının akışı dönem sonuna kuruşu kuruşuna iner: dönem başı + gelir − ödemeler (zorunlu ödemeler ve büyük harcamalar) − yaşam gideri − KMH faizi = dönem sonu. Kart faizi borca eklenir, akışta yoktur (S75-3, S75-5). | `Mizan.Presentation.Tests.ViewModels.PeriodDetailViewModelTests.Yukle_AkisSatirlari_DonemSonunaKurusuKurusunaIner` | `V9` |
+| `I120` | Dönem ayrıntısı dönemi 12 dönem zincirinden ilk günüyle seçer, karodaki rakamla aynı sonucu söyler; dönem artık zincirde yoksa bir rakam uydurmaz, ekran boştur (S75-1, S75-2). | `Mizan.Presentation.Tests.ViewModels.PeriodDetailViewModelTests.Yukle_DonemZincirdeYoksa_BosDurumdur` | `V9` |
+| `I121` | DI kayıtları yalnız kompozisyon kökündedir: `src/Mizan.App/MauiProgram.cs` ve `src/Mizan.App/Composition/` altı (kural 01). | `Mizan.Architecture.Tests.ArchitectureTests.DiKaydi_YalnizKompozisyonKokundeOlabilir` | `V9` |
 
 ## Satır eklerken
 

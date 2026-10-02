@@ -307,6 +307,17 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V8`, `FuturePeriodsPage.xaml`, `ChartTrend`, `TrendGrafigiConverter`, `AreaTrend` / `ChartScale` (dolgunun tabanı), `TASARIM-SISTEMI.md` § Grafikler (`AreaTrend` girdisi), `GS12` (bu ızgara ve erken kapama kartı için istisna) |
 | **Durum** | uygulandı (`V8a`: 1–5, 7, 8; `V8b`: 6; bütçe hero 1/1, kart 3/4, grafik 1/1, label 15/28, cümle 0/3) |
 
+### GS27 — Dönem ayrıntısı: konseptin kıyas şeridi ve uyarı bandı yok, yerleşim 12 dönemin gidişat kartından
+
+| | |
+|---|---|
+| **Tür** | konsept-sapması / veri-kısıtı |
+| **Konsept** | Yerleşim konseptinin "Dönem Ayrıntısı" paneli (`EK-V9` taslağı): `InfoBanner` + `ComparisonStrip` + kategori satırları. Panelin görüntüsü iki repoda da yok; elde yalnız bu tarif var. |
+| **Neden değiştirildi** | (a) `ComparisonStrip` plan / gerçek / fark üçlüsüdür; gelecekteki bir dönemde gerçek yoktur. Baz ↔ senaryo kıyası simülatörün sorusudur (`V10`, `S75`-7). (b) `InfoBanner` eski ekranın gelir karşılama cümlelerinin yeridir ("Bu ay dönem gelirlerin ihtiyacın … altında kalıyor"); GK5: cümle bir sayı olmalı — hero'nun altındaki "dönem başına göre" satırı aynı cevabı işaretli tutar olarak verir. (c) Kategori satırları (Krediler, Kartlar, …) ödeme listesinin tekrarı (`S75`-3). (d) Sayfa 12 dönem karosundan açılır; kullanıcı karonun büyümüş hâlini görmeli. |
+| **Yeni** | (1) **Akış kartı** 12 dönem gidişat kartının deseninde: ham `Border`, `SurfaceChart` / `BorderSubtle` / `RadiusHero`; `SurfaceHero` değil (eksi rengi `SurfaceHero`'da koyu temada eşiği geçmiyor, `T9`). Eyebrow, hero dönem sonu (`TextPrimary`, eksi de olsa), "dönem başına göre" satırı (işaretli, `NegativeText` / `PositiveText`), dönemin ilk–son günü, altında akışın altı `MetricRow`'u. Grafik yok: `StackedBar` altı satırın söylediğini ikinci kez söylerdi. (2) **Ödemeler** `ListCard`: ad `TypeBody`, gün `Caption` (tahminiyse "· tahmini"), tutar `Figure`; 4 satır + "+N daha" yerinde açılır (`GS21`); kart satırında `ChevronRight`, diğer satırlar dokunulmaz. (3) **Kart faizi** `ListCard`, yalnız faiz varsa; satır kart adı + tutar, toplam notta. (4) Başlık karonun dönem adı ("Ekim 2026"), kabuğun geri okuyla. (5) Ana sayfanın kalan ödemeler kartında "Tümünü Gör" yerine "+N daha" ve yerinde açılma (`S75`-9); kart sayısı ve etiket bütçesi değişmez. Yeni bileşen yok. |
+| **Etkiler** | `EK-V9`, `PeriodDetailPage.xaml`, `EK-V3` (5), `DashboardPage.xaml` (5), `GS21` (iki yeni kullanım) |
+| **Durum** | uygulandı (`V9`; bütçe hero 1/1, kart 3/4, grafik 0/1, label 12/28, cümle 0/3) |
+
 ---
 
 ## Konsept otorite değildir

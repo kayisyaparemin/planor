@@ -231,6 +231,35 @@ public sealed class DashboardViewModelTests : IDisposable
 
         Assert.Equal(3, _viewModel.RemainingLines.Count);
         Assert.Equal(5, _viewModel.RemainingCount);
+        Assert.Equal(2, _viewModel.HiddenRemainingCount);
+        Assert.True(_viewModel.HasOverflow);
+    }
+
+    [Fact]
+    public async Task TasmayaDokunmak_KalanOdemelerinHepsiniYerindeAcar()
+    {
+        _progressService.CurrentProgress = Progress(lineCount: 5);
+        await _viewModel.LoadAsync();
+
+        _viewModel.ExpandRemaining();
+
+        Assert.Equal(5, _viewModel.RemainingLines.Count);
+        Assert.Equal("Ödeme 4", _viewModel.RemainingLines[4].Name);
+        Assert.Equal(0, _viewModel.HiddenRemainingCount);
+        Assert.False(_viewModel.HasOverflow);
+        Assert.Null(_navigation.LastNavigatedRoute);
+    }
+
+    [Fact]
+    public async Task Yukle_AcilmisListeYenidenYuklenince_IlkUceDaralir()
+    {
+        _progressService.CurrentProgress = Progress(lineCount: 5);
+        await _viewModel.LoadAsync();
+        _viewModel.ExpandRemaining();
+
+        await _viewModel.LoadAsync();
+
+        Assert.Equal(3, _viewModel.RemainingLines.Count);
         Assert.True(_viewModel.HasOverflow);
     }
 
@@ -305,9 +334,6 @@ public sealed class DashboardViewModelTests : IDisposable
 
         await _viewModel.ClosePeriodAsync();
         Assert.Equal(Routes.PeriodSettlement, _navigation.LastNavigatedRoute);
-
-        await _viewModel.OpenRemainingDetailAsync();
-        Assert.Equal(Routes.PeriodDetail, _navigation.LastNavigatedRoute);
 
         await _viewModel.OpenOnboardingAsync();
         Assert.Equal(Routes.Onboarding, _navigation.LastNavigatedRoute);

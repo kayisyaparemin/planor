@@ -212,6 +212,18 @@ public sealed class FuturePeriodsViewModelTests
         Assert.Equal(Routes.FinancialStructure, _navigation.LastNavigatedRoute);
     }
 
+    [Fact]
+    public async Task KaroyaDokunmak_DonemAyrintisiniIlkGunuyleAcar()
+    {
+        _projectionService.Result = Projection(DippingEndings);
+        await _viewModel.LoadAsync();
+
+        await _viewModel.OpenPeriodAsync(_viewModel.Periods[5]);
+
+        Assert.Equal(Routes.PeriodDetail, _navigation.LastNavigatedRoute);
+        Assert.Equal(new DateOnly(2027, 3, 10), _navigation.LastParameters![Routes.PeriodStartParameter]);
+    }
+
     // Zincir: her dönemin açılışı bir öncekinin sonu (kural 05); kart faizi ilk dönemde, KMH faizi ilk eksi dönemde.
     private static FinancialProjectionResult Projection(
         IReadOnlyList<decimal> endings, decimal cardInterest = 2_140m, decimal deficitInterest = 1_610m)

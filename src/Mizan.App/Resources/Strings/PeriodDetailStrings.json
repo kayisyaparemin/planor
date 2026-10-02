@@ -1,0 +1,17 @@
+{
+  "Etiket_DonemSonu": "DÖNEM SONU",
+  "Etiket_DonemBasinaGore": "Dönem başına göre",
+  "Etiket_DonemBasi": "Dönem başı",
+  "Etiket_Gelir": "Gelir",
+  "Etiket_Odemeler": "Ödemeler",
+  "Etiket_YasamGideri": "Yaşam gideri",
+  "Etiket_KmhFaizi": "KMH faizi",
+  "Etiket_OdemeListesi": "ÖDEMELER",
+  "Etiket_Belirlenmedi": "Belirlenmedi",
+  "Bicim_TahminiGun": "{0} · tahmini",
+  "Etiket_KartFaizi": "KART FAİZİ",
+  "Bicim_KartFaiziToplam": "{0} · ekstre borcuna eklenir",
+  "Bos_DonemBulunamadi": "Bu dönem artık 12 dönemin içinde değil.",
+  "Aksiyon_OnIkiDonemeDon": "12 Döneme Dön",
+  "Hata_DonemHesaplanamadi": "Dönem şu an hesaplanamadı."
+}

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
+using Mizan.Domain.Models;
 using Mizan.Presentation.Charts;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Navigation;
@@ -16,17 +17,21 @@ namespace Mizan.Presentation.ViewModels;
 /// </summary>
 public sealed partial class DashboardViewModel : ViewModelBase
 {
-    // EK-V3 kesme kararı: kalan ödemeler kartında en fazla üç satır; fazlası "Tümünü gör" ile dönem ayrıntısına.
+    // EK-V3 kesme kararı: kalan ödemeler kartında üç satır; fazlası "+N daha" ile yerinde açılır (S75-9).
     private const int VisibleRemainingLimit = 3;
 
     private readonly IPeriodProgressService _progressService;
     private readonly INavigationService _navigationService;
+    private IReadOnlyList<PeriodPlanPaymentLine> _remaining = [];
 
     /// <summary>Vadesi gelen veya ertelenmiş acil ödemeleri yöneten çocuk görünüm modeli.</summary>
     public ReminderCardViewModel Reminders { get; }
 
-    /// <summary>Kalan ödemelerden kartta görünen ilk satırlar.</summary>
+    /// <summary>Kalan ödemelerden kartta görünen satırlar: ilk üçü, "+N daha"ya dokununca hepsi.</summary>
     public ObservableCollection<DashboardRemainingItem> RemainingLines { get; } = [];
+
+    /// <summary>Kartta gizli kalan ödeme var mı; taşma satırı yalnız o zaman görünür.</summary>
+    public bool HasOverflow => HiddenRemainingCount > 0;
 
     [ObservableProperty] private bool hasActivePeriod;
     [ObservableProperty] private DateOnly? periodStart; [ObservableProperty] private DateOnly? periodLastDay;
@@ -49,7 +54,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
     [ObservableProperty] private decimal? lastObservedBalance; [ObservableProperty] private DateOnly? lastObservedOn;
 
     [ObservableProperty] private int remainingCount; [ObservableProperty] private decimal remainingPlannedTotal;
-    [ObservableProperty] private bool hasOverflow;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasOverflow))] private int hiddenRemainingCount;
 
     /// <summary>Ana sayfa görünüm modelini gidişat okuma portu, gezinme portu ve hatırlatıcı kartıyla başlatır.</summary>
     public DashboardViewModel(
@@ -132,23 +137,31 @@ public sealed partial class DashboardViewModel : ViewModelBase
 
     private void ApplyRemainingLines(PeriodProgress progress)
     {
+        _remaining = progress.RemainingLines;
+        RemainingCount = progress.RemainingLines.Count;
+        RemainingPlannedTotal = progress.RemainingPlannedTotal;
+        ShowRemaining(VisibleRemainingLimit);
+    }
+
+    private void ShowRemaining(int limit)
+    {
         RemainingLines.Clear();
-        foreach (var line in progress.RemainingLines.Take(VisibleRemainingLimit))
+        foreach (var line in _remaining.Take(limit))
         {
             RemainingLines.Add(new DashboardRemainingItem
             {
                 DueDate = line.PlannedDate, Name = line.Name, Amount = line.PlannedAmount ?? 0m
             });
         }
-        RemainingCount = progress.RemainingLines.Count;
-        RemainingPlannedTotal = progress.RemainingPlannedTotal;
-        HasOverflow = RemainingCount > VisibleRemainingLimit;
+        HiddenRemainingCount = _remaining.Count - RemainingLines.Count;
     }
 
     private void ShowEmptyState()
     {
+        _remaining = [];
         RemainingLines.Clear();
-        HasActivePeriod = HasObservation = HasPace = HasOverflow = IsPeriodEnded = false;
+        HiddenRemainingCount = 0;
+        HasActivePeriod = HasObservation = HasPace = IsPeriodEnded = false;
         EndingBalance = EndingDeviation = LastObservedBalance = null;
         Trend = null;
         Gauge = null;
@@ -159,8 +172,8 @@ public sealed partial class DashboardViewModel : ViewModelBase
     [RelayCommand] public Task OpenBalanceEntryAsync() => _navigationService.NavigateToAsync(Routes.BalanceEntry);
     /// <summary>Biten dönemin kapanışını açar (V11).</summary>
     [RelayCommand] public Task ClosePeriodAsync() => _navigationService.NavigateToAsync(Routes.PeriodSettlement);
-    /// <summary>Kalan ödemelerin tamamını gösteren dönem ayrıntısını açar (V9).</summary>
-    [RelayCommand] public Task OpenRemainingDetailAsync() => _navigationService.NavigateToAsync(Routes.PeriodDetail);
+    /// <summary>Kalan ödemeler kartının gizli satırlarını yerinde açar; açık dönemin ayrıntısı bu sayfanın kendisi (S75-9).</summary>
+    [RelayCommand] public void ExpandRemaining() => ShowRemaining(_remaining.Count);
     /// <summary>Açık dönem yokken kurulum sihirbazını açar.</summary>
     [RelayCommand] public Task OpenOnboardingAsync() => _navigationService.NavigateToAsync(Routes.Onboarding);
 }

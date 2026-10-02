@@ -23,8 +23,11 @@ public static class Routes
     /// <summary>Ayarlar sayfası rotası.</summary>
     public const string Settings = "//settings";
 
-    /// <summary>Dönem ayrıntısı detay sayfası rotası.</summary>
+    /// <summary>Dönem ayrıntısı sayfası rotası; 12 Dönem karosundan <see cref="PeriodStartParameter"/> ile açılır (S75-1).</summary>
     public const string PeriodDetail = "period-detail";
+
+    /// <summary>Dönem ayrıntısının hangi dönemi açacağını taşıyan sorgu parametresi: dönemin ilk günü (<c>DateOnly</c>).</summary>
+    public const string PeriodStartParameter = "periodStart";
 
     /// <summary>Kredi kartı kontrol detay sayfası rotası.</summary>
     public const string CardControl = "card-control";

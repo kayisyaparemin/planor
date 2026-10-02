@@ -324,6 +324,11 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | iskelet bloğu | `SkeletonBlock` | Veri yüklenirken spinner kullanmadan yerleşim zıplamasını önleyen SurfaceSunken zeminli yer tutucu bileşeni (GS14) |
 | dönem karosu | `FuturePeriodTile` | 12 Dönem ızgarasının bir karosu: dönemin ilk günü, dönem sonu, en düşük mü, ay adının yanında yıl yazılır mı. Dönemin kırılımı karoda değil dönem ayrıntısında (`GS26`, `V9`) |
 | erken kapama satırı | `LoanPayoffRow` | 12 Dönem'in erken kapama kartında bir kredinin ham satırı: önerinin sonucu, önerildiyse gün, tutar ve net kazanç; durum metni çeviricide kurulur, satır krediyi açar (`S74`-7, `GS26`-6) |
+| dönem ayrıntısı | `PeriodDetailViewModel` / `PeriodDetailPage` | 12 Dönem karosundan açılan tek dönemin ekranı: dönem sonu, dönem başına göre net değişim, akış (dönem başı, gelir, ödemeler, yaşam gideri, KMH faizi), ödemeler ve kart faizi. Dönemi ilk günüyle aynı zincirden seçer (`S75`, `I119`, `I120`). Açık dönemin ayrıntısı ana sayfanın kendisidir |
+| dönem ödeme satırı | `PeriodPaymentRow` | Dönem ayrıntısındaki ödeme listesinin ham satırı: vade, ad, tutar (kart ekstresi belirlenemediyse yok), tahmin mi, kart ekstresiyse kartın kimliği; kart satırı Kart Kontrol'ü açar (`S75`-4, -6) |
+| kart faizi satırı | `PeriodCardInterestRow` | Dönem ayrıntısında bir kartın o dönemki devreden borç faizi; borca eklenir, dönemin akışında yer almaz (`S75`-5) |
+| net değişim | `NetChange` | Dönem sonu − dönem başı; dönem ayrıntısında "dönem başına göre" satırı. Kapanmış dönemlerde aynı kavram `HistorySummary`'deki net değişimdir |
+| ekran kayıtları | `ScreenRegistrations` | Kompozisyon kökünün sayfa ve görünüm modeli yarısı (`src/Mizan.App/Composition/`); `MauiProgram.cs` 200 satıra dayanınca ayrıldı (`V9`, `I121`) |
 
 ---
 

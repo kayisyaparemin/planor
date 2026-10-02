@@ -41,4 +41,7 @@ internal static class ArchitectureRules
 
     public static IReadOnlyList<string> VerifyNoInsertOrReplace() =>
         PersistenceRules.CheckNoInsertOrReplace();
+
+    public static IReadOnlyList<string> VerifyRegistrationsOnlyInCompositionRoot() =>
+        CompositionRootRules.CheckRegistrationsOnlyInCompositionRoot();
 }

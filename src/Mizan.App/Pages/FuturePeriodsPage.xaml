@@ -14,13 +14,17 @@
     <!-- EK-V8: 12 dönem (V8a) ve erken kapama kartı (V8b), S74, GS26 -->
 
     <ContentPage.Resources>
-        <!-- Dönem karosu: ay ve dönem sonu; en düşük kalın, eksi olumsuz renkte. Yeri sıradan (GS26-1) -->
+        <!-- Dönem karosu: ay ve dönem sonu; en düşük kalın, eksi olumsuz renkte. Yeri sıradan (GS26-1); dokununca dönem ayrıntısı (S75-1) -->
         <DataTemplate x:Key="DonemKarosu" x:DataType="models:FuturePeriodTile">
             <VerticalStackLayout Grid.Row="{Binding Index, Converter={StaticResource IzgaraKonumu}, ConverterParameter=Satir}"
                                  Grid.Column="{Binding Index, Converter={StaticResource IzgaraKonumu}}"
                                  BackgroundColor="{DynamicResource SurfaceCard}"
                                  Padding="{StaticResource Space3}"
                                  Spacing="{StaticResource Space1}">
+                <VerticalStackLayout.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FuturePeriodsViewModel}}, Path=OpenPeriodCommand}"
+                                          CommandParameter="{Binding .}" />
+                </VerticalStackLayout.GestureRecognizers>
                 <Label Text="{Binding ., Converter={StaticResource DonemAyi}}"
                        Style="{StaticResource Caption}" />
                 <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
@@ -146,7 +150,7 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!-- Dönem sonları: 3 × 4 karo, 1 px ayırıcı ızgara aralığından; dokunma V9'da (S3) -->
+                <!-- Dönem sonları: 3 × 4 karo, 1 px ayırıcı ızgara aralığından; karo dönem ayrıntısını açar (S3, V9) -->
                 <Border BackgroundColor="{DynamicResource SurfaceCard}"
                         Stroke="{DynamicResource BorderSubtle}"
                         StrokeThickness="{StaticResource StrokeHairline}"

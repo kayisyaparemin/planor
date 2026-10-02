@@ -151,4 +151,27 @@ public sealed class ArchitectureTests
 
         Assert.Equal(3, violations.Count);
     }
+
+    [Fact]
+    public void DiKaydi_YalnizKompozisyonKokundeOlabilir()
+    {
+        var violations = ArchitectureRules.VerifyRegistrationsOnlyInCompositionRoot();
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void KompozisyonKokuKurali_IhlalGordugunde_Yakalayabilmelidir()
+    {
+        const string source = """
+            // services.AddSingleton<IFoo, Foo>(); yorumda geçebilir.
+            services.AddSingleton<IFutureProjectionService, FutureProjectionService>();
+            services.AddTransient(sp => new PeriodDetailViewModel(sp.GetRequiredService<IFutureProjectionService>(), nav));
+            """;
+
+        var outside = CompositionRootRules.CheckSourceContent("Mizan.Application/Services/FutureProjectionService.cs", source);
+        var inside = CompositionRootRules.CheckSourceContent("Mizan.App/Composition/ScreenRegistrations.cs", source);
+
+        Assert.Equal(2, outside.Count);
+        Assert.Empty(inside);
+    }
 }
