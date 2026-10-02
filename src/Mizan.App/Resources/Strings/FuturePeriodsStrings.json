@@ -6,5 +6,12 @@
   "Etiket_DonemSonlari": "DÖNEM SONLARI",
   "Bos_OnIkiDonemYok": "12 dönem, gelir ya da bakiye bilgisi girildiğinde hesaplanır.",
   "Aksiyon_FinansalYapiyaGit": "Finansal Yapı'ya Git",
-  "Hata_OnIkiDonemHesaplanamadi": "12 dönem şu an hesaplanamadı."
+  "Hata_OnIkiDonemHesaplanamadi": "12 dönem şu an hesaplanamadı.",
+  "Etiket_ErkenKapama": "ERKEN KAPAMA",
+  "Bicim_KapamaOnerisi": "{0} · {1} ile kapat",
+  "Bicim_KapamaPlanli": "Kapama planlı · {0}",
+  "Etiket_KapatmakAcikOlusturur": "Kapatmak açık oluşturur",
+  "Etiket_KapatmakKazandirmiyor": "Kapatmak kazandırmıyor",
+  "Etiket_AnaparaGerekli": "Kalan anapara gerekli",
+  "Etiket_Net": "net"
 }

@@ -11,7 +11,7 @@
              x:DataType="vm:FuturePeriodsViewModel"
              AutomationId="{x:Static auto:FuturePeriodsAutomationIds.PageFuturePeriods}">
 
-    <!-- EK-V8: 12 dönem (V8a; erken kapama kartı V8b), S74, GS26 -->
+    <!-- EK-V8: 12 dönem (V8a) ve erken kapama kartı (V8b), S74, GS26 -->
 
     <ContentPage.Resources>
         <!-- Dönem karosu: ay ve dönem sonu; en düşük kalın, eksi olumsuz renkte. Yeri sıradan (GS26-1) -->
@@ -37,6 +37,43 @@
                     </Label.Triggers>
                 </Label>
             </VerticalStackLayout>
+        </DataTemplate>
+
+        <!-- Erken kapama satırı: ad · durum · önerildiyse net kazanç · ›; dokununca kredi formu (S74-7) -->
+        <DataTemplate x:Key="KapamaSatiri" x:DataType="models:LoanPayoffRow">
+            <Grid ColumnDefinitions="*, Auto, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:FuturePeriodsViewModel}}, Path=OpenLoanCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding LoanName}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding ., Converter={StaticResource ErkenKapamaDurumu}}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+                <HorizontalStackLayout Grid.Column="1"
+                                       Spacing="{StaticResource Space1}"
+                                       VerticalOptions="Center"
+                                       IsVisible="{Binding IsRecommended}">
+                    <Label Text="{x:Static strings:FuturePeriodsStrings.Etiket_Net}"
+                           Style="{StaticResource Caption}"
+                           VerticalTextAlignment="Center" />
+                    <Label Text="{Binding NetGain, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                           Style="{StaticResource Figure}"
+                           TextColor="{DynamicResource PositiveText}"
+                           VerticalTextAlignment="Center" />
+                </HorizontalStackLayout>
+                <Label Grid.Column="2"
+                       Text="{x:Static icons:Icons.ChevronRight}"
+                       FontFamily="MaterialSymbols"
+                       FontSize="{StaticResource IconSmall}"
+                       TextColor="{DynamicResource Indicator}"
+                       VerticalTextAlignment="Center" />
+            </Grid>
         </DataTemplate>
     </ContentPage.Resources>
 
@@ -133,6 +170,13 @@
                               BindableLayout.ItemTemplate="{StaticResource DonemKarosu}" />
                     </VerticalStackLayout>
                 </Border>
+
+                <!-- Erken kapama: listeden sonra gelir, öneri yoksa ya da hesaplanamadıysa görünmez (S5, S74-7, GS26-6) -->
+                <comp:ListCard EyebrowText="{x:Static strings:FuturePeriodsStrings.Etiket_ErkenKapama}"
+                               ItemsSource="{Binding PayoffRows}"
+                               ItemTemplate="{StaticResource KapamaSatiri}"
+                               IsVisible="{Binding HasPayoffRows}"
+                               AutomationId="{x:Static auto:FuturePeriodsAutomationIds.ListFuturePayoff}" />
             </VerticalStackLayout>
 
             <!-- Boş: açık dönem yok ya da plan kurulamıyor (S74-2) -->

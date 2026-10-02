@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mizan.Application.Abstractions;
+using Mizan.Application.Models;
 using Mizan.Domain.Models;
 using Mizan.Presentation.Charts;
 using Mizan.Presentation.Models;
@@ -11,8 +12,9 @@ namespace Mizan.Presentation.ViewModels;
 
 /// <summary>
 /// "12 Dönem" ekranının görünüm modeli (EK-V8, S74): ana sayfanın dönem sonundan başlayan 12 dönemde bakiyenin
-/// en çok nereye indiği, bir yıl sonra nerede olduğu, her dönemin sonu ve bu gidişatın faizi. Eskide aynı ekran
-/// tanrı cepheden beş çağrıyla kuruluyor ve metin üretiyordu; burada tek okuma portundan ham değer sunar.
+/// en çok nereye indiği, bir yıl sonra nerede olduğu, her dönemin sonu, bu gidişatın faizi ve kredileri erken
+/// kapatmanın kazandırıp kazandırmadığı. Eskide aynı ekran tanrı cepheden beş çağrıyla kuruluyor ve metin
+/// üretiyordu; burada tek okuma portundan ham değer sunar.
 /// </summary>
 public sealed partial class FuturePeriodsViewModel : ViewModelBase
 {
@@ -24,6 +26,11 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
 
     /// <summary>Izgaranın 12 karosu, zincir sırasıyla.</summary>
     public ObservableCollection<FuturePeriodTile> Periods { get; } = [];
+
+    /// <summary>Erken kapama kartının satırları, kredi sırasıyla; öneri yoksa ya da hesaplanamadıysa boş (S74-7).</summary>
+    public ObservableCollection<LoanPayoffRow> PayoffRows { get; } = [];
+
+    [ObservableProperty] private bool hasPayoffRows;
 
     [ObservableProperty] private decimal? lowestEndingBalance;
     [ObservableProperty] private DateOnly? lowestPeriodStart;
@@ -41,12 +48,35 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
     }
 
-    /// <summary>12 dönemi yükler; açık dönem ya da kurulabilir plan yoksa ekran boştur (S74-2).</summary>
+    /// <summary>
+    /// 12 dönemi yükler; açık dönem ya da kurulabilir plan yoksa ekran boştur (S74-2). Erken kapama önerisi listeden
+    /// sonra gelir: birkaç düzine projeksiyon koşar, liste onu beklemez ve kart hazır olunca görünür.
+    /// </summary>
     [RelayCommand]
     public async Task LoadAsync()
     {
+        await LoadProjectionAsync();
+        if (State == ScreenState.Content)
+        {
+            await LoadPayoffAsync();
+        }
+    }
+
+    /// <summary>Boş hâlin aksiyonu: gelir ya da bakiye bilgisinin girildiği Finansal Yapı'yı açar.</summary>
+    [RelayCommand]
+    public Task OpenFinancialStructureAsync() => _navigationService.NavigateToAsync(Routes.FinancialStructure);
+
+    /// <summary>Erken kapama satırının krediyi açması: kapama kredi formunda erken ödeme olarak planlanır (S74-7).</summary>
+    [RelayCommand]
+    public Task OpenLoanAsync(LoanPayoffRow row) =>
+        _navigationService.NavigateToAsync(Routes.LoanForm, new Dictionary<string, object> { [Routes.LoanIdParameter] = row.LoanId });
+
+    private async Task LoadProjectionAsync()
+    {
         SetBusy(true);
         State = ScreenState.Loading;
+        PayoffRows.Clear();
+        HasPayoffRows = false;
         try
         {
             var projection = await _projectionService.GetAsync();
@@ -72,9 +102,36 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
         }
     }
 
-    /// <summary>Boş hâlin aksiyonu: gelir ya da bakiye bilgisinin girildiği Finansal Yapı'yı açar.</summary>
-    [RelayCommand]
-    public Task OpenFinancialStructureAsync() => _navigationService.NavigateToAsync(Routes.FinancialStructure);
+    // Önerinin hatası sayfayı düşürmez, yalnız kartı gizler (S74-7). Satırlar sonuç gelince bir arada yazılır; araya
+    // giren ikinci yükleme satırları çiftleyemez.
+    private async Task LoadPayoffAsync()
+    {
+        try
+        {
+            var advice = await _projectionService.GetPayoffAdviceAsync();
+            PayoffRows.Clear();
+            foreach (var item in advice)
+            {
+                PayoffRows.Add(ToRow(item));
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[FuturePeriodsViewModel ERROR] Erken kapama: {ex}");
+            PayoffRows.Clear();
+        }
+        HasPayoffRows = PayoffRows.Count > 0;
+    }
+
+    private static LoanPayoffRow ToRow(LoanPayoffAdvice advice) => new()
+    {
+        LoanId = advice.LoanId,
+        LoanName = advice.LoanName,
+        Status = advice.Status,
+        Date = advice.Date,
+        PayoffAmount = advice.PayoffAmount,
+        NetGain = advice.NetGain
+    };
 
     private void ApplyPeriods(IReadOnlyList<CashFlowPeriodProjection> periods)
     {

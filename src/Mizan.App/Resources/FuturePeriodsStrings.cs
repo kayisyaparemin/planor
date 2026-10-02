@@ -32,4 +32,25 @@ public static class FuturePeriodsStrings
 
     /// <summary>12 dönem okunamadığında ya da hesaplanamadığında hata metni.</summary>
     public const string Hata_OnIkiDonemHesaplanamadi = "12 dönem şu an hesaplanamadı.";
+
+    /// <summary>Erken kapama kartının etiketi (S74-7).</summary>
+    public const string Etiket_ErkenKapama = "ERKEN KAPAMA";
+
+    /// <summary>Kapatmak önerildiğinde satırın durumu; {0} önerilen gün, {1} o gün ödenecek tutar.</summary>
+    public const string Bicim_KapamaOnerisi = "{0} · {1} ile kapat";
+
+    /// <summary>Kredi formunda kapama zaten planlanmışsa satırın durumu; {0} planlanan gün.</summary>
+    public const string Bicim_KapamaPlanli = "Kapama planlı · {0}";
+
+    /// <summary>Kapatmak kazandırırdı ama her aday günde bir dönem eksiye düşüyor ya da eksisi büyüyor.</summary>
+    public const string Etiket_KapatmakAcikOlusturur = "Kapatmak açık oluşturur";
+
+    /// <summary>Hiçbir aday günde kapatmak net kazanç sağlamıyor.</summary>
+    public const string Etiket_KapatmakKazandirmiyor = "Kapatmak kazandırmıyor";
+
+    /// <summary>Kredinin faizi çözülemiyor; satıra dokununca kalan anapara kredi formunda girilir.</summary>
+    public const string Etiket_AnaparaGerekli = "Kalan anapara gerekli";
+
+    /// <summary>Önerilen satırda net kazanç tutarının önündeki küçük etiket.</summary>
+    public const string Etiket_Net = "net";
 }

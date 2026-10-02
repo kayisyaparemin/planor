@@ -10,11 +10,13 @@ namespace Mizan.Application.Services;
 /// açık dönem planla hesaplanıyordu; kullanıcı bakiye girince ana sayfa tahmini, 12 dönem planı gösteriyor ve
 /// ekran bu çelişkiyi bir uyarı cümlesiyle açıklamak zorunda kalıyordu. Burada açılış bakiyesi ana sayfadaki
 /// rakamdır (bakiye girildiyse tahmin, girilmediyse plan; S72-1) ve ilk dönem açık dönemin bittiği gündür.
+/// Erken kapama önerisi de aynı zincirde koşar; iki cevap aynı rakamdan başlar (S74-7).
 /// </summary>
 public sealed class FutureProjectionService(
     IPeriodProgressService progressService,
     IPlanReader planReader,
     FinancialProjectionCalculator projectionCalculator,
+    LoanPayoffAdvisor payoffAdvisor,
     IClock clock) : IFutureProjectionService
 {
     private const int PeriodCount = 12;
@@ -24,10 +26,36 @@ public sealed class FutureProjectionService(
     private readonly IPlanReader _planReader = planReader ?? throw new ArgumentNullException(nameof(planReader));
     private readonly FinancialProjectionCalculator _projectionCalculator =
         projectionCalculator ?? throw new ArgumentNullException(nameof(projectionCalculator));
+    private readonly LoanPayoffAdvisor _payoffAdvisor = payoffAdvisor ?? throw new ArgumentNullException(nameof(payoffAdvisor));
     private readonly IClock _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
     /// <inheritdoc />
     public async Task<FinancialProjectionResult?> GetAsync(CancellationToken cancellationToken = default)
+    {
+        var chain = await LoadChainAsync(cancellationToken);
+        return chain is null
+            ? null
+            : _projectionCalculator.CalculatePlan(chain.Plan, chain.Today, PeriodCount, chain.FirstPeriodStart);
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<LoanPayoffAdvice>> GetPayoffAdviceAsync(CancellationToken cancellationToken = default)
+    {
+        var chain = await LoadChainAsync(cancellationToken);
+        if (chain is null)
+        {
+            return [];
+        }
+
+        // Her kredi için ufuktaki her taksit günü denenir; birkaç düzine projeksiyon ekranı dondurmasın diye arka planda.
+        return await Task.Run(
+            () => _payoffAdvisor.Advise(chain.Plan, chain.Today, chain.FirstPeriodStart, PeriodCount, cancellationToken),
+            cancellationToken);
+    }
+
+    // Açık dönem yoksa zincir yoktur (S74-2). Kural zincirin kendisine sorulur: gelir silinmiş ama ana sayfada bakiye
+    // varsa zincir erimeyi gösterir.
+    private async Task<Chain?> LoadChainAsync(CancellationToken cancellationToken)
     {
         var progress = await _progressService.GetAsync(cancellationToken);
         if (progress is null)
@@ -38,11 +66,7 @@ public sealed class FutureProjectionService(
         var today = _clock.Today;
         var query = await _planReader.GetProjectionPlanAsync(today, cancellationToken);
         var plan = ChainFrom(query.Plan, progress);
-
-        // Kural zincirin kendisine sorulur: gelir silinmiş ama ana sayfada bakiye varsa zincir erimeyi gösterir.
-        return plan.CanBuildProjection
-            ? _projectionCalculator.CalculatePlan(plan, today, PeriodCount, progress.PeriodEnd)
-            : null;
+        return plan.CanBuildProjection ? new Chain(plan, today, progress.PeriodEnd) : null;
     }
 
     // Planın çapası ve açılışı açık dönemin başıdır; ikisi de ana sayfanın dönem sonuyla değişir (S74-1).
@@ -55,4 +79,7 @@ public sealed class FutureProjectionService(
                 ProjectionOpeningBalance = progress.ProjectedEndingBalance ?? progress.PlannedEndingBalance
             }
         };
+
+    // Zincirin ilk dönemi açık dönemin bittiği gündür; öneri bu yüzden açık dönemin taksitlerini denemez (S74-7).
+    private sealed record Chain(FinancialPlan Plan, DateOnly Today, DateOnly FirstPeriodStart);
 }

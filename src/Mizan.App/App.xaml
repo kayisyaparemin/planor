@@ -30,6 +30,7 @@
             <conv:ErkenOdemeTuruConverter x:Key="ErkenOdemeTuru" />
             <conv:DonemAyiConverter x:Key="DonemAyi" />
             <conv:IzgaraKonumuConverter x:Key="IzgaraKonumu" />
+            <conv:ErkenKapamaDurumuConverter x:Key="ErkenKapamaDurumu" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

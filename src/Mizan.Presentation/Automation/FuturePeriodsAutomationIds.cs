@@ -18,6 +18,9 @@ public static class FuturePeriodsAutomationIds
     /// <summary>Dönem sonları ızgarası.</summary>
     public const string GridFuturePeriods = "grid-future-periods";
 
+    /// <summary>Erken kapama kartı: kredi başına bir satır, satır krediyi açar.</summary>
+    public const string ListFuturePayoff = "list-future-payoff";
+
     /// <summary>Boş hâl: açık dönem ya da kurulabilir plan yok.</summary>
     public const string StateFuturePeriodsEmpty = "state-future-periods-empty";
 

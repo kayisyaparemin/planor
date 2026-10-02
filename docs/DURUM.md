@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V8a** — 12 dönem sayfası (`FuturePeriodsPage`; S74, GS26, EK-V8) |
-| Sıradaki adım | **V8b** — aynı sayfaya erken kapama önerisi kartı (Kapı A ve B V8 ile ortak, yalnız Kapı C ayrı) |
-| Test sayısı | 1924 |
+| Son tamamlanan adım | **V8b** — 12 dönem sayfasına erken kapama kartı (`FuturePeriodsPage`; S74-7, GS26-6, EK-V8); `V8` tamamlandı |
+| Sıradaki adım | **V9** — dönem ayrıntısı |
+| Test sayısı | 1936 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V8b — 12 dönem sayfasına erken kapama kartı: aynı zincir, kredi başına bir satır, satır krediyi açar; kararlar `S74`-7, `GS26`-6, `EK-V8`
+
+A13b'den beri tüketicisiz duran `LoanPayoffAdvisor` ilk kez ekrana bağlandı: `IFutureProjectionService.GetPayoffAdviceAsync` öneriyi 12 dönemle aynı zincirde (aynı açılış, aynı ilk dönem) ve arka planda hesaplıyor; açık dönemin taksitleri denenmiyor (`I117`). Servis 5 bağımlılıkta, ViewModel 2'de kaldı; `MauiProgram.cs` değişmedi.
+Kart listeden sonra açılır; önerinin hatası sayfayı düşürmez, yalnız kartı gizler (`I118`). Satır: kredi adı, durum (`ErkenKapamaDurumuConverter`: "18 Eyl 2027 · 21.400 ₺ ile kapat", "Kapama planlı · tarih", "Kapatmak açık oluşturur", "Kapatmak kazandırmıyor", "Kalan anapara gerekli"), önerildiyse yeşil "net +X ₺", ›; dokununca kredi formu. 4 satır sınırı bu karta uygulanmadı (kullanıcı kararı, `GS26`-6). Brüt faiz tasarrufu, en kârlı gün ve "Simülatörde dene" ekrana girmedi.
+Doküman düzeltmeleri: konsept PNG'leri (`docs/assets/konsept/12-donem-*.png`, 9 dosya) commit'e girdi ve EK-V8 / GS26 gerçek adlara bakıyor; `I26` "en kârlı gün ayrıca gösterilir" yerine "hesaplanır, ekranda gösterilmez" diyor; plan özetindeki V sayısı kutulardan yeniden sayıldı (6 → 9).
+Dikkat: `MauiProgram.cs` hâlâ 200 / 200; `V9`'un sayfa kaydı o adımın başında kural kararı ister (V8a notu geçerli).
+Bütçe: Hero 1/1, Hero yüzey 0/1, Kart 3/4 (gidişat, ızgara, erken kapama `ListCard`), Grafik 1/1, NavRow 0/5, Label 15/28, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 12 yeni test (4 Application, 8 Presentation); toplam 1.936 test yeşil, 0 hata, 0 uyarı.
 
 ### V8a — 12 dönem sayfası (`FuturePeriodsPage`): zincir ana sayfanın dönem sonundan, en düşük dönem sonu hero, karo ızgarası; kararlar `S74`, `GS26`, `EK-V8`
 

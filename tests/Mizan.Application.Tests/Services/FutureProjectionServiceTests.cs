@@ -8,7 +8,7 @@ namespace Mizan.Application.Tests.Services;
 
 /// <summary>
 /// 12 dönemlik zincirin ana sayfanın dönem sonuna bağlanması (S74): açılış tahmin ya da plan, ilk dönem açık
-/// dönemin bitişi, açık dönem yoksa ya da plan kurulamıyorsa boş.
+/// dönemin bitişi, açık dönem yoksa ya da plan kurulamıyorsa boş. Erken kapama önerisi aynı zincirde (S74-7).
 /// </summary>
 public sealed class FutureProjectionServiceTests
 {
@@ -16,21 +16,35 @@ public sealed class FutureProjectionServiceTests
     private static readonly DateOnly OpenEnd = new(2026, 10, 10);
     private const decimal Income = 50_000m;
     private const decimal LivingAllowance = 30_000m;
+    private static readonly DateOnly FirstChainInstallment = new(2026, 11, 5);
+
+    private static readonly LoanScheduleCalculator ScheduleCalculator = new();
+    private static readonly LoanAmortizationCalculator AmortizationCalculator = new(ScheduleCalculator);
+    private static readonly LoanPaymentScheduleBuilder ScheduleBuilder = new(ScheduleCalculator, AmortizationCalculator);
 
     private readonly FakePeriodProgressService _progressService = new();
     private readonly FakePlanReader _planReader = new();
     private readonly FinancialProjectionCalculator _calculator = CreateCalculator();
+    private readonly LoanPayoffAdvisor _advisor;
     private TestClock _clock = new(new DateOnly(2026, 9, 30));
 
-    private FutureProjectionService CreateSut() => new(_progressService, _planReader, _calculator, _clock);
+    public FutureProjectionServiceTests()
+    {
+        var planBuilder = new ScenarioPlanBuilder(
+            new InstallmentScheduleCalculator(), new LoanPrepaymentValidator(AmortizationCalculator, ScheduleBuilder));
+        _advisor = new LoanPayoffAdvisor(_calculator, planBuilder, AmortizationCalculator, ScheduleBuilder);
+    }
+
+    private FutureProjectionService CreateSut() => new(_progressService, _planReader, _calculator, _advisor, _clock);
 
     [Fact]
     public void Kurucu_BagimlilikEksikse_ArgumentNullExceptionFirlatir()
     {
-        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(null!, _planReader, _calculator, _clock));
-        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, null!, _calculator, _clock));
-        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, _planReader, null!, _clock));
-        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, _planReader, _calculator, null!));
+        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(null!, _planReader, _calculator, _advisor, _clock));
+        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, null!, _calculator, _advisor, _clock));
+        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, _planReader, null!, _advisor, _clock));
+        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, _planReader, _calculator, null!, _clock));
+        Assert.Throws<ArgumentNullException>(() => new FutureProjectionService(_progressService, _planReader, _calculator, _advisor, null!));
     }
 
     [Fact]
@@ -122,6 +136,65 @@ public sealed class FutureProjectionServiceTests
         Assert.True(result.Periods[^1].EndingBalance < 0m);
     }
 
+    // Taksit günü 5: açık dönemin 5 Ekim taksiti bugünden sonra ama zincirden önce; denenmemeli (S74-7).
+    [Fact]
+    public async Task OneriGetir_AcikDonemTaksiti_DenenmezIlkAday_ZincirdekiIlkTaksittir()
+    {
+        _progressService.Current = Progress(projected: 5_000_000m, planned: 43_900m);
+        _planReader.Plan = PlanWithIncome() with { Loans = [LoanDueOnFifth()] };
+
+        var advice = Assert.Single(await CreateSut().GetPayoffAdviceAsync());
+
+        Assert.Equal(LoanPayoffAdviceStatus.Recommended, advice.Status);
+        Assert.Equal(FirstChainInstallment, advice.Date);
+    }
+
+    // Plan dönem sonunu bol gösteriyor ama ana sayfa sıfır diyor. Planın rakamıyla ilk taksit günü önerilirdi;
+    // sıfırdan başlayan zincir kapama bedelini ancak aylar sonra açık oluşturmadan karşılar.
+    [Fact]
+    public async Task OneriGetir_AcilisAnaSayfaninTahminidir_PlaninDonemSonuDegil()
+    {
+        _progressService.Current = Progress(projected: 0m, planned: 5_000_000m);
+        _planReader.Plan = PlanWithIncome() with { Loans = [LoanDueOnFifth()] };
+
+        var advice = Assert.Single(await CreateSut().GetPayoffAdviceAsync());
+
+        Assert.True(advice.Date > FirstChainInstallment.AddMonths(6), $"Önerilen gün: {advice.Date}");
+    }
+
+    [Fact]
+    public async Task OneriGetir_AcikDonemYoksa_BosListeDoner()
+    {
+        _progressService.Current = null;
+        _planReader.Plan = PlanWithIncome() with { Loans = [LoanDueOnFifth()] };
+
+        var advice = await CreateSut().GetPayoffAdviceAsync();
+
+        Assert.Empty(advice);
+    }
+
+    [Fact]
+    public async Task OneriGetir_PlanKurulamiyorsa_BosListeDoner()
+    {
+        _progressService.Current = Progress(projected: null, planned: 0m);
+        _planReader.Plan = PlanWithoutIncome() with { Loans = [LoanDueOnFifth()] };
+
+        var advice = await CreateSut().GetPayoffAdviceAsync();
+
+        Assert.Empty(advice);
+    }
+
+    private static Loan LoanDueOnFifth() => new()
+    {
+        Name = "Taşıt",
+        Bank = "Test Bankası",
+        MonthlyPayment = 10_000m,
+        PaymentDay = 5,
+        NextPaymentDate = new DateOnly(2026, 10, 5),
+        RemainingInstallmentCount = 24,
+        RemainingDebt = 200_000m
+    };
+
     private static FinancialPlan PlanWithIncome()
     {
         var incomeId = Guid.NewGuid();
@@ -176,18 +249,12 @@ public sealed class FutureProjectionServiceTests
         SnoozedLineIds = new HashSet<Guid>()
     };
 
-    private static FinancialProjectionCalculator CreateCalculator()
-    {
-        var scheduleCalculator = new LoanScheduleCalculator();
-        var amortizationCalculator = new LoanAmortizationCalculator(scheduleCalculator);
-        var loanScheduleBuilder = new LoanPaymentScheduleBuilder(scheduleCalculator, amortizationCalculator);
-        return new FinancialProjectionCalculator(
-            new CashFlowPeriodCalculator(),
-            new IncomeProjectionCalculator(new IncomeResolver()),
-            new CreditCardStatementCalculator(),
-            new MandatoryPaymentCalculator(loanScheduleBuilder, new ScheduledPaymentCalculator()),
-            new PeriodObligationGrouper());
-    }
+    private static FinancialProjectionCalculator CreateCalculator() => new(
+        new CashFlowPeriodCalculator(),
+        new IncomeProjectionCalculator(new IncomeResolver()),
+        new CreditCardStatementCalculator(),
+        new MandatoryPaymentCalculator(ScheduleBuilder, new ScheduledPaymentCalculator()),
+        new PeriodObligationGrouper());
 
     private sealed class FakePeriodProgressService : IPeriodProgressService
     {

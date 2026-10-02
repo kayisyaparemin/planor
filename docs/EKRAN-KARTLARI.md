@@ -1625,6 +1625,7 @@ Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `E
 ## EK-V8 — 12 dönem
 
 > Sayfa dosyası: `FuturePeriodsPage.xaml` (`V8a`; erken kapama kartı `V8b`). Yan menüdeki "12 Dönem" (`//projection`).
+> Durum: tamamlandı (`V8a` 2026-10-03, `V8b` 2026-10-03).
 > Davranış `S74`, ekran `GS26`. Ekran hiçbir şey yazmaz.
 
 **Eski proje:** `FutureMonthsPage.xaml` 224 satır, **37 `<Label>`**, 5 kart (sapma uyarısı, faiz, kredi kapatma,
@@ -1655,6 +1656,7 @@ hedef tutar, boş hâl) + 12 dönem kartı şablonu, 7 buton + görünmez dokunm
 | Dönem başına gelir / zorunlu / yaşam, dönem faizi, kart çipleri | **Derine** → `V9` | S3'ün ikinci seviyesi; karoya dokunma `V9`'da bağlanır |
 | Erken kapama: kredi, önerilen gün ve tutar, net kazanç | **Kart** (`ListCard`), `V8b` | S5; satır krediyi açar, kapama orada planlanır (`S74`-7) |
 | Önerilenden farklı en kârlı gün | **Çıkar** → `V10` | İkinci bir karar noktası; simülatörün sorusu |
+| Kredinin ömrü boyunca ödenmeyecek faiz (brüt tasarruf) | **Çıkar** | Net kazanç onu açık faizi düşülmüş hâliyle içeriyor; kredi formunda "Kurtulacağın faiz" var (`V8b` Kapı A) |
 | "Simülatörde dene" | **Derine** → `V10` | Simülatör yok; `V10`'da bağlanır |
 | Sapma uyarısı ("checkpoint'e dayanıyor") | **Çıkar** | Zincir ana sayfanın rakamından başlıyor (`S74`-4) |
 | Hedef tutar ("Ne zaman karşılayabilirim?") | **Çıkar** → `V10` notu | Izgara dönem sonlarını zaten gösteriyor (`S74`-5) |
@@ -1671,12 +1673,17 @@ Hero yüzey    0 / 1     gidişat kartı tonlu SurfaceChart (GS26-2), SurfaceHer
 Kart          3 / 4     gidişat kartı, dönem sonları ızgarası, erken kapama ListCard* (V8b)   * yalnız öneri varsa
 Grafik        1 / 1     AreaTrend
 NavRow        0 / 5
-Label        15 / 28    başlık 1, gidişat kartı 5 (eyebrow, hero, açıklama, iki uç tarih), ızgara 4 (eyebrow; karo: ay, tutar + tetikleyici), erken kapama şablonu 5 (ad, durum, kazanç + FormattedText, ok)
+Label        15 / 28    başlık 1, gidişat kartı 5 (eyebrow, hero, açıklama, iki uç tarih), ızgara 4 (eyebrow; karo: ay, tutar + tetikleyici), erken kapama şablonu 5 (ad, durum, "net", kazanç, ok; "ERKEN KAPAMA" `ListCard`'ın `EyebrowText`'i, etiket değil)
 Cumle_        0 / 3
 ```
 
 `V8a` sonunda: kart 2 / 4, label 10 / 28 (başlık `Shell.TitleView`, ana sayfadaki gibi). Gidişat kartındaki iki satır `MetricRow` bileşeni; sayfa XAML'inde
 `<Label>` değiller. Analizci ham `Border`'ları kart saymaz; bütçe dürüst sayımdır. Eski ekranın 37 etiketinden 15'e.
+
+`V8b` sonunda: kart 3 / 4, label 15 / 28 (analizci ve dürüst sayım aynı). Aşama 4'te "net" ile tutar tek etiketin
+`FormattedText`'i olacaktı; iki `Label` oldu, çünkü aradaki boşluk metin kaynağında taşınamıyordu. Sayım değişmedi
+(analizci `<Label.FormattedText>`'i de bir `<Label` sayar). Durum metnini `ErkenKapamaDurumuConverter` kurar;
+tutar `ParaConverter`'ın biçimiyle yazılır.
 
 ### 4. Blok şeması
 
@@ -1717,6 +1724,7 @@ Cumle_        0 / 3
 │   anapara yoksa       Etiket_AnaparaGerekli                 │
 │   kapama planlıysa    Bicim_KapamaPlanli                    │
 │ satıra dokun → Routes.LoanForm + loanId                     │
+│ her kredi bir satır, Finansal Yapı sırasıyla; 4 sınırı yok (GS26-6)
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -1736,8 +1744,10 @@ Grafik için iki küçük ek (`GS26`-3, 4): `ChartTrend`'e isteğe bağlı `Thre
 
 ### 6. Konsept ilişkisi
 
-Claude Design, "Planör · 12 Dönem" (2026-10-02): `docs/assets/konsept/12-donem.png` (dolu hâl koyu ve açık,
-eksiye düşmeyen veri) ve `12-donem-durumlar.png` (yükleniyor, boş, hata, erken kapamanın dört hâli).
+Claude Design, "Planör · 12 Dönem" (2026-10-02), `docs/assets/konsept/` altında: `12-donem-koyu-dolu.png`,
+`12-donem-açık-dolu.png`, `12-donem-eksiye-düsmeyen-veri.png`, `12-donem-yukleniyor.png`, `12-donem-bos.png`,
+`12-donem-hata.png` ve erken kapamanın hâlleri (`12-donem-erken-kapama-bilgi-eksik.png`, `-kapama-planli.png`,
+`-kazandiran-yok.png`; önerili ve açık oluşturan satırlar dolu hâlde).
 Yerleşim oradan, renkler ve tip skalası token'lardan. Konseptten sapmalar `GS26`'da: yazı tipi, kabuk menüsü,
 eşik rengi, ikonlar, erken kapama satır puntoları, boş hâl metni, iskelet.
 
@@ -1782,7 +1792,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6d | Gelir formu | 14 | 7 + 3 | ✅ V6d1 + V6d2 + V6d3 |
 | EK-V6e | Ödeme formu | 12 | 8 + 4 | ✅ V6e |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
-| EK-V8 | 12 dönem | 37 | 10 | ✅ V8a (erken kapama V8b) |
+| EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
 | EK-V10 | Simülatör | 64 | | ⬜ |
 | EK-V11 | Dönem kapanışı | 50 | | ⬜ |

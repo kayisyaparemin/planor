@@ -21,8 +21,11 @@ public sealed class ParaConverter : IValueConverter
     {
         if (value is not decimal amount) { return Bilinmiyor; }
         var sign = amount > 0m && Isaretli.Equals(parameter as string, StringComparison.Ordinal) ? "+" : string.Empty;
-        return sign + amount.ToString("N0", Tr) + " ₺";
+        return sign + Bicimle(amount);
     }
+
+    /// <summary>Tutarı aynı biçimle yazar; başka bir çeviricinin cümlesine giren tutar ekranın geri kalanından ayrışmasın.</summary>
+    internal static string Bicimle(decimal? amount) => amount is { } value ? value.ToString("N0", Tr) + " ₺" : Bilinmiyor;
 
     /// <inheritdoc />
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
