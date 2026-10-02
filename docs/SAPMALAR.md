@@ -619,6 +619,16 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `V6c1` (1–3, 7), `V6c2` (4, 5, 9–11; `I67` metni "formu açarken" diye daraldı), `V6c3` (6, 12–16; Application ve depoya krediyi ve erken ödemelerini tek işlemde yazan metot), `EK-V6`, `EK-V6c`, `V4` (f — kurulum düzeltme oturumunda), `V10` (`S62`-7; simülatörden uygulanan erken ödeme kredinin sayfasında görünür) |
 | **Durum** | uygulandı (`V6c1`: 1–3, 7 · `V6c2`: 4, 5, 9–11; `I68`, `I69` · `V6c3`: 6, 12–16; `I70`–`I72`). Aşama 1 bulgusu i'nin form dışındaki yolları (dönem kapanışı, gelir kaydı) `/duzeltme` işi |
 
+### S65 — Ödeme formu: taksitli ödeme planı ve planlı büyük harcama için bağımsız form sayfaları; seri taksit girişi, düzenleme desteği
+
+| | |
+|---|---|
+| **Eski** | Eski projede `CommitmentsPage.xaml` içinde satır içi "Geçici ödeme planı" ve "Büyük harcama" bölümleri vardı. Taksitler tek tek tutar ve tarih girilerek ekleniyordu. Taksit sayısı ile periyodik seri taksit üretimi yoktu. Düzenleme desteği yoktu: tıklandığında yalnızca "Sil" seçeneği çıkıyordu. |
+| **Neden yanlış** | a) 12 taksitli bir borç veya senet için kullanıcının 12 kere ayrı ayrı tarih ve tutar girmesi hataya açık ve yorucudur. b) Adı, tutarı veya taksiti yanlış girilen bir planı ya da harcamayı düzenleyememek veri kaybına yol açar; silip baştan girmek zorunda bırakır. c) Formların devasa tek sayfada iç içe olması K3 ve K4 ihlali yaratır. |
+| **Yeni** | 1) İki müstakil sayfa: `PaymentPlanFormPage` (`Routes.PaymentPlanForm` + `planId`) ve `PlannedExpenseFormPage` (`Routes.PlannedExpenseForm` + `expenseId`); kimliksiz yeni ekleme, kimlikle düzenleme. 2) Finansal Yapı "Ekle" seçicisine "Ödeme planı" ve "Planlı büyük harcama" eklenir. Satır diyaloğuna "Düzenle" seçeneği gelir. 3) Ödeme planı formu: Plan adı, taksitler listesi (en fazla 4 satır + yerinde taşma `GS21`), taksit giriş bloğu. Girişte taksit tutarı, taksit sayısı (1–120) ve ilk vade tarihi (en erken bugün) alınır; `CalendarRules.AddMonthsKeepingDay` ile otomatik seri taksit satırları üretilir. Ödenmemiş taksitler satır tıklamasıyla silinebilir; ödenmiş taksit silinemez. Kaydet planı ve taksitlerini tek `SavePaymentPlanAsync` ile yazar. 4) Büyük harcama formu: Harcama adı, tutar (> 0), harcama tarihi (en erken bugün). Kaydet tek `SavePlannedLargeExpenseAsync` ile yazar. 5) Kaydedilmemiş değişiklik varsa Vazgeç, geri oku ve cihaz geri tuşu onay sorar (`EK-V6b` deseni). 6) Taşınmayanlar: "Geçici / düzenli" ayrımı, açıklama/not alanları, durum rozetleri. |
+| **Etkiler** | `V6e`, `EK-V6`, `EK-V6e`, `S62` |
+| **Durum** | uygulandı |
+
 ### S66 — Hatırlatıcı kartı operasyonel aksiyona odaklandı, ayar ve takvim ayrıştırıldı
 
 | | |

@@ -53,6 +53,18 @@ public static class Routes
     /// <summary>Tek seferlik gelir formunun hangi geliri düzenleyeceğini taşıyan sorgu parametresi.</summary>
     public const string AdHocIncomeIdParameter = "adHocIncomeId";
 
+    /// <summary>Taksitli ödeme planı ekleme / düzenleme formu rotası; <see cref="PlanIdParameter"/> verilirse düzenleme.</summary>
+    public const string PaymentPlanForm = "payment-plan-form";
+
+    /// <summary>Ödeme planı formunun hangi planı düzenleyeceğini taşıyan sorgu parametresi.</summary>
+    public const string PlanIdParameter = "planId";
+
+    /// <summary>Planlanan büyük harcama ekleme / düzenleme formu rotası; <see cref="ExpenseIdParameter"/> verilirse düzenleme.</summary>
+    public const string PlannedExpenseForm = "planned-expense-form";
+
+    /// <summary>Planlanan harcama formunun hangi harcamayı düzenleyeceğini taşıyan sorgu parametresi.</summary>
+    public const string ExpenseIdParameter = "expenseId";
+
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";
 

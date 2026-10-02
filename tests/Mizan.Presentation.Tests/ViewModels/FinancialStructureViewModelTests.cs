@@ -100,9 +100,31 @@ public sealed class FinancialStructureViewModelTests
 
         await _viewModel.AddCommand.ExecuteAsync(null);
 
-        Assert.Equal(["Düzenli gelir", "Tek seferlik gelir", "Kredi kartı", "Kredi"], _dialog.LastChooseOptions);
+        Assert.Equal(["Düzenli gelir", "Tek seferlik gelir", "Kredi kartı", "Kredi", "Ödeme planı", "Planlı büyük harcama"], _dialog.LastChooseOptions);
         Assert.Null(_dialog.LastChooseDestruction);
         Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task Add_OdemePlaniSecilince_OdemePlaniFormunuKimliksizAcar()
+    {
+        _dialog.NextChooseResponse = "Ödeme planı";
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.Equal(Routes.PaymentPlanForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_navigation.LastParameters);
+    }
+
+    [Fact]
+    public async Task Add_PlanliBuyukHarcamaSecilince_HarcamaFormunuKimliksizAcar()
+    {
+        _dialog.NextChooseResponse = "Planlı büyük harcama";
+
+        await _viewModel.AddCommand.ExecuteAsync(null);
+
+        Assert.Equal(Routes.PlannedExpenseForm, _navigation.LastNavigatedRoute);
         Assert.Null(_navigation.LastParameters);
     }
 
@@ -183,6 +205,68 @@ public sealed class FinancialStructureViewModelTests
     }
 
     [Fact]
+    public async Task SelectRecord_OdemePlani_DuzenleVeSilSunar()
+    {
+        var plan = new TemporaryPaymentPlan
+        {
+            Name = "Okul taksiti",
+            Installments = [new TemporaryPaymentInstallment { Amount = 5_000m, DueDate = Today.AddDays(5) }]
+        };
+        var row = await LoadWith(new FinancialPlan { PaymentPlans = [plan] }, vm => vm.Payments);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal("Okul taksiti", _dialog.LastChooseTitle);
+        Assert.Equal(["Düzenle"], _dialog.LastChooseOptions);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_OdemePlaniDuzenle_PaymentPlanFormunuKimligiyleAcar()
+    {
+        var plan = new TemporaryPaymentPlan
+        {
+            Name = "Okul taksiti",
+            Installments = [new TemporaryPaymentInstallment { Amount = 5_000m, DueDate = Today.AddDays(5) }]
+        };
+        var row = await LoadWith(new FinancialPlan { PaymentPlans = [plan] }, vm => vm.Payments);
+        _dialog.NextChooseResponse = "Düzenle";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal(Routes.PaymentPlanForm, _navigation.LastNavigatedRoute);
+        Assert.Equal(plan.Id.ToString(), _navigation.LastParameters?[Routes.PlanIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
+    public async Task SelectRecord_PlanliBuyukHarcama_DuzenleVeSilSunar()
+    {
+        var expense = new PlannedLargeExpense { Name = "Tatil", Amount = 20_000m, ExactDate = Today.AddDays(15) };
+        var row = await LoadWith(new FinancialPlan { PlannedLargeExpenses = [expense] }, vm => vm.Payments);
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal("Tatil", _dialog.LastChooseTitle);
+        Assert.Equal(["Düzenle"], _dialog.LastChooseOptions);
+        Assert.Equal("Sil", _dialog.LastChooseDestruction);
+    }
+
+    [Fact]
+    public async Task SelectRecord_PlanliBuyukHarcamaDuzenle_PlannedExpenseFormunuKimligiyleAcar()
+    {
+        var expense = new PlannedLargeExpense { Name = "Tatil", Amount = 20_000m, ExactDate = Today.AddDays(15) };
+        var row = await LoadWith(new FinancialPlan { PlannedLargeExpenses = [expense] }, vm => vm.Payments);
+        _dialog.NextChooseResponse = "Düzenle";
+
+        await _viewModel.SelectRecordCommand.ExecuteAsync(row);
+
+        Assert.Equal(Routes.PlannedExpenseForm, _navigation.LastNavigatedRoute);
+        Assert.Equal(expense.Id.ToString(), _navigation.LastParameters?[Routes.ExpenseIdParameter].ToString());
+        Assert.Equal(0, _dialog.ConfirmCount);
+    }
+
+    [Fact]
     public async Task Add_Vazgecilirse_Gezinmez()
     {
         _dialog.NextChooseResponse = null;
@@ -243,7 +327,7 @@ public sealed class FinancialStructureViewModelTests
     }
 
     [Fact]
-    public async Task SelectRecord_KartVeKrediDisindakiKayit_YalnizSilSunar()
+    public async Task SelectRecord_BuyukHarcama_DuzenleVeSilSunar()
     {
         var expense = await LoadWith(
             new FinancialPlan { PlannedLargeExpenses = [Expense("Tatil", 30000m, new DateOnly(2027, 7, 12))] }, vm => vm.Payments);
@@ -251,7 +335,7 @@ public sealed class FinancialStructureViewModelTests
         await _viewModel.SelectRecordCommand.ExecuteAsync(expense);
 
         Assert.Equal("Tatil", _dialog.LastChooseTitle);
-        Assert.Empty(_dialog.LastChooseOptions!);
+        Assert.Equal(["Düzenle"], _dialog.LastChooseOptions);
         Assert.Equal("Sil", _dialog.LastChooseDestruction);
     }
 

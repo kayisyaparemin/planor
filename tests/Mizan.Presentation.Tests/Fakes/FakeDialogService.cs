@@ -20,6 +20,7 @@ public sealed class FakeDialogService : IDialogService
     public string? LastChooseTitle { get; private set; }
     public string? LastChooseDestruction { get; private set; }
     public int ConfirmCount { get; private set; }
+    public string? LastConfirmTitle { get; private set; }
     public string? LastConfirmMessage { get; private set; }
 
     public Task ShowAlertAsync(string title, string message, string button = "Tamam")
@@ -32,6 +33,7 @@ public sealed class FakeDialogService : IDialogService
     public Task<bool> ConfirmAsync(string title, string message, string accept = "Evet", string cancel = "Hayır")
     {
         ConfirmCount++;
+        LastConfirmTitle = title;
         LastConfirmMessage = message;
         return Task.FromResult(NextConfirmResponse);
     }

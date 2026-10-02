@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.PlannedExpenseFormPage"
+             x:DataType="vm:PlannedExpenseFormViewModel"
+             AutomationId="{x:Static auto:PaymentFormAutomationIds.PagePlannedExpenseForm}">
+
+    <!-- EK-V6e: Planlı büyük harcama formu. Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S4: yeni planlı büyük harcama ya da düzenleme -->
+            <comp:PageHeader Title="{x:Static strings:PaymentFormStrings.Baslik_PlanliBuyukHarcama}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding IsEditing}" Value="True">
+                        <Setter Property="Title" Value="{x:Static strings:PaymentFormStrings.Baslik_HarcamayiDuzenle}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: harcama tanımı + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S4: form kartı; harcama adı, tutar ve tarih (S65-4) -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:PaymentFormStrings.Etiket_HarcamaAdi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Name}"
+                                   Placeholder="{x:Static strings:PaymentFormStrings.YerTutucu_HarcamaAdi}"
+                                   AutomationId="{x:Static auto:PaymentFormAutomationIds.InputPlannedExpenseName}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:PaymentFormStrings.Etiket_Tutar}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Text="{Binding AmountInput}"
+                                       Placeholder="{x:Static strings:PaymentFormStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:PaymentFormAutomationIds.InputPlannedExpenseAmount}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:PaymentFormStrings.Etiket_Tarih}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <DatePicker Date="{Binding ExactDate, Converter={StaticResource TarihSecici}}"
+                                            MinimumDate="{Binding MinimumDate, Converter={StaticResource TarihSecici}}"
+                                            Format="dd.MM.yyyy"
+                                            BackgroundColor="{DynamicResource SurfaceSunken}"
+                                            TextColor="{DynamicResource TextPrimary}"
+                                            FontSize="{StaticResource TypeBody}"
+                                            AutomationId="{x:Static auto:PaymentFormAutomationIds.PickerPlannedExpenseDate}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S4: kaydet harcamayı yazar ve listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:PaymentFormStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnSavePlannedExpense}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:PaymentFormStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnCancelPlannedExpense}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek harcama okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:PaymentFormStrings.Hata_HarcamaYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding RetryCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

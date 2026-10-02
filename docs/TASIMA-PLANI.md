@@ -354,7 +354,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       Tek adım (`S61`, `EK-V7`): sıradaki ödeme ve kararı, kararın bedeli, sonraki ödemeler,
       varsayılan ödeme şekli, elle ekstre girişi. Sol menüde **geçici** giriş. *(Önce V7a/V7b
       diye bölünmüştü; V7a tek başına ekranın cevabını vermediği için Kapı C'de birleştirildi.)*
-- [ ] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
+- [x] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
       `S61`'den devralınanlar: gelecek kart harcaması girişi ve sol menüdeki geçici
       "Kart Kontrol" öğesinin kaldırılması (kart satırı `Routes.CardControl` + `cardId` açar).
       Aşama 1'de beş alt adıma bölündü (`S62`); her form adımı kendi türünü "Ekle" seçicisine
@@ -395,7 +395,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           (simülatörden gelenler dahil), yeni tutar girişi, planlı değişikliği silme
     - [x] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
           "Ekle"de "Tek seferlik gelir"
-  - [ ] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama
+  - [x] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama (`PaymentPlanFormPage`, `PlannedExpenseFormPage`, `S65`, `EK-V6e`)
 - [ ] **V5** — ilk düzen seçimi *(V6'ya dayanır)*
 - [ ] **V8** — 12 dönem
 - [ ] **V9** — dönem ayrıntısı

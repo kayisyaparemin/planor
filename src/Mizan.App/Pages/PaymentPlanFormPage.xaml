@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.PaymentPlanFormPage"
+             x:DataType="vm:PaymentPlanFormViewModel"
+             AutomationId="{x:Static auto:PaymentFormAutomationIds.PagePaymentPlanForm}">
+
+    <!-- EK-V6e: Taksitli ödeme planı formu. Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="TaksitSatiri" x:DataType="models:PaymentInstallmentRow">
+            <Grid ColumnDefinitions="*, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PaymentPlanFormViewModel}}, Path=Installments.SelectCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <Label Text="{Binding DueDate, Converter={StaticResource Tarih}}"
+                       Style="{StaticResource TypeBody}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       VerticalOptions="Center" />
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalOptions="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S1: yeni ödeme planı ya da düzenleme -->
+            <comp:PageHeader Title="{x:Static strings:PaymentFormStrings.Baslik_YeniOdemePlani}">
+                <comp:PageHeader.Triggers>
+                    <DataTrigger TargetType="comp:PageHeader" Binding="{Binding IsEditing}" Value="True">
+                        <Setter Property="Title" Value="{x:Static strings:PaymentFormStrings.Baslik_OdemePlaniniDuzenle}" />
+                    </DataTrigger>
+                </comp:PageHeader.Triggers>
+            </comp:PageHeader>
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: plan tanımı + taksit listesi + taksit girişi + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S1: form kartı; plan adı -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:PaymentFormStrings.Etiket_PlanAdi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Name}"
+                                   Placeholder="{x:Static strings:PaymentFormStrings.YerTutucu_PlanAdi}"
+                                   AutomationId="{x:Static auto:PaymentFormAutomationIds.InputPaymentPlanName}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S2: taksitler listesi; ≤ 4 satır, fazlası yerinde açılır (GS21) -->
+                <comp:ListCard EyebrowText="{x:Static strings:PaymentFormStrings.Etiket_Taksitler}"
+                               ItemsSource="{Binding Installments.Items}"
+                               ItemTemplate="{StaticResource TaksitSatiri}"
+                               OverflowText="{Binding Installments.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Installments.ExpandCommand}"
+                               IsVisible="{Binding Installments.HasItems}"
+                               AutomationId="{x:Static auto:PaymentFormAutomationIds.ListPaymentPlanInstallments}" />
+
+                <!-- S3: giriş kapalıyken aksiyon butonu görünür -->
+                <Button Text="{x:Static strings:PaymentFormStrings.Aksiyon_TaksitEkle}"
+                        Style="{StaticResource SecondaryButton}"
+                        Command="{Binding Installments.OpenEntryCommand}"
+                        AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnOpenPaymentPlanInstallment}">
+                    <Button.Triggers>
+                        <DataTrigger TargetType="Button" Binding="{Binding Installments.IsEntryOpen}" Value="True">
+                            <Setter Property="IsVisible" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+
+                <!-- S3: taksit giriş bloğu; tutar, taksit sayısı ve ilk vade tarihi (S65-3) -->
+                <Border IsVisible="{Binding Installments.IsEntryOpen}">
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:PaymentFormStrings.Etiket_TaksitTutari}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Text="{Binding Installments.AmountInput}"
+                                       Placeholder="{x:Static strings:PaymentFormStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:PaymentFormAutomationIds.InputPaymentPlanInstallmentAmount}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:PaymentFormStrings.Etiket_TaksitSayisi}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Text="{Binding Installments.CountInput}"
+                                       Placeholder="{x:Static strings:PaymentFormStrings.YerTutucu_TaksitSayisi}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:PaymentFormAutomationIds.InputPaymentPlanInstallmentCount}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:PaymentFormStrings.Etiket_IlkVadeTarihi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <DatePicker Date="{Binding Installments.EntryDate, Converter={StaticResource TarihSecici}}"
+                                        MinimumDate="{Binding Installments.MinimumDate, Converter={StaticResource TarihSecici}}"
+                                        Format="dd.MM.yyyy"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:PaymentFormAutomationIds.PickerPaymentPlanInstallmentDate}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <Button Text="{x:Static strings:PaymentFormStrings.Aksiyon_Ekle}"
+                                    Command="{Binding Installments.AddCommand}"
+                                    AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnAddPaymentPlanInstallment}" />
+                            <Button Grid.Column="1"
+                                    Text="{x:Static strings:PaymentFormStrings.Aksiyon_Vazgec}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding Installments.CancelEntryCommand}"
+                                    AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnCancelPaymentPlanInstallment}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S1: kaydet planı taksitleriyle birlikte yazar ve listeye döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:PaymentFormStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnSavePaymentPlan}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:PaymentFormStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:PaymentFormAutomationIds.BtnCancelPaymentPlan}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek plan okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:PaymentFormStrings.Hata_OdemePlaniYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding RetryCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6d3** — tek seferlik gelir formu (S67, S62, EK-V6d); `V6d` tamamlandı |
-| Sıradaki adım | **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama |
-| Test sayısı | 1872 |
+| Son tamamlanan adım | **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama (S65, EK-V6e); `V6` tamamlandı |
+| Sıradaki adım | **V5** — ilk düzen seçimi (ya da TASIMA-PLANI.md sırasındaki adım) |
+| Test sayısı | 1901 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6e — ödeme formu: taksitli ödeme planı (`PaymentPlanFormPage`) + planlı büyük harcama (`PlannedExpenseFormPage`); kararlar `S65`, `S62`, `EK-V6e`'de; `V6` tamamlandı
+
+Taksitli ödeme planı (`TemporaryPaymentPlan`) ve planlı büyük harcama (`PlannedLargeExpense`) ekleme ve düzenleme işlemleri iki ayrı forma taşındı (`S65`).
+Ödeme planı formu (`PaymentPlanFormViewModel` 5 bağımlılıkta: `IObligationManagementService`, `ITemporaryPaymentPlanRepository`, `IClock`, `INavigationService`, `IDialogService`; Kural M3): Plan adı kartı, taksitler listesi (`ListCard`, en fazla 4 satır, fazlası "+N daha" ile yerinde açılır, `GS21`), taksit giriş kartı (tutar, taksit sayısı 1–120, ilk vade tarihi en erken bugün). Aylık seriler `CalendarRules.AddMonthsKeepingDay` ile üretilir. Ödenmemiş taksitler satır tıklamasıyla silinir. Kaydet planı ve taksitlerini tek işlemde (`SavePaymentPlanAsync`) yazar.
+Planlı büyük harcama formu (`PlannedExpenseFormViewModel` 5 bağımlılıkta: `IObligationManagementService`, `IPlannedLargeExpenseRepository`, `IClock`, `INavigationService`, `IDialogService`; Kural M3): Harcama adı, tutar (> 0) ve tarih (DatePicker ≥ bugün). Kaydet tek işlemde (`SavePlannedLargeExpenseAsync`) yazar.
+Finansal Yapı başlığındaki "Ekle" seçicisine "Ödeme planı" ve "Planlı büyük harcama" eklendi; listedeki ödeme planı ve büyük harcama satırlarına dokununca açılan seçeneklere "Düzenle" geldi (`S65`-2, `S62`-2). Kaydedilmemiş değişiklik varsa Vazgeç, geri oku ve cihaz geri tuşunda onay sorulur.
+Bütçe: Ödeme Planı: Kart 3/4 (plan adı kartı Border, taksitler ListCard, giriş kartı Border; analizci 1), Label 8/28, Cümle 0/3. Büyük Harcama: Kart 1/4 (form kartı Border), Label 4/28, Cümle 0/3. Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 29 yeni test (17 PaymentPlanForm, 8 PlannedExpenseForm, 4 FinancialStructure); toplam 1.901 test yeşil, 0 hata, 0 uyarı, mimari kalkanlar temiz.
 
 ### V6d3 — tek seferlik gelir formu (`AdHocIncomeFormPage`): açıklama, tutar, tarih; ekle / düzenle; kararlar `S67`, `S62`'de
 

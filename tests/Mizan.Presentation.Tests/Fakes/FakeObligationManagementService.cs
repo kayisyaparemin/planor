@@ -75,12 +75,32 @@ internal sealed class FakeObligationManagementService : IObligationManagementSer
 
     public Task DeleteLoanAsync(Guid id, CancellationToken cancellationToken = default) => Delete(DeletedLoanIds, id);
 
-    public Task SavePaymentPlanAsync(TemporaryPaymentPlan plan, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    public List<TemporaryPaymentPlan> SavedPaymentPlans { get; } = [];
+    public List<PlannedLargeExpense> SavedLargeExpenses { get; } = [];
+
+    public Task SavePaymentPlanAsync(TemporaryPaymentPlan plan, CancellationToken cancellationToken = default)
+    {
+        if (SaveException is not null)
+        {
+            return Task.FromException(SaveException);
+        }
+
+        SavedPaymentPlans.Add(plan);
+        return Task.CompletedTask;
+    }
 
     public Task DeletePaymentPlanAsync(Guid id, CancellationToken cancellationToken = default) => Delete(DeletedPaymentPlanIds, id);
 
-    public Task SavePlannedLargeExpenseAsync(PlannedLargeExpense expense, CancellationToken cancellationToken = default) =>
-        Task.CompletedTask;
+    public Task SavePlannedLargeExpenseAsync(PlannedLargeExpense expense, CancellationToken cancellationToken = default)
+    {
+        if (SaveException is not null)
+        {
+            return Task.FromException(SaveException);
+        }
+
+        SavedLargeExpenses.Add(expense);
+        return Task.CompletedTask;
+    }
 
     public Task DeletePlannedLargeExpenseAsync(Guid id, CancellationToken cancellationToken = default) =>
         Delete(DeletedLargeExpenseIds, id);

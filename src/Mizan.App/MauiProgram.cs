@@ -155,10 +155,8 @@ public static class MauiProgram
     {
         services.AddSingleton<CashFlowPeriodDetailPresenter>();
         services.AddSingleton<SimulatorInsightService>();
-
         services.AddSingleton<INavigationService, MauiNavigationService>();
         services.AddSingleton<IDialogService, MauiDialogService>();
-
         services.AddSingleton<IBackupFilePicker, AndroidBackupFilePicker>();
         services.AddSingleton<IProfileBackupHandler, ProfileBackupHandler>();
         services.AddSingleton<IPaymentReminderScheduler, InMemoryPaymentReminderScheduler>();
@@ -192,5 +190,9 @@ public static class MauiProgram
         services.AddTransient<IncomeFormPage>();
         services.AddTransient<AdHocIncomeFormViewModel>();
         services.AddTransient<AdHocIncomeFormPage>();
+        services.AddTransient<PaymentPlanFormViewModel>();
+        services.AddTransient<PaymentPlanFormPage>();
+        services.AddTransient<PlannedExpenseFormViewModel>();
+        services.AddTransient<PlannedExpenseFormPage>();
     }
 }

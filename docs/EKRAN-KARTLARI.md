@@ -1513,6 +1513,101 @@ Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `E
 adımı); tutar `ListCard`'ı, giriş bloğu ve Kaydet / Vazgeç düzeni `EK-V6b` ve `EK-V6c`'den. Renk ve ses
 Planör marka token'larından (`GS7`).
 
+### EK-V6e — Ödeme formu: taksitli ödeme planı + planlı büyük harcama (`V6e`)
+
+> Sayfa dosyaları: `PaymentPlanFormPage.xaml` (`Routes.PaymentPlanForm` + `planId`) ve `PlannedExpenseFormPage.xaml` (`Routes.PlannedExpenseForm` + `expenseId`).
+> Finansal Yapı başlığındaki "Ekle" seçicisinden (Ödeme planı / Planlı büyük harcama) ya da Ödemeler listesindeki satır diyaloğundan ("Düzenle") açılır.
+> Davranış `S65`, düzen `EK-V6e`.
+
+#### 1. Sorular
+
+| Kod | Soru | Eskide nasıl cevaplanıyordu |
+|---|---|---|
+| S1 | "Ödeme planının adı nedir ve hangi taksitlerden oluşuyor?" | Satır içi formda plan adı ve tek tek girilen taksit satırları |
+| S2 | "Taksitler ne zaman ve ne kadar ödenecek?" | Taksit satırları (tarih + tutar) |
+| S3 | "Yeni taksit veya aylık taksit serisi nasıl eklenir?" | Tek tek tarih ve tutar seçerek (seri taksit yoktu) |
+| S4 | "Planlı büyük harcamanın adı, tutarı ve tarihi nedir?" | Satır içi formda ad, tutar ve tarih |
+
+#### 2. Kesme kararları
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Plan adı | **Giriş** (`Entry`) | S1: Plan tanımı |
+| Taksitler listesi | **Kart** (`ListCard`) | S2: ≤ 4 satır, fazlası yerinde açılır (`GS21`); dokun → ödenmemişse silme diyaloğu |
+| Taksit ekleme bloğu | **Giriş kartı** (`Border`) | S3: Tutar + taksit sayısı (1–120) + ilk vade tarihi (en erken bugün) |
+| Büyük harcama alanları | **Giriş kartı** (`Border`) | S4: Harcama adı + tutar (> 0) + tarih (en erken bugün) |
+| Kaydet / Vazgeç | **Buton** (`Grid *,*`) | S1, S4: Vazgeç / geri oku / geri tuşu değişiklik varsa onay sorar (`EK-V6b` deseni) |
+| "Geçici / düzenli" ayrımı | **Çıkar** | Kullanıcıya bir şey söylemiyor (`S62`) |
+| Durum rozetleri, notlar | **Çıkar** | Kalabalık ve gereksiz bilişsel yük |
+
+#### 3. Bütçe
+
+```
+Ödeme Planı Formu:
+Kart          3 / 4     plan adı kartı, taksitler ListCard'ı, taksit giriş kartı
+Label         8 / 28    plan adı 1, taksit satırı 2, giriş 3, butonlar/hata 2
+Cumle_        0 / 3
+
+Büyük Harcama Formu:
+Kart          1 / 4     harcama tanım kartı
+Label         4 / 28    ad 1, tutar 1, tarih 1, hata 1
+Cumle_        0 / 3
+```
+
+#### 4. Blok şeması
+
+Ödeme Planı Formu (`PaymentPlanFormPage.xaml`):
+```
+┌─ PageHeader ──────────────────────────────────────────────────────┐
+│ Baslik_YeniOdemePlani | Baslik_OdemePlaniniDuzenle                │  ← S1
+└───────────────────────────────────────────────────────────────────┘
+┌─ Form kartı (Border SurfaceCard / RadiusCard / CardPadding) ──────┐  ← S1
+│ Etiket_PlanAdi               Eyebrow                              │
+│ [ Entry  "Örn. Telefon taksiti, Sigorta" ]                        │
+└───────────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_Taksitler ──────────────────────────────────────┐  ← S2 (yalnız taksit varsa)
+│ 15 Kasım 2026             TypeBody / TextPrimary      2.500 ₺     │
+│   … en fazla 4 satır, vadeye göre; fazlası:                       │
+│ +8 daha                   OverflowText (Bicim_FazlaKayit)       › │  GS21
+│   dokun → ChooseAsync("Taksit", "Vazgeç", "Sil")                  │
+└───────────────────────────────────────────────────────────────────┘
+[ Aksiyon_TaksitEkle         SecondaryButton ]                         ← S3 (giriş kapalıyken)
+┌─ Giriş bloğu (Border SurfaceCard / RadiusCard / CardPadding) ─────┐  ← S3 (açıkken)
+│ Etiket_TaksitTutari          Etiket_TaksitSayisi                  │
+│ [ Entry Numeric ]            [ Entry Numeric "1" ]                │
+│ Etiket_IlkVadeTarihi         Eyebrow                              │
+│ [ DatePicker  en erken bugün ]                                    │
+│ [ Aksiyon_Ekle ActionFill ]  [ Aksiyon_Vazgec SecondaryButton ]   │
+└───────────────────────────────────────────────────────────────────┘
+[ Aksiyon_Kaydet ActionFill ]  [ Aksiyon_Vazgec SecondaryButton ]      ← S1 (Grid *,*)
+```
+
+Büyük Harcama Formu (`PlannedExpenseFormPage.xaml`):
+```
+┌─ PageHeader ──────────────────────────────────────────────────────┐
+│ Baslik_YeniBuyukHarcama | Baslik_BuyukHarcamayiDuzenle            │  ← S4
+└───────────────────────────────────────────────────────────────────┘
+┌─ Form kartı (Border SurfaceCard / RadiusCard / CardPadding) ──────┐  ← S4
+│ Etiket_HarcamaAdi            Eyebrow                              │
+│ [ Entry  "Örn. Beyaz eşya, Tatil" ]                               │
+│ Etiket_Tutar                 Etiket_Tarih                         │
+│ [ Entry Numeric ]            [ DatePicker  en erken bugün ]       │
+└───────────────────────────────────────────────────────────────────┘
+[ Aksiyon_Kaydet ActionFill ]  [ Aksiyon_Vazgec SecondaryButton ]      ← S4 (Grid *,*)
+```
+
+#### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Yeni kayıtta form boş alanlarla açılır; ödeme planında taksit giriş bloğu varsayılan açık gelir. |
+| Yükleniyor | Düzenlemede iki `SkeletonBlock`; spinner yok (`GS14`). Yeni kayıtta yükleme yok. |
+| Hata | Kayıt okunamazsa `StateBlock` (Hata, `Close` ikonu, `Hata_OdemePlaniYuklenemedi` / `Hata_BuyukHarcamaYuklenemedi`, `Aksiyon_TekrarDene`). Bulunamazsa diyalog ve geri dönüş. Kaydetme hatasında diyalog. |
+
+#### 6. Konsept ilişkisi
+
+Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `EK-V6b` ve `EK-V6d`'den; taksit `ListCard`'ı ve giriş bloğu `EK-V6b2` (gelecek harcamalar) deseniyle aynıdır.
+
 ### EK-V5 — İlk düzen seçimi
 Konsept karşılığı **yok.** `V6`'ya dayanır.
 
@@ -1559,6 +1654,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6b | Kart formu | 28 | 13 | ✅ V6b1 + V6b2 |
 | EK-V6c | Kredi formu | 14 | 16 | ✅ V6c1 + V6c2 + V6c3 |
 | EK-V6d | Gelir formu | 14 | 7 + 3 | ✅ V6d1 + V6d2 + V6d3 |
+| EK-V6e | Ödeme formu | 12 | 8 + 4 | ✅ V6e |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | | ⬜ |
 | EK-V9 | Dönem ayrıntısı | 81 | | ⬜ |
