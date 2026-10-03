@@ -28,5 +28,7 @@
   "Etiket_KartlaHarcama": "Kartla harcama",
   "Etiket_KartlaHarcamaAlt": "Tek çekim ya da taksit",
   "Etiket_ErkenOdeme": "Krediye erken ödeme",
-  "Etiket_ErkenOdemeAlt": "Kapat ya da ara ödeme"
+  "Etiket_ErkenOdemeAlt": "Kapat ya da ara ödeme",
+  "Etiket_KartOdemeSekli": "Kart ödeme şekli",
+  "Etiket_KartOdemeSekliAlt": "Asgari ya da tamamı"
 }

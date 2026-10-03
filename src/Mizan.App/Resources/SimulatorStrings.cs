@@ -11,6 +11,15 @@ public static class SimulatorStrings
     /// <summary>Nakit ödeme denemesinin form başlığı.</summary>
     public const string Baslik_NakitOdeme = "Nakit Ödeme";
 
+    /// <summary>Kartla harcama denemesinin form başlığı.</summary>
+    public const string Baslik_KartlaHarcama = "Kartla Harcama";
+
+    /// <summary>Düzenli ödeme denemesinin form başlığı.</summary>
+    public const string Baslik_DuzenliOdeme = "Düzenli Ödeme";
+
+    /// <summary>Kart ödeme şekli denemesinin form başlığı.</summary>
+    public const string Baslik_KartOdemeSekli = "Kart Ödeme Şekli";
+
     /// <summary>Denemeler listesi kartının üst etiketi.</summary>
     public const string Etiket_Denemeler = "DENEMELER";
 
@@ -28,6 +37,24 @@ public static class SimulatorStrings
 
     /// <summary>Tarih alanının etiketi.</summary>
     public const string Etiket_Tarih = "TARİH";
+
+    /// <summary>Hedef kart etiketi.</summary>
+    public const string Etiket_Kart = "KART";
+
+    /// <summary>Ödeme şekli etiketi.</summary>
+    public const string Etiket_OdemeSekli = "ÖDEME ŞEKLİ";
+
+    /// <summary>Kapsam etiketi.</summary>
+    public const string Etiket_Kapsam = "KAPSAM";
+
+    /// <summary>Taksit sayısı etiketi.</summary>
+    public const string Etiket_TaksitSayisi = "TAKSİT SAYISI";
+
+    /// <summary>Ödeme sayısı etiketi.</summary>
+    public const string Etiket_OdemeSayisi = "ÖDEME SAYISI";
+
+    /// <summary>Hangi ekstreden itibaren geçerli olacağı tarihi etiketi.</summary>
+    public const string Etiket_HangiEkstredenItibaren = "HANGİ EKSTREDEN İTİBAREN";
 
     /// <summary>Sonuç kartının hero etiketi: denemeyle 12 dönemin en düşük dönem sonu.</summary>
     public const string Etiket_EnDusukDonemSonu = "EN DÜŞÜK DÖNEM SONU";
@@ -67,6 +94,24 @@ public static class SimulatorStrings
 
     /// <summary>Tutar alanının yer tutucusu.</summary>
     public const string YerTutucu_Tutar = "0";
+
+    /// <summary>Taksit sayısı yer tutucusu.</summary>
+    public const string YerTutucu_TaksitSayisi = "Boş bırakırsan tek çekim";
+
+    /// <summary>Ödeme sayısı yer tutucusu.</summary>
+    public const string YerTutucu_OdemeSayisi = "Örn. 12";
+
+    /// <summary>Tamamını öde seçeneği.</summary>
+    public const string Secenek_TamaminiOde = "Tamamını öde";
+
+    /// <summary>Asgari öde seçeneği.</summary>
+    public const string Secenek_AsgariOde = "Asgari öde";
+
+    /// <summary>Yalnızca bu ekstre seçeneği.</summary>
+    public const string Secenek_YalnizcaBuEkstre = "Yalnızca bu ekstre";
+
+    /// <summary>Bundan sonraki tüm ekstreler seçeneği.</summary>
+    public const string Secenek_TumEkstreler = "Bundan sonraki tüm ekstreler";
 
     /// <summary>Deneme satırının bağlamı: {0} tür, {1} tarih.</summary>
     public const string Bicim_DenemeBaglami = "{0} · {1}";

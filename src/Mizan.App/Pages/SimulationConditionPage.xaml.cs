@@ -27,7 +27,10 @@ public partial class SimulationConditionPage : ContentPage, IQueryAttributable
         Guid? conditionId = query.TryGetValue(Routes.ConditionIdParameter, out var raw) && Guid.TryParse(raw?.ToString(), out var id)
             ? id
             : null;
-        _viewModel.Prepare(optionKey, conditionId);
+        Guid? cardId = query.TryGetValue(Routes.CardIdParameter, out var rawCard) && Guid.TryParse(rawCard?.ToString(), out var cid)
+            ? cid
+            : null;
+        _viewModel.Prepare(optionKey, conditionId, cardId);
     }
 
     /// <inheritdoc />

@@ -41,8 +41,7 @@ public sealed partial class RecordEntryPickerViewModel : ViewModelBase
     };
 
     private readonly INavigationService _navigationService;
-    private readonly IPlanReader _planReader;
-    private readonly FinancialRecordRowBuilder _rowBuilder;
+    private readonly RecordCandidateResolver _candidateResolver;
     private readonly IDialogService _dialogService;
     private RecordEntryForm? _choiceForm;
 
@@ -51,13 +50,12 @@ public sealed partial class RecordEntryPickerViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(IsChoosing))]
     private RecordEntryGroup? choiceGroup;
 
-    /// <summary>Görünüm modelini dört dar bağımlılıkla başlatır (Kural M3).</summary>
+    /// <summary>Görünüm modelini üç dar bağımlılıkla başlatır (Kural M3).</summary>
     public RecordEntryPickerViewModel(
-        INavigationService navigationService, IPlanReader planReader, FinancialRecordRowBuilder rowBuilder, IDialogService dialogService)
+        INavigationService navigationService, RecordCandidateResolver candidateResolver, IDialogService dialogService)
     {
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-        _planReader = planReader ?? throw new ArgumentNullException(nameof(planReader));
-        _rowBuilder = rowBuilder ?? throw new ArgumentNullException(nameof(rowBuilder));
+        _candidateResolver = candidateResolver ?? throw new ArgumentNullException(nameof(candidateResolver));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
     }
 
@@ -137,18 +135,13 @@ public sealed partial class RecordEntryPickerViewModel : ViewModelBase
     // Adaylar Finansal Yapı listesinin süzgecinden geçer: listede görünmeyen kayıt seçicide de çıkmaz (S62-5).
     private async Task<IReadOnlyList<FinancialRecordRow>?> ReadCandidatesAsync(RecordEntryForm form)
     {
-        try
+        var candidates = await _candidateResolver.GetCandidatesAsync(Parents[form].Kind);
+        if (candidates is null)
         {
-            var rows = _rowBuilder.Build(await _planReader.GetPlanAsync());
-            var kind = Parents[form].Kind;
-            return [.. rows.Incomes.Concat(rows.Cards).Concat(rows.Loans).Where(x => x.Kind == kind)];
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[RecordEntryPickerViewModel ERROR] {ex}");
             await _dialogService.ShowAlertAsync(ReadFailedTitle, ReadFailedMessage);
-            return null;
         }
+
+        return candidates;
     }
 
     private async Task OfferToAddAsync(RecordEntryForm form)

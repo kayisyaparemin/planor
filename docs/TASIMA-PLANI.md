@@ -442,14 +442,14 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           `ProjectionChainBuilder`; koruyan: I125–I130)*. `SimulatorViewModel` 199 / 200 satırda: `V10c` liste
           yönetimini çocuk ViewModel'e ayırmak zorunda
     - [x] **V10b2** — "bir yıl sonra ne olur, faiz ne?": 12 dönem sonra ve faiz satırları (12 Dönem'in satır diliyle — `MetricRow` + `Caption` alt ızgarası), 12'li karo ızgarası *(2026-10-04; `S76` V10b2 notları, `GS28`; `SimulatorPage`, `SimulationResultViewModel`, `FuturePeriodTile`; koruyan: I138, I139)*
-  - [ ] **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli. *(`S77`: simülatörün
-        "Ekle"si düz diyalogdan `V6f`'in `EntryTypeTiles` bileşenine geçer; `EK-V10`'daki "Plan türü grup
-        seçici → Çıkar" satırı bu adımda geri alınır.)* *(2026-10-04, `S77` V10 notları i: **kartı seçici
-        çözer**, Finansal Yapı'daki gibi — kartla harcama ve kart ödeme şekli için aday yoksa yalnız uyarı
-        (simülatör planı değiştirmez), tek kartta sorulmaz, birden fazlasında yerinde "Hangi kart?". Deneme
-        formunda açılır liste yok; form kartın kimliğiyle açılır, adını salt okunur gösterir, düzenlemede kart
-        değişmez. Çözme mantığı `RecordEntryPickerViewModel`'den iki seçicinin ortak yardımcısına taşınır;
-        `I134`, `I135`, `I137`'nin simülatör karşılıkları testle gelir.)*
+  - [x] **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli. *(`S77`: simülatörün
+        "Ekle"si düz diyalogdan `V6f`'in `EntryTypeTiles` bileşenine geçti (`SimulationConditionPickerPage`);
+        `EK-V10`'daki "Plan türü grup seçici → Çıkar" satırı bu adımda geri alındı.)* *(2026-10-04, `S77` V10 notları i:
+        **kartı seçici çözer** — kartla harcama ve kart ödeme şekli için aday yoksa yalnız uyarı (`I140`), tek
+        kartta doğrudan form (`I141`), birden fazlasında yerinde "Hangi kart?". Deneme formu kartın kimliğiyle açılır,
+        adını salt okunur gösterir, düzenlemede kart değişmez. Kartla harcamada taksit boşsa tek çekim, sayı girilirse
+        taksitli (`I142`); düzenli ödemede ödeme sayısı 1–120; kart ödeme şeklinde tutar yok, ödeme şekli ve kapsam seçilir.
+        Ortak aday çözümleyici `RecordCandidateResolver` çıkarıldı; koruyan: I140–I142)*
   - [ ] **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları
         *(`S77` V10 notları i: krediye erken ödemenin **kredisini seçici çözer** — `V10c`'nin ortak yardımcısıyla,
         "Hangi kredi?"; aday taksiti kalmış aktif kredilerdir. Formda kredi seçimi yok, düzenlemede kredi değişmez.)*

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.SimulationConditionPickerPage"
+             x:DataType="vm:SimulationConditionPickerViewModel"
+             AutomationId="{x:Static auto:SimulatorAutomationIds.PageSimulationConditionPicker}">
+
+    <!-- EK-V10: Simülatör deneme türü seçici (S77 V10 notları i). Karo, bu sayfanın yerine kendi formunu açar.
+         Geri ok da BackCommand'dan geçer: "Hangi kart?" seviyesinden karolara döner. -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space5}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S1, S4: grup sorulmuyorsa "Ne eklemek istiyorsun?", sorulan grupta "Hangi kart?" -->
+            <comp:PageHeader Title="{Binding ChoiceGroup, Converter={StaticResource SeciciMetni}, ConverterParameter=Soru}" />
+
+            <!-- S1, S2: iki grup; ödeme (kırmızı) ve kart (mor) -->
+            <VerticalStackLayout Spacing="{StaticResource Space5}"
+                                 IsVisible="{Binding IsChoosing, Converter={StaticResource Tersi}}"
+                                 AutomationId="{x:Static auto:SimulatorAutomationIds.PickerSimulationConditionType}">
+                <comp:EntryTypeTiles Section="{Binding PaymentSection}"
+                                     OptionCommand="{Binding SelectOptionCommand}"
+                                     Accent="{DynamicResource NegativeText}"
+                                     AccentSurface="{DynamicResource NegativeSurface}" />
+
+                <comp:EntryTypeTiles Section="{Binding CardSection}"
+                                     OptionCommand="{Binding SelectOptionCommand}"
+                                     Accent="{DynamicResource Indicator}"
+                                     AccentSurface="{DynamicResource SurfaceChart}" />
+            </VerticalStackLayout>
+
+            <!-- S4: birden fazla aday varken; her aday bir karo, bağlamı Finansal Yapı'daki satırla aynı -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsChoosing}"
+                                 BindableLayout.ItemsSource="{Binding Choices}"
+                                 AutomationId="{x:Static auto:SimulatorAutomationIds.ListSimulationConditionChoices}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:FinancialRecordRow">
+                        <Border>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SimulationConditionPickerViewModel}}, Path=ChooseRecordCommand}"
+                                                      CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*, Auto"
+                                  ColumnSpacing="{StaticResource Space3}">
+                                <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                    <Label Text="{Binding Name}"
+                                           FontSize="{StaticResource TypeFigure}"
+                                           FontFamily="OpenSansSemibold"
+                                           TextColor="{DynamicResource TextPrimary}" />
+                                    <Label Text="{Binding ., Converter={StaticResource KayitBaglami}}"
+                                           Style="{StaticResource Caption}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1"
+                                       Text="{x:Static icons:Icons.ChevronRight}"
+                                       FontFamily="MaterialSymbols"
+                                       FontSize="{StaticResource IconSmall}"
+                                       TextColor="{DynamicResource Indicator}"
+                                       VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

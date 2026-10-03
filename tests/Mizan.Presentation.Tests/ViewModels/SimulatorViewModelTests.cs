@@ -119,27 +119,13 @@ public sealed class SimulatorViewModelTests
     }
 
     [Fact]
-    public async Task Add_NakitOdemeSecilince_FormaSecenekAnahtariylaGider()
+    public async Task Add_DenemeTuruSecicisiniAcar()
     {
-        _dialog.NextChooseResponse = SimulationScenarioCatalog.CashPayment.Title;
         await _viewModel.LoadAsync();
 
         await _viewModel.AddCommand.ExecuteAsync(null);
 
-        Assert.Equal([SimulationScenarioCatalog.CashPayment.Title], _dialog.LastChooseOptions);
-        Assert.Equal(Routes.SimulationCondition, _navigation.LastNavigatedRoute);
-        Assert.Equal(SimulationScenarioCatalog.CashPayment.Key, _navigation.LastParameters![Routes.ScenarioOptionParameter]);
-    }
-
-    [Fact]
-    public async Task Add_Vazgecilince_HicbirYereGitmez()
-    {
-        _dialog.NextChooseResponse = null;
-        await _viewModel.LoadAsync();
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.Null(_navigation.LastNavigatedRoute);
+        Assert.Equal(Routes.SimulationConditionPicker, _navigation.LastNavigatedRoute);
     }
 
     [Fact]

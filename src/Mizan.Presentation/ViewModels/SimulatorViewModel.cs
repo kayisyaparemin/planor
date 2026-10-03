@@ -21,15 +21,11 @@ public sealed partial class SimulatorViewModel : ViewModelBase
     /// <summary>Liste kapalıyken gösterilen en fazla satır sayısı; fazlası "+N daha" ile yerinde açılır (GS21).</summary>
     public const int CollapsedRowLimit = 4;
 
-    private const string AddTitle = "Ne denemek istiyorsun?";
     private const string CancelText = "Vazgeç";
     private const string EditText = "Düzenle";
     private const string DeleteText = "Sil";
     private const string SaveFailedTitle = "Liste kaydedilemedi";
     private const string SaveFailedMessage = "Değişiklik şu an kaydedilemedi. Tekrar dene.";
-
-    // "Ekle" seçicisinde sunulan türler, katalog sırasıyla; her alt adım kendi türünü ekler (V10a: nakit ödeme).
-    private static readonly IReadOnlyList<ScenarioOption> AddableOptions = [SimulationScenarioCatalog.CashPayment];
 
     private readonly ISimulationWorkflowService _simulationService;
     private readonly INavigationService _navigationService;
@@ -94,20 +90,10 @@ public sealed partial class SimulatorViewModel : ViewModelBase
         }
     }
 
-    /// <summary>Denenebilecek türleri sorar ve seçilen türün formunu açar.</summary>
+    /// <summary>Deneme türü seçicisini açar (EK-V10, S77 V10 notları i).</summary>
     [RelayCommand]
-    private async Task AddAsync()
-    {
-        var titles = AddableOptions.Select(x => x.Title).ToArray();
-        var choice = await _dialogService.ChooseAsync(AddTitle, CancelText, null, titles);
-        var option = AddableOptions.FirstOrDefault(x => x.Title == choice);
-        if (option is not null)
-        {
-            await _navigationService.NavigateToAsync(
-                Routes.SimulationCondition,
-                new Dictionary<string, object> { [Routes.ScenarioOptionParameter] = option.Key });
-        }
-    }
+    private Task AddAsync() =>
+        _navigationService.NavigateToAsync(Routes.SimulationConditionPicker);
 
     /// <summary>Satırın seçeneklerini tek diyalogda sunar: düzenle, sil.</summary>
     [RelayCommand]

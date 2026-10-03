@@ -34,6 +34,8 @@ public static class ScreenRegistrations
         services.AddTransient<SimulationResultViewModel>();
         services.AddTransient<SimulatorViewModel>();
         services.AddTransient<SimulatorPage>();
+        services.AddTransient<SimulationConditionPickerViewModel>();
+        services.AddTransient<SimulationConditionPickerPage>();
         services.AddTransient<SimulationConditionViewModel>();
         services.AddTransient<SimulationConditionPage>();
         return services;
@@ -45,6 +47,7 @@ public static class ScreenRegistrations
         services.AddTransient<CardControlViewModel>();
         services.AddTransient<CardControlPage>();
         services.AddTransient<FinancialRecordRowBuilder>();
+        services.AddTransient<RecordCandidateResolver>();
         services.AddTransient<FinancialRecordRemover>();
         services.AddTransient<FinancialStructureViewModel>();
         services.AddTransient<FinancialStructurePage>();

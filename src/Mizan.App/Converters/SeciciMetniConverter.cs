@@ -46,7 +46,8 @@ public sealed class SeciciMetniConverter : IValueConverter
         ["cash"] = (RecordEntryStrings.Etiket_NakitOdeme, RecordEntryStrings.Etiket_NakitOdemeAlt, Glif.Payments),
         ["recurring"] = (RecordEntryStrings.Etiket_DuzenliOdeme, RecordEntryStrings.Etiket_DuzenliOdemeAlt, Glif.EventAvailable),
         ["cash-debt"] = (RecordEntryStrings.Etiket_TaksitliBorc, RecordEntryStrings.Etiket_TaksitliBorcAlt, Glif.PieChart),
-        ["payment-plan"] = (RecordEntryStrings.Etiket_OdemePlani, RecordEntryStrings.Etiket_OdemePlaniAlt, Glif.BarChart)
+        ["payment-plan"] = (RecordEntryStrings.Etiket_OdemePlani, RecordEntryStrings.Etiket_OdemePlaniAlt, Glif.BarChart),
+        ["card-payment-mode"] = (RecordEntryStrings.Etiket_KartOdemeSekli, RecordEntryStrings.Etiket_KartOdemeSekliAlt, Glif.CreditCard)
     };
 
     /// <inheritdoc />

@@ -34,6 +34,8 @@
             <conv:DenemeBaglamiConverter x:Key="DenemeBaglami" />
             <conv:SeciciMetniConverter x:Key="SeciciMetni" />
             <conv:KaroIzgarasiConverter x:Key="KaroIzgarasi" />
+            <conv:DenemeBasligiConverter x:Key="DenemeBasligi" />
+            <conv:KartOdemeSecenegiConverter x:Key="KartOdemeSecenegi" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

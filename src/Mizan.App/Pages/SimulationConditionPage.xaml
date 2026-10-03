@@ -20,7 +20,7 @@
                              Padding="{StaticResource PagePadding}">
 
             <!-- S3: başlık denemenin türü; tür düzenlemede değişmez (S76-7) -->
-            <comp:PageHeader Title="{x:Static strings:SimulatorStrings.Baslik_NakitOdeme}" />
+            <comp:PageHeader Title="{Binding ScenarioType, Converter={StaticResource DenemeBasligi}}" />
 
             <!-- Yükleniyor (yalnız düzenlemede) -->
             <VerticalStackLayout Spacing="{StaticResource Space3}"
@@ -36,6 +36,20 @@
                 <!-- S3: form kartı; ad zorunlu (S76-8), tarih en erken bugün (S76-3) -->
                 <Border>
                     <VerticalStackLayout Spacing="{StaticResource Space3}">
+
+                        <!-- S3: hedef kart (kartla harcama veya kart ödeme şekli; salt okunur, düzenlemede değişmez) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding IsCard}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_Kart}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Text="{Binding CardName}"
+                                   FontSize="{StaticResource TypeFigure}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextPrimary}"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.LblConditionCard}" />
+                        </VerticalStackLayout>
+
+                        <!-- S3: ad alanı -->
                         <VerticalStackLayout Spacing="{StaticResource Space1}">
                             <Label Text="{x:Static strings:SimulatorStrings.Etiket_Ad}"
                                    Style="{StaticResource Eyebrow}" />
@@ -44,8 +58,37 @@
                                    AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionName}" />
                         </VerticalStackLayout>
 
+                        <!-- S3: kart ödeme şekli ve kapsamı (yalnız kart ödeme şeklinde) -->
                         <Grid ColumnDefinitions="*, *"
-                              ColumnSpacing="{StaticResource Space2}">
+                              ColumnSpacing="{StaticResource Space2}"
+                              IsVisible="{Binding IsCardPaymentMode}">
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:SimulatorStrings.Etiket_OdemeSekli}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Picker ItemsSource="{Binding CardPaymentModes, Converter={StaticResource KartOdemeSecenegi}}"
+                                        SelectedItem="{Binding SelectedCardPaymentMode, Converter={StaticResource KartOdemeSecenegi}}"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionPaymentMode}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:SimulatorStrings.Etiket_Kapsam}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Picker ItemsSource="{Binding CardPaymentScopes, Converter={StaticResource KartOdemeSecenegi}, ConverterParameter=Kapsam}"
+                                        SelectedItem="{Binding SelectedCardPaymentScope, Converter={StaticResource KartOdemeSecenegi}, ConverterParameter=Kapsam}"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionPaymentScope}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- S3: tutar ve tarih (tutar gerektiren türlerde) -->
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}"
+                              IsVisible="{Binding NeedsAmount}">
                             <VerticalStackLayout Spacing="{StaticResource Space1}">
                                 <Label Text="{x:Static strings:SimulatorStrings.Etiket_Tutar}"
                                        Style="{StaticResource Eyebrow}" />
@@ -67,6 +110,43 @@
                                             AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionDate}" />
                             </VerticalStackLayout>
                         </Grid>
+
+                        <!-- S3: kart ödeme şeklinde tarih ("Hangi ekstreden itibaren") -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding IsCardPaymentMode}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_HangiEkstredenItibaren}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <DatePicker Date="{Binding Date, Converter={StaticResource TarihSecici}}"
+                                        MinimumDate="{Binding MinimumDate, Converter={StaticResource TarihSecici}}"
+                                        Format="dd.MM.yyyy"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}" />
+                        </VerticalStackLayout>
+
+                        <!-- S3: taksit / ödeme sayısı (kartla harcama veya düzenli ödeme) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding NeedsPaymentCount}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_TaksitSayisi}"
+                                   Style="{StaticResource Eyebrow}"
+                                   IsVisible="{Binding IsCardSpending}" />
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_OdemeSayisi}"
+                                   Style="{StaticResource Eyebrow}"
+                                   IsVisible="{Binding IsRecurring}" />
+                            <Entry Text="{Binding PaymentCountInput}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionPaymentCount}">
+                                <Entry.Triggers>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsCardSpending}" Value="True">
+                                        <Setter Property="Placeholder" Value="{x:Static strings:SimulatorStrings.YerTutucu_TaksitSayisi}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Entry" Binding="{Binding IsRecurring}" Value="True">
+                                        <Setter Property="Placeholder" Value="{x:Static strings:SimulatorStrings.YerTutucu_OdemeSayisi}" />
+                                    </DataTrigger>
+                                </Entry.Triggers>
+                            </Entry>
+                        </VerticalStackLayout>
+
                     </VerticalStackLayout>
                 </Border>
 

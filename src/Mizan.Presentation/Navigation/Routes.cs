@@ -71,6 +71,9 @@ public static class Routes
     /// <summary>Finansal Yapı "Ekle"sinin açtığı kayıt türü seçicisi rotası (EK-V6f).</summary>
     public const string RecordEntryPicker = "record-entry-picker";
 
+    /// <summary>Simülatör "Ekle"sinin açtığı deneme türü seçicisi rotası (EK-V10, S77 V10 notları i).</summary>
+    public const string SimulationConditionPicker = "simulation-condition-picker";
+
     /// <summary>
     /// Rotayı açık sayfanın yerine açar: Shell'in "../" öneki önce açık sayfayı yığından düşürür. Seçici
     /// formla yer değiştirir ki formdan dönüş seçiciye değil listeye insin (S77-2).

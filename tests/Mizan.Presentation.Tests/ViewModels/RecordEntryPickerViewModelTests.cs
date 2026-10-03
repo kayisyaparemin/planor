@@ -26,7 +26,8 @@ public sealed class RecordEntryPickerViewModelTests
     public RecordEntryPickerViewModelTests()
     {
         var builder = new FinancialRecordRowBuilder(new CreditCardStatementCalculator(), new IncomeResolver(), new SabitSaat(Today));
-        _viewModel = new RecordEntryPickerViewModel(_navigation, _reader, builder, _dialog);
+        var resolver = new RecordCandidateResolver(_reader, builder);
+        _viewModel = new RecordEntryPickerViewModel(_navigation, resolver, _dialog);
     }
 
     [Fact]

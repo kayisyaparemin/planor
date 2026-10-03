@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10b2** — simülatör sonuç kartının alt yarısı: 12 dönem sonra ve faiz satırları (12 Dönem'in satır diliyle — `MetricRow` + `Caption` alt ızgarası), 12'li karo ızgarası (`SimulationResultViewModel`, `SimulatorPage`; S76, GS28, EK-V10). V10b tamamlandı |
-| Sıradaki adım | **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli; "Ekle" tür seçiciye bağlanır (S77, EK-V10) |
-| Test sayısı | 2018 |
+| Son tamamlanan adım | **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli; "Ekle" tür seçiciye bağlandı (`SimulationConditionPickerPage`, `SimulationConditionViewModel`, `RecordCandidateResolver`, `SimulationConditionDraftBuilder`; S77, EK-V10) |
+| Sıradaki adım | **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları (S77, EK-V10) |
+| Test sayısı | 2035 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10c — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli; kararlar `S77` V10 notları i, `EK-V10`
+
+Simülatörün "Ekle" aksiyonu düz diyalogdan Finansal Yapı'nın `EntryTypeTiles` bileşenini kullanan `SimulationConditionPickerPage` seçicisine bağlandı. Seçicide ilk etapta Ödeme (Nakit ödeme, Düzenli ödeme) ve Kart (Kartla harcama, Kart ödeme şekli) olmak üzere 4 seçenek sunuluyor.
+Kart gerektiren seçeneklerde (kartla harcama, kart ödeme şekli) aday kartlar `RecordCandidateResolver` ortak yardımcısıyla çözülüyor: kayıtlı kart yoksa "Kayıtlı kart bulunamadı" uyarısı verilip form açılmıyor (`I140`, simülatör planı değiştirmez), tek kartta doğrudan form açılıyor (`I141`), birden fazlasında yerinde "Hangi kart?" aday listesi sunuluyor.
+Deneme formunda (`SimulationConditionPage`): hedef kart adı üstte salt okunur görünür ve düzenlemede değişmez. Kartla harcamada taksit sayısı boş bırakıldığında tek çekim (`CreditCardSinglePayment`), sayı girildiğinde taksitli (`CreditCardInstallmentPurchase`) olarak kaydedilir (`I142`). Düzenli ödemede ödeme sayısı 1–120 arasında zorunludur. Kart ödeme şeklinde tutar alanı gizlenir, ödeme şekli (`Tamamını öde` / `Asgari öde`) ve kapsam (`Yalnızca bu ekstre` / `Bundan sonraki tüm ekstreler`) seçicileri ile tarih ("HANGİ EKSTREDEN İTİBAREN") yer alır. Form doğrulama ve istek inşası `SimulationConditionDraftBuilder`'a çıkarıldı; `SimulationConditionViewModel` (197 satır) ve `SimulatorViewModel` (185 satır) 200 satır kuralına tam uydu.
+Bütçe: Seçici (Hero 0/1, Kart 2/4, Label 4/28, Cümle 0/3); Form (Hero 0/1, Kart 0/4, Label 12/28, Cümle 0/3). Görsel kontrol: kullanıcı onayladı (koyu + açık). 17 yeni test (Presentation); toplam 2.035 test yeşil, 0 hata, 0 uyarı.
 
 ### V10b2 — simülatör sonuç kartının alt yarısı: 12 dönem sonra ve faiz satırları (12 Dönem'in satır diliyle), 12'li karo ızgarası; kararlar `S76` V10b2 notları, `GS28`, `EK-V10`
 

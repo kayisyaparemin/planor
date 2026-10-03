@@ -18,11 +18,12 @@ public sealed class SimulationConditionViewModelTests
     private readonly FakeSimulationWorkflowService _service = new();
     private readonly FakeNavigationService _navigation = new();
     private readonly FakeDialogService _dialog = new();
+    private readonly FakePlanReader _reader = new();
     private readonly SimulationConditionViewModel _viewModel;
 
     public SimulationConditionViewModelTests()
     {
-        _viewModel = new SimulationConditionViewModel(_service, new SabitSaat(Today), _navigation, _dialog);
+        _viewModel = new SimulationConditionViewModel(_service, new SabitSaat(Today), _navigation, _dialog, _reader);
     }
 
     [Fact]
@@ -200,6 +201,125 @@ public sealed class SimulationConditionViewModelTests
 
         Assert.Equal(0, _dialog.ConfirmCount);
         Assert.True(_navigation.NavigateBackCalled);
+    }
+
+    [Fact]
+    public async Task Save_KartlaHarcama_TekCekim_Kaydeder()
+    {
+        var cardId = Guid.NewGuid();
+        _viewModel.Prepare("card", null, cardId);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Telefon";
+        _viewModel.AmountInput = "30.000";
+        _viewModel.PaymentCountInput = "";
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.CreditCardSinglePayment, saved.Request.Type);
+        Assert.Equal(cardId, saved.Request.CreditCardId);
+        Assert.Equal(1, saved.Request.PaymentCount);
+        Assert.Equal(30_000m, saved.Request.Amount);
+    }
+
+    [Fact]
+    public async Task Save_KartlaHarcama_Taksitli_Kaydeder()
+    {
+        var cardId = Guid.NewGuid();
+        _viewModel.Prepare("card", null, cardId);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Telefon";
+        _viewModel.AmountInput = "30.000";
+        _viewModel.PaymentCountInput = "6";
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.CreditCardInstallmentPurchase, saved.Request.Type);
+        Assert.Equal(cardId, saved.Request.CreditCardId);
+        Assert.Equal(6, saved.Request.PaymentCount);
+    }
+
+    [Fact]
+    public async Task Save_DuzenliOdeme_Kaydeder()
+    {
+        _viewModel.Prepare("recurring", null);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Kira";
+        _viewModel.AmountInput = "20.000";
+        _viewModel.PaymentCountInput = "12";
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.RecurringPayment, saved.Request.Type);
+        Assert.Equal(12, saved.Request.PaymentCount);
+        Assert.Equal(20_000m, saved.Request.Amount);
+    }
+
+    [Fact]
+    public async Task Save_DuzenliOdeme_OdemeSayisiGecersiz_Uyarir()
+    {
+        _viewModel.Prepare("recurring", null);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Kira";
+        _viewModel.AmountInput = "20.000";
+        _viewModel.PaymentCountInput = "0";
+
+        await _viewModel.SaveAsync();
+
+        Assert.Equal("Ödeme sayısını 1 ile 120 arasında bir sayı olarak gir.", _dialog.LastAlertMessage);
+        Assert.Null(_service.LastSaved);
+    }
+
+    [Fact]
+    public async Task Save_KartOdemeSekli_CreditCardPaymentModeKaydeder()
+    {
+        var cardId = Guid.NewGuid();
+        _viewModel.Prepare("card-payment-mode", null, cardId);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Kart tercihi";
+        _viewModel.SelectedCardPaymentMode = CreditCardPaymentType.Minimum;
+        _viewModel.SelectedCardPaymentScope = true;
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.CreditCardPaymentMode, saved.Request.Type);
+        Assert.Equal(cardId, saved.Request.CreditCardId);
+        Assert.Equal(CreditCardPaymentType.Minimum, saved.Request.CardPaymentType);
+        Assert.True(saved.Request.AppliesToAllStatements);
+        Assert.Equal(0m, saved.Request.Amount);
+    }
+
+    [Fact]
+    public async Task Load_VarOlanKartlaHarcama_DuzenlemeModundaYukler()
+    {
+        var cardId = Guid.NewGuid();
+        var card = new CreditCard { Id = cardId, Name = "Bonus", Bank = "Garanti" };
+        _reader.Plan = new FinancialPlan { CreditCards = [card] };
+
+        var conditionId = Guid.NewGuid();
+        var request = new SimulationRequest
+        {
+            ScenarioId = conditionId,
+            Type = SimulationScenarioType.CreditCardInstallmentPurchase,
+            Name = "Televizyon",
+            Amount = 40_000m,
+            StartDate = Today.AddDays(5),
+            PaymentCount = 6,
+            CreditCardId = cardId
+        };
+        _service.Seed(new SimulationDraftCondition(request));
+
+        _viewModel.Prepare(null, conditionId);
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.IsEditing);
+        Assert.Equal("Televizyon", _viewModel.Name);
+        Assert.Equal(cardId, _viewModel.CardId);
+        Assert.Equal("Garanti Bonus", _viewModel.CardName);
+        Assert.Equal("6", _viewModel.PaymentCountInput);
     }
 
     private async Task OpenNewAsync()

@@ -36,6 +36,15 @@ public static class SimulatorAutomationIds
     /// <summary>12 dönem sonları karo ızgarası.</summary>
     public const string GridSimulatorPeriods = "grid-simulator-periods";
 
+    /// <summary>Deneme türü seçici sayfası kimliği.</summary>
+    public const string PageSimulationConditionPicker = "page-simulation-condition-picker";
+
+    /// <summary>Deneme türü gruplarının karolarını taşıyan alanın kimliği.</summary>
+    public const string PickerSimulationConditionType = "picker-simulation-condition-type";
+
+    /// <summary>"Hangi kart?" ikinci seviyesinde adayları taşıyan listenin kimliği.</summary>
+    public const string ListSimulationConditionChoices = "list-simulation-condition-choices";
+
     /// <summary>Deneme formu sayfası kimliği.</summary>
     public const string PageSimulationCondition = "page-simulation-condition";
 
@@ -47,6 +56,18 @@ public static class SimulatorAutomationIds
 
     /// <summary>Denemenin tarihi.</summary>
     public const string PickerConditionDate = "picker-condition-date";
+
+    /// <summary>Hedef kart etiketi / salt okunur adı.</summary>
+    public const string LblConditionCard = "lbl-condition-card";
+
+    /// <summary>Kart ödeme şekli seçicisi (Tamamı / Asgari).</summary>
+    public const string PickerConditionPaymentMode = "picker-condition-payment-mode";
+
+    /// <summary>Kart ödeme kapsamı seçicisi (Tek ekstre / Tüm ekstreler).</summary>
+    public const string PickerConditionPaymentScope = "picker-condition-payment-scope";
+
+    /// <summary>Taksit veya ödeme sayısı girişi.</summary>
+    public const string InputConditionPaymentCount = "input-condition-payment-count";
 
     /// <summary>Denemeyi çalışma listesine yazar.</summary>
     public const string BtnSaveCondition = "btn-save-condition";

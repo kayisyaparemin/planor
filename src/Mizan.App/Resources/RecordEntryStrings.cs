@@ -98,4 +98,10 @@ public static class RecordEntryStrings
 
     /// <summary>Krediye erken ödemenin alt satırı.</summary>
     public const string Etiket_ErkenOdemeAlt = "Kapat ya da ara ödeme";
+
+    /// <summary>Kart ödeme şekli seçeneği (simülatör).</summary>
+    public const string Etiket_KartOdemeSekli = "Kart ödeme şekli";
+
+    /// <summary>Kart ödeme şeklinin alt satırı.</summary>
+    public const string Etiket_KartOdemeSekliAlt = "Asgari ya da tamamı";
 }
