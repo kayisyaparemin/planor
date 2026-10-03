@@ -66,6 +66,31 @@
                         VerticalOptions="Center" />
             </Grid>
         </DataTemplate>
+
+        <!-- Dönem karosu: ay ve dönem sonu; en düşük kalın, eksi olumsuz renkte. Yeri sıradan (GS26-1); dokunma yok (S76-9) -->
+        <DataTemplate x:Key="DonemKarosu" x:DataType="models:FuturePeriodTile">
+            <VerticalStackLayout Grid.Row="{Binding Index, Converter={StaticResource IzgaraKonumu}, ConverterParameter=Satir}"
+                                 Grid.Column="{Binding Index, Converter={StaticResource IzgaraKonumu}}"
+                                 BackgroundColor="{DynamicResource SurfaceCard}"
+                                 Padding="{StaticResource Space3}"
+                                 Spacing="{StaticResource Space1}">
+                <Label Text="{Binding ., Converter={StaticResource DonemAyi}}"
+                       Style="{StaticResource Caption}" />
+                <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
+                       FontSize="{StaticResource TypeFigure}"
+                       FontFamily="OpenSansRegular"
+                       TextColor="{DynamicResource TextPrimary}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsLowest}" Value="True">
+                            <Setter Property="FontFamily" Value="OpenSansSemibold" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsNegative}" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </VerticalStackLayout>
+        </DataTemplate>
     </ContentPage.Resources>
 
     <ScrollView>
@@ -143,6 +168,64 @@
                                    Style="{StaticResource Caption}"
                                    HorizontalTextAlignment="End" />
                         </Grid>
+
+                        <!-- 12 dönem sonra: denemeyle değer; açık deneme varsa altında şu an ve fark satırı (S2, GS28) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <comp:MetricRow LabelText="{x:Static strings:FuturePeriodsStrings.Etiket_OnIkiDonemSonra}"
+                                            ValueText="{Binding Result.FinalEndingBalance, Converter={StaticResource Para}}">
+                                <comp:MetricRow.Triggers>
+                                    <DataTrigger TargetType="comp:MetricRow" Binding="{Binding Result.IsFinalNegative}" Value="True">
+                                        <Setter Property="Semantic" Value="Negative" />
+                                    </DataTrigger>
+                                </comp:MetricRow.Triggers>
+                            </comp:MetricRow>
+                            <Grid ColumnDefinitions="Auto, *, Auto"
+                                  ColumnSpacing="{StaticResource Space2}"
+                                  IsVisible="{Binding Result.HasDifference}">
+                                <Label Grid.Column="1"
+                                       Text="{Binding Result.BaselineFinalEndingBalance, Converter={StaticResource Para}, StringFormat={x:Static strings:SimulatorStrings.Bicim_SuAn}}"
+                                       Style="{StaticResource Caption}" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding Result.FinalEndingDifference, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                       Style="{StaticResource Caption}"
+                                       HorizontalTextAlignment="End">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Result.FinalEndingDifferenceSemantic}" Value="Negative">
+                                            <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Result.FinalEndingDifferenceSemantic}" Value="Positive">
+                                            <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <!-- Faiz satırları: denemeyle toplam faiz; fark varsa altında şu an ve fark satırı (S4) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <comp:MetricRow LabelText="{x:Static strings:FuturePeriodsStrings.Etiket_OnIkiDonemdeFaiz}"
+                                            ValueText="{Binding Result.TotalInterest, Converter={StaticResource Para}}" />
+                            <Grid ColumnDefinitions="Auto, *, Auto"
+                                  ColumnSpacing="{StaticResource Space2}"
+                                  IsVisible="{Binding Result.HasInterestDifference}">
+                                <Label Grid.Column="1"
+                                       Text="{Binding Result.BaselineTotalInterest, Converter={StaticResource Para}, StringFormat={x:Static strings:SimulatorStrings.Bicim_SuAn}}"
+                                       Style="{StaticResource Caption}" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding Result.InterestDifference, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                       Style="{StaticResource Caption}"
+                                       HorizontalTextAlignment="End">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Result.IsInterestCostIncreased}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding Result.IsInterestCostDecreased}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
+                        </VerticalStackLayout>
                     </VerticalStackLayout>
                 </Border>
 
@@ -174,6 +257,32 @@
                 <Label Text="{x:Static strings:SimulatorStrings.Cumle_DenemeYok}"
                        Style="{StaticResource Caption}"
                        IsVisible="{Binding HasConditions, Converter={StaticResource Tersi}}" />
+
+                <!-- Dönem sonları: 3 × 4 karo, 1 px ayırıcı ızgara aralığından; dokunma yok (S76-9, GS28-3) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        IsVisible="{Binding Result.IsContent}"
+                        AutomationId="{x:Static auto:SimulatorAutomationIds.GridSimulatorPeriods}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout>
+                        <Label Text="{x:Static strings:FuturePeriodsStrings.Etiket_DonemSonlari}"
+                               Style="{StaticResource Eyebrow}"
+                               Padding="{StaticResource CardPadding}" />
+                        <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                                 Color="{DynamicResource BorderSubtle}" />
+                        <Grid ColumnDefinitions="*, *, *"
+                              RowDefinitions="Auto, Auto, Auto, Auto"
+                              ColumnSpacing="{StaticResource StrokeHairline}"
+                              RowSpacing="{StaticResource StrokeHairline}"
+                              BackgroundColor="{DynamicResource BorderSubtle}"
+                              BindableLayout.ItemsSource="{Binding Result.Periods}"
+                              BindableLayout.ItemTemplate="{StaticResource DonemKarosu}" />
+                    </VerticalStackLayout>
+                </Border>
             </VerticalStackLayout>
 
             <!-- Hata: çalışma listesi okunamadı -->

@@ -2026,7 +2026,7 @@ gidişat kartının deseni, listeler `ListCard`. Konseptten sapmalar `GS27`'de.
 > Davranış `S76`, ekran `GS28`. Altı alt adım: `V10a` form + liste, `V10b` sonuç, `V10c` harcama türleri,
 > `V10d` borç türleri, `V10e` gelir türleri, `V10f` "Planıma ekle". Kapı A ve B ortak (2026-10-03).
 > Ekran gerçek kayıtlara yalnız "Planıma ekle" ile yazar; denemeler kendi listesinde saklanır.
-> Durum: `V10a` ve `V10b1` tamamlandı (2026-10-03); `V10b2`–`V10f` açık.
+> Durum: `V10a`, `V10b1` ve `V10b2` tamamlandı (2026-10-04); `V10c`–`V10f` açık.
 
 **Eski proje:** `SimulationPage.xaml` 453 satır, **64 `<Label>`**, 14 buton, 11 kart + 12 dönem kart şablonu, en az 8
 açıklama cümlesi; kod arkası 113 satır (onay ve gezinme). `ScenarioConditionFormView` 85 satır, 17 etiket, 13 giriş.
@@ -2056,6 +2056,7 @@ ViewModel 1.034 satır / 4 `partial` + form 403 satır / 2 `partial`.
 | Denemeler: ad, tür · tarih, tutar, aç/kapa, geçersiz işareti | **Kart** (`ListCard`; satır diyaloğu Düzenle / Sil) | S3 |
 | Deneme ekleme | **Aksiyon** (`PageHeader` "Ekle" → tür seçici) | S3; Finansal Yapı deseni |
 | Denemenin alanları | **Derine** → `SimulationConditionPage` | S3 |
+| Denemenin üst kaydı (kart, kredi, düzenli gelir) | **Derine** → tür seçicinin ikinci seviyesi ("Hangi kart?"); formda salt okunur ad | S3; `S77` V10 notları i (2026-10-04): açılır liste yok, Finansal Yapı'nın davranışı; `V10c`–`V10e` |
 | "Planıma ekle" | **Aksiyon** (liste altında; `V10f`) | S5 |
 | Anlatı cümleleri, içgörü çipleri, "Öne Çıkanlar" | **Çıkar** | Hero + grafik + şema aynı cevabı sayıyla veriyor (GK5) |
 | Faiz kırılımı (kart / KMH / finansman), "gelirlerden kalan", "bu dönem gereken" | **Çıkar** | `S76`-9, `S18` |
@@ -2074,9 +2075,9 @@ SimulatorPage                        SimulationConditionPage (en dolu tür)
 Hero rakam    1 / 1                  Hero rakam   0 / 1
 Hero yüzey    0 / 1  (SurfaceChart)  Kart         0 / 4   form kartı ham Border
 Kart          3 / 4                  Grafik       0 / 1
-Grafik        1 / 1                  Label       11 / 28  alan etiketleri (ad, kart|kredi|gelir ayrı,
-NavRow        0 / 5                                        ödeme şekli, kapsam, tutar, tarih, sayı,
-Label        15 / 28                                       ilk ödeme, toplam geri ödeme)
+Grafik        1 / 1                  Label       12 / 28  alan etiketleri (ad, kart|kredi|gelir ayrı
+NavRow        0 / 5                                        + salt okunur adı, ödeme şekli, kapsam, tutar,
+Label        15 / 28                                       tarih, sayı, ilk ödeme, toplam geri ödeme)
 Cumle_        1 / 3                  Cumle_       0–1 / 3 (erken ödeme açıklaması, V10d kararı)
 ```
 
@@ -2160,7 +2161,8 @@ Düzenle / Sil diyaloğunu açar.
 └─────────────────────────────────────────────────────────────┘
 ┌─ Form kartı (Border, örtük stil) ───────────────────────────┐  ← S3
 │ Etiket_Ad                Eyebrow   [ Telefon          ]     │  hepsi; zorunlu (S76-8)
-│ Etiket_Kart | Etiket_Kredi | Etiket_Gelir   Picker          │  türe göre (V10c–e)
+│ Etiket_Kart | Etiket_Kredi | Etiket_Gelir   üst kaydın adı  │  türe göre (V10c–e); salt okunur, seçimi
+│                                             (Label)         │  tür seçici yapar (S77 V10 notları i)
 │ Etiket_OdemeSekli · Etiket_Kapsam           Picker          │  kart ödeme şekli, erken ödeme (V10c, V10d)
 │ ┌ tutar etiketi (türe göre) ─┐ ┌ tarih etiketi (türe göre) ┐│  Grid 2 sütun
 │ │ [ 30.000        ] Numeric  │ │ [ 15.11.2026 ] DatePicker ││  tarih en erken bugün (S76-3)
@@ -2173,7 +2175,15 @@ Düzenle / Sil diyaloğunu açar.
 ```
 
 Alan blokları türler arasında ortaktır: etiketin metni türe göre değişir (converter), blok tekrarlanmaz; böylece
-dokuz tür tek sayfada 11 etikette kalır. `V10a`'da yalnız ad, tutar ve tarih vardır.
+dokuz tür tek sayfada 12 etikette kalır. `V10a`'da yalnız ad, tutar ve tarih vardır.
+
+**Üst kayıt** *(2026-10-04, `S77` V10 notları i; Kapı B'deki açılır liste kalktı)*: kartla harcama ve kart ödeme
+şekli kartı (`V10c`), krediye erken ödeme krediyi (`V10d`), gelir değişikliği düzenli geliri (`V10e`) ister. Seçimi
+formdaki açılır liste değil simülatörün tür seçicisi yapar, Finansal Yapı'daki gibi (`EK-V6f`): adaylar Finansal
+Yapı'nın süzgecinden, tek adayda sorulmaz, birden fazlasında yerinde "Hangi kart?", geri karolara döner. Aday yoksa
+yalnız uyarı ("önce kartını Finansal Yapı'dan ekle"); form açılmaz, üst kaydın formu önerilmez — simülatör planı
+değiştirmez (`S76`). Form üst kaydın kimliğiyle açılır, adını salt okunur satırda gösterir; düzenlemede tür gibi üst
+kayıt da değişmez.
 
 ### 5. Üç durum
 
@@ -2225,7 +2235,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
 | EK-V9 | Dönem ayrıntısı | 81 | 12 | ✅ V9 |
-| EK-V10 | Simülatör | 64 | 11 + 3 | ⬜ V10a, V10b1 (V10b2–V10f açık) |
+| EK-V10 | Simülatör | 64 | 19 + 3 | ⬜ V10a, V10b (V10c–V10f açık) |
 | EK-V11 | Dönem kapanışı | 50 | | ⬜ |
 | EK-V12 | Geçmiş + ayrıntı | 29 | | ⬜ |
 | EK-V13 | Ayarlar + düzen | 52 | | ⬜ |

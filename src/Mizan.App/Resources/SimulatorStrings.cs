@@ -35,8 +35,23 @@ public static class SimulatorStrings
     /// <summary>Hero'nun altındaki fark satırının etiketi: denemeyle, şu anki gidişatın aynı dönemine göre fark.</summary>
     public const string Etiket_SuAnkiGidisataGore = "Şu anki gidişata göre";
 
+    /// <summary>ComparisonStrip'teki plan (şu anki gidişat) başlığı.</summary>
+    public const string Etiket_SuAn = "ŞU AN";
+
+    /// <summary>ComparisonStrip'teki senaryo (denemeyle) başlığı.</summary>
+    public const string Etiket_Denemeyle = "DENEMEYLE";
+
+    /// <summary>ComparisonStrip'teki fark başlığı.</summary>
+    public const string Etiket_Fark = "FARK";
+
+    /// <summary>Faiz farkı satırının etiketi.</summary>
+    public const string Etiket_FaizFarki = "Faiz farkı";
+
     /// <summary>Hero rakamın altında hangi dönem olduğu; {0} dönemin ilk günü.</summary>
     public const string Bicim_EnDusukDonem = "{0} dönemi sonunda";
+
+    /// <summary>Deneme altındaki şu anki bakiye/faiz metni; {0} tutar.</summary>
+    public const string Bicim_SuAn = "Şu an {0}";
 
     /// <summary>Açık dönem ya da kurulabilir plan yokken sonuç kartının yerindeki metin (S76-1).</summary>
     public const string Bos_SimulatorYok = "Simülatör, gelir ya da bakiye bilgisi girildiğinde hesaplanır.";

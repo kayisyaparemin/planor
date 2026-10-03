@@ -150,6 +150,8 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I135` | Tek aday varsa sorulmaz: kaydın formu seçicinin yerine o kaydın kimliğiyle açılır (S77-5). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_TekAday_FormuKaydinKimligiyleSecicininYerineAcar` | `V6f2` |
 | `I136` | Aday yoksa form açılmaz, önce üst kaydı eklemek önerilir; kabul edilirse üst kaydın boş formu seçicinin yerine açılır (S77 V6f2 notları e). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_AdayYoksa_OnceEklemeyiOnerir_KabuldeBosFormuAcar` | `V6f2` |
 | `I137` | "Hangi kart?" seviyesinde geri, Finansal Yapı'ya değil tür karolarına döner (S77 V6f2 notları f). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.Back_IkinciSeviyede_KarolaraDoner` | `V6f2` |
+| `I138` | 12. dönem sonu farkı ve 12 dönemdeki toplam faiz farkı, açık deneme varsa denemeli seri ile denemesiz seri arasındaki fark olarak hesaplanır; açık deneme yoksa farklar null'dur ve alt kıyas satırları gizlenir (S76, GS28). | `Mizan.Presentation.Tests.ViewModels.SimulationResultViewModelTests.Yenile_DenemeVarsa_OnIkiDonemSonuVeFarkiSenaryoVeBazGoreBelirlenir` | `V10b2` |
+| `I139` | Simülatörün 12'li karo ızgarası denemeli serinin (deneme yoksa baz serinin) tüm dönemlerini sırayla sunar; en düşük dönem sonu karo üzerinde vurgulanır (`IsLowest = true`) (S1, S76-9). | `Mizan.Presentation.Tests.ViewModels.SimulationResultViewModelTests.Yenile_Donemler_OnIkiKaronunDegerleriVeEnDusukIsaretlenir` | `V10b2` |
 
 ## Satır eklerken
 

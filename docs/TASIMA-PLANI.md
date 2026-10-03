@@ -434,19 +434,28 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         tek çalışma listesi (taslak tablosu, port yeniden şekillenir); `A23b` sunum kodu silinir
         *(2026-10-03; `S76`, `GS28`; `SimulatorPage`, `SimulationConditionPage`; koruyan: I122–I124)*. Tek istekli
         `SimulateAsync` / `ApplySimulationAsync` aşırı yüklemeleri (`S76`-4) dokunulacakları `V10b` / `V10f`'ye kaldı.
-  - [ ] **V10b** — sonuç; Aşama 1'de ~500 satır çıktığı için ikiye bölündü (2026-10-03); Kapı A ve B `V10` ile ortak
+  - [x] **V10b** — sonuç; Aşama 1'de ~500 satır çıktığı için ikiye bölündü (2026-10-03); Kapı A ve B `V10` ile ortak
     - [x] **V10b1** — "en düşükte ne olur?": zincir 12 Dönem'le ortak + açık döneme düşen etki (Application / Domain eki),
           sonuç kartı (hero, aynı dönemde şu anki gidişata göre fark, iki serili `AreaTrend`, iki uç tarih), canlı hesap,
           boş / hata durumu; `TargetAmountCalculator`, `FriendlySummary` ve tek istekli `SimulateAsync` silinir
           *(2026-10-03; `S76` V10b notları, `GS28`; `SimulationResultViewModel`, `ISimulationResultService`,
           `ProjectionChainBuilder`; koruyan: I125–I130)*. `SimulatorViewModel` 199 / 200 satırda: `V10c` liste
           yönetimini çocuk ViewModel'e ayırmak zorunda
-    - [ ] **V10b2** — "bir yıl sonra ne olur, faiz ne?": `ComparisonStrip` ("12 dönem sonra"), faiz satırları, 12'li ızgara
+    - [x] **V10b2** — "bir yıl sonra ne olur, faiz ne?": 12 dönem sonra ve faiz satırları (12 Dönem'in satır diliyle — `MetricRow` + `Caption` alt ızgarası), 12'li karo ızgarası *(2026-10-04; `S76` V10b2 notları, `GS28`; `SimulatorPage`, `SimulationResultViewModel`, `FuturePeriodTile`; koruyan: I138, I139)*
   - [ ] **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli. *(`S77`: simülatörün
         "Ekle"si düz diyalogdan `V6f`'in `EntryTypeTiles` bileşenine geçer; `EK-V10`'daki "Plan türü grup
-        seçici → Çıkar" satırı bu adımda geri alınır.)*
+        seçici → Çıkar" satırı bu adımda geri alınır.)* *(2026-10-04, `S77` V10 notları i: **kartı seçici
+        çözer**, Finansal Yapı'daki gibi — kartla harcama ve kart ödeme şekli için aday yoksa yalnız uyarı
+        (simülatör planı değiştirmez), tek kartta sorulmaz, birden fazlasında yerinde "Hangi kart?". Deneme
+        formunda açılır liste yok; form kartın kimliğiyle açılır, adını salt okunur gösterir, düzenlemede kart
+        değişmez. Çözme mantığı `RecordEntryPickerViewModel`'den iki seçicinin ortak yardımcısına taşınır;
+        `I134`, `I135`, `I137`'nin simülatör karşılıkları testle gelir.)*
   - [ ] **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları
-  - [ ] **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği
+        *(`S77` V10 notları i: krediye erken ödemenin **kredisini seçici çözer** — `V10c`'nin ortak yardımcısıyla,
+        "Hangi kredi?"; aday taksiti kalmış aktif kredilerdir. Formda kredi seçimi yok, düzenlemede kredi değişmez.)*
+  - [ ] **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği *(`S77` V10 notları i: gelir
+        değişikliğinin **düzenli gelirini seçici çözer**, "Hangi gelir?"; eski simülatörde bu soru yoktu, tek maaş
+        geçmişine yazıyordu. Formda gelir seçimi yok, düzenlemede gelir değişmez.)*
   - [ ] **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer
 - [ ] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
       `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`; kaynak eski proje değil, eski
@@ -502,6 +511,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a tamam)* |
+| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a ve V10b tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

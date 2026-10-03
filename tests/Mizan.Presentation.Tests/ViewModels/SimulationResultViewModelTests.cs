@@ -271,6 +271,126 @@ public sealed class SimulationResultViewModelTests
         Assert.Equal(Routes.FinancialStructure, _navigation.LastNavigatedRoute);
     }
 
+    [Fact]
+    public async Task Yenile_DenemeYoksa_OnIkiDonemSonuSuAnkiGidisatinOnIkinciDonemidirFarkYoktur()
+    {
+        _service.Outcome = new SimulationOutcome(Periods(BaselineOpening, BaselineEndings), null);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(50_000m, _viewModel.FinalEndingBalance);
+        Assert.Equal(50_000m, _viewModel.BaselineFinalEndingBalance);
+        Assert.Null(_viewModel.FinalEndingDifference);
+        Assert.False(_viewModel.IsFinalNegative);
+    }
+
+    [Fact]
+    public async Task Yenile_DenemeVarsa_OnIkiDonemSonuVeFarkiSenaryoVeBazGoreBelirlenir()
+    {
+        _service.Outcome = WithScenario();
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(2_000m, _viewModel.FinalEndingBalance);
+        Assert.Equal(50_000m, _viewModel.BaselineFinalEndingBalance);
+        Assert.Equal(-48_000m, _viewModel.FinalEndingDifference);
+        Assert.Equal("Negative", _viewModel.FinalEndingDifferenceSemantic);
+        Assert.False(_viewModel.IsFinalNegative);
+    }
+
+    [Fact]
+    public async Task Yenile_OnIkinciDonemEksiyse_IsFinalNegativeDogrudur()
+    {
+        var negativeEndings = BaselineEndings.ToArray();
+        negativeEndings[^1] = -5_000m;
+        _service.Outcome = new SimulationOutcome(Periods(BaselineOpening, negativeEndings), null);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(-5_000m, _viewModel.FinalEndingBalance);
+        Assert.True(_viewModel.IsFinalNegative);
+    }
+
+    [Fact]
+    public async Task Yenile_Faiz_DenemeYoksaSuAnkiGidisatinFaizidirFarkYoktur()
+    {
+        _service.Outcome = new SimulationOutcome(
+            Periods(BaselineOpening, BaselineEndings, cardInterest: 20m, deficitInterest: 30m),
+            null);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(600m, _viewModel.TotalInterest);
+        Assert.Null(_viewModel.InterestDifference);
+        Assert.False(_viewModel.HasInterestDifference);
+    }
+
+    [Fact]
+    public async Task Yenile_Faiz_DenemeVarsaToplamVeFarkHesaplanir()
+    {
+        var baseline = Periods(BaselineOpening, BaselineEndings, cardInterest: 10m, deficitInterest: 30m);
+        var scenario = Periods(ScenarioOpening, ScenarioEndings, cardInterest: 30m, deficitInterest: 50m);
+        _service.Outcome = new SimulationOutcome(baseline, scenario);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(960m, _viewModel.TotalInterest);
+        Assert.Equal(480m, _viewModel.InterestDifference);
+        Assert.True(_viewModel.HasInterestDifference);
+        Assert.True(_viewModel.IsInterestCostIncreased);
+        Assert.False(_viewModel.IsInterestCostDecreased);
+    }
+
+    [Fact]
+    public async Task Yenile_Faiz_TasarrufSagliyorsa_FarkEksiOlurVeTasarrufIsaretlenir()
+    {
+        var baseline = Periods(BaselineOpening, BaselineEndings, cardInterest: 20m, deficitInterest: 30m);
+        var scenario = Periods(ScenarioOpening, ScenarioEndings, cardInterest: 10m, deficitInterest: 10m);
+        _service.Outcome = new SimulationOutcome(baseline, scenario);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(240m, _viewModel.TotalInterest);
+        Assert.Equal(-360m, _viewModel.InterestDifference);
+        Assert.True(_viewModel.HasInterestDifference);
+        Assert.False(_viewModel.IsInterestCostIncreased);
+        Assert.True(_viewModel.IsInterestCostDecreased);
+    }
+
+    [Fact]
+    public async Task Yenile_Izgara_OnIkiDonemKarolariniSiraylaTasar()
+    {
+        _service.Outcome = WithScenario();
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(12, _viewModel.Periods.Count);
+        Assert.True(_viewModel.Periods[0].ShowsYear);
+        Assert.False(_viewModel.Periods[1].ShowsYear);
+        Assert.Equal(0, _viewModel.Periods[0].Index);
+        Assert.Equal(ChainStart, _viewModel.Periods[0].PeriodStart);
+        Assert.Equal(ScenarioEndings[0], _viewModel.Periods[0].EndingBalance);
+        Assert.True(_viewModel.Periods[5].IsLowest);
+        Assert.True(_viewModel.Periods[5].IsNegative);
+        Assert.False(_viewModel.Periods[0].IsLowest);
+    }
+
+    [Fact]
+    public async Task Yenile_AcikDonemYoksa_OnIkiDonemVeFaizVeIzgaraTemizlenir()
+    {
+        _service.Outcome = WithScenario();
+        await _viewModel.RefreshAsync([]);
+        _service.Outcome = null;
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Null(_viewModel.FinalEndingBalance);
+        Assert.Null(_viewModel.BaselineFinalEndingBalance);
+        Assert.Null(_viewModel.TotalInterest);
+        Assert.Null(_viewModel.InterestDifference);
+        Assert.Empty(_viewModel.Periods);
+    }
+
     private static SimulationOutcome WithScenario() =>
         new(Periods(BaselineOpening, BaselineEndings), Periods(ScenarioOpening, ScenarioEndings));
 
@@ -278,7 +398,11 @@ public sealed class SimulationResultViewModelTests
         new(new SimulationRequest(SimulationScenarioType.CashPurchase, name, 1_000m, ChainStart), isEnabled);
 
     // Zincir: her dönemin açılışı bir öncekinin sonu (kural 05); ilk dönem açılışı zincirin başıdır.
-    private static List<CashFlowPeriodProjection> Periods(decimal opening, IReadOnlyList<decimal> endings)
+    private static List<CashFlowPeriodProjection> Periods(
+        decimal opening,
+        IReadOnlyList<decimal> endings,
+        decimal cardInterest = 0m,
+        decimal deficitInterest = 0m)
     {
         var periods = new List<CashFlowPeriodProjection>();
         for (var i = 0; i < endings.Count; i++)
@@ -288,7 +412,9 @@ public sealed class SimulationResultViewModelTests
             {
                 Period = new CashFlowPeriod(start, start.AddMonths(1)),
                 OpeningBalance = opening,
-                EndingBalance = endings[i]
+                EndingBalance = endings[i],
+                CardInterestGenerated = cardInterest,
+                DeficitFinancingInterest = deficitInterest
             });
             opening = endings[i];
         }

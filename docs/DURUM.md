@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6f2** — tür seçicinin üst kayıtlı üç türü (Kartla harcama, Krediye erken ödeme, Gelir değişikliği): kayıt yoksa ekleme önerisi, tekse doğrudan form, çoksa yerinde "Hangi kart?" (`RecordEntryPickerViewModel`; S77, GS29, EK-V6f). V6 yeniden kapandı |
-| Sıradaki adım | **V10b2** — simülatör sonuç kartının alt yarısı ("12 dönem sonra", faiz satırları, 12'li ızgara) |
-| Test sayısı | 2010 |
+| Son tamamlanan adım | **V10b2** — simülatör sonuç kartının alt yarısı: 12 dönem sonra ve faiz satırları (12 Dönem'in satır diliyle — `MetricRow` + `Caption` alt ızgarası), 12'li karo ızgarası (`SimulationResultViewModel`, `SimulatorPage`; S76, GS28, EK-V10). V10b tamamlandı |
+| Sıradaki adım | **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli; "Ekle" tür seçiciye bağlanır (S77, EK-V10) |
+| Test sayısı | 2018 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10b2 — simülatör sonuç kartının alt yarısı: 12 dönem sonra ve faiz satırları (12 Dönem'in satır diliyle), 12'li karo ızgarası; kararlar `S76` V10b2 notları, `GS28`, `EK-V10`
+
+Simülatörün sonuç kartı tamamlandı: "12 dönem sonra" ve "12 dönemde faiz" satırları 12 Dönem'in satır diliyle (`MetricRow` + açık deneme varsa altında `Caption` stilinde sol baş "Şu an ₺...", sağ baş renkli fark tutarı) eklendi (`I138`). `ComparisonStrip` kutusu konsept uyumsuzluğu nedeniyle kullanıcı kararıyla kaldırıldı (Seçenek 1); alt satırların ızgarası `MetricRow`'un iç yapısıyla (`Auto, *, Auto`, `Space2`) milimetrik hizalandı. Açık deneme yokken alt kıyas satırları gizlenir ve 12 Dönem kartı sade yapısında kalır.
+Sonuç kartının altına 12 Dönem'in 3 × 4 karo ızgarası (`GridSimulatorPeriods`, `BorderSubtle` 1px ayırıcılar) bağlandı (`I139`). Karolar denemeli serinin (deneme yoksa baz serinin) dönem sonlarını gösterir, en düşük dönem sonu karo üzerinde vurgulanır (`IsLowest = true`). Karoya dokunma simülatörde yoktur (`S76`-9).
+Yeni model `FuturePeriodTile` ortak kullanıldı; `SimulationResultViewModel` 195 / 200 satırda kaldı.
+Dikkat: `SimulatorViewModel` 199 / 200 satırda; V10c'nin yeni türleri için liste yönetimi bir çocuk ViewModel'e ayrılmak zorunda. Üretim kodu net ~+130 satır (XAML 40, ViewModel 45, Automation/Strings 45; Aşama 1 tahmini ~150). Çalışma ağacındaki izlenmeyen `docs/assets/konsept/anasayfa-*.png` bu adımın değil, commit'e girmedi.
+Bütçe: Hero 1/1, Hero yüzey 0/1, Kart 3/4 (sonuç kartı ham Border, denemeler `ListCard`, 12'li ızgara ham Border), Grafik 1/1, NavRow 0/5, Label 19/28 (analizci 20), Cümle 1/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 8 yeni test (Presentation); toplam 2.018 test yeşil, 0 hata, 0 uyarı.
 
 ### V6f2 — tür seçicinin üst kayıtlı üç türü: kayıt yoksa ekleme önerisi, tekse doğrudan form, çoksa yerinde "Hangi kart?"; kararlar `S77` V6f2 notları, `GS29`, `EK-V6f`
 

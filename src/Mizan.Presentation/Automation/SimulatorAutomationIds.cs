@@ -30,6 +30,12 @@ public static class SimulatorAutomationIds
     /// <summary>Hata hâli: sonuç hesaplanamadı.</summary>
     public const string StateSimulatorResultError = "state-simulator-result-error";
 
+    /// <summary>12 dönem sonra karşılaştırma şeridi.</summary>
+    public const string StripSimulatorTwelvePeriods = "strip-simulator-twelve-periods";
+
+    /// <summary>12 dönem sonları karo ızgarası.</summary>
+    public const string GridSimulatorPeriods = "grid-simulator-periods";
+
     /// <summary>Deneme formu sayfası kimliği.</summary>
     public const string PageSimulationCondition = "page-simulation-condition";
 
