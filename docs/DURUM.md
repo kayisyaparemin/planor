@@ -4,15 +4,26 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları (kredi faizi kazancı, kredinin maliyeti; S76, S77, EK-V10) |
-| Sıradaki adım | **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği (S77, EK-V10) |
-| Test sayısı | 2049 |
+| Son tamamlanan adım | **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği (S77, EK-V10) |
+| Sıradaki adım | **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer |
+| Test sayısı | 2057 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10e — gelir türleri: tek seferlik gelir, gelir değişikliği; kararlar `S77` V10 notları i, `EK-V10`
+
+Simülatörün "Ekle" seçicisine gelir bölümü (`IncomeSection`: Tek seferlik gelir, Gelir değişikliği) eklendi ve yeşil ton vurgusuyla (`PositiveText` / `PositiveSurface`) ilk sıraya yerleştirildi.
+Gelir değişikliğinde aday düzenli gelirler `RecordCandidateResolver` ile çözülüyor: kayıtlı düzenli gelir yoksa "Kayıtlı düzenli gelir bulunamadı" uyarısı verilip form açılmıyor (`I147`), tek düzenli gelirde doğrudan form o gelirle açılıyor (`I148`), birden fazlasında "Hangi gelir?" aday seçim karoları sunuluyor. Formda hedef gelir adı (`GELİR` etiketi altında) salt okunur görünür ve düzenlemede değişmez (`I149`).
+Deneme formunda (`SimulationConditionPage`):
+- Tek seferlik gelirde (`FutureIncome`): ad, tutar ve işlem tarihi doğrulanıp kaydedilir.
+- Gelir değişikliğinde (`IncomeChange`): ad, yeni net tutar, yürürlük tarihi ve seçilen gelirin kimliği (`IncomeId`) doğrulanıp kaydedilir.
+Bütçe: Seçici (Hero 0/1, Kart 4/4 `EntryTypeTiles` × 4, Label 4/28, Cümle 0/3); Form (Hero 0/1, Kart 0/4, Label 16/28, Cümle 0/3).
+`SimulationConditionPickerViewModel` (184 satır) ve `SimulationConditionViewModel` (194 satır) 200 satır mimari sınırına (K3) ve metot sınırına (K4) tam uydu.
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 8 yeni test (Presentation); toplam 2.057 test yeşil, 0 hata, 0 uyarı.
 
 ### V10d — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları; kararlar `S76`, `S77` V10 notları i, `EK-V10`
 

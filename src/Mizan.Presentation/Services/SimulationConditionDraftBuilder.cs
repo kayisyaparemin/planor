@@ -60,6 +60,7 @@ public static class SimulationConditionDraftBuilder
         vm.Date = req.StartDate;
         vm.CardId = req.CreditCardId;
         vm.LoanId = req.LoanId;
+        vm.IncomeId = req.RecurringIncomeId;
         vm.PaymentCountInput = req.PaymentCount > 1 ? req.PaymentCount.ToString(CultureInfo.InvariantCulture) : string.Empty;
         vm.SelectedCardPaymentMode = req.CardPaymentType ?? CreditCardPaymentType.FullStatement;
         vm.SelectedCardPaymentScope = req.AppliesToAllStatements;
@@ -112,6 +113,7 @@ public static class SimulationConditionDraftBuilder
             CardPaymentType = isCard ? vm.SelectedCardPaymentMode : null,
             AppliesToAllStatements = isCard && vm.SelectedCardPaymentScope,
             LoanId = vm.LoanId, PrepaymentMode = isLoan ? vm.SelectedPrepaymentMode : null,
+            RecurringIncomeId = vm.IncomeId,
             TotalRepaymentAmount = totalRepayment,
             FirstPaymentDate = isFinancing ? vm.FirstPaymentDate : null
         };
@@ -125,6 +127,7 @@ public static class SimulationConditionDraftBuilder
         || vm.SelectedCardPaymentMode != (l.CardPaymentType ?? CreditCardPaymentType.FullStatement)
         || vm.SelectedCardPaymentScope != l.AppliesToAllStatements
         || vm.LoanId != l.LoanId
+        || vm.IncomeId != l.RecurringIncomeId
         || vm.SelectedPrepaymentMode != (l.PrepaymentMode ?? (l.Type == SimulationScenarioType.LoanEarlyClosure ? LoanPrepaymentMode.FullClosure : LoanPrepaymentMode.ReduceTerm))
         || vm.TotalRepaymentAmountInput != (l.TotalRepaymentAmount is { } t ? StatementEntryViewModel.FormatAmount(t) : string.Empty)
         || vm.FirstPaymentDate != (l.FirstPaymentDate ?? l.StartDate);

@@ -18,6 +18,8 @@ public sealed class DenemeBasligiConverter : IValueConverter
         SimulationScenarioType.FinancingLoan => SimulatorStrings.Baslik_KrediCekme,
         SimulationScenarioType.CashDebt => SimulatorStrings.Baslik_TaksitliNakitBorc,
         SimulationScenarioType.LoanEarlyClosure or SimulationScenarioType.LoanPartialPrepayment => SimulatorStrings.Baslik_KrediyeErkenOdeme,
+        SimulationScenarioType.FutureIncome => SimulatorStrings.Baslik_TekSeferlikGelir,
+        SimulationScenarioType.IncomeChange => SimulatorStrings.Baslik_GelirDegisikligi,
         "cash" => SimulatorStrings.Baslik_NakitOdeme,
         "card" => SimulatorStrings.Baslik_KartlaHarcama,
         "recurring" => SimulatorStrings.Baslik_DuzenliOdeme,
@@ -25,6 +27,8 @@ public sealed class DenemeBasligiConverter : IValueConverter
         "financing" => SimulatorStrings.Baslik_KrediCekme,
         "cash-debt" => SimulatorStrings.Baslik_TaksitliNakitBorc,
         "loan-prepayment" => SimulatorStrings.Baslik_KrediyeErkenOdeme,
+        "income" => SimulatorStrings.Baslik_TekSeferlikGelir,
+        "income-change" => SimulatorStrings.Baslik_GelirDegisikligi,
         _ => SimulatorStrings.Baslik_NakitOdeme
     };
 

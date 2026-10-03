@@ -29,8 +29,11 @@ public sealed class SimulationConditionPickerViewModelTests
     }
 
     [Fact]
-    public void Acilis_OdemeKartVeBorcBolumleriniSunar()
+    public void Acilis_GelirOdemeKartVeBorcBolumleriniSunar()
     {
+        Assert.Equal(
+            ["income", "income-change"],
+            _viewModel.IncomeSection.Options.Select(x => x.Key));
         Assert.Equal(
             ["cash", "recurring"],
             _viewModel.PaymentSection.Options.Select(x => x.Key));
@@ -41,6 +44,84 @@ public sealed class SimulationConditionPickerViewModelTests
             ["financing", "cash-debt", "loan-prepayment"],
             _viewModel.DebtSection.Options.Select(x => x.Key));
         Assert.False(_viewModel.IsChoosing);
+    }
+
+    [Fact]
+    public async Task SelectOption_TekSeferlikGelir_DogrudanFormuAcar()
+    {
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.IncomeSection.Options[0]);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("income", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+    }
+
+    [Fact]
+    public async Task SelectOption_GelirDegisikligi_AdayYoksa_UyarirFormAcmaz()
+    {
+        _reader.Plan = new FinancialPlan();
+
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.IncomeSection.Options[1]);
+
+        Assert.Null(_navigation.LastNavigatedRoute);
+        Assert.Equal("Kayıtlı düzenli gelir bulunamadı", _dialog.LastAlertTitle);
+        Assert.Contains("önce Finansal Yapı'dan bir düzenli gelir eklemelisin", _dialog.LastAlertMessage);
+        Assert.False(_viewModel.IsChoosing);
+    }
+
+    [Fact]
+    public async Task SelectOption_GelirDegisikligi_TekGelir_FormuGelirleAcar()
+    {
+        var (income, histories) = Income("Maaş", 15, true, (45000m, Today));
+        _reader.Plan = new FinancialPlan { RecurringIncomes = [income], IncomeHistories = histories };
+
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.IncomeSection.Options[1]);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("income-change", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+        Assert.Equal(income.Id, _navigation.LastParameters[Routes.IncomeIdParameter]);
+        Assert.False(_viewModel.IsChoosing);
+    }
+
+    [Fact]
+    public async Task SelectOption_GelirDegisikligi_CokGelir_IkinciSeviyeyiAcar()
+    {
+        var (income1, h1) = Income("Maaş", 15, true, (45000m, Today));
+        var (income2, h2) = Income("Kira Geliri", 1, true, (12000m, Today));
+        _reader.Plan = new FinancialPlan
+        {
+            RecurringIncomes = [income1, income2],
+            IncomeHistories = [.. h1, .. h2]
+        };
+
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.IncomeSection.Options[1]);
+
+        Assert.Null(_navigation.LastNavigatedRoute);
+        Assert.True(_viewModel.IsChoosing);
+        Assert.Equal(RecordEntryGroup.Income, _viewModel.ChoiceGroup);
+        Assert.Equal(2, _viewModel.Choices.Count);
+    }
+
+    [Fact]
+    public async Task ChooseRecord_AdayGelirSecildiginde_FormuAcar()
+    {
+        var (income1, h1) = Income("Maaş", 15, true, (45000m, Today));
+        var (income2, h2) = Income("Kira Geliri", 1, true, (12000m, Today));
+        _reader.Plan = new FinancialPlan
+        {
+            RecurringIncomes = [income1, income2],
+            IncomeHistories = [.. h1, .. h2]
+        };
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.IncomeSection.Options[1]);
+
+        var chosen = _viewModel.Choices[1];
+        await _viewModel.ChooseRecordCommand.ExecuteAsync(chosen);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("income-change", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+        Assert.Equal(chosen.Id, _navigation.LastParameters[Routes.IncomeIdParameter]);
     }
 
     [Fact]

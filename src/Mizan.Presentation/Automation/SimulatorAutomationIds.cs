@@ -63,6 +63,9 @@ public static class SimulatorAutomationIds
     /// <summary>Hedef kredi etiketi / salt okunur adı.</summary>
     public const string LblConditionLoan = "lbl-condition-loan";
 
+    /// <summary>Hedef düzenli gelir etiketi / salt okunur adı.</summary>
+    public const string LblConditionIncome = "lbl-condition-income";
+
     /// <summary>Kart ödeme şekli seçicisi (Tamamı / Asgari).</summary>
     public const string PickerConditionPaymentMode = "picker-condition-payment-mode";
 

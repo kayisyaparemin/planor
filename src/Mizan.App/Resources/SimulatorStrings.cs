@@ -181,4 +181,19 @@ public static class SimulatorStrings
 
     /// <summary>Kayıtlı kredi bulunamadığında uyarı mesajı.</summary>
     public const string Mesaj_KrediBulunamadi = "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin.";
+
+    /// <summary>Tek seferlik gelir denemesinin form başlığı.</summary>
+    public const string Baslik_TekSeferlikGelir = "Tek Seferlik Gelir";
+
+    /// <summary>Gelir değişikliği denemesinin form başlığı.</summary>
+    public const string Baslik_GelirDegisikligi = "Gelir Değişikliği";
+
+    /// <summary>Hedef düzenli gelir etiketi.</summary>
+    public const string Etiket_Gelir = "GELİR";
+
+    /// <summary>Kayıtlı düzenli gelir bulunamadığında uyarı başlığı.</summary>
+    public const string Hata_GelirBulunamadi = "Kayıtlı düzenli gelir bulunamadı";
+
+    /// <summary>Kayıtlı düzenli gelir bulunamadığında uyarı mesajı.</summary>
+    public const string Mesaj_GelirBulunamadi = "Gelir değişikliği denemek için önce Finansal Yapı'dan bir düzenli gelir eklemelisin.";
 }

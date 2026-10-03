@@ -46,6 +46,8 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     [ObservableProperty] private bool selectedCardPaymentScope;
     [ObservableProperty] private Guid? loanId;
     [ObservableProperty] private string loanName = string.Empty;
+    [ObservableProperty] private Guid? incomeId;
+    [ObservableProperty] private string incomeName = string.Empty;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(NeedsAmount))]
     private LoanPrepaymentMode selectedPrepaymentMode = LoanPrepaymentMode.FullClosure;
     [ObservableProperty] private string totalRepaymentAmountInput = string.Empty;
@@ -82,6 +84,8 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     public bool IsLoanPrepayment => _option.Key == "loan-prepayment";
     /// <summary>Kredi adı alanı görünür mü.</summary>
     public bool IsLoan => _option.Key == "loan-prepayment";
+    /// <summary>Hedef düzenli gelir adı alanı görünür mü.</summary>
+    public bool IsIncome => _option.Key == "income-change";
     /// <summary>İlk ödeme tarihi alanı gerekiyor mu.</summary>
     public bool NeedsFirstPaymentDate => _option.Key == "financing";
     /// <summary>Toplam geri ödeme alanı gerekiyor mu.</summary>
@@ -111,12 +115,13 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     internal void SetLoadedOption(ScenarioOption option) => _option = option;
 
     /// <summary>Formun neyi açacağını gezinmeden alır.</summary>
-    public void Prepare(string? scenarioOptionKey, Guid? conditionId, Guid? cardId = null, Guid? loanId = null)
+    public void Prepare(string? scenarioOptionKey, Guid? conditionId, Guid? cardId = null, Guid? loanId = null, Guid? incomeId = null)
     {
         _conditionId = conditionId;
         IsEditing = conditionId.HasValue;
         CardId = cardId;
         LoanId = loanId;
+        IncomeId = incomeId;
         _option = SimulationScenarioCatalog.Options.FirstOrDefault(x => x.Key == scenarioOptionKey)
                   ?? SimulationScenarioCatalog.CashPayment;
         ScenarioType = _option.DefaultType;
@@ -151,6 +156,7 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
         var plan = await _planReader.GetPlanAsync();
         if (CardId is { } cid && plan.CreditCards.FirstOrDefault(x => x.Id == cid) is { } c) { CardName = $"{c.Bank} {c.Name}".Trim(); }
         if (LoanId is { } lid && plan.Loans.FirstOrDefault(x => x.Id == lid) is { } l) { LoanName = $"{l.Bank} {l.Name}".Trim(); }
+        if (IncomeId is { } iid && plan.RecurringIncomes.FirstOrDefault(x => x.Id == iid) is { } i) { IncomeName = i.Name.Trim(); }
     }
 
     /// <summary>Denemeyi doğrular ve çalışma listesine yazar; yeni deneme açık olarak sona eklenir.</summary>

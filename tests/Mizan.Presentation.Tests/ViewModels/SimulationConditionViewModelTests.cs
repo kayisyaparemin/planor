@@ -446,6 +446,74 @@ public sealed class SimulationConditionViewModelTests
         Assert.Equal(LoanPrepaymentMode.ReduceTerm, _viewModel.SelectedPrepaymentMode);
     }
 
+    [Fact]
+    public async Task Save_TekSeferlikGelir_FutureIncomeKaydeder()
+    {
+        _viewModel.Prepare("income", null);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Prim";
+        _viewModel.AmountInput = "25.000";
+        _viewModel.Date = Today.AddDays(10);
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.FutureIncome, saved.Request.Type);
+        Assert.Equal("Prim", saved.Request.Name);
+        Assert.Equal(25_000m, saved.Request.Amount);
+        Assert.Equal(Today.AddDays(10), saved.Request.StartDate);
+        Assert.Equal(1, saved.Request.PaymentCount);
+    }
+
+    [Fact]
+    public async Task Save_GelirDegisikligi_IncomeChangeKaydeder()
+    {
+        var incomeId = Guid.NewGuid();
+        _viewModel.Prepare("income-change", null, null, null, incomeId);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Maaş zammı";
+        _viewModel.AmountInput = "60.000";
+        _viewModel.Date = Today.AddDays(20);
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.IncomeChange, saved.Request.Type);
+        Assert.Equal("Maaş zammı", saved.Request.Name);
+        Assert.Equal(60_000m, saved.Request.Amount);
+        Assert.Equal(incomeId, saved.Request.RecurringIncomeId);
+        Assert.Equal(Today.AddDays(20), saved.Request.StartDate);
+    }
+
+    [Fact]
+    public async Task Load_VarOlanGelirDegisikligi_DuzenlemeModundaYukler()
+    {
+        var incomeId = Guid.NewGuid();
+        var income = new RecurringIncome { Id = incomeId, Name = "Maaş" };
+        _reader.Plan = new FinancialPlan { RecurringIncomes = [income] };
+
+        var conditionId = Guid.NewGuid();
+        var request = new SimulationRequest
+        {
+            ScenarioId = conditionId,
+            Type = SimulationScenarioType.IncomeChange,
+            Name = "Zam",
+            Amount = 60_000m,
+            StartDate = Today.AddDays(20),
+            RecurringIncomeId = incomeId
+        };
+        _service.Seed(new SimulationDraftCondition(request));
+
+        _viewModel.Prepare(null, conditionId);
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.IsEditing);
+        Assert.Equal("Zam", _viewModel.Name);
+        Assert.Equal(incomeId, _viewModel.IncomeId);
+        Assert.Equal("Maaş", _viewModel.IncomeName);
+        Assert.Equal("60000", _viewModel.AmountInput);
+    }
+
     private async Task OpenNewAsync()
     {
         _viewModel.Prepare(SimulationScenarioCatalog.CashPayment.Key, null);

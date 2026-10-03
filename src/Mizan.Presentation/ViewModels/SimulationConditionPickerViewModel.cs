@@ -20,6 +20,8 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
     private const string MissingCardMessage = "Kartla işlem denemek için önce Finansal Yapı'dan bir kredi kartı eklemelisin.";
     private const string MissingLoanTitle = "Kayıtlı kredi bulunamadı";
     private const string MissingLoanMessage = "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin.";
+    private const string MissingIncomeTitle = "Kayıtlı düzenli gelir bulunamadı";
+    private const string MissingIncomeMessage = "Gelir değişikliği denemek için önce Finansal Yapı'dan bir düzenli gelir eklemelisin.";
     private const string ReadFailedTitle = "Kayıtlar okunamadı";
     private const string ReadFailedMessage = "Kayıtların okunurken bir sorun oluştu. Tekrar dene.";
 
@@ -43,6 +45,14 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
         _candidateResolver = candidateResolver ?? throw new ArgumentNullException(nameof(candidateResolver));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
     }
+
+    /// <summary>Gelir seçenekleri bölümü.</summary>
+    public EntryTypeSection IncomeSection { get; } = new(
+        RecordEntryGroup.Income,
+        [
+            new(SimulationScenarioCatalog.OneTimeIncome.Key, 0),
+            new(SimulationScenarioCatalog.IncomeChange.Key, 1)
+        ]);
 
     /// <summary>Ödeme / harcama seçenekleri bölümü.</summary>
     public EntryTypeSection PaymentSection { get; } = new(
@@ -69,23 +79,19 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
             new(SimulationScenarioCatalog.LoanPrepayment.Key, 2)
         ]);
 
-    /// <summary>Sayfa ikinci seviyede mi ("Hangi kart?" veya "Hangi kredi?").</summary>
+    /// <summary>Sayfa ikinci seviyede mi ("Hangi kart?", "Hangi kredi?" veya "Hangi gelir?").</summary>
     public bool IsChoosing => ChoiceGroup is not null;
 
     /// <summary>İkinci seviyedeki aday kayıtlar.</summary>
     public ObservableCollection<FinancialRecordRow> Choices { get; } = [];
 
     /// <summary>
-    /// Karoya dokunulduğunda seçeneğin formunu açar. Kart ve kredi gerektiren türlerde önce adaylar çözülür.
+    /// Karoya dokunulduğunda seçeneğin formunu açar. Kart, kredi ve gelir gerektiren türlerde önce adaylar çözülür.
     /// </summary>
     [RelayCommand]
     private async Task SelectOptionAsync(EntryTypeOptionItem? option)
     {
-        if (option is null)
-        {
-            return;
-        }
-
+        if (option is null) { return; }
         var key = option.Key;
         if (key is "card" or "card-payment-mode")
         {
@@ -99,7 +105,13 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
             return;
         }
 
-        await OpenFormAsync(key, null, null);
+        if (key == "income-change")
+        {
+            await HandleCandidateSelectionAsync(key, FinancialRecordKind.RecurringIncome, RecordEntryGroup.Income, MissingIncomeTitle, MissingIncomeMessage);
+            return;
+        }
+
+        await OpenFormAsync(key, null, null, null);
     }
 
     private async Task HandleCandidateSelectionAsync(
@@ -118,16 +130,17 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
                 await _dialogService.ShowAlertAsync(missingTitle, missingMessage);
                 return;
             case [var only]:
-                await (group == RecordEntryGroup.Card ? OpenFormAsync(key, only.Id, null) : OpenFormAsync(key, null, only.Id));
+                await (group switch
+                {
+                    RecordEntryGroup.Card => OpenFormAsync(key, only.Id, null, null),
+                    RecordEntryGroup.Loan => OpenFormAsync(key, null, only.Id, null),
+                    _ => OpenFormAsync(key, null, null, only.Id)
+                });
                 return;
             case var multiple:
                 _pendingOptionKey = key;
                 Choices.Clear();
-                foreach (var item in multiple)
-                {
-                    Choices.Add(item);
-                }
-
+                foreach (var item in multiple) { Choices.Add(item); }
                 ChoiceGroup = group;
                 return;
         }
@@ -137,40 +150,31 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
     [RelayCommand]
     private Task ChooseRecordAsync(FinancialRecordRow? row) =>
         row is not null && _pendingOptionKey is not null
-            ? (ChoiceGroup == RecordEntryGroup.Card
-                ? OpenFormAsync(_pendingOptionKey, row.Id, null)
-                : OpenFormAsync(_pendingOptionKey, null, row.Id))
+            ? (ChoiceGroup switch
+            {
+                RecordEntryGroup.Card => OpenFormAsync(_pendingOptionKey, row.Id, null, null),
+                RecordEntryGroup.Loan => OpenFormAsync(_pendingOptionKey, null, row.Id, null),
+                _ => OpenFormAsync(_pendingOptionKey, null, null, row.Id)
+            })
             : Task.CompletedTask;
 
     /// <summary>Geri: ikinci seviyedeyse karolara, değilse simülatöre döner.</summary>
     [RelayCommand]
     private Task BackAsync()
     {
-        if (!IsChoosing)
-        {
-            return _navigationService.NavigateBackAsync();
-        }
-
+        if (!IsChoosing) { return _navigationService.NavigateBackAsync(); }
         _pendingOptionKey = null;
         Choices.Clear();
         ChoiceGroup = null;
         return Task.CompletedTask;
     }
 
-    private Task OpenFormAsync(string optionKey, Guid? cardId, Guid? loanId)
+    private Task OpenFormAsync(string optionKey, Guid? cardId, Guid? loanId, Guid? incomeId)
     {
-        var parameters = new Dictionary<string, object>
-        {
-            [Routes.ScenarioOptionParameter] = optionKey
-        };
-        if (cardId.HasValue)
-        {
-            parameters[Routes.CardIdParameter] = cardId.Value;
-        }
-        if (loanId.HasValue)
-        {
-            parameters[Routes.LoanIdParameter] = loanId.Value;
-        }
+        var parameters = new Dictionary<string, object> { [Routes.ScenarioOptionParameter] = optionKey };
+        if (cardId.HasValue) { parameters[Routes.CardIdParameter] = cardId.Value; }
+        if (loanId.HasValue) { parameters[Routes.LoanIdParameter] = loanId.Value; }
+        if (incomeId.HasValue) { parameters[Routes.IncomeIdParameter] = incomeId.Value; }
 
         return _navigationService.NavigateToAsync(
             Routes.ReplacingCurrent(Routes.SimulationCondition),

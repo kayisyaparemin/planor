@@ -23,10 +23,15 @@
             <!-- S1, S4: grup sorulmuyorsa "Ne eklemek istiyorsun?", sorulan grupta "Hangi kart?" -->
             <comp:PageHeader Title="{Binding ChoiceGroup, Converter={StaticResource SeciciMetni}, ConverterParameter=Soru}" />
 
-            <!-- S1, S2: iki grup; ödeme (kırmızı) ve kart (mor) -->
+            <!-- S1, S2: dört grup; gelir (yeşil), ödeme (kırmızı), kart (mor) ve borç (turuncu) -->
             <VerticalStackLayout Spacing="{StaticResource Space5}"
                                  IsVisible="{Binding IsChoosing, Converter={StaticResource Tersi}}"
                                  AutomationId="{x:Static auto:SimulatorAutomationIds.PickerSimulationConditionType}">
+                <comp:EntryTypeTiles Section="{Binding IncomeSection}"
+                                     OptionCommand="{Binding SelectOptionCommand}"
+                                     Accent="{DynamicResource PositiveText}"
+                                     AccentSurface="{DynamicResource PositiveSurface}" />
+
                 <comp:EntryTypeTiles Section="{Binding PaymentSection}"
                                      OptionCommand="{Binding SelectOptionCommand}"
                                      Accent="{DynamicResource NegativeText}"

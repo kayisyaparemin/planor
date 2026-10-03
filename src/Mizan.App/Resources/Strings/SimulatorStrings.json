@@ -56,5 +56,10 @@
   "Hata_GecersizToplamGeriOdeme": "Toplam geri ödeme ana tutardan düşük olamaz.",
   "Hata_IlkOdemeTarihiGecersiz": "İlk ödeme tarihi başlangıç tarihinden önce olamaz.",
   "Hata_KrediBulunamadi": "Kayıtlı kredi bulunamadı",
-  "Mesaj_KrediBulunamadi": "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin."
+  "Mesaj_KrediBulunamadi": "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin.",
+  "Baslik_TekSeferlikGelir": "Tek Seferlik Gelir",
+  "Baslik_GelirDegisikligi": "Gelir Değişikliği",
+  "Etiket_Gelir": "GELİR",
+  "Hata_GelirBulunamadi": "Kayıtlı düzenli gelir bulunamadı",
+  "Mesaj_GelirBulunamadi": "Gelir değişikliği denemek için önce Finansal Yapı'dan bir düzenli gelir eklemelisin."
 }

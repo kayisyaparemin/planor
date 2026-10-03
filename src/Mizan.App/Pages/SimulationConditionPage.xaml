@@ -37,6 +37,18 @@
                 <Border>
                     <VerticalStackLayout Spacing="{StaticResource Space3}">
 
+                        <!-- S3: hedef gelir (gelir değişikliği; salt okunur, düzenlemede değişmez) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding IsIncome}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_Gelir}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Label Text="{Binding IncomeName}"
+                                   FontSize="{StaticResource TypeFigure}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextPrimary}"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.LblConditionIncome}" />
+                        </VerticalStackLayout>
+
                         <!-- S3: hedef kart (kartla harcama veya kart ödeme şekli; salt okunur, düzenlemede değişmez) -->
                         <VerticalStackLayout Spacing="{StaticResource Space1}"
                                              IsVisible="{Binding IsCard}">
