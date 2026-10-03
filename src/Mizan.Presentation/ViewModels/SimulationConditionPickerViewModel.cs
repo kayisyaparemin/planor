@@ -18,6 +18,8 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
 {
     private const string MissingCardTitle = "Kayıtlı kart bulunamadı";
     private const string MissingCardMessage = "Kartla işlem denemek için önce Finansal Yapı'dan bir kredi kartı eklemelisin.";
+    private const string MissingLoanTitle = "Kayıtlı kredi bulunamadı";
+    private const string MissingLoanMessage = "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin.";
     private const string ReadFailedTitle = "Kayıtlar okunamadı";
     private const string ReadFailedMessage = "Kayıtların okunurken bir sorun oluştu. Tekrar dene.";
 
@@ -58,14 +60,23 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
             new(SimulationScenarioCatalog.CardPaymentMode.Key, 1)
         ]);
 
-    /// <summary>Sayfa ikinci seviyede mi ("Hangi kart?").</summary>
+    /// <summary>Borç seçenekleri bölümü.</summary>
+    public EntryTypeSection DebtSection { get; } = new(
+        RecordEntryGroup.Loan,
+        [
+            new(SimulationScenarioCatalog.Financing.Key, 0),
+            new(SimulationScenarioCatalog.CashDebt.Key, 1),
+            new(SimulationScenarioCatalog.LoanPrepayment.Key, 2)
+        ]);
+
+    /// <summary>Sayfa ikinci seviyede mi ("Hangi kart?" veya "Hangi kredi?").</summary>
     public bool IsChoosing => ChoiceGroup is not null;
 
-    /// <summary>İkinci seviyedeki aday kartlar.</summary>
+    /// <summary>İkinci seviyedeki aday kayıtlar.</summary>
     public ObservableCollection<FinancialRecordRow> Choices { get; } = [];
 
     /// <summary>
-    /// Karoya dokunulduğunda seçeneğin formunu açar. Kart gerektiren türlerde önce aday kartlar çözülür.
+    /// Karoya dokunulduğunda seçeneğin formunu açar. Kart ve kredi gerektiren türlerde önce adaylar çözülür.
     /// </summary>
     [RelayCommand]
     private async Task SelectOptionAsync(EntryTypeOptionItem? option)
@@ -78,42 +89,57 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
         var key = option.Key;
         if (key is "card" or "card-payment-mode")
         {
-            var candidates = await _candidateResolver.GetCandidatesAsync(FinancialRecordKind.CreditCard);
-            if (candidates is null)
-            {
-                await _dialogService.ShowAlertAsync(ReadFailedTitle, ReadFailedMessage);
-                return;
-            }
-
-            switch (candidates)
-            {
-                case []:
-                    await _dialogService.ShowAlertAsync(MissingCardTitle, MissingCardMessage);
-                    return;
-                case [var only]:
-                    await OpenFormAsync(key, only.Id);
-                    return;
-                case var multiple:
-                    _pendingOptionKey = key;
-                    Choices.Clear();
-                    foreach (var card in multiple)
-                    {
-                        Choices.Add(card);
-                    }
-
-                    ChoiceGroup = RecordEntryGroup.Card;
-                    return;
-            }
+            await HandleCandidateSelectionAsync(key, FinancialRecordKind.CreditCard, RecordEntryGroup.Card, MissingCardTitle, MissingCardMessage);
+            return;
         }
 
-        await OpenFormAsync(key, null);
+        if (key == "loan-prepayment")
+        {
+            await HandleCandidateSelectionAsync(key, FinancialRecordKind.Loan, RecordEntryGroup.Loan, MissingLoanTitle, MissingLoanMessage);
+            return;
+        }
+
+        await OpenFormAsync(key, null, null);
     }
 
-    /// <summary>İkinci seviyede seçilen kartla formu seçicinin yerine açar.</summary>
+    private async Task HandleCandidateSelectionAsync(
+        string key, FinancialRecordKind kind, RecordEntryGroup group, string missingTitle, string missingMessage)
+    {
+        var candidates = await _candidateResolver.GetCandidatesAsync(kind);
+        if (candidates is null)
+        {
+            await _dialogService.ShowAlertAsync(ReadFailedTitle, ReadFailedMessage);
+            return;
+        }
+
+        switch (candidates)
+        {
+            case []:
+                await _dialogService.ShowAlertAsync(missingTitle, missingMessage);
+                return;
+            case [var only]:
+                await (group == RecordEntryGroup.Card ? OpenFormAsync(key, only.Id, null) : OpenFormAsync(key, null, only.Id));
+                return;
+            case var multiple:
+                _pendingOptionKey = key;
+                Choices.Clear();
+                foreach (var item in multiple)
+                {
+                    Choices.Add(item);
+                }
+
+                ChoiceGroup = group;
+                return;
+        }
+    }
+
+    /// <summary>İkinci seviyede seçilen adayla formu seçicinin yerine açar.</summary>
     [RelayCommand]
     private Task ChooseRecordAsync(FinancialRecordRow? row) =>
         row is not null && _pendingOptionKey is not null
-            ? OpenFormAsync(_pendingOptionKey, row.Id)
+            ? (ChoiceGroup == RecordEntryGroup.Card
+                ? OpenFormAsync(_pendingOptionKey, row.Id, null)
+                : OpenFormAsync(_pendingOptionKey, null, row.Id))
             : Task.CompletedTask;
 
     /// <summary>Geri: ikinci seviyedeyse karolara, değilse simülatöre döner.</summary>
@@ -131,7 +157,7 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
         return Task.CompletedTask;
     }
 
-    private Task OpenFormAsync(string optionKey, Guid? cardId)
+    private Task OpenFormAsync(string optionKey, Guid? cardId, Guid? loanId)
     {
         var parameters = new Dictionary<string, object>
         {
@@ -140,6 +166,10 @@ public sealed partial class SimulationConditionPickerViewModel : ViewModelBase
         if (cardId.HasValue)
         {
             parameters[Routes.CardIdParameter] = cardId.Value;
+        }
+        if (loanId.HasValue)
+        {
+            parameters[Routes.LoanIdParameter] = loanId.Value;
         }
 
         return _navigationService.NavigateToAsync(

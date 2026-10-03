@@ -68,6 +68,9 @@ public sealed class SimulationResultService(
             chain.OpenPeriodPlan, chain.Today, requests, chain.OpenPeriodStart, chain.OpenPeriodEndingBeforeDeficitInterest);
         var result = _simulationCalculator.Calculate(
             chain.Plan, chain.Today, requests, PeriodCount, chain.FirstPeriodStart, openPeriodEffect);
-        return new SimulationOutcome(result.Baseline, result.Scenario);
+        var saving = result.LoanImpacts.Count > 0 ? result.LoanImpacts.Sum(x => x.InterestSaving) : (decimal?)null;
+        var loanInterestSaving = saving > 0m ? saving : null;
+        var financingCost = result.Risk.FinancingCost > 0m ? result.Risk.FinancingCost : null;
+        return new SimulationOutcome(result.Baseline, result.Scenario, loanInterestSaving, financingCost);
     }
 }

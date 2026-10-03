@@ -35,6 +35,6 @@ public sealed class DenemeBaglamiConverter : IValueConverter
     private static string TurAdi(SimulationScenarioType type) => type switch
     {
         SimulationScenarioType.CashPurchase or SimulationScenarioType.FutureOneTimePayment => SimulatorStrings.Etiket_NakitOdeme,
-        _ => string.Empty
+        _ => SimulationScenarioCatalog.TypeText(type)
     };
 }

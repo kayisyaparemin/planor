@@ -60,11 +60,23 @@ public static class SimulatorAutomationIds
     /// <summary>Hedef kart etiketi / salt okunur adı.</summary>
     public const string LblConditionCard = "lbl-condition-card";
 
+    /// <summary>Hedef kredi etiketi / salt okunur adı.</summary>
+    public const string LblConditionLoan = "lbl-condition-loan";
+
     /// <summary>Kart ödeme şekli seçicisi (Tamamı / Asgari).</summary>
     public const string PickerConditionPaymentMode = "picker-condition-payment-mode";
 
     /// <summary>Kart ödeme kapsamı seçicisi (Tek ekstre / Tüm ekstreler).</summary>
     public const string PickerConditionPaymentScope = "picker-condition-payment-scope";
+
+    /// <summary>Krediye erken ödeme şekli seçicisi (Tamamen kapat / Vadeyi kısalt / Taksiti azalt).</summary>
+    public const string PickerConditionPrepaymentMode = "picker-condition-prepayment-mode";
+
+    /// <summary>Toplam geri ödeme tutarı girişi.</summary>
+    public const string InputConditionTotalRepayment = "input-condition-total-repayment";
+
+    /// <summary>İlk ödeme tarihi seçicisi.</summary>
+    public const string PickerConditionFirstPaymentDate = "picker-condition-first-payment-date";
 
     /// <summary>Taksit veya ödeme sayısı girişi.</summary>
     public const string InputConditionPaymentCount = "input-condition-payment-count";

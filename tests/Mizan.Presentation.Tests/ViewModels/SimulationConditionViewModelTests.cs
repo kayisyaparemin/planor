@@ -322,6 +322,130 @@ public sealed class SimulationConditionViewModelTests
         Assert.Equal("6", _viewModel.PaymentCountInput);
     }
 
+    [Fact]
+    public async Task Save_KrediCekme_FinancingLoanKaydeder()
+    {
+        _viewModel.Prepare("financing", null);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "İhtiyaç kredisi";
+        _viewModel.AmountInput = "50.000";
+        _viewModel.PaymentCountInput = "12";
+        _viewModel.TotalRepaymentAmountInput = "68.400";
+        _viewModel.FirstPaymentDate = Today.AddMonths(1);
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.FinancingLoan, saved.Request.Type);
+        Assert.Equal("İhtiyaç kredisi", saved.Request.Name);
+        Assert.Equal(50_000m, saved.Request.Amount);
+        Assert.Equal(12, saved.Request.PaymentCount);
+        Assert.Equal(68_400m, saved.Request.TotalRepaymentAmount);
+        Assert.Equal(Today.AddMonths(1), saved.Request.FirstPaymentDate);
+    }
+
+    [Fact]
+    public async Task Save_KrediCekme_ToplamGeriOdemeKucukse_Uyarir()
+    {
+        _viewModel.Prepare("financing", null);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "İhtiyaç kredisi";
+        _viewModel.AmountInput = "50.000";
+        _viewModel.PaymentCountInput = "12";
+        _viewModel.TotalRepaymentAmountInput = "40.000";
+        _viewModel.FirstPaymentDate = Today.AddMonths(1);
+
+        await _viewModel.SaveAsync();
+
+        Assert.Equal("Toplam geri ödeme ana tutardan düşük olamaz.", _dialog.LastAlertMessage);
+        Assert.Null(_service.LastSaved);
+    }
+
+    [Fact]
+    public async Task Save_TaksitliNakitBorc_CashDebtKaydeder()
+    {
+        _viewModel.Prepare("cash-debt", null);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Elden borç";
+        _viewModel.AmountInput = "24.000";
+        _viewModel.PaymentCountInput = "6";
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.CashDebt, saved.Request.Type);
+        Assert.Equal("Elden borç", saved.Request.Name);
+        Assert.Equal(24_000m, saved.Request.Amount);
+        Assert.Equal(6, saved.Request.PaymentCount);
+    }
+
+    [Fact]
+    public async Task Save_KrediyeErkenOdeme_TamamenKapat_LoanEarlyClosureKaydeder()
+    {
+        var loanId = Guid.NewGuid();
+        _viewModel.Prepare("loan-prepayment", null, null, loanId);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Krediyi kapat";
+        _viewModel.SelectedPrepaymentMode = LoanPrepaymentMode.FullClosure;
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.LoanEarlyClosure, saved.Request.Type);
+        Assert.Equal(loanId, saved.Request.LoanId);
+        Assert.Equal(0m, saved.Request.Amount);
+    }
+
+    [Fact]
+    public async Task Save_KrediyeErkenOdeme_VadeyiKisalt_LoanPartialPrepaymentKaydeder()
+    {
+        var loanId = Guid.NewGuid();
+        _viewModel.Prepare("loan-prepayment", null, null, loanId);
+        await _viewModel.LoadAsync();
+        _viewModel.Name = "Krediye ara ödeme";
+        _viewModel.SelectedPrepaymentMode = LoanPrepaymentMode.ReduceTerm;
+        _viewModel.AmountInput = "15.000";
+
+        await _viewModel.SaveAsync();
+
+        var saved = Assert.Single(_service.LastSaved!);
+        Assert.Equal(SimulationScenarioType.LoanPartialPrepayment, saved.Request.Type);
+        Assert.Equal(loanId, saved.Request.LoanId);
+        Assert.Equal(15_000m, saved.Request.Amount);
+        Assert.Equal(LoanPrepaymentMode.ReduceTerm, saved.Request.PrepaymentMode);
+    }
+
+    [Fact]
+    public async Task Load_VarOlanKrediyeErkenOdeme_DuzenlemeModundaYukler()
+    {
+        var loanId = Guid.NewGuid();
+        var loan = new Loan { Id = loanId, Name = "İhtiyaç Kredisi", Bank = "Garanti" };
+        _reader.Plan = new FinancialPlan { Loans = [loan] };
+
+        var conditionId = Guid.NewGuid();
+        var request = new SimulationRequest
+        {
+            ScenarioId = conditionId,
+            Type = SimulationScenarioType.LoanPartialPrepayment,
+            Name = "Erken Ödeme",
+            Amount = 10_000m,
+            StartDate = Today.AddDays(15),
+            LoanId = loanId,
+            PrepaymentMode = LoanPrepaymentMode.ReduceTerm
+        };
+        _service.Seed(new SimulationDraftCondition(request));
+
+        _viewModel.Prepare(null, conditionId);
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.IsEditing);
+        Assert.Equal("Erken Ödeme", _viewModel.Name);
+        Assert.Equal(loanId, _viewModel.LoanId);
+        Assert.Equal("Garanti İhtiyaç Kredisi", _viewModel.LoanName);
+        Assert.Equal("10000", _viewModel.AmountInput);
+        Assert.Equal(LoanPrepaymentMode.ReduceTerm, _viewModel.SelectedPrepaymentMode);
+    }
+
     private async Task OpenNewAsync()
     {
         _viewModel.Prepare(SimulationScenarioCatalog.CashPayment.Key, null);

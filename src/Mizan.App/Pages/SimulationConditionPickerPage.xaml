@@ -36,6 +36,11 @@
                                      OptionCommand="{Binding SelectOptionCommand}"
                                      Accent="{DynamicResource Indicator}"
                                      AccentSurface="{DynamicResource SurfaceChart}" />
+
+                <comp:EntryTypeTiles Section="{Binding DebtSection}"
+                                     OptionCommand="{Binding SelectOptionCommand}"
+                                     Accent="{DynamicResource WarningText}"
+                                     AccentSurface="{DynamicResource WarningSurface}" />
             </VerticalStackLayout>
 
             <!-- S4: birden fazla aday varken; her aday bir karo, bağlamı Finansal Yapı'daki satırla aynı -->

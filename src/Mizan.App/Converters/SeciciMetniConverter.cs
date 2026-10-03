@@ -43,6 +43,7 @@ public sealed class SeciciMetniConverter : IValueConverter
         ["card"] = (RecordEntryStrings.Etiket_KartlaHarcama, RecordEntryStrings.Etiket_KartlaHarcamaAlt, Glif.ShoppingBag),
         ["bank-loan"] = (RecordEntryStrings.Etiket_BankadakiKredi, RecordEntryStrings.Etiket_BankadakiKrediAlt, Glif.AccountBalance),
         ["loan-prepayment"] = (RecordEntryStrings.Etiket_ErkenOdeme, RecordEntryStrings.Etiket_ErkenOdemeAlt, Glif.FastForward),
+        ["financing"] = (RecordEntryStrings.Etiket_KrediFinansman, RecordEntryStrings.Etiket_KrediFinansmanAlt, Glif.AccountBalance),
         ["cash"] = (RecordEntryStrings.Etiket_NakitOdeme, RecordEntryStrings.Etiket_NakitOdemeAlt, Glif.Payments),
         ["recurring"] = (RecordEntryStrings.Etiket_DuzenliOdeme, RecordEntryStrings.Etiket_DuzenliOdemeAlt, Glif.EventAvailable),
         ["cash-debt"] = (RecordEntryStrings.Etiket_TaksitliBorc, RecordEntryStrings.Etiket_TaksitliBorcAlt, Glif.PieChart),

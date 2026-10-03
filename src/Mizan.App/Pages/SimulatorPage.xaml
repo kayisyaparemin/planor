@@ -226,6 +226,18 @@
                                 </Label>
                             </Grid>
                         </VerticalStackLayout>
+
+                        <!-- S76-9, EK-V10: Kredi faizi kazancı (erken ödeme varsa yeşil) -->
+                        <comp:MetricRow LabelText="{x:Static strings:SimulatorStrings.Etiket_KrediFaizKazanci}"
+                                        ValueText="{Binding Result.LoanInterestSaving, Converter={StaticResource Para}}"
+                                        Semantic="Positive"
+                                        IsVisible="{Binding Result.HasLoanInterestSaving}" />
+
+                        <!-- S76-9, EK-V10: Kredinin maliyeti (kredi çekme varsa) -->
+                        <comp:MetricRow LabelText="{x:Static strings:SimulatorStrings.Etiket_KredininMaliyeti}"
+                                        ValueText="{Binding Result.FinancingCost, Converter={StaticResource Para}}"
+                                        Semantic="Default"
+                                        IsVisible="{Binding Result.HasFinancingCost}" />
                     </VerticalStackLayout>
                 </Border>
 

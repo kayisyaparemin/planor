@@ -29,7 +29,7 @@ public sealed class SimulationConditionPickerViewModelTests
     }
 
     [Fact]
-    public void Acilis_OdemeVeKartBolumleriniSunar()
+    public void Acilis_OdemeKartVeBorcBolumleriniSunar()
     {
         Assert.Equal(
             ["cash", "recurring"],
@@ -37,7 +37,90 @@ public sealed class SimulationConditionPickerViewModelTests
         Assert.Equal(
             ["card", "card-payment-mode"],
             _viewModel.CardSection.Options.Select(x => x.Key));
+        Assert.Equal(
+            ["financing", "cash-debt", "loan-prepayment"],
+            _viewModel.DebtSection.Options.Select(x => x.Key));
         Assert.False(_viewModel.IsChoosing);
+    }
+
+    [Fact]
+    public async Task SelectOption_KrediCekme_DogrudanFormuAcar()
+    {
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.DebtSection.Options[0]);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("financing", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+    }
+
+    [Fact]
+    public async Task SelectOption_TaksitliBorc_DogrudanFormuAcar()
+    {
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.DebtSection.Options[1]);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("cash-debt", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+    }
+
+    [Fact]
+    public async Task SelectOption_ErkenOdeme_AdayYoksa_UyarirFormAcmaz()
+    {
+        _reader.Plan = new FinancialPlan();
+
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.DebtSection.Options[2]);
+
+        Assert.Null(_navigation.LastNavigatedRoute);
+        Assert.Equal("Kayıtlı kredi bulunamadı", _dialog.LastAlertTitle);
+        Assert.Contains("önce Finansal Yapı'dan bir kredi eklemelisin", _dialog.LastAlertMessage);
+        Assert.False(_viewModel.IsChoosing);
+    }
+
+    [Fact]
+    public async Task SelectOption_ErkenOdeme_TekKredi_FormuKrediyleAcar()
+    {
+        var loanId = Guid.NewGuid();
+        _reader.Plan = new FinancialPlan { Loans = [Loan("İhtiyaç", Today.AddDays(15)) with { Id = loanId }] };
+
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.DebtSection.Options[2]);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("loan-prepayment", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+        Assert.Equal(loanId, _navigation.LastParameters[Routes.LoanIdParameter]);
+        Assert.False(_viewModel.IsChoosing);
+    }
+
+    [Fact]
+    public async Task SelectOption_ErkenOdeme_CokKredi_IkinciSeviyeyiAcar()
+    {
+        var loan1 = Loan("İhtiyaç", Today.AddDays(15)) with { Id = Guid.NewGuid() };
+        var loan2 = Loan("Taşıt", Today.AddDays(20), bank: "Yapı Kredi") with { Id = Guid.NewGuid() };
+        _reader.Plan = new FinancialPlan { Loans = [loan1, loan2] };
+
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.DebtSection.Options[2]);
+
+        Assert.Null(_navigation.LastNavigatedRoute);
+        Assert.True(_viewModel.IsChoosing);
+        Assert.Equal(RecordEntryGroup.Loan, _viewModel.ChoiceGroup);
+        Assert.Equal(2, _viewModel.Choices.Count);
+    }
+
+    [Fact]
+    public async Task ChooseRecord_AdayKrediSecildiginde_FormuAcar()
+    {
+        var loan1 = Loan("İhtiyaç", Today.AddDays(15)) with { Id = Guid.NewGuid() };
+        var loan2 = Loan("Taşıt", Today.AddDays(20), bank: "Yapı Kredi") with { Id = Guid.NewGuid() };
+        _reader.Plan = new FinancialPlan { Loans = [loan1, loan2] };
+        await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.DebtSection.Options[2]);
+
+        var chosen = _viewModel.Choices[1];
+        await _viewModel.ChooseRecordCommand.ExecuteAsync(chosen);
+
+        Assert.Equal("../" + Routes.SimulationCondition, _navigation.LastNavigatedRoute);
+        Assert.NotNull(_navigation.LastParameters);
+        Assert.Equal("loan-prepayment", _navigation.LastParameters[Routes.ScenarioOptionParameter]);
+        Assert.Equal(loan2.Id, _navigation.LastParameters[Routes.LoanIdParameter]);
     }
 
     [Fact]

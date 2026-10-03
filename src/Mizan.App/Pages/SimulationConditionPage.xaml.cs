@@ -30,7 +30,10 @@ public partial class SimulationConditionPage : ContentPage, IQueryAttributable
         Guid? cardId = query.TryGetValue(Routes.CardIdParameter, out var rawCard) && Guid.TryParse(rawCard?.ToString(), out var cid)
             ? cid
             : null;
-        _viewModel.Prepare(optionKey, conditionId, cardId);
+        Guid? loanId = query.TryGetValue(Routes.LoanIdParameter, out var rawLoan) && Guid.TryParse(rawLoan?.ToString(), out var lid)
+            ? lid
+            : null;
+        _viewModel.Prepare(optionKey, conditionId, cardId, loanId);
     }
 
     /// <inheritdoc />

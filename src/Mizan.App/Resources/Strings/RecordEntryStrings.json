@@ -30,5 +30,7 @@
   "Etiket_ErkenOdeme": "Krediye erken ödeme",
   "Etiket_ErkenOdemeAlt": "Kapat ya da ara ödeme",
   "Etiket_KartOdemeSekli": "Kart ödeme şekli",
-  "Etiket_KartOdemeSekliAlt": "Asgari ya da tamamı"
+  "Etiket_KartOdemeSekliAlt": "Asgari ya da tamamı",
+  "Etiket_KrediFinansman": "Kredi / finansman çek",
+  "Etiket_KrediFinansmanAlt": "Taksitli geri ödeme"
 }

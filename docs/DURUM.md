@@ -4,15 +4,27 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli; "Ekle" tür seçiciye bağlandı (`SimulationConditionPickerPage`, `SimulationConditionViewModel`, `RecordCandidateResolver`, `SimulationConditionDraftBuilder`; S77, EK-V10) |
-| Sıradaki adım | **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları (S77, EK-V10) |
-| Test sayısı | 2035 |
+| Son tamamlanan adım | **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları (kredi faizi kazancı, kredinin maliyeti; S76, S77, EK-V10) |
+| Sıradaki adım | **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği (S77, EK-V10) |
+| Test sayısı | 2049 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10d — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları; kararlar `S76`, `S77` V10 notları i, `EK-V10`
+
+Simülatörün "Ekle" seçicisine borç bölümü (`DebtSection`: Kredi / finansman çek, Taksitli nakit borç, Krediye erken ödeme) eklendi ve sarı/turuncu ton vurgusuyla (`WarningText` / `WarningSurface`) ayrıştırıldı.
+Krediye erken ödemede aday aktif ve taksiti kalmış krediler `RecordCandidateResolver` ile çözülüyor: kayıtlı kredi yoksa uyarı verilip form açılmıyor (`I143`), tek kredide doğrudan form o krediyle açılıyor, birden fazlasında "Hangi kredi?" aday seçim karoları sunuluyor (`I144`). Formda hedef kredi adı salt okunur görünür ve düzenlemede değişmez.
+Deneme formunda (`SimulationConditionPage`):
+- Kredi çekmede (`FinancingLoan`): anapara tutarı, taksit sayısı (1–120), toplam geri ödeme tutarı (anaparadan küçük olamaz) ve ilk ödeme tarihi (işlem tarihinden önce olamaz) doğrulanıp kaydedilir (`I145`).
+- Taksitli nakit borçta (`CashDebt`): anapara ve ödeme sayısı (1–120) doğrulanır.
+- Krediye erken ödemede (`LoanPrepayment`): erken ödeme şekli seçicisi ("Tamamen kapatma", "Vadeyi kısalt (ara ödeme)", "Taksiti azalt (ara ödeme)") sunulur; tamamen kapatmada tutar alanı gizlenir (`LoanEarlyClosure`), ara ödemede ise anaparadan düşecek tutar zorunludur (`LoanPartialPrepayment`, `I145`).
+Simülatör sonuç kartında: açık bir erken ödeme denemesi varsa kredinin ömrü boyunca sağladığı faiz tasarrufu yeşil semantikle `Kredi faizi kazancı`, açık bir kredi çekme denemesi varsa kredinin toplam maliyeti `Kredinin maliyeti` tekil metrik satırı olarak sunulur (`I146`).
+`SimulationConditionDraftBuilder` (160 satır), `SimulationConditionViewModel` (195 satır) ve `SimulationResultViewModel` (195 satır) 200 satır mimari sınırına (K3) ve metot sınırına (K4) tam uydu.
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 14 yeni test (Presentation); toplam 2.049 test yeşil, 0 hata, 0 uyarı.
 
 ### V10c — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli; kararlar `S77` V10 notları i, `EK-V10`
 

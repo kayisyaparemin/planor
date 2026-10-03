@@ -389,6 +389,44 @@ public sealed class SimulationResultViewModelTests
         Assert.Null(_viewModel.TotalInterest);
         Assert.Null(_viewModel.InterestDifference);
         Assert.Empty(_viewModel.Periods);
+        Assert.Null(_viewModel.LoanInterestSaving);
+        Assert.Null(_viewModel.FinancingCost);
+        Assert.False(_viewModel.HasLoanInterestSaving);
+        Assert.False(_viewModel.HasFinancingCost);
+    }
+
+    [Fact]
+    public async Task Yenile_KrediyeErkenOdemeVarsa_KrediFaizKazanciGorunur()
+    {
+        _service.Outcome = new SimulationOutcome(
+            Periods(BaselineOpening, BaselineEndings),
+            Periods(ScenarioOpening, ScenarioEndings),
+            LoanInterestSaving: 6_200m,
+            FinancingCost: null);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(6_200m, _viewModel.LoanInterestSaving);
+        Assert.True(_viewModel.HasLoanInterestSaving);
+        Assert.False(_viewModel.HasFinancingCost);
+        Assert.Null(_viewModel.FinancingCost);
+    }
+
+    [Fact]
+    public async Task Yenile_KrediCekmeVarsa_KredininMaliyetiGorunur()
+    {
+        _service.Outcome = new SimulationOutcome(
+            Periods(BaselineOpening, BaselineEndings),
+            Periods(ScenarioOpening, ScenarioEndings),
+            LoanInterestSaving: null,
+            FinancingCost: 4_800m);
+
+        await _viewModel.RefreshAsync([]);
+
+        Assert.Equal(4_800m, _viewModel.FinancingCost);
+        Assert.True(_viewModel.HasFinancingCost);
+        Assert.False(_viewModel.HasLoanInterestSaving);
+        Assert.Null(_viewModel.LoanInterestSaving);
     }
 
     private static SimulationOutcome WithScenario() =>

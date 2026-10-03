@@ -104,4 +104,10 @@ public static class RecordEntryStrings
 
     /// <summary>Kart ödeme şeklinin alt satırı.</summary>
     public const string Etiket_KartOdemeSekliAlt = "Asgari ya da tamamı";
+
+    /// <summary>Kredi finansman çekme seçeneği (simülatör).</summary>
+    public const string Etiket_KrediFinansman = "Kredi / finansman çek";
+
+    /// <summary>Kredi finansman çekmenin alt satırı.</summary>
+    public const string Etiket_KrediFinansmanAlt = "Taksitli geri ödeme";
 }

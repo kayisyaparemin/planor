@@ -133,4 +133,52 @@ public static class SimulatorStrings
 
     /// <summary>Düzenlenecek deneme okunamadığında gösterilen metin.</summary>
     public const string Hata_DenemeYuklenemedi = "Deneme şu an okunamadı.";
+
+    /// <summary>Kredi çekme formunun başlığı.</summary>
+    public const string Baslik_KrediCekme = "Kredi Çekme";
+
+    /// <summary>Taksitli nakit borç formunun başlığı.</summary>
+    public const string Baslik_TaksitliNakitBorc = "Taksitli Nakit Borç";
+
+    /// <summary>Krediye erken ödeme formunun başlığı.</summary>
+    public const string Baslik_KrediyeErkenOdeme = "Krediye Erken Ödeme";
+
+    /// <summary>Kredi adı alanı etiketi.</summary>
+    public const string Etiket_Kredi = "KREDİ";
+
+    /// <summary>Toplam geri ödeme alanı etiketi.</summary>
+    public const string Etiket_ToplamGeriOdeme = "TOPLAM GERİ ÖDEME";
+
+    /// <summary>İlk ödeme tarihi alanı etiketi.</summary>
+    public const string Etiket_IlkOdemeTarihi = "İLK ÖDEME TARİHİ";
+
+    /// <summary>Kredi faizi kazancı metrik satırı etiketi.</summary>
+    public const string Etiket_KrediFaizKazanci = "Kredi faizi kazancı";
+
+    /// <summary>Kredinin maliyeti metrik satırı etiketi.</summary>
+    public const string Etiket_KredininMaliyeti = "Kredinin maliyeti";
+
+    /// <summary>Tamamen kapat erken ödeme seçeneği.</summary>
+    public const string Secenek_TamamenKapat = "Tamamen kapat";
+
+    /// <summary>Vadeyi kısalt erken ödeme seçeneği.</summary>
+    public const string Secenek_VadeyiKisalt = "Vadeyi kısalt (ara ödeme)";
+
+    /// <summary>Taksiti azalt erken ödeme seçeneği.</summary>
+    public const string Secenek_TaksitiAzalt = "Taksiti azalt (ara ödeme)";
+
+    /// <summary>Toplam geri ödeme alanı yer tutucusu.</summary>
+    public const string YerTutucu_ToplamGeriOdeme = "Örn. 65.000";
+
+    /// <summary>Geçersiz toplam geri ödeme hata mesajı.</summary>
+    public const string Hata_GecersizToplamGeriOdeme = "Toplam geri ödeme ana tutardan düşük olamaz.";
+
+    /// <summary>Geçersiz ilk ödeme tarihi hata mesajı.</summary>
+    public const string Hata_IlkOdemeTarihiGecersiz = "İlk ödeme tarihi başlangıç tarihinden önce olamaz.";
+
+    /// <summary>Kayıtlı kredi bulunamadığında uyarı başlığı.</summary>
+    public const string Hata_KrediBulunamadi = "Kayıtlı kredi bulunamadı";
+
+    /// <summary>Kayıtlı kredi bulunamadığında uyarı mesajı.</summary>
+    public const string Mesaj_KrediBulunamadi = "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin.";
 }

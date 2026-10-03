@@ -450,9 +450,13 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         adını salt okunur gösterir, düzenlemede kart değişmez. Kartla harcamada taksit boşsa tek çekim, sayı girilirse
         taksitli (`I142`); düzenli ödemede ödeme sayısı 1–120; kart ödeme şeklinde tutar yok, ödeme şekli ve kapsam seçilir.
         Ortak aday çözümleyici `RecordCandidateResolver` çıkarıldı; koruyan: I140–I142)*
-  - [ ] **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları
+  - [x] **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları
         *(`S77` V10 notları i: krediye erken ödemenin **kredisini seçici çözer** — `V10c`'nin ortak yardımcısıyla,
-        "Hangi kredi?"; aday taksiti kalmış aktif kredilerdir. Formda kredi seçimi yok, düzenlemede kredi değişmez.)*
+        "Hangi kredi?"; aday taksiti kalmış aktif kredilerdir. Kayıtlı kredi yoksa uyarı verir `I143`, tek kredide
+        doğrudan formu açar, birden fazlasında "Hangi kredi?" aday seçim karoları sunar `I144`. Formda kredi çekmede
+        toplam geri ödeme >= anapara ve ilk ödeme >= işlem tarihi doğrulanır; erken ödemede tamamen kapat tutarsız,
+        ara ödemede anaparadan düşecek tutar zorunludur `I145`. Simülatör sonuç kartında açık erken ödeme denemesinde
+        faiz kazancı, kredi çekme denemesinde kredi maliyeti tekil metrik satırı olarak sunulur `I146`; koruyan: I143–I146)*
   - [ ] **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği *(`S77` V10 notları i: gelir
         değişikliğinin **düzenli gelirini seçici çözer**, "Hangi gelir?"; eski simülatörde bu soru yoktu, tek maaş
         geçmişine yazıyordu. Formda gelir seçimi yok, düzenlemede gelir değişmez.)*
@@ -511,6 +515,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a ve V10b tamam)* |
+| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a, V10b, V10c ve V10d tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

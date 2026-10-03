@@ -40,5 +40,21 @@
   "Bos_SimulatorYok": "Simülatör, gelir ya da bakiye bilgisi girildiğinde hesaplanır.",
   "Hata_SimulatorAcilamadi": "Denemeler şu an okunamadı.",
   "Hata_SimulasyonHesaplanamadi": "Sonuç şu an hesaplanamadı.",
-  "Hata_DenemeYuklenemedi": "Deneme şu an okunamadı."
+  "Hata_DenemeYuklenemedi": "Deneme şu an okunamadı.",
+  "Baslik_KrediCekme": "Kredi Çekme",
+  "Baslik_TaksitliNakitBorc": "Taksitli Nakit Borç",
+  "Baslik_KrediyeErkenOdeme": "Krediye Erken Ödeme",
+  "Etiket_Kredi": "KREDİ",
+  "Etiket_ToplamGeriOdeme": "TOPLAM GERİ ÖDEME",
+  "Etiket_IlkOdemeTarihi": "İLK ÖDEME TARİHİ",
+  "Etiket_KrediFaizKazanci": "Kredi faizi kazancı",
+  "Etiket_KredininMaliyeti": "Kredinin maliyeti",
+  "Secenek_TamamenKapat": "Tamamen kapat",
+  "Secenek_VadeyiKisalt": "Vadeyi kısalt (ara ödeme)",
+  "Secenek_TaksitiAzalt": "Taksiti azalt (ara ödeme)",
+  "YerTutucu_ToplamGeriOdeme": "Örn. 65.000",
+  "Hata_GecersizToplamGeriOdeme": "Toplam geri ödeme ana tutardan düşük olamaz.",
+  "Hata_IlkOdemeTarihiGecersiz": "İlk ödeme tarihi başlangıç tarihinden önce olamaz.",
+  "Hata_KrediBulunamadi": "Kayıtlı kredi bulunamadı",
+  "Mesaj_KrediBulunamadi": "Krediye erken ödeme denemek için önce Finansal Yapı'dan bir kredi eklemelisin."
 }

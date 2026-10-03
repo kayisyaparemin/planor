@@ -25,32 +25,30 @@ public sealed partial class SimulationResultViewModel : ViewModelBase
     [ObservableProperty] private ChartTrend? trend;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasDifference))]
-    [NotifyPropertyChangedFor(nameof(IsDifferenceNegative))]
-    [NotifyPropertyChangedFor(nameof(IsDifferencePositive))]
-    [NotifyPropertyChangedFor(nameof(FinalEndingDifference))]
-    [NotifyPropertyChangedFor(nameof(FinalEndingDifferenceSemantic))]
+    [NotifyPropertyChangedFor(nameof(HasDifference)), NotifyPropertyChangedFor(nameof(IsDifferenceNegative))]
+    [NotifyPropertyChangedFor(nameof(IsDifferencePositive)), NotifyPropertyChangedFor(nameof(FinalEndingDifference)), NotifyPropertyChangedFor(nameof(FinalEndingDifferenceSemantic))]
     private decimal? differenceAtLowest;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsFinalNegative))]
-    [NotifyPropertyChangedFor(nameof(FinalEndingDifference))]
-    [NotifyPropertyChangedFor(nameof(FinalEndingDifferenceSemantic))]
+    [NotifyPropertyChangedFor(nameof(IsFinalNegative)), NotifyPropertyChangedFor(nameof(FinalEndingDifference)), NotifyPropertyChangedFor(nameof(FinalEndingDifferenceSemantic))]
     private decimal? finalEndingBalance;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(FinalEndingDifference))]
-    [NotifyPropertyChangedFor(nameof(FinalEndingDifferenceSemantic))]
+    [NotifyPropertyChangedFor(nameof(FinalEndingDifference)), NotifyPropertyChangedFor(nameof(FinalEndingDifferenceSemantic))]
     private decimal? baselineFinalEndingBalance;
 
     [ObservableProperty] private decimal? totalInterest;
     [ObservableProperty] private decimal? baselineTotalInterest;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasInterestDifference))]
-    [NotifyPropertyChangedFor(nameof(IsInterestCostIncreased))]
-    [NotifyPropertyChangedFor(nameof(IsInterestCostDecreased))]
+    [NotifyPropertyChangedFor(nameof(HasInterestDifference)), NotifyPropertyChangedFor(nameof(IsInterestCostIncreased)), NotifyPropertyChangedFor(nameof(IsInterestCostDecreased))]
     private decimal? interestDifference;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasLoanInterestSaving))]
+    private decimal? loanInterestSaving;
+
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasFinancingCost))]
+    private decimal? financingCost;
 
     private readonly ISimulationResultService _resultService;
     private readonly INavigationService _navigationService;
@@ -68,13 +66,10 @@ public sealed partial class SimulationResultViewModel : ViewModelBase
 
     /// <summary>Açık deneme varsa en düşük dönemdeki fark gösterilir; yoksa yalnız şu anki gidişat vardır.</summary>
     public bool HasDifference => DifferenceAtLowest is not null;
-
     /// <summary>Deneme o dönemde şu anki gidişatın altına çekiyor.</summary>
     public bool IsDifferenceNegative => DifferenceAtLowest < 0m;
-
     /// <summary>Deneme o dönemde şu anki gidişatın üstüne çıkarıyor.</summary>
     public bool IsDifferencePositive => DifferenceAtLowest > 0m;
-
     /// <summary>12. dönem sonu negatif mi; olumsuz semantik renge döner.</summary>
     public bool IsFinalNegative => FinalEndingBalance < 0m;
 
@@ -93,12 +88,14 @@ public sealed partial class SimulationResultViewModel : ViewModelBase
 
     /// <summary>Faiz farkı sıfırdan farklı mı; yalnız fark varsa faiz farkı satırı görünür.</summary>
     public bool HasInterestDifference => InterestDifference is not null and not 0m;
-
     /// <summary>Senaryo ek faiz maliyeti getiriyor (Negative semantik).</summary>
     public bool IsInterestCostIncreased => InterestDifference > 0m;
-
     /// <summary>Senaryo faiz tasarrufu sağlıyor (Positive semantik).</summary>
     public bool IsInterestCostDecreased => InterestDifference < 0m;
+    /// <summary>Krediye erken ödeme faiz kazancı sıfırdan büyük mü.</summary>
+    public bool HasLoanInterestSaving => LoanInterestSaving > 0m;
+    /// <summary>Kredi çekme maliyeti sıfırdan büyük mü.</summary>
+    public bool HasFinancingCost => FinancingCost > 0m;
 
     /// <summary>Dönem sonları ızgarası için 12 dönemin karoları (S1, S76-9).</summary>
     public ObservableCollection<FuturePeriodTile> Periods { get; } = [];
@@ -170,6 +167,8 @@ public sealed partial class SimulationResultViewModel : ViewModelBase
         BaselineTotalInterest = baselineInterest;
         TotalInterest = scenarioInterest ?? baselineInterest;
         InterestDifference = scenarioInterest is null ? null : scenarioInterest.Value - baselineInterest;
+        LoanInterestSaving = outcome.LoanInterestSaving;
+        FinancingCost = outcome.FinancingCost;
 
         Periods.Clear();
         for (var i = 0; i < series.Count; i++)
@@ -187,6 +186,7 @@ public sealed partial class SimulationResultViewModel : ViewModelBase
         LowestEndingBalance = DifferenceAtLowest = null;
         LowestPeriodStart = ChainStart = HorizonLastDay = null;
         FinalEndingBalance = BaselineFinalEndingBalance = TotalInterest = BaselineTotalInterest = InterestDifference = null;
+        LoanInterestSaving = FinancingCost = null;
         Periods.Clear();
         Trend = null;
         State = ScreenState.Empty;

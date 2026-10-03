@@ -44,6 +44,12 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     [ObservableProperty] private string paymentCountInput = string.Empty;
     [ObservableProperty] private CreditCardPaymentType selectedCardPaymentMode = CreditCardPaymentType.FullStatement;
     [ObservableProperty] private bool selectedCardPaymentScope;
+    [ObservableProperty] private Guid? loanId;
+    [ObservableProperty] private string loanName = string.Empty;
+    [ObservableProperty, NotifyPropertyChangedFor(nameof(NeedsAmount))]
+    private LoanPrepaymentMode selectedPrepaymentMode = LoanPrepaymentMode.FullClosure;
+    [ObservableProperty] private string totalRepaymentAmountInput = string.Empty;
+    [ObservableProperty] private DateOnly firstPaymentDate;
 
     /// <summary>Görünüm modelini beş dar bağımlılıkla başlatır (Kural M3).</summary>
     public SimulationConditionViewModel(
@@ -55,7 +61,7 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
         _planReader = planReader ?? throw new ArgumentNullException(nameof(planReader));
-        Date = _clock.Today;
+        Date = FirstPaymentDate = _clock.Today;
     }
 
     /// <summary>Tarih seçicisinin en erken günü: bugün (S76-3).</summary>
@@ -68,29 +74,49 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     public bool IsRecurring => _option.Key == "recurring";
     /// <summary>Deneme kart ödeme şekli mi.</summary>
     public bool IsCardPaymentMode => _option.Key == "card-payment-mode";
-    /// <summary>Tutar alanı gerekiyor mu.</summary>
-    public bool NeedsAmount => _option.Key != "card-payment-mode";
+    /// <summary>Deneme kredi çekme mi.</summary>
+    public bool IsFinancing => _option.Key == "financing";
+    /// <summary>Deneme taksitli nakit borç mu.</summary>
+    public bool IsCashDebt => _option.Key == "cash-debt";
+    /// <summary>Deneme krediye erken ödeme mi.</summary>
+    public bool IsLoanPrepayment => _option.Key == "loan-prepayment";
+    /// <summary>Kredi adı alanı görünür mü.</summary>
+    public bool IsLoan => _option.Key == "loan-prepayment";
+    /// <summary>İlk ödeme tarihi alanı gerekiyor mu.</summary>
+    public bool NeedsFirstPaymentDate => _option.Key == "financing";
+    /// <summary>Toplam geri ödeme alanı gerekiyor mu.</summary>
+    public bool NeedsTotalRepayment => _option.Key == "financing";
     /// <summary>Taksit veya ödeme adedi gerekiyor mu.</summary>
-    public bool NeedsPaymentCount => _option.Key is "card" or "recurring";
+    public bool NeedsPaymentCount => _option.Key is "card" or "recurring" or "financing" or "cash-debt";
+    /// <summary>Tutar alanı gerekiyor mu.</summary>
+    public bool NeedsAmount => _option.Key switch
+    {
+        "card-payment-mode" => false,
+        "loan-prepayment" => SelectedPrepaymentMode != LoanPrepaymentMode.FullClosure,
+        _ => true
+    };
+
     /// <summary>Kart ödeme şekli seçenekleri.</summary>
     public IReadOnlyList<CreditCardPaymentType> CardPaymentModes { get; } = [CreditCardPaymentType.FullStatement, CreditCardPaymentType.Minimum];
     /// <summary>Kart ödeme kapsamı seçenekleri.</summary>
     public IReadOnlyList<bool> CardPaymentScopes { get; } = [false, true];
+    /// <summary>Erken ödeme şekli seçenekleri.</summary>
+    public IReadOnlyList<LoanPrepaymentMode> PrepaymentModes { get; } =
+        [LoanPrepaymentMode.FullClosure, LoanPrepaymentMode.ReduceTerm, LoanPrepaymentMode.ReduceInstallment];
 
     /// <summary>Formda kaydedilmemiş bir değişiklik var mı.</summary>
-    public bool HasChanges => _loaded is { } l
-        ? Name.Trim() != l.Name || AmountInput != (NeedsAmount ? StatementEntryViewModel.FormatAmount(l.Amount) : string.Empty) ||
-          Date != l.StartDate || PaymentCountInput != (l.PaymentCount > 1 ? l.PaymentCount.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty) ||
-          SelectedCardPaymentMode != (l.CardPaymentType ?? CreditCardPaymentType.FullStatement) || SelectedCardPaymentScope != l.AppliesToAllStatements
-        : !string.IsNullOrWhiteSpace(Name) || (NeedsAmount && !string.IsNullOrWhiteSpace(AmountInput)) || Date != _clock.Today ||
-          !string.IsNullOrWhiteSpace(PaymentCountInput) || (IsCardPaymentMode && (SelectedCardPaymentMode != CreditCardPaymentType.FullStatement || SelectedCardPaymentScope));
+    public bool HasChanges => SimulationConditionDraftBuilder.HasChanges(this, _loaded, _clock.Today);
+
+    internal ScenarioOption Option => _option;
+    internal void SetLoadedOption(ScenarioOption option) => _option = option;
 
     /// <summary>Formun neyi açacağını gezinmeden alır.</summary>
-    public void Prepare(string? scenarioOptionKey, Guid? conditionId, Guid? cardId = null)
+    public void Prepare(string? scenarioOptionKey, Guid? conditionId, Guid? cardId = null, Guid? loanId = null)
     {
         _conditionId = conditionId;
         IsEditing = conditionId.HasValue;
         CardId = cardId;
+        LoanId = loanId;
         _option = SimulationScenarioCatalog.Options.FirstOrDefault(x => x.Key == scenarioOptionKey)
                   ?? SimulationScenarioCatalog.CashPayment;
         ScenarioType = _option.DefaultType;
@@ -100,55 +126,31 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     [RelayCommand]
     public async Task LoadAsync()
     {
-        if (_conditionId is not { } id)
+        if (_conditionId is not { } id) { await ResolveNamesAsync(); State = ScreenState.Content; return; }
+        SetBusy(true); State = ScreenState.Loading;
+        try
         {
-            await ResolveCardNameAsync();
+            var list = await _simulationService.GetWorkingListAsync();
+            _loaded = list.FirstOrDefault(x => x.Request.ScenarioId == id)?.Request;
+            if (_loaded is null)
+            {
+                await _dialogService.ShowAlertAsync(NotFoundTitle, NotFoundMessage);
+                await _navigationService.NavigateBackAsync();
+                return;
+            }
+            SimulationConditionDraftBuilder.Populate(this, _loaded);
+            await ResolveNamesAsync();
             State = ScreenState.Content;
-            return;
         }
-
-        SetBusy(true);
-        State = ScreenState.Loading;
-        try { await LoadConditionAsync(id); }
         catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"[SimulationConditionViewModel ERROR] {ex}"); State = ScreenState.Error; }
         finally { SetBusy(false); }
     }
 
-    private async Task LoadConditionAsync(Guid id)
+    private async Task ResolveNamesAsync()
     {
-        var list = await _simulationService.GetWorkingListAsync();
-        _loaded = list.FirstOrDefault(x => x.Request.ScenarioId == id)?.Request;
-        if (_loaded is null)
-        {
-            await _dialogService.ShowAlertAsync(NotFoundTitle, NotFoundMessage);
-            await _navigationService.NavigateBackAsync();
-            return;
-        }
-
-        PopulateLoaded(_loaded);
-        await ResolveCardNameAsync();
-        State = ScreenState.Content;
-    }
-
-    private void PopulateLoaded(SimulationRequest req)
-    {
-        _option = SimulationScenarioCatalog.For(req.Type);
-        ScenarioType = req.Type;
-        Name = req.Name;
-        AmountInput = NeedsAmount ? StatementEntryViewModel.FormatAmount(req.Amount) : string.Empty;
-        Date = req.StartDate;
-        CardId = req.CreditCardId;
-        PaymentCountInput = req.PaymentCount > 1 ? req.PaymentCount.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty;
-        SelectedCardPaymentMode = req.CardPaymentType ?? CreditCardPaymentType.FullStatement;
-        SelectedCardPaymentScope = req.AppliesToAllStatements;
-    }
-
-    private async Task ResolveCardNameAsync()
-    {
-        if (CardId is { } id && (await _planReader.GetPlanAsync()).CreditCards.FirstOrDefault(x => x.Id == id) is { } card)
-        {
-            CardName = $"{card.Bank} {card.Name}".Trim();
-        }
+        var plan = await _planReader.GetPlanAsync();
+        if (CardId is { } cid && plan.CreditCards.FirstOrDefault(x => x.Id == cid) is { } c) { CardName = $"{c.Bank} {c.Name}".Trim(); }
+        if (LoanId is { } lid && plan.Loans.FirstOrDefault(x => x.Id == lid) is { } l) { LoanName = $"{l.Bank} {l.Name}".Trim(); }
     }
 
     /// <summary>Denemeyi doğrular ve çalışma listesine yazar; yeni deneme açık olarak sona eklenir.</summary>
@@ -156,12 +158,7 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     public async Task SaveAsync()
     {
         if (IsBusy) { return; }
-        if (!TryBuildRequest(out var request, out var error))
-        {
-            await _dialogService.ShowAlertAsync(SaveFailedTitle, error);
-            return;
-        }
-
+        if (!TryBuildRequest(out var request, out var error)) { await _dialogService.ShowAlertAsync(SaveFailedTitle, error); return; }
         try
         {
             SetBusy(true);
@@ -181,17 +178,10 @@ public sealed partial class SimulationConditionViewModel : ViewModelBase
     [RelayCommand]
     public async Task CancelAsync()
     {
-        if (HasChanges && !await _dialogService.ConfirmAsync(ExitConfirmTitle, ExitConfirmMessage, "Çık", "Kal"))
-        {
-            return;
-        }
-
+        if (HasChanges && !await _dialogService.ConfirmAsync(ExitConfirmTitle, ExitConfirmMessage, "Çık", "Kal")) { return; }
         await _navigationService.NavigateBackAsync();
     }
 
     private bool TryBuildRequest(out SimulationRequest request, out string error) =>
-        SimulationConditionDraftBuilder.TryBuild(
-            _option, _loaded, Name, AmountInput, Date, CardId, PaymentCountInput,
-            SelectedCardPaymentMode, SelectedCardPaymentScope, _clock.Today,
-            out request, out error);
+        SimulationConditionDraftBuilder.TryBuild(this, _loaded, _clock.Today, out request, out error);
 }

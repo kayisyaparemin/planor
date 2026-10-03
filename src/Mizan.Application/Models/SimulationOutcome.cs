@@ -10,6 +10,10 @@ namespace Mizan.Application.Models;
 /// </summary>
 /// <param name="Baseline">Şu anki gidişatın 12 dönemi.</param>
 /// <param name="Scenario">Denemeli 12 dönem; açık ve geçerli deneme yoksa <c>null</c>.</param>
+/// <param name="LoanInterestSaving">Erken ödemenin sağladığı toplam kredi faizi kazancı (S76-9).</param>
+/// <param name="FinancingCost">Çekilen kredinin toplam maliyeti (S76-9).</param>
 public sealed record SimulationOutcome(
     IReadOnlyList<CashFlowPeriodProjection> Baseline,
-    IReadOnlyList<CashFlowPeriodProjection>? Scenario);
+    IReadOnlyList<CashFlowPeriodProjection>? Scenario,
+    decimal? LoanInterestSaving = null,
+    decimal? FinancingCost = null);

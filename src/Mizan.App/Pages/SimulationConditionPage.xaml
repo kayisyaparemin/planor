@@ -49,13 +49,16 @@
                                    AutomationId="{x:Static auto:SimulatorAutomationIds.LblConditionCard}" />
                         </VerticalStackLayout>
 
-                        <!-- S3: ad alanı -->
-                        <VerticalStackLayout Spacing="{StaticResource Space1}">
-                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_Ad}"
+                        <!-- S3: hedef kredi (krediye erken ödeme; salt okunur, düzenlemede değişmez) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding IsLoan}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_Kredi}"
                                    Style="{StaticResource Eyebrow}" />
-                            <Entry Text="{Binding Name}"
-                                   Placeholder="{x:Static strings:SimulatorStrings.YerTutucu_Ad}"
-                                   AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionName}" />
+                            <Label Text="{Binding LoanName}"
+                                   FontSize="{StaticResource TypeFigure}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextPrimary}"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.LblConditionLoan}" />
                         </VerticalStackLayout>
 
                         <!-- S3: kart ödeme şekli ve kapsamı (yalnız kart ödeme şeklinde) -->
@@ -84,6 +87,28 @@
                                         AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionPaymentScope}" />
                             </VerticalStackLayout>
                         </Grid>
+
+                        <!-- S3: erken ödeme şekli (yalnız krediye erken ödemede) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding IsLoanPrepayment}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_OdemeSekli}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Picker ItemsSource="{Binding PrepaymentModes, Converter={StaticResource ErkenOdemeTuru}}"
+                                    SelectedItem="{Binding SelectedPrepaymentMode, Converter={StaticResource ErkenOdemeTuru}}"
+                                    BackgroundColor="{DynamicResource SurfaceSunken}"
+                                    TextColor="{DynamicResource TextPrimary}"
+                                    FontSize="{StaticResource TypeBody}"
+                                    AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionPrepaymentMode}" />
+                        </VerticalStackLayout>
+
+                        <!-- S3: ad alanı -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_Ad}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Name}"
+                                   Placeholder="{x:Static strings:SimulatorStrings.YerTutucu_Ad}"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionName}" />
+                        </VerticalStackLayout>
 
                         <!-- S3: tutar ve tarih (tutar gerektiren türlerde) -->
                         <Grid ColumnDefinitions="*, *"
@@ -124,27 +149,55 @@
                                         FontSize="{StaticResource TypeBody}" />
                         </VerticalStackLayout>
 
-                        <!-- S3: taksit / ödeme sayısı (kartla harcama veya düzenli ödeme) -->
+                        <!-- S3: taksit / ödeme sayısı (kartla harcama, düzenli ödeme, kredi veya nakit borç) -->
                         <VerticalStackLayout Spacing="{StaticResource Space1}"
                                              IsVisible="{Binding NeedsPaymentCount}">
                             <Label Text="{x:Static strings:SimulatorStrings.Etiket_TaksitSayisi}"
-                                   Style="{StaticResource Eyebrow}"
-                                   IsVisible="{Binding IsCardSpending}" />
-                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_OdemeSayisi}"
-                                   Style="{StaticResource Eyebrow}"
-                                   IsVisible="{Binding IsRecurring}" />
+                                   Style="{StaticResource Eyebrow}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsRecurring}" Value="True">
+                                        <Setter Property="Text" Value="{x:Static strings:SimulatorStrings.Etiket_OdemeSayisi}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsCashDebt}" Value="True">
+                                        <Setter Property="Text" Value="{x:Static strings:SimulatorStrings.Etiket_OdemeSayisi}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
                             <Entry Text="{Binding PaymentCountInput}"
                                    Keyboard="Numeric"
+                                   Placeholder="{x:Static strings:SimulatorStrings.YerTutucu_OdemeSayisi}"
                                    AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionPaymentCount}">
                                 <Entry.Triggers>
                                     <DataTrigger TargetType="Entry" Binding="{Binding IsCardSpending}" Value="True">
                                         <Setter Property="Placeholder" Value="{x:Static strings:SimulatorStrings.YerTutucu_TaksitSayisi}" />
                                     </DataTrigger>
-                                    <DataTrigger TargetType="Entry" Binding="{Binding IsRecurring}" Value="True">
-                                        <Setter Property="Placeholder" Value="{x:Static strings:SimulatorStrings.YerTutucu_OdemeSayisi}" />
-                                    </DataTrigger>
                                 </Entry.Triggers>
                             </Entry>
+                        </VerticalStackLayout>
+
+                        <!-- S3: toplam geri ödeme tutarı (yalnız kredi çekmede) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding NeedsTotalRepayment}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_ToplamGeriOdeme}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding TotalRepaymentAmountInput}"
+                                   Placeholder="{x:Static strings:SimulatorStrings.YerTutucu_ToplamGeriOdeme}"
+                                   Keyboard="Numeric"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionTotalRepayment}" />
+                        </VerticalStackLayout>
+
+                        <!-- S3: ilk ödeme tarihi (yalnız kredi çekmede) -->
+                        <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                             IsVisible="{Binding NeedsFirstPaymentDate}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_IlkOdemeTarihi}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <DatePicker Date="{Binding FirstPaymentDate, Converter={StaticResource TarihSecici}}"
+                                        MinimumDate="{Binding MinimumDate, Converter={StaticResource TarihSecici}}"
+                                        Format="dd.MM.yyyy"
+                                        BackgroundColor="{DynamicResource SurfaceSunken}"
+                                        TextColor="{DynamicResource TextPrimary}"
+                                        FontSize="{StaticResource TypeBody}"
+                                        AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionFirstPaymentDate}" />
                         </VerticalStackLayout>
 
                     </VerticalStackLayout>
