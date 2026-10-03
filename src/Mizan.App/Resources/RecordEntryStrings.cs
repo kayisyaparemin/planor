@@ -12,6 +12,15 @@ public static class RecordEntryStrings
     /// <summary>Seçici sayfasının başlığı.</summary>
     public const string Baslik_NeEklemek = "Ne eklemek istiyorsun?";
 
+    /// <summary>"Kartla harcama"da birden fazla kart varken ikinci seviyenin başlığı.</summary>
+    public const string Baslik_HangiKart = "Hangi kart?";
+
+    /// <summary>"Krediye erken ödeme"de birden fazla kredi varken ikinci seviyenin başlığı.</summary>
+    public const string Baslik_HangiKredi = "Hangi kredi?";
+
+    /// <summary>"Gelir değişikliği"nde birden fazla düzenli gelir varken ikinci seviyenin başlığı.</summary>
+    public const string Baslik_HangiGelir = "Hangi gelir?";
+
     /// <summary>Gelir bölümünün başlığı; Finansal Yapı'daki "Gelirler" grubuna düşer.</summary>
     public const string Etiket_GrupGelir = "GELİR";
 
@@ -71,4 +80,22 @@ public static class RecordEntryStrings
 
     /// <summary>Ödeme planının alt satırı.</summary>
     public const string Etiket_OdemePlaniAlt = "Tutarı aydan aya değişir";
+
+    /// <summary>Gelir değişikliği seçeneği (var olan düzenli gelirin formu).</summary>
+    public const string Etiket_GelirDegisikligi = "Gelir değişikliği";
+
+    /// <summary>Gelir değişikliğinin alt satırı.</summary>
+    public const string Etiket_GelirDegisikligiAlt = "Zam ya da yeni tutar";
+
+    /// <summary>Kartla harcama seçeneği (var olan kartın formu).</summary>
+    public const string Etiket_KartlaHarcama = "Kartla harcama";
+
+    /// <summary>Kartla harcamanın alt satırı.</summary>
+    public const string Etiket_KartlaHarcamaAlt = "Tek çekim ya da taksit";
+
+    /// <summary>Krediye erken ödeme seçeneği (var olan kredinin formu).</summary>
+    public const string Etiket_ErkenOdeme = "Krediye erken ödeme";
+
+    /// <summary>Krediye erken ödemenin alt satırı.</summary>
+    public const string Etiket_ErkenOdemeAlt = "Kapat ya da ara ödeme";
 }

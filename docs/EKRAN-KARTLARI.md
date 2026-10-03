@@ -1627,7 +1627,8 @@ Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `E
 > Sayfa dosyası: `RecordEntryPickerPage.xaml` (`Routes.RecordEntryPicker`). Finansal Yapı başlığındaki "Ekle"den açılır.
 > Bileşen: `Components/EntryTypeTiles.xaml` (bir grup; simülatör `V10c`'de aynı bileşene geçer). Davranış `S77`, görünüm `GS29`.
 > Konsept: `docs/assets/konsept/ekleme-ekranı-acik.png`, `docs/assets/konsept/ekleme-ekranı-koyu.png` (kullanıcı getirdi).
-> `V6f1` tamamlandı (Kapı C onaylı 2026-10-03, koyu + açık); `V6f2` üst kayıtlı üç türü ekler.
+> `V6f1` tamamlandı (Kapı C onaylı 2026-10-03, koyu + açık); `V6f2` tamamlandı (Kapı C onaylı 2026-10-04):
+> üst kayıtlı üç tür ve "Hangi kart?" hâli (`S77`-5, `S77` V6f2 notları d–h).
 
 **Eski proje:** `EntryTypePickerView.xaml` 78 satır, 3 `<Label>` (işaret, başlık, özet), grup başına hap düğme;
 `RecordEntryPicker` 76 satır, bağımlılıksız. Seçici `CommitmentsPage`'in satır içi formunun üstünde duruyordu.
@@ -1639,6 +1640,7 @@ Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `E
 | S1 | "Ne ekleyebilirim, aradığım şey hangi grupta?" | 4 grup çipi (düğme) + seçili grubun ≤ 3 başlığı |
 | S2 | "Bu seçenek ne işe yarıyor, aradığım bu mu?" | Seçenek başına 1 özet satırı |
 | S3 | "Seçtim, nasıl devam ederim?" | ●/○ işareti + seçicinin altında açılan satır içi form (~49 etiket) |
+| S4 | "Bunu hangi kartıma / kredime / gelirime ekliyorum?" | Ortak formun içinde açılır liste ("Kart seç"); kayıt yoksa formda kırmızı uyarı. Gelir için soru yoktu (tek maaş varsayımı) |
 
 #### 2. Kesme kararları
 
@@ -1653,27 +1655,41 @@ Konsept karşılığı **yok** (`GS2`). Form kartı, alan sırası ve adları `E
 | ●/○ işareti, satır içi form, "Yeni Kayıt" başlığı, `›` | **Çıkar** | Form ayrı sayfa; karonun kendisi dokunulur |
 | Katalogdaki uzun açıklamalar | **Çıkar** | GK5; yerine ≤ 24 harflik `Etiket_` |
 | "Kredi / finansman çek" | **Sonra** → `V10d` | Ortak form gerektiriyor (`S77`-4) |
+| Üst kaydın adayları (kart, kredi, düzenli gelir) | **Satır** (yerinde ikinci seviye, tek paylaşılan şablon) | S4; yalnız birden fazla aday varken (`S77`-5, V6f2 notları f) |
+| Adayın bağlamı (sıradaki ödeme, kalan taksit, her ayın günü) | **Satır** | S4; aynı bankadan iki kartı ayırır; Finansal Yapı'daki satırla aynı |
+| Adayın tutarı | **Çıkar** | "Hangisi?" sorusuna cevap değil; tutar Finansal Yapı'da |
+| Açılır liste, formdaki "kayıt yok" uyarısı | **Çıkar** | Tek aday sorulmaz; aday yoksa onay diyaloğu (V6f2 notları e) |
 
 #### 3. Bütçe
 
 ```
 Hero rakam    0 / 1
 Hero yüzey    0 / 1
-Kart          4 / 4     EntryTypeTiles × 4 (Gelir, Kart, Kredi, Ödeme; analizci bileşeni kart sayar, I133)
+Kart          4 / 4     EntryTypeTiles × 4 (Gelir, Kart, Kredi, Ödeme; analizci bileşeni kart sayar, I133);
+                        aday karoları DataTemplate'te tekrar eden satır, gruplarla aynı anda görünmez
 Grafik        0 / 1
 NavRow        0 / 5
-Label         4 / 28    bileşenin şablonları: eyebrow 1, ikon 1, karo başlığı 1, alt satır 1; sayfada 0
+Label         7 / 28    bileşenin şablonları: eyebrow 1, ikon 1, karo başlığı 1, alt satır 1;
+                        sayfada aday şablonu: ad 1, bağlam 1, › 1
 Cumle_        0 / 3
 ```
 
+Aday listesi `ListCard` değildir: beşinci kart olurdu (GK4). Adaylar birinci seviyenin karo diliyle,
+ayrı dokunma yüzeyleri olarak durur; karo başına bir ikon (`›`).
+
 #### 4. Blok şeması
 
-`RecordEntryPickerPage.xaml` (`x:DataType` = `RecordEntryPickerViewModel`), `VerticalStackLayout` `Spacing Space5`:
+`RecordEntryPickerPage.xaml` (`x:DataType` = `RecordEntryPickerViewModel`), `VerticalStackLayout` `Spacing Space5`.
+Geri ok (`BackButtonBehavior`) ve cihazın geri tuşu `BackCommand`'dan geçer: ikinci seviyede karolara, birincide listeye döner.
 
 ```
 ┌─ PageHeader ──────────────────────────────────────────────────────┐
-│ Baslik_NeEklemek             TypeTitle / TextPrimary  (aksiyon yok)│  ← S1
+│ ChoiceGroup → SeciciMetni(Soru)   TypeTitle / TextPrimary          │  ← S1, S4
+│   null: Baslik_NeEklemek · Kart: Baslik_HangiKart ·                │
+│   Kredi: Baslik_HangiKredi · Gelir: Baslik_HangiGelir              │
 └───────────────────────────────────────────────────────────────────┘
+
+VerticalStackLayout  Spacing Space5  IsVisible = !IsChoosing          — birinci seviye: dört grup
 EntryTypeTiles  IncomeSection   Accent PositiveText · AccentSurface PositiveSurface     ← S1–S3
 ● GELİR
 ╭───────────────────╮ ╭───────────────────╮
@@ -1681,15 +1697,26 @@ EntryTypeTiles  IncomeSection   Accent PositiveText · AccentSurface PositiveSur
 │ Düzenli gelir     │ │ Tek seferlik gelir│
 │ Her ay aynı gün…  │ │ Prim, satış, iade │
 ╰───────────────────╯ ╰───────────────────╯
-Grid "*, *"  ColumnSpacing Space3                       (V6f2'de iki ayrı satıra döner)
-├─ EntryTypeTiles  CardSection  Accent Indicator · AccentSurface SurfaceChart          ← S1–S3
-│    ● KART   ╭ [▭] Kredi kartı · Limit ve ekstre günleri ╮
-└─ EntryTypeTiles  LoanSection  Accent WarningText · AccentSurface WarningSurface      ← S1–S3
-     ● KREDİ  ╭ [⌂] Bankadaki kredi · Devam eden taksitler ╮
+╭───────────────────╮
+│ [↗] Gelir değişikliği · Zam ya da yeni tutar
+╰───────────────────╯
+EntryTypeTiles  CardSection  Accent Indicator · AccentSurface SurfaceChart             ← S1–S3
+● KART   [Kredi kartı] [Kartla harcama]
+EntryTypeTiles  LoanSection  Accent WarningText · AccentSurface WarningSurface         ← S1–S3
+● KREDİ  [Bankadaki kredi] [Krediye erken ödeme]
 EntryTypeTiles  PaymentSection  Accent NegativeText · AccentSurface NegativeSurface    ← S1–S3
 ● ÖDEME
   [Nakit ödeme] [Düzenli ödeme]
   [Taksitli borç] [Ödeme planı]
+
+VerticalStackLayout  Spacing Space3  IsVisible = IsChoosing  BindableLayout = Choices   — ikinci seviye
+└─ aday (DataTemplate, x:DataType = FinancialRecordRow)                                 ← S4
+   Border (örtük: SurfaceCard / BorderSubtle / RadiusCard / CardPadding)   dokun → ChooseRecordCommand
+   └─ Grid "*, Auto"  ColumnSpacing Space3
+      ├─ VerticalStackLayout  Spacing Space1
+      │  ├─ Label  Name                    TypeFigure, OpenSansSemibold, TextPrimary (karo başlığıyla aynı)
+      │  └─ Label  . → KayitBaglami        Caption ("Sıradaki ödeme 15 Ekim", "12 taksit · 3 Kasım")
+      └─ Label  ChevronRight  MaterialSymbols, IconSmall, Indicator
 ```
 
 `EntryTypeTiles` (bir grup), `VerticalStackLayout` `Spacing Space3`:
@@ -1716,16 +1743,21 @@ Uygulama notları:
 - Karo seçimi `NavigateToAsync(Routes.ReplacingCurrent(<rota>))` (`../`): seçici yığından düşer, formdan dönüş
   Finansal Yapı'ya iner ve liste `OnAppearing`'de yenilenir (`I132`).
 - Formlar kendi başlığını korur ("Nakit ödeme" → "Planlı Büyük Harcama"; `S77` V6f notları a).
+- Üst kayıtlı karo (`EditsExisting`): adaylar dokununca okunur (`IPlanReader` + `FinancialRecordRowBuilder`,
+  Finansal Yapı'nın süzgeci). Aday yoksa onay diyaloğu → üst kaydın boş formu `../` ile; tek adayda form
+  `../<rota>` + kimlik; birden fazlaysa `ChoiceGroup` dolar, sayfa ikinci seviyeye geçer (`S77` V6f2 notları e–h).
+- Kartın, kredinin ve gelirin formu açılınca ilgili bölüm (gelecek harcama, erken ödeme, tutar değişikliği)
+  formun altındadır; formlara dokunulmaz (V6f2 notları g).
 
 | Grup | Karo | Alt satır | İkon | Hedef |
 |---|---|---|---|---|
 | Gelir | Düzenli gelir | Her ay aynı gün yatar | `Repeat` | `Routes.IncomeForm` |
 | Gelir | Tek seferlik gelir | Prim, satış, iade | `AutoAwesome` | `Routes.AdHocIncomeForm` |
-| Gelir | Gelir değişikliği | Zam ya da yeni tutar | — | gelir → `Routes.IncomeForm` + `incomeId` (`V6f2`) |
+| Gelir | Gelir değişikliği | Zam ya da yeni tutar | `TrendingUp` | düzenli gelir → `Routes.IncomeForm` + `incomeId` |
 | Kart | Kredi kartı | Limit ve ekstre günleri | `CreditCard` | `Routes.CardForm` |
-| Kart | Kartla harcama | Tek çekim ya da taksit | — | kart → `Routes.CardForm` + `cardId` (`V6f2`) |
+| Kart | Kartla harcama | Tek çekim ya da taksit | `ShoppingBag` | kart → `Routes.CardForm` + `cardId` |
 | Kredi | Bankadaki kredi | Devam eden taksitler | `AccountBalance` | `Routes.LoanForm` |
-| Kredi | Krediye erken ödeme | Kapat ya da ara ödeme | — | kredi → `Routes.LoanForm` + `loanId` (`V6f2`) |
+| Kredi | Krediye erken ödeme | Kapat ya da ara ödeme | `FastForward` | kredi → `Routes.LoanForm` + `loanId` |
 | Ödeme | Nakit ödeme | Seçtiğin gün düşer | `Payments` | `Routes.PlannedExpenseForm` |
 | Ödeme | Düzenli ödeme | Her ay aynı tutar | `EventAvailable` | `Routes.PaymentPlanForm` |
 | Ödeme | Taksitli borç | Borcu taksitle öde | `PieChart` | `Routes.PaymentPlanForm` |
@@ -1735,9 +1767,9 @@ Uygulama notları:
 
 | Durum | Görünen |
 |---|---|
-| Boş | Yok: katalog sabittir ve her grupta en az bir seçenek vardır (katalog testi korur). |
-| Yükleniyor | Yok (`V6f1`): katalog bellektedir, sayfa doğrudan dolu açılır. `V6f2`'de üst kayıt listesi okunurken iskelet. |
-| Hata | Yok (`V6f1`). `V6f2`'de kayıtlar okunamazsa diyalog; seçici yerinde kalır. |
+| Boş | Yok: katalog sabittir ve her grupta en az bir seçenek vardır (katalog testi korur). Aday yoksa ikinci seviye açılmaz, onay diyaloğu sorulur. |
+| Yükleniyor | Yok: katalog bellektedir, sayfa doğrudan dolu açılır; adaylar karoya dokununca okunur, okuma süresince karolar kilitlidir (iskelet yok, V6f2 notları h). |
+| Hata | Adaylar okunamazsa diyalog; seçici birinci seviyede kalır. |
 
 #### 6. Konsept ilişkisi
 
@@ -2189,7 +2221,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V6c | Kredi formu | 14 | 16 | ✅ V6c1 + V6c2 + V6c3 |
 | EK-V6d | Gelir formu | 14 | 7 + 3 | ✅ V6d1 + V6d2 + V6d3 |
 | EK-V6e | Ödeme formu | 12 | 8 + 4 | ✅ V6e |
-| EK-V6f | Kayıt türü seçici | 3 | 4 | ⬜ V6f1 (V6f2 açık) |
+| EK-V6f | Kayıt türü seçici | 3 | 7 | ✅ V6f1 + V6f2 |
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
 | EK-V9 | Dönem ayrıntısı | 81 | 12 | ✅ V9 |

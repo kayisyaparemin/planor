@@ -4,7 +4,8 @@ namespace Mizan.Application.Tests.Models;
 
 /// <summary>
 /// Kayıt türü seçicinin kataloğu: Finansal Yapı listesinin dört grubu sırasıyla, her grupta 1–4 seçenek,
-/// her seçenek tek bir forma gider ve anahtarlar simülatörün ortak türleriyle aynıdır (S77-3, S77-6).
+/// her seçenek tek bir forma gider, var olan kayda eklenen üç tür önce kaydı sorar ve anahtarlar simülatörün
+/// ortak türleriyle aynıdır (S77-3, S77-5, S77-6).
 /// </summary>
 public sealed class FinancialRecordEntryCatalogTests
 {
@@ -37,8 +38,11 @@ public sealed class FinancialRecordEntryCatalogTests
         {
             ["recurring-income"] = RecordEntryForm.RecurringIncome,
             ["income"] = RecordEntryForm.AdHocIncome,
+            ["income-change"] = RecordEntryForm.RecurringIncome,
             ["credit-card"] = RecordEntryForm.CreditCard,
+            ["card"] = RecordEntryForm.CreditCard,
             ["bank-loan"] = RecordEntryForm.Loan,
+            ["loan-prepayment"] = RecordEntryForm.Loan,
             ["cash"] = RecordEntryForm.PlannedExpense,
             ["recurring"] = RecordEntryForm.PaymentPlan,
             ["cash-debt"] = RecordEntryForm.PaymentPlan,
@@ -47,9 +51,17 @@ public sealed class FinancialRecordEntryCatalogTests
     }
 
     [Fact]
+    public void UstKayitliSecenekler_YalnizVarOlanKaydaEklenenUcTurdur()
+    {
+        var editsExisting = FinancialRecordEntryCatalog.Options.Where(x => x.EditsExisting).Select(x => x.Key);
+
+        Assert.Equal(["income-change", "card", "loan-prepayment"], editsExisting);
+    }
+
+    [Fact]
     public void OrtakTurler_SimulatorunAnahtariniTasir()
     {
-        var shared = new[] { "cash", "recurring", "cash-debt", "income" };
+        var shared = new[] { "cash", "recurring", "cash-debt", "income", "income-change", "card", "loan-prepayment" };
 
         var simulatorKeys = SimulationScenarioCatalog.Options.Select(x => x.Key);
 

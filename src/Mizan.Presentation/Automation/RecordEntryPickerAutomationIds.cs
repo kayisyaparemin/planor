@@ -11,4 +11,7 @@ public static class RecordEntryPickerAutomationIds
 
     /// <summary>Dört grubun karolarını taşıyan alanın kimliği.</summary>
     public const string PickerRecordEntryType = "picker-record-entry-type";
+
+    /// <summary>"Hangi kart?" ikinci seviyesinde adayları taşıyan listenin kimliği.</summary>
+    public const string ListRecordEntryChoices = "list-record-entry-choices";
 }

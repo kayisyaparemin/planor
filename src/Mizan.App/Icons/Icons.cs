@@ -35,4 +35,13 @@ public static class Icons
 
     /// <summary>T\u00fcr se\u00e7icide \u00f6deme plan\u0131 karosu: aydan aya de\u011fi\u015fen tutarlar.</summary>
     public const string BarChart = "\ue26b";
+
+    /// <summary>T\u00fcr se\u00e7icide kartla harcama karosu: al\u0131\u015fveri\u015f \u00e7antas\u0131, karta yaz\u0131lan harcama (V6f2).</summary>
+    public const string ShoppingBag = "\uf1cc";
+
+    /// <summary>T\u00fcr se\u00e7icide krediye erken \u00f6deme karosu: taksitleri \u00f6ne almak.</summary>
+    public const string FastForward = "\ue01f";
+
+    /// <summary>T\u00fcr se\u00e7icide gelir de\u011fi\u015fikli\u011fi karosu: gelirin tutar\u0131n\u0131n bir tarihten itibaren de\u011fi\u015fmesi.</summary>
+    public const string TrendingUp = "\ue8e5";
 }

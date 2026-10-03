@@ -15,13 +15,19 @@ public static class FinancialRecordEntryCatalog
     public static IReadOnlyList<RecordEntryGroup> Groups { get; } =
         [RecordEntryGroup.Income, RecordEntryGroup.Card, RecordEntryGroup.Loan, RecordEntryGroup.Payment];
 
-    /// <summary>Bütün seçenekler, grup sırasıyla. Ortak anahtarlar simülatör kataloğundakilerle aynıdır.</summary>
+    /// <summary>
+    /// Bütün seçenekler, grup sırasıyla. Ortak anahtarlar simülatör kataloğundakilerle aynıdır. Var olan kayda
+    /// eklenen üç tür (gelir değişikliği, kartla harcama, erken ödeme) kaydın kendi formunu açar.
+    /// </summary>
     public static IReadOnlyList<RecordEntryOption> Options { get; } =
     [
         Option("recurring-income", RecordEntryGroup.Income, RecordEntryForm.RecurringIncome),
         Option("income", RecordEntryGroup.Income, RecordEntryForm.AdHocIncome),
+        Option("income-change", RecordEntryGroup.Income, RecordEntryForm.RecurringIncome, editsExisting: true),
         Option("credit-card", RecordEntryGroup.Card, RecordEntryForm.CreditCard),
+        Option("card", RecordEntryGroup.Card, RecordEntryForm.CreditCard, editsExisting: true),
         Option("bank-loan", RecordEntryGroup.Loan, RecordEntryForm.Loan),
+        Option("loan-prepayment", RecordEntryGroup.Loan, RecordEntryForm.Loan, editsExisting: true),
         Option("cash", RecordEntryGroup.Payment, RecordEntryForm.PlannedExpense),
         Option("recurring", RecordEntryGroup.Payment, RecordEntryForm.PaymentPlan),
         Option("cash-debt", RecordEntryGroup.Payment, RecordEntryForm.PaymentPlan),
@@ -35,6 +41,6 @@ public static class FinancialRecordEntryCatalog
     /// <summary>Anahtarı verilen seçenek; seçicinin öğesinden kataloğa dönmek için.</summary>
     public static RecordEntryOption For(string key) => Options.Single(x => x.Key == key);
 
-    private static RecordEntryOption Option(string key, RecordEntryGroup group, RecordEntryForm form) =>
-        new() { Key = key, Group = group, Form = form };
+    private static RecordEntryOption Option(string key, RecordEntryGroup group, RecordEntryForm form, bool editsExisting = false) =>
+        new() { Key = key, Group = group, Form = form, EditsExisting = editsExisting };
 }

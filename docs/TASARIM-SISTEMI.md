@@ -368,6 +368,9 @@ demektir ve sebebini `<summary>` taşır:
 | `EventAvailable` | Tür seçicide düzenli ödeme karosu (`GS29`). |
 | `PieChart` | Tür seçicide taksitli borç karosu (`GS29`). |
 | `BarChart` | Tür seçicide ödeme planı karosu (`GS29`). |
+| `ShoppingBag` | Tür seçicide kartla harcama karosu (`GS29`, `V6f2`). |
+| `FastForward` | Tür seçicide krediye erken ödeme karosu (`GS29`, `V6f2`). |
+| `TrendingUp` | Tür seçicide gelir değişikliği karosu (`GS29`, `V6f2`). |
 
 **Kart başına en fazla bir ikon.** Bir listedeki her satıra ikon koymak, 619 etiketli ekranın
 ikonlu hâlini üretir: problem çözülmez, kılık değiştirir. **Karo da kart gibi sayılır:** bağımsız bir

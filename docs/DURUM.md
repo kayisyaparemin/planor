@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V6f1** — Finansal Yapı "Ekle"sinin tür seçicisi: listenin dört grubu, renkli başlık ve ikonlu karolar, karo seçicinin yerine formunu açar (`RecordEntryPickerViewModel`, `EntryTypeTiles`; S77, GS29, EK-V6f) |
-| Sıradaki adım | **V6f2** — üst kayıtlı üç tür (Kartla harcama, Krediye erken ödeme, Gelir değişikliği) ya da **V10b2** — simülatör sonuç kartının alt yarısı; sırayı kullanıcı seçer |
-| Test sayısı | 1994 |
+| Son tamamlanan adım | **V6f2** — tür seçicinin üst kayıtlı üç türü (Kartla harcama, Krediye erken ödeme, Gelir değişikliği): kayıt yoksa ekleme önerisi, tekse doğrudan form, çoksa yerinde "Hangi kart?" (`RecordEntryPickerViewModel`; S77, GS29, EK-V6f). V6 yeniden kapandı |
+| Sıradaki adım | **V10b2** — simülatör sonuç kartının alt yarısı ("12 dönem sonra", faiz satırları, 12'li ızgara) |
+| Test sayısı | 2010 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6f2 — tür seçicinin üst kayıtlı üç türü: kayıt yoksa ekleme önerisi, tekse doğrudan form, çoksa yerinde "Hangi kart?"; kararlar `S77` V6f2 notları, `GS29`, `EK-V6f`
+
+"Ekle"de üç yeni karo: Gelir'de "Gelir değişikliği", Kart'ta "Kartla harcama", Kredi'de "Krediye erken ödeme". Üçü yeni kayıt açmaz, var olan kayda bir şey ekler (`EditsExisting`); seçici formu açmadan önce adayları okur. Aday yoksa onay diyaloğu ("Henüz kartın yok") — kabulde üst kaydın boş formu açılır (`I136`); tek adayda sorulmadan o kaydın formu kimliğiyle açılır (`I135`); birden fazlaysa aynı sayfa "Hangi kart?" / "Hangi kredi?" / "Hangi gelir?" olur, adaylar ad + Finansal Yapı'daki bağlam satırıyla tam genişlik karolarda. Adaylar Finansal Yapı'nın süzgecinden gelir (`I134`). Geri ok ve cihazın geri tuşu ikinci seviyede karolara döner (`I137`).
+Eski kodun üç yanlışı düzeldi: gelir değişikliği tek bir maaş geçmişine yazılıyordu ("hangi gelir?" yoktu), kart / kredi formun içinde açılır listeden seçiliyordu, kaydın olmadığı form açıldıktan sonra kırmızı uyarıyla öğreniliyordu. Eski `salary-change` anahtarı yasaklı terim taşıdığı için `income-change` (simülatörünkü). KART ve KREDİ ikinci karolarıyla kendi satırlarına geçti; üç yeni ikon (`ShoppingBag`, `FastForward`, `TrendingUp`; kod noktaları fonttan doğrulandı). Formlara dokunulmadı: ilgili bölüm formun altında.
+Dikkat: `RecordEntryPickerViewModel` **196 / 200** satırda (4 bağımlılık); simülatör geçişi (`V10c`) bileşeni kullanır, bu ViewModel'i değil. Aday listesi `ListCard` değil: beşinci kart olurdu (GK4). Üretim kodu net ~+258 satır (Aşama 1 tahmini ~190; fark XAML'in ikinci seviye şablonu ve çeviricinin yeniden yazımı). Çalışma ağacındaki izlenmeyen `docs/assets/konsept/anasayfa-*.png` bu adımın değil, commit'e girmedi.
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 4/4 (`EntryTypeTiles` × 4; aday karoları DataTemplate'te), Grafik 0/1, NavRow 0/5, Label 7/28 (bileşen 4 + sayfada aday şablonu 3), Cümle 0/3. Görsel kontrol: kullanıcı onayladı. 16 yeni test (1 Application katalog, 15 Presentation seçici); toplam 2.010 test yeşil, 0 hata, 0 uyarı.
 
 ### V6f1 — kayıt türü seçici: "Ekle" düz diyalog yerine listenin dört grubunda ikonlu karolar; kararlar `S77`, `GS29`, `EK-V6f`
 

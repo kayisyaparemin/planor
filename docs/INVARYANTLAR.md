@@ -146,6 +146,10 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I131` | "Ekle"nin tür seçicisindeki gruplar Finansal Yapı listesinin dört grubudur ve aynı sırayla gelir (Gelir, Kart, Kredi, Ödeme): eklenen kayıt listede seçildiği grubun adıyla görünür (S77-3). | `Mizan.Application.Tests.Models.FinancialRecordEntryCatalogTests.Gruplar_FinansalYapiListesininSirasiylaDortGruptur` | `V6f1` |
 | `I132` | Tür seçicide bir karo kendi formunu seçicinin yerine açar; formdan Kaydet, Vazgeç ya da geri ile çıkınca Finansal Yapı listesine dönülür, seçiciye değil (S77-2). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_FormunuSecicininYerineKimliksizAcar` | `V6f1` |
 | `I133` | Tür seçicinin bir grubu (`EntryTypeTiles`) görsel bütçede bir kart sayılır; sayfa beşinci kartı fark ettirmeden ekleyemez (GK4, GS29-6). | `Mizan.Architecture.Tests.Design.DesignBudgetTests.GorselButceAnalizcisi_TurSecicisiniKartSayar` | `V6f1` |
+| `I134` | Var olan kayda eklenen türde (kartla harcama, krediye erken ödeme, gelir değişikliği) adaylar Finansal Yapı listesinin süzgecinden gelir: pasif kart, pasif gelir, taksiti bitmiş ya da kapalı kredi ve tek seferlik gelir aday olmaz (S77-5, S62-5). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_FinansalYapidaGorunmeyenKayitAdayOlmaz` | `V6f2` |
+| `I135` | Tek aday varsa sorulmaz: kaydın formu seçicinin yerine o kaydın kimliğiyle açılır (S77-5). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_TekAday_FormuKaydinKimligiyleSecicininYerineAcar` | `V6f2` |
+| `I136` | Aday yoksa form açılmaz, önce üst kaydı eklemek önerilir; kabul edilirse üst kaydın boş formu seçicinin yerine açılır (S77 V6f2 notları e). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_AdayYoksa_OnceEklemeyiOnerir_KabuldeBosFormuAcar` | `V6f2` |
+| `I137` | "Hangi kart?" seviyesinde geri, Finansal Yapı'ya değil tür karolarına döner (S77 V6f2 notları f). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.Back_IkinciSeviyede_KarolaraDoner` | `V6f2` |
 
 ## Satır eklerken
 

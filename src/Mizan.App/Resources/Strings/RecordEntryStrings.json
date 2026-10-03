@@ -1,5 +1,8 @@
 {
   "Baslik_NeEklemek": "Ne eklemek istiyorsun?",
+  "Baslik_HangiKart": "Hangi kart?",
+  "Baslik_HangiKredi": "Hangi kredi?",
+  "Baslik_HangiGelir": "Hangi gelir?",
   "Etiket_GrupGelir": "GELİR",
   "Etiket_GrupKart": "KART",
   "Etiket_GrupKredi": "KREDİ",
@@ -19,5 +22,11 @@
   "Etiket_BankadakiKredi": "Bankadaki kredi",
   "Etiket_BankadakiKrediAlt": "Devam eden taksitler",
   "Etiket_OdemePlani": "Ödeme planı",
-  "Etiket_OdemePlaniAlt": "Tutarı aydan aya değişir"
+  "Etiket_OdemePlaniAlt": "Tutarı aydan aya değişir",
+  "Etiket_GelirDegisikligi": "Gelir değişikliği",
+  "Etiket_GelirDegisikligiAlt": "Zam ya da yeni tutar",
+  "Etiket_KartlaHarcama": "Kartla harcama",
+  "Etiket_KartlaHarcamaAlt": "Tek çekim ya da taksit",
+  "Etiket_ErkenOdeme": "Krediye erken ödeme",
+  "Etiket_ErkenOdemeAlt": "Kapat ya da ara ödeme"
 }

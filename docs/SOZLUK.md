@@ -175,8 +175,9 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | kayıt giriş grubu | `RecordEntryGroup` | Kayıt türü seçicinin grubu; Finansal Yapı listesinin dört grubuyla aynı (Gelir, Kart, Kredi, Ödeme): eklenen kayıt listede aynı adlı grupta görünür (`S77`) |
 | kayıt giriş formu | `RecordEntryForm` | Seçilen türün açtığı Planör formu (planlı büyük harcama, ödeme planı, kart, kredi, düzenli / tek seferlik gelir); rotayı Presentation bilir |
 | kayıt giriş seçeneği | `RecordEntryOption` | Kayıt türü seçicideki tek seçenek: anahtar, grup, form; metin taşımaz |
+| var olan kayda eklenen tür | `RecordEntryOption.EditsExisting` | Yeni kayıt açmayan, var olan bir kayda (üst kayıt) bir şey ekleyen seçenek: kartla harcama → kart, krediye erken ödeme → kredi, gelir değişikliği → düzenli gelir. Seçici formu açmadan önce üst kaydı çözer (`S77`-5) |
 | kayıt giriş kataloğu | `FinancialRecordEntryCatalog` | Kayıt türü seçicinin seçenekleri, grup sırasıyla; ortak anahtarlar simülatör kataloğuyla aynı |
-| kayıt türü seçici | `RecordEntryPickerViewModel` | Finansal Yapı "Ekle"sinin açtığı "Ne eklemek istiyorsun?" sayfası; seçilen tür seçicinin yerine kendi formunu açar (`EK-V6f`) |
+| kayıt türü seçici | `RecordEntryPickerViewModel` | Finansal Yapı "Ekle"sinin açtığı "Ne eklemek istiyorsun?" sayfası; seçilen tür seçicinin yerine kendi formunu açar (`EK-V6f`). Üst kayıt birden fazlaysa aynı sayfa "Hangi kart?" ikinci seviyesine geçer (`ChoiceGroup`, `Choices`) |
 | tür bölümü | `EntryTypeSection` | Tür seçicide bir grubun başlığı ve karoları; grup `Enum` olarak taşınır ki simülatör de kullanabilsin |
 | tür karosu | `EntryTypeOptionItem` | Tür seçicide tek karo: seçeneğin anahtarı ve bölüm içindeki sırası; yerini sayfa sıradan çıkarır |
 | tür karoları | `EntryTypeTiles` | Bir tür bölümünü renkli nokta, eyebrow ve ikonlu karolarla çizen bileşen; rengi sayfa verir (`GS29`) |

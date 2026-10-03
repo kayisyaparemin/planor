@@ -354,9 +354,9 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       Tek adım (`S61`, `EK-V7`): sıradaki ödeme ve kararı, kararın bedeli, sonraki ödemeler,
       varsayılan ödeme şekli, elle ekstre girişi. Sol menüde **geçici** giriş. *(Önce V7a/V7b
       diye bölünmüştü; V7a tek başına ekranın cevabını vermediği için Kapı C'de birleştirildi.)*
-- [ ] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
+- [x] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
       *(2026-10-03: `V6f` için geri açıldı — kullanıcı "Ekle"deki düz diyalog yerine eski dört gruplu tür
-      seçicisini istedi, `S77`.)*
+      seçicisini istedi, `S77`. 2026-10-04: `V6f2` ile yeniden kapandı.)*
       `S61`'den devralınanlar: gelecek kart harcaması girişi ve sol menüdeki geçici
       "Kart Kontrol" öğesinin kaldırılması (kart satırı `Routes.CardControl` + `cardId` açar).
       Aşama 1'de beş alt adıma bölündü (`S62`); her form adımı kendi türünü "Ekle" seçicisine
@@ -398,7 +398,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
     - [x] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
           "Ekle"de "Tek seferlik gelir"
   - [x] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama (`PaymentPlanFormPage`, `PlannedExpenseFormPage`, `S65`, `EK-V6e`)
-  - [ ] **V6f** — kayıt türü seçici (`S77`, `GS29`, `EK-V6f`; eski projede `EntryTypePickerView` + `RecordEntryPicker`).
+  - [x] **V6f** — kayıt türü seçici (`S77`, `GS29`, `EK-V6f`; eski projede `EntryTypePickerView` + `RecordEntryPicker`).
         "Ekle" düz diyalog yerine ayrı sayfa açar: Finansal Yapı listesinin dört grubu (Gelir · Kart · Kredi ·
         Ödeme) aynı anda, her biri renkli başlık ve ikonlu karolarla (konsept `ekleme-ekranı-acik` / `-koyu`).
         Karo, seçiciyle yer değiştiren formu açar. Grup iki ekranın bileşenidir (`EntryTypeTiles`); simülatör
@@ -407,9 +407,11 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           gelir, Kredi kartı, Bankadaki kredi, Nakit ödeme, Düzenli ödeme, Taksitli borç, Ödeme planı);
           Finansal Yapı "Ekle" seçiciyi açar *(2026-10-03; `S77`, `GS29`; `RecordEntryPickerPage`,
           `EntryTypeTiles`; koruyan: I131–I133. Kapı C'de iki kez döndü: grup adları ve şerit düzeni → konseptin ızgarası)*
-    - [ ] **V6f2** — üst kaydı gereken 3 seçenek (Kartla harcama → kart, Krediye erken ödeme → kredi,
+    - [x] **V6f2** — üst kaydı gereken 3 seçenek (Kartla harcama → kart, Krediye erken ödeme → kredi,
           Gelir değişikliği → gelir): kayıt yoksa önce ekleme önerisi, tekse doğrudan form, çoksa aynı
           sayfada ikinci seviye liste. KART ve KREDİ ikinci karolarıyla yan yana düzenden kendi satırlarına geçer
+          *(2026-10-04; `S77` V6f2 notları d–h; onay diyaloğu, yerinde "Hangi kart?", form olduğu gibi, adaylar
+          dokununca okunur; koruyan: I134–I137. Kapı C ilk turda onaylandı)*
 - [x] **V5** — ilk düzen seçimi: taşınmadan elendi (`S18`, `S62`, `S47`; yapay tahsis ve harcama kaydırma yerine doğal dönemsellik; sayfası ve kodu yoktur, bütçe 0)
 - [x] **V8** — 12 dönem (`S74`, `GS26`, `EK-V8`). Aşama 1'de ~400 satır (+ ~100 satır Application eki) çıktığı için
       ikiye bölündü; Kapı A ve B ortak, Kapı C her alt adımda ayrı. Zincir ana sayfanın dönem sonundan başlar,
@@ -500,6 +502,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 9 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı (V6f1 tamam, V6f2 açık); V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a tamam)* |
+| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |
