@@ -3,89 +3,66 @@ using Mizan.Application.Models;
 namespace Mizan.Application.Tests.Models;
 
 /// <summary>
-/// Finansal Yapı kayıt giriş kataloğu davranış testleri.
-/// Grupların seçenek sayılarını, doğrudan giriş senaryolarının kataloğa entegrasyonunu,
-/// tüm formların erişilebilirliğini ve sıralama kurallarını doğrular.
+/// Kayıt türü seçicinin kataloğu: Finansal Yapı listesinin dört grubu sırasıyla, her grupta 1–4 seçenek,
+/// her seçenek tek bir forma gider ve anahtarlar simülatörün ortak türleriyle aynıdır (S77-3, S77-6).
 /// </summary>
 public sealed class FinancialRecordEntryCatalogTests
 {
     [Fact]
-    public void TumGruplar_BirIleUcArasiSecenekIcerir_VeHerSeceneginGrubuVardir()
+    public void Gruplar_FinansalYapiListesininSirasiylaDortGruptur()
     {
-        foreach (var (group, label) in FinancialRecordEntryCatalog.Groups)
-        {
-            Assert.False(string.IsNullOrWhiteSpace(label));
-            var inGroup = FinancialRecordEntryCatalog.OptionsIn(group);
-            Assert.InRange(inGroup.Count, 1, FinancialRecordEntryCatalog.MaxOptionsPerGroup);
-        }
+        var groups = FinancialRecordEntryCatalog.Groups;
 
-        var totalCount = FinancialRecordEntryCatalog.Groups
-            .Sum(g => FinancialRecordEntryCatalog.OptionsIn(g.Group).Count);
-
-        Assert.Equal(FinancialRecordEntryCatalog.Options.Count, totalCount);
-
-        var uniqueKeys = FinancialRecordEntryCatalog.Options.Select(x => x.Key).Distinct().Count();
-        Assert.Equal(FinancialRecordEntryCatalog.Options.Count, uniqueKeys);
+        Assert.Equal([RecordEntryGroup.Income, RecordEntryGroup.Card, RecordEntryGroup.Loan, RecordEntryGroup.Payment], groups);
     }
 
     [Fact]
-    public void TumDogrudanGirisSenaryolari_OrtakFormIle_TamBirKezSunulur()
+    public void HerGrup_BirIleDortArasiSecenekTasir_VeSeceneklerGrupSirasiyladir()
     {
-        var directScenarios = SimulationScenarioCatalog.Options
-            .Where(x => x.EntryHome == ScenarioEntryHome.SharedForm)
-            .ToArray();
+        var counts = FinancialRecordEntryCatalog.Groups.Select(g => FinancialRecordEntryCatalog.OptionsIn(g).Count).ToArray();
 
-        foreach (var scenario in directScenarios)
-        {
-            var option = Assert.Single(
-                FinancialRecordEntryCatalog.Options,
-                x => x.Scenario == scenario);
-
-            Assert.Equal(RecordEntryForm.SharedForm, option.Form);
-            Assert.Equal(scenario.Title, option.Title);
-            Assert.Equal(scenario.Summary, option.Summary);
-            Assert.Equal(scenario.Group.ToString(), option.Group.ToString());
-        }
-
-        Assert.All(
-            FinancialRecordEntryCatalog.Options.Where(x => x.Form == RecordEntryForm.SharedForm),
-            opt => Assert.Contains(opt.Scenario, directScenarios));
+        Assert.All(counts, count => Assert.InRange(count, 1, FinancialRecordEntryCatalog.MaxOptionsPerGroup));
+        Assert.Equal(FinancialRecordEntryCatalog.Options.Count, counts.Sum());
+        Assert.Equal(
+            FinancialRecordEntryCatalog.Groups.SelectMany(FinancialRecordEntryCatalog.OptionsIn),
+            FinancialRecordEntryCatalog.Options);
     }
 
     [Fact]
-    public void TumKayitFormlari_Erisilebilirdir()
+    public void Secenekler_PlanorFormlarinaBaglanir()
     {
-        foreach (var form in Enum.GetValues<RecordEntryForm>())
-        {
-            Assert.Contains(FinancialRecordEntryCatalog.Options, x => x.Form == form);
-        }
+        var forms = FinancialRecordEntryCatalog.Options.ToDictionary(x => x.Key, x => x.Form);
 
-        Assert.All(
-            FinancialRecordEntryCatalog.Options.Where(x => x.Form != RecordEntryForm.SharedForm),
-            opt => Assert.Null(opt.Scenario));
+        Assert.Equal(new Dictionary<string, RecordEntryForm>
+        {
+            ["recurring-income"] = RecordEntryForm.RecurringIncome,
+            ["income"] = RecordEntryForm.AdHocIncome,
+            ["credit-card"] = RecordEntryForm.CreditCard,
+            ["bank-loan"] = RecordEntryForm.Loan,
+            ["cash"] = RecordEntryForm.PlannedExpense,
+            ["recurring"] = RecordEntryForm.PaymentPlan,
+            ["cash-debt"] = RecordEntryForm.PaymentPlan,
+            ["payment-plan"] = RecordEntryForm.PaymentPlan
+        }, forms);
     }
 
     [Fact]
-    public void Gruplar_VeSecenekler_Siralidir_VeVarsayilanNakitOdemedir()
+    public void OrtakTurler_SimulatorunAnahtariniTasir()
     {
-        Assert.Equal(
-            ["Harcama", "Borç / Kredi", "Gelir", "Hesap"],
-            FinancialRecordEntryCatalog.Groups.Select(x => x.Label));
+        var shared = new[] { "cash", "recurring", "cash-debt", "income" };
 
-        Assert.Equal(
-            ["Tek seferlik gelir", "Gelir değişikliği"],
-            FinancialRecordEntryCatalog.OptionsIn(RecordEntryGroup.Income).Select(x => x.Title));
+        var simulatorKeys = SimulationScenarioCatalog.Options.Select(x => x.Key);
 
-        Assert.Equal(
-            [RecordEntryForm.CreditCard, RecordEntryForm.Loan, RecordEntryForm.PaymentPlan],
-            FinancialRecordEntryCatalog.OptionsIn(RecordEntryGroup.Account).Select(x => x.Form));
+        Assert.All(shared, key => Assert.Contains(key, simulatorKeys));
+    }
 
-        Assert.Same(
-            SimulationScenarioCatalog.CashPayment,
-            FinancialRecordEntryCatalog.Default.Scenario);
+    [Fact]
+    public void For_AnahtarSecenegiBulur()
+    {
+        var payment = FinancialRecordEntryCatalog.OptionsIn(RecordEntryGroup.Payment)[0];
 
-        Assert.Same(
-            FinancialRecordEntryCatalog.CreditCard,
-            FinancialRecordEntryCatalog.For("credit-card"));
+        var found = FinancialRecordEntryCatalog.For(payment.Key);
+
+        Assert.Same(payment, found);
     }
 }

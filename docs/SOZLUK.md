@@ -172,10 +172,14 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | senaryo giriş konumu | `ScenarioEntryHome` | Senaryo koşulunun simülatör dışında hangi ekrandan girilebileceğini belirleyen konum |
 | senaryo seçeneği | `ScenarioOption` | Simülatörde veya Finansal Yapı'da sunulan tekil plan türü kartı sözleşmesi |
 | senaryo kataloğu | `SimulationScenarioCatalog` | Simülatör ve Finansal Yapı ekranlarının paylaştığı tekil senaryo seçenekleri kataloğu ve motor türü çözümleyicisi |
-| kayıt giriş grubu | `RecordEntryGroup` | Finansal Yapı ekranında yeni kayıt ekleme kategorileri |
-| kayıt giriş formu | `RecordEntryForm` | Kayıt giriş seçeneğinin hangi form bileşeni üzerinden girileceğini belirten tür |
-| kayıt giriş seçeneği | `RecordEntryOption` | Finansal Yapı ekranında kayıt türü kartı sözleşmesi |
-| kayıt giriş kataloğu | `FinancialRecordEntryCatalog` | Finansal Yapı ekranında kayıt girişi seçenekleri kataloğu |
+| kayıt giriş grubu | `RecordEntryGroup` | Kayıt türü seçicinin grubu; Finansal Yapı listesinin dört grubuyla aynı (Gelir, Kart, Kredi, Ödeme): eklenen kayıt listede aynı adlı grupta görünür (`S77`) |
+| kayıt giriş formu | `RecordEntryForm` | Seçilen türün açtığı Planör formu (planlı büyük harcama, ödeme planı, kart, kredi, düzenli / tek seferlik gelir); rotayı Presentation bilir |
+| kayıt giriş seçeneği | `RecordEntryOption` | Kayıt türü seçicideki tek seçenek: anahtar, grup, form; metin taşımaz |
+| kayıt giriş kataloğu | `FinancialRecordEntryCatalog` | Kayıt türü seçicinin seçenekleri, grup sırasıyla; ortak anahtarlar simülatör kataloğuyla aynı |
+| kayıt türü seçici | `RecordEntryPickerViewModel` | Finansal Yapı "Ekle"sinin açtığı "Ne eklemek istiyorsun?" sayfası; seçilen tür seçicinin yerine kendi formunu açar (`EK-V6f`) |
+| tür bölümü | `EntryTypeSection` | Tür seçicide bir grubun başlığı ve karoları; grup `Enum` olarak taşınır ki simülatör de kullanabilsin |
+| tür karosu | `EntryTypeOptionItem` | Tür seçicide tek karo: seçeneğin anahtarı ve bölüm içindeki sırası; yerini sayfa sıradan çıkarır |
+| tür karoları | `EntryTypeTiles` | Bir tür bölümünü renkli nokta, eyebrow ve ikonlu karolarla çizen bileşen; rengi sayfa verir (`GS29`) |
 | finansal yapı | `FinancialStructure` | Plana giren gelir, kart, kredi ve ödemelerin dört gruplu listesi; ekranın, rotanın ve görünüm modelinin tek adı (eski `Commitments` adı kalktı, `S62`-8) |
 | kayıt satırı | `FinancialRecordRow` | Finansal Yapı listesinde bir kaydın ham satırı: tür, ad, tutar, sıradaki tarih; metin üretmez |
 | kayıt türü | `FinancialRecordKind` | Finansal Yapı satırının hangi kayıttan geldiği (düzenli gelir, tek seferlik gelir, kart, kredi, ödeme planı, büyük harcama) |

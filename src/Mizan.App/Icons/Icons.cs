@@ -20,4 +20,19 @@ public static class Icons
     public const string CreditCard = "\ue8a1";
     public const string AccountBalance = "\ue84f";
     public const string Payments = "\uef63";
+
+    /// <summary>T\u00fcr se\u00e7icide d\u00fczenli gelir karosu: her ay yineleyen para (EK-V6f, GS29).</summary>
+    public const string Repeat = "\ue040";
+
+    /// <summary>T\u00fcr se\u00e7icide tek seferlik gelir karosu: prim, sat\u0131\u015f gibi bir kerelik para.</summary>
+    public const string AutoAwesome = "\ue65f";
+
+    /// <summary>T\u00fcr se\u00e7icide d\u00fczenli \u00f6deme karosu: takvimde her ay ayn\u0131 g\u00fcn.</summary>
+    public const string EventAvailable = "\ue614";
+
+    /// <summary>T\u00fcr se\u00e7icide taksitli bor\u00e7 karosu: borcun dilimlere b\u00f6l\u00fcnmesi.</summary>
+    public const string PieChart = "\ue6c4";
+
+    /// <summary>T\u00fcr se\u00e7icide \u00f6deme plan\u0131 karosu: aydan aya de\u011fi\u015fen tutarlar.</summary>
+    public const string BarChart = "\ue26b";
 }

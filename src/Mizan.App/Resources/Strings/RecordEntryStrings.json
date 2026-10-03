@@ -1,0 +1,23 @@
+{
+  "Baslik_NeEklemek": "Ne eklemek istiyorsun?",
+  "Etiket_GrupGelir": "GELİR",
+  "Etiket_GrupKart": "KART",
+  "Etiket_GrupKredi": "KREDİ",
+  "Etiket_GrupOdeme": "ÖDEME",
+  "Etiket_NakitOdeme": "Nakit ödeme",
+  "Etiket_NakitOdemeAlt": "Seçtiğin gün düşer",
+  "Etiket_DuzenliOdeme": "Düzenli ödeme",
+  "Etiket_DuzenliOdemeAlt": "Her ay aynı tutar",
+  "Etiket_TaksitliBorc": "Taksitli borç",
+  "Etiket_TaksitliBorcAlt": "Borcu taksitle öde",
+  "Etiket_DuzenliGelir": "Düzenli gelir",
+  "Etiket_DuzenliGelirAlt": "Her ay aynı gün yatar",
+  "Etiket_TekSeferlikGelir": "Tek seferlik gelir",
+  "Etiket_TekSeferlikGelirAlt": "Prim, satış, iade",
+  "Etiket_KrediKarti": "Kredi kartı",
+  "Etiket_KrediKartiAlt": "Limit ve ekstre günleri",
+  "Etiket_BankadakiKredi": "Bankadaki kredi",
+  "Etiket_BankadakiKrediAlt": "Devam eden taksitler",
+  "Etiket_OdemePlani": "Ödeme planı",
+  "Etiket_OdemePlaniAlt": "Tutarı aydan aya değişir"
+}

@@ -32,6 +32,7 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
         Routing.RegisterRoute(Routes.ProfileSelection, typeof(ProfileSelectionPage));
         Routing.RegisterRoute(Routes.Onboarding, typeof(OnboardingPage));
         Routing.RegisterRoute(Routes.CardControl, typeof(CardControlPage));
+        Routing.RegisterRoute(Routes.RecordEntryPicker, typeof(RecordEntryPickerPage));
         Routing.RegisterRoute(Routes.CardForm, typeof(CardFormPage));
         Routing.RegisterRoute(Routes.LoanForm, typeof(LoanFormPage));
         Routing.RegisterRoute(Routes.IncomeForm, typeof(IncomeFormPage));

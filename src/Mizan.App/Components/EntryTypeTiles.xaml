@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Components.EntryTypeTiles"
+             x:Name="Root">
+    <!-- GS29: grup başlığı (renkli nokta + eyebrow) ve altında karolar; tek karo bölümün genişliğini doldurur -->
+    <VerticalStackLayout Spacing="{StaticResource Space3}">
+
+        <HorizontalStackLayout Spacing="{StaticResource Space2}">
+            <BoxView WidthRequest="{StaticResource Space2}"
+                     HeightRequest="{StaticResource Space2}"
+                     CornerRadius="{StaticResource RadiusPill}"
+                     Color="{Binding Accent, Source={x:Reference Root}}"
+                     VerticalOptions="Center" />
+            <Label Text="{Binding Section.Group, Source={x:Reference Root}, Converter={StaticResource SeciciMetni}}"
+                   Style="{StaticResource Eyebrow}"
+                   VerticalTextAlignment="Center" />
+        </HorizontalStackLayout>
+
+        <!-- Karonun yeri sıradan, sütun ve satır sayısı karo sayısından (KaroIzgarasi) -->
+        <Grid ColumnDefinitions="{Binding Section.Options, Source={x:Reference Root}, Converter={StaticResource KaroIzgarasi}, ConverterParameter=Sutunlar}"
+              RowDefinitions="{Binding Section.Options, Source={x:Reference Root}, Converter={StaticResource KaroIzgarasi}, ConverterParameter=Satirlar}"
+              ColumnSpacing="{StaticResource Space3}"
+              RowSpacing="{StaticResource Space3}"
+              BindableLayout.ItemsSource="{Binding Section.Options, Source={x:Reference Root}}">
+            <BindableLayout.ItemTemplate>
+                <DataTemplate x:DataType="models:EntryTypeOptionItem">
+                    <!-- Karo: renkli zeminde ikon, başlık, alt satır; dokununca formu açar -->
+                    <Border Grid.Row="{Binding Index, Converter={StaticResource KaroIzgarasi}, ConverterParameter=Satir}"
+                            Grid.Column="{Binding Index, Converter={StaticResource KaroIzgarasi}}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type comp:EntryTypeTiles}}, Path=OptionCommand}"
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="{StaticResource Space3}">
+                            <Border Padding="{StaticResource Space2}"
+                                    Stroke="Transparent"
+                                    BackgroundColor="{Binding Source={RelativeSource AncestorType={x:Type comp:EntryTypeTiles}}, Path=AccentSurface}"
+                                    HorizontalOptions="Start">
+                                <Label Text="{Binding Key, Converter={StaticResource SeciciMetni}, ConverterParameter=Ikon}"
+                                       FontFamily="MaterialSymbols"
+                                       FontSize="{StaticResource IconMedium}"
+                                       WidthRequest="{StaticResource IconLarge}"
+                                       HeightRequest="{StaticResource IconLarge}"
+                                       TextColor="{Binding Source={RelativeSource AncestorType={x:Type comp:EntryTypeTiles}}, Path=Accent}"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Border>
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{Binding Key, Converter={StaticResource SeciciMetni}}"
+                                       FontSize="{StaticResource TypeFigure}"
+                                       FontFamily="OpenSansSemibold"
+                                       TextColor="{DynamicResource TextPrimary}" />
+                                <Label Text="{Binding Key, Converter={StaticResource SeciciMetni}, ConverterParameter=AltSatir}"
+                                       Style="{StaticResource Caption}" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </BindableLayout.ItemTemplate>
+        </Grid>
+
+    </VerticalStackLayout>
+</ContentView>

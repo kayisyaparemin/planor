@@ -130,6 +130,22 @@ public sealed class DesignBudgetTests
     }
 
     [Fact]
+    public void GorselButceAnalizcisi_TurSecicisiniKartSayar()
+    {
+        // EntryTypeTiles bir grubun karolarını taşır ve bir kart sayılır (GS29); sayılmazsa sayfa beşinci kartı fark ettirmeden ekler.
+        var xaml = @"
+<ContentPage xmlns:c=""clr-namespace:Mizan.App.Components"">
+    <c:ListCard /><c:ListCard /><c:ListCard /><c:ListCard />
+    <c:EntryTypeTiles Section=""{Binding IncomeSection}"" />
+</ContentPage>";
+
+        var analysis = DesignBudgetAnalyzer.AnalyzeXaml(xaml);
+
+        Assert.Equal(5, analysis.Cards);
+        Assert.False(analysis.IsValid);
+    }
+
+    [Fact]
     public void CumleButcesi_KarakterSinirlarini_Zorlar()
     {
         var longEtiket = new string('A', 25);

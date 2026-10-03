@@ -35,7 +35,7 @@ internal static class DesignBudgetAnalyzer
     {
         var heroFigureCount = CountMatches(xamlContent, @"TypeHero|Style=""\{StaticResource HeroFigure\}""");
         var heroSurfaceCount = CountMatches(xamlContent, @"\{DynamicResource SurfaceHero\}|<(?:[A-Za-z0-9_]+:)?(?:HeroInputCard|InfoBanner)\b");
-        var cardCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?(?:SummaryCard|ListCard|ChartCard|HeroInputCard|HeroPager)\b");
+        var cardCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?(?:SummaryCard|ListCard|ChartCard|HeroInputCard|HeroPager|EntryTypeTiles)\b");
         var hero = MeasureHeroPagers(xamlContent);
         var chartCount = hero.VisibleCharts;
         var navRowCount = CountMatches(xamlContent, @"<(?:[A-Za-z0-9_]+:)?NavRow\b");

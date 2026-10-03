@@ -143,6 +143,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I128` | Simülatörün sonuç kartı üst üste binen hesaplarda son isteği gösterir, eski cevap atılır; sonuç varken yeniden hesapta eski sonuç yenisi gelene kadar yerinde kalır (S73-2, EK-V10 § 5). | `Mizan.Presentation.Tests.ViewModels.SimulationResultViewModelTests.Yenile_UstUsteBinenIstekler_SonIstekKazanir` | `V10b1` |
 | `I129` | Simülatörün hesabına yalnız açık ve tarihi geçmemiş denemeler girer; geçerlilik her hesapta bugüne göre servisde yeniden değerlendirilir (S76-5). | `Mizan.Application.Tests.Services.SimulationResultServiceTests.Hesapla_TarihiGecenDeneme_HesabaGirmez` | `V10b1` |
 | `I130` | "Şu anki gidişata göre fark" denemeyle en düşük dönemin denemesiz zincirdeki aynı dönemiyle alınır; en düşük ↔ en düşük karşılaştırılmaz (V10b notları c). | `Mizan.Presentation.Tests.ViewModels.SimulationResultViewModelTests.Yenile_DenemeVarsa_FarkAyniDonemdeOlculur` | `V10b1` |
+| `I131` | "Ekle"nin tür seçicisindeki gruplar Finansal Yapı listesinin dört grubudur ve aynı sırayla gelir (Gelir, Kart, Kredi, Ödeme): eklenen kayıt listede seçildiği grubun adıyla görünür (S77-3). | `Mizan.Application.Tests.Models.FinancialRecordEntryCatalogTests.Gruplar_FinansalYapiListesininSirasiylaDortGruptur` | `V6f1` |
+| `I132` | Tür seçicide bir karo kendi formunu seçicinin yerine açar; formdan Kaydet, Vazgeç ya da geri ile çıkınca Finansal Yapı listesine dönülür, seçiciye değil (S77-2). | `Mizan.Presentation.Tests.ViewModels.RecordEntryPickerViewModelTests.SelectOption_FormunuSecicininYerineKimliksizAcar` | `V6f1` |
+| `I133` | Tür seçicinin bir grubu (`EntryTypeTiles`) görsel bütçede bir kart sayılır; sayfa beşinci kartı fark ettirmeden ekleyemez (GK4, GS29-6). | `Mizan.Architecture.Tests.Design.DesignBudgetTests.GorselButceAnalizcisi_TurSecicisiniKartSayar` | `V6f1` |
 
 ## Satır eklerken
 

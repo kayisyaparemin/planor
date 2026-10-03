@@ -1,19 +1,21 @@
 namespace Mizan.Application.Models;
 
 /// <summary>
-/// Finansal Yapı ekranında yeni bir kayıt eklenirken kullanıcının göreceği üst düzey kategori grupları.
+/// Kayıt türü seçicinin grupları; Finansal Yapı listesinin dört grubuyla aynı adı ve sırayı taşır
+/// (Gelirler, Kartlar, Krediler, Ödemeler): eklenen kayıt listede aynı adlı grupta görünür. Eski
+/// "Borç / Kredi" ile "Hesap" ayrımı kullanıcıya bir şey söylemiyordu (V6f Kapı C, S77).
 /// </summary>
 public enum RecordEntryGroup
 {
-    /// <summary>Harcama kalemleri (peşin, kart, periyodik).</summary>
-    Spending,
-
-    /// <summary>Borçlanma ve kredi işlemleri.</summary>
-    Debt,
-
-    /// <summary>Düzenli ve tek seferlik nakit gelirleri.</summary>
+    /// <summary>Düzenli ve tek seferlik gelirler.</summary>
     Income,
 
-    /// <summary>Kredi kartı, banka kredisi ve değişken ödeme planı gibi hesap kayıtları.</summary>
-    Account
+    /// <summary>Kredi kartları.</summary>
+    Card,
+
+    /// <summary>Bankadaki krediler.</summary>
+    Loan,
+
+    /// <summary>Tek seferlik, düzenli ve taksitli ödemeler.</summary>
+    Payment
 }

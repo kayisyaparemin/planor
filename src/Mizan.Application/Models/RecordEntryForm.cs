@@ -1,22 +1,28 @@
 namespace Mizan.Application.Models;
 
 /// <summary>
-/// Finansal Yapı ekranında seçilen kayıt seçeneğinin hangi form bileşeni üzerinden girileceğini belirten tür.
+/// Kayıt türü seçicide seçilen seçeneğin hangi formda girileceği. Seçici kullanıcının niyetini sunar,
+/// form planda neyin saklanacağını belirler; aynı forma birden fazla seçenek gidebilir ("Düzenli ödeme"
+/// ve "Taksitli nakit borç" ödeme planı formunu açar, S77-3). Rotayı Presentation bilir; Application
+/// yalnız hangi form olduğunu söyler.
 /// </summary>
 public enum RecordEntryForm
 {
-    /// <summary>Simülatörün paylaşılan ortak formu; kayıt simülasyon mekanizmasıyla aynı sözleşmeyle yazılır.</summary>
-    SharedForm,
+    /// <summary>Planlı büyük harcama formu: ad, tutar, tarih.</summary>
+    PlannedExpense,
 
-    /// <summary>Düzenli gelir akışını tanımlayan gelir formu.</summary>
-    Income,
+    /// <summary>Ödeme planı formu: taksit tutarı, sayısı ve ilk vadesiyle seri taksit.</summary>
+    PaymentPlan,
 
-    /// <summary>Devam eden banka kredisi sözleşmesi formu.</summary>
-    Loan,
-
-    /// <summary>Kredi kartı tanım ve borç formu.</summary>
+    /// <summary>Kredi kartının tanım formu.</summary>
     CreditCard,
 
-    /// <summary>Değişken vadeli ve taksitli borç planı formu.</summary>
-    PaymentPlan
+    /// <summary>Bankada devam eden kredinin formu.</summary>
+    Loan,
+
+    /// <summary>Düzenli gelirin formu.</summary>
+    RecurringIncome,
+
+    /// <summary>Tek seferlik gelirin formu.</summary>
+    AdHocIncome
 }

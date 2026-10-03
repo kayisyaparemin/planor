@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10b1** — simülatörün sonuç kartı: zincir 12 Dönem'le ortak, açık döneme düşen etki, hero + fark + iki çizgili grafik (`SimulationResultViewModel`; S76, GS28, EK-V10) |
-| Sıradaki adım | **V10b2** — sonuç kartının alt yarısı: "12 dönem sonra" kıyası (`ComparisonStrip`), faiz satırları, 12'li ızgara |
-| Test sayısı | 1987 |
+| Son tamamlanan adım | **V6f1** — Finansal Yapı "Ekle"sinin tür seçicisi: listenin dört grubu, renkli başlık ve ikonlu karolar, karo seçicinin yerine formunu açar (`RecordEntryPickerViewModel`, `EntryTypeTiles`; S77, GS29, EK-V6f) |
+| Sıradaki adım | **V6f2** — üst kayıtlı üç tür (Kartla harcama, Krediye erken ödeme, Gelir değişikliği) ya da **V10b2** — simülatör sonuç kartının alt yarısı; sırayı kullanıcı seçer |
+| Test sayısı | 1994 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V6f1 — kayıt türü seçici: "Ekle" düz diyalog yerine listenin dört grubunda ikonlu karolar; kararlar `S77`, `GS29`, `EK-V6f`
+
+Finansal Yapı'da "Ekle" artık Android'in düz seçim diyaloğunu değil "Ne eklemek istiyorsun?" sayfasını açıyor: GELİR · KART · KREDİ · ÖDEME, her başlığın yanında grubun renginde nokta, altında iki sütunlu karolar (renkli ikon karesi, başlık, ≤ 24 harflik alt satır). Karo seçicinin yerine formunu açar (`../`); formdan Kaydet, Vazgeç ya da geri ile çıkınca listeye dönülür (`I132`). Gruplar Finansal Yapı listesinin gruplarıyla aynı, eklenen kayıt aynı adlı grupta görünür (`I131`). Formlar kendi başlığını korur ("Nakit ödeme" → "Planlı Büyük Harcama").
+Kullanıcı isteği: eski Mizan'ın `EntryTypePickerView`'ü (grup çipleri + seçili grubun kartları). V6'da satır içi formla birlikte çıkarılmıştı (`S62`-7); `S77` bunu geri alıyor. Kapı C iki kez döndü: önce eski düzen (şerit + seçili grup; "Hesap" ve "Borç / Kredi" adları anlamsızdı, ekranın altı boştu), sonra ikonsuz ızgara; kullanıcı Design'dan konsept getirdi (`docs/assets/konsept/ekleme-ekranı-acik.png`, `-koyu.png`). Konseptten sapanlar (`GS29`): başlık altı cümle yok, grup renkleri semantik token'lardan (Positive, Indicator, Warning, Negative), karo köşesi `RadiusCard`.
+Sistem ekleri: `EntryTypeTiles` bileşeni (bir grup; iki ekran: simülatör `V10c`'de geçer), beş yeni ikon (kod noktaları fontun kendisinden doğrulandı), kontrast tablosuna üç satır, GK6'ya "karo da kart gibi sayılır" cümlesi, analizci bileşeni kart sayıyor (`I133`). Application'daki A24 kataloğu (`FinancialRecordEntryCatalog`) metinsiz ve Planör formlarına bağlı olarak yeniden şekillendi; eski `SharedForm` türetmesi ve gruplar (`Spending`/`Debt`/`Account`) kalktı.
+Dikkat: KART ve KREDİ bugün tek karoyla yan yana; `V6f2`'de ikinci karolarıyla kendi satırlarına geçecek (sayfa XAML'i değişir). Üretim kodu net ~+425 satır (yeni dosyalar 493, değişenler −67; XAML ve metin kataloğu dahil; Aşama 1 tahmini ~300) — fark iki ek yerleşim turundan ve bileşenden. Çalışma ağacındaki izlenmeyen `docs/assets/konsept/anasayfa-*.png` bu adımın değil, commit'e girmedi.
+Bütçe: Hero 0/1, Hero yüzey 0/1, Kart 4/4 (`EntryTypeTiles` × 4), Grafik 0/1, NavRow 0/5, Label 4/28 (bileşen şablonları; sayfada 0), Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 18 yeni test (5 Application katalog, 11 Presentation seçici, 1 Finansal Yapı, 1 mimari), 11 test silindi (4 eski katalog, 7 eski "Ekle" diyaloğu); toplam 1.994 test yeşil, 0 hata, 0 uyarı.
 
 ### V10b1 — simülatörün sonuç kartı: en düşükte ne olur, aynı dönemde şu anki gidişata göre fark, iki çizgili yol; kararlar `S76` V10b notları, `GS28`, `EK-V10`
 

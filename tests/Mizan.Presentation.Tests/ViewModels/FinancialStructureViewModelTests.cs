@@ -94,59 +94,12 @@ public sealed class FinancialStructureViewModelTests
     }
 
     [Fact]
-    public async Task Add_KrediKartiSecilince_KartFormunuKimliksizAcar()
+    public async Task Add_DiyalogSormadanTurSecicisiniAcar()
     {
-        _dialog.NextChooseResponse = "Kredi kartı";
-
         await _viewModel.AddCommand.ExecuteAsync(null);
 
-        Assert.Equal(["Düzenli gelir", "Tek seferlik gelir", "Kredi kartı", "Kredi", "Ödeme planı", "Planlı büyük harcama"], _dialog.LastChooseOptions);
-        Assert.Null(_dialog.LastChooseDestruction);
-        Assert.Equal(Routes.CardForm, _navigation.LastNavigatedRoute);
-        Assert.Null(_navigation.LastParameters);
-    }
-
-    [Fact]
-    public async Task Add_OdemePlaniSecilince_OdemePlaniFormunuKimliksizAcar()
-    {
-        _dialog.NextChooseResponse = "Ödeme planı";
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.Equal(Routes.PaymentPlanForm, _navigation.LastNavigatedRoute);
-        Assert.Null(_navigation.LastParameters);
-    }
-
-    [Fact]
-    public async Task Add_PlanliBuyukHarcamaSecilince_HarcamaFormunuKimliksizAcar()
-    {
-        _dialog.NextChooseResponse = "Planlı büyük harcama";
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.Equal(Routes.PlannedExpenseForm, _navigation.LastNavigatedRoute);
-        Assert.Null(_navigation.LastParameters);
-    }
-
-    [Fact]
-    public async Task Add_DuzenliGelirSecilince_GelirFormunuKimliksizAcar()
-    {
-        _dialog.NextChooseResponse = "Düzenli gelir";
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.Equal(Routes.IncomeForm, _navigation.LastNavigatedRoute);
-        Assert.Null(_navigation.LastParameters);
-    }
-
-    [Fact]
-    public async Task Add_TekSeferlikGelirSecilince_AdHocGelirFormunuKimliksizAcar()
-    {
-        _dialog.NextChooseResponse = "Tek seferlik gelir";
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.Equal(Routes.AdHocIncomeForm, _navigation.LastNavigatedRoute);
+        Assert.Null(_dialog.LastChooseOptions);
+        Assert.Equal(Routes.RecordEntryPicker, _navigation.LastNavigatedRoute);
         Assert.Null(_navigation.LastParameters);
     }
 
@@ -267,17 +220,6 @@ public sealed class FinancialStructureViewModelTests
     }
 
     [Fact]
-    public async Task Add_Vazgecilirse_Gezinmez()
-    {
-        _dialog.NextChooseResponse = null;
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.NotNull(_dialog.LastChooseOptions);
-        Assert.Null(_navigation.LastNavigatedRoute);
-    }
-
-    [Fact]
     public async Task SelectRecord_OdemeyiYonet_KartKontroluKartKimligiyleAcar()
     {
         var card = await LoadWith(new FinancialPlan { CreditCards = [Card("Axess", carried: 4000m)] }, vm => vm.Cards);
@@ -288,17 +230,6 @@ public sealed class FinancialStructureViewModelTests
         Assert.Equal(Routes.CardControl, _navigation.LastNavigatedRoute);
         Assert.Equal(card.Id.ToString(), _navigation.LastParameters?[Routes.CardIdParameter].ToString());
         Assert.Equal(0, _dialog.ConfirmCount);
-    }
-
-    [Fact]
-    public async Task Add_KrediSecilince_KrediFormunuKimliksizAcar()
-    {
-        _dialog.NextChooseResponse = "Kredi";
-
-        await _viewModel.AddCommand.ExecuteAsync(null);
-
-        Assert.Equal(Routes.LoanForm, _navigation.LastNavigatedRoute);
-        Assert.Null(_navigation.LastParameters);
     }
 
     [Fact]

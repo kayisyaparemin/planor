@@ -303,6 +303,9 @@ Eşik kuralı: gövde metni **4,5**; ≥ 19 pt metin ve arayüz öğesi (buton k
 | `PositiveText` | `PositiveSurface` | 4,5 | 5,9 | 5,3 |
 | `NegativeText` | `NegativeSurface` | 4,5 | 6,4 | 5,2 |
 | `WarningText` | `WarningSurface` | 4,5 | 6,7 | 5,5 |
+| `PositiveText` | `Backdrop` | 3,0 | 7,6 | 5,3 |
+| `WarningText` | `Backdrop` | 3,0 | 8,4 | 5,4 |
+| `NegativeText` | `Backdrop` | 3,0 | 7,4 | 5,5 |
 | `TextPrimary` | `PositiveSurface` | 4,5 | 11,3 | 12,9 |
 | `TextPrimary` | `NegativeSurface` | 4,5 | 12,3 | 12,1 |
 | `TextPrimary` | `WarningSurface` | 4,5 | 11,4 | 12,9 |
@@ -338,7 +341,10 @@ XAML ham glif veya emoji **içeremez** (kural GK6). Kullanım:
 İkon boyutu üç kademe: `IconSmall` 16, `IconMedium` 20, `IconLarge` 24. Başka boyut yok.
 
 İkon rengi üç token'dan biri: `TextPrimary` (ana), `TextSecondary` (ikincil), `Indicator`
-(seçili durum, gezinme oku).
+(seçili durum, gezinme oku). Tek istisna tür seçicinin karolarıdır (`EntryTypeTiles`, `GS29`): ikon
+grubun rengini ve yüzeyini taşır — Gelir `PositiveText` / `PositiveSurface`, Kart `Indicator` /
+`SurfaceChart`, Kredi `WarningText` / `WarningSurface`, Ödeme `NegativeText` / `NegativeSurface`. Orada
+renk "olumlu / olumsuz" değil grubu söyler; çiftlerin hepsi kontrast tablosundadır.
 
 Envanter, **konseptte görünen ikonlar.** Yeni ikon eklemek `Icons.cs`'e satır eklemek
 demektir ve sebebini `<summary>` taşır:
@@ -354,12 +360,18 @@ demektir ve sebebini `<summary>` taşır:
 | `Check` | Ödendi, tamamlandı. |
 | `Schedule` | Ertelendi, gelecek tarih. |
 | `Settings` | Ayarlar. |
-| `CreditCard` | Kredi kartı satırı. |
-| `AccountBalance` | Kredi satırı. |
-| `Payments` | Gelir satırı. |
+| `CreditCard` | Kredi kartı satırı; tür seçicide kredi kartı karosu. |
+| `AccountBalance` | Kredi satırı; tür seçicide bankadaki kredi karosu. |
+| `Payments` | Gelir satırı; tür seçicide nakit ödeme karosu. |
+| `Repeat` | Tür seçicide düzenli gelir karosu (`GS29`). |
+| `AutoAwesome` | Tür seçicide tek seferlik gelir karosu (`GS29`). |
+| `EventAvailable` | Tür seçicide düzenli ödeme karosu (`GS29`). |
+| `PieChart` | Tür seçicide taksitli borç karosu (`GS29`). |
+| `BarChart` | Tür seçicide ödeme planı karosu (`GS29`). |
 
 **Kart başına en fazla bir ikon.** Bir listedeki her satıra ikon koymak, 619 etiketli ekranın
-ikonlu hâlini üretir: problem çözülmez, kılık değiştirir.
+ikonlu hâlini üretir: problem çözülmez, kılık değiştirir. **Karo da kart gibi sayılır:** bağımsız bir
+dokunma yüzeyidir ve en fazla bir ikon taşır (tür seçici karoları, `GS29`); bir listenin satırı karo değildir.
 
 ---
 
@@ -388,6 +400,7 @@ o ekranın XAML'inde durur.
 | `StateBlock` | Boş / yükleniyor / hata, üç durum tek bileşen | Konseptte yok, türetildi |
 | `ReminderCard` | Hatırlatıcı metni + iki aksiyon | "Ödedim / Ertele" bildirimi |
 | `HeroPager` | `SurfaceCard` kart, iki `HeroPage`, altında dokunulabilir iki nokta; yatay kaydırma, animasyonsuz | "Rota + Tempo" kaydırılan hero (`GS22`, `GS24`) |
+| `EntryTypeTiles` | Tür seçicinin bir grubu: renkli nokta + eyebrow, altında ≤ 2 sütun karo (ikon + başlık + alt satır); rengi sayfa verir. Bir kart sayılır | "Ne eklemek istiyorsun?" (`GS29`; Finansal Yapı `V6f`, simülatör `V10c`) |
 
 `ListCard` sınırı **4 satır**. Daha fazlası varsa kart "+7 daha" satırı gösterir ve detay
 sayfasına gider. Sebep: dördüncü satırdan sonra kullanıcı okumuyor, tarıyor.

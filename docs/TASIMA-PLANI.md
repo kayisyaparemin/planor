@@ -354,7 +354,9 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       Tek adım (`S61`, `EK-V7`): sıradaki ödeme ve kararı, kararın bedeli, sonraki ödemeler,
       varsayılan ödeme şekli, elle ekstre girişi. Sol menüde **geçici** giriş. *(Önce V7a/V7b
       diye bölünmüştü; V7a tek başına ekranın cevabını vermediği için Kapı C'de birleştirildi.)*
-- [x] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
+- [ ] **V6** — finansal yapı *(eskide 1.344 satır / 6 partial — en büyük ViewModel)*.
+      *(2026-10-03: `V6f` için geri açıldı — kullanıcı "Ekle"deki düz diyalog yerine eski dört gruplu tür
+      seçicisini istedi, `S77`.)*
       `S61`'den devralınanlar: gelecek kart harcaması girişi ve sol menüdeki geçici
       "Kart Kontrol" öğesinin kaldırılması (kart satırı `Routes.CardControl` + `cardId` açar).
       Aşama 1'de beş alt adıma bölündü (`S62`); her form adımı kendi türünü "Ekle" seçicisine
@@ -396,6 +398,18 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
     - [x] **V6d3** — `AdHocIncomeFormPage`: tek seferlik gelir (açıklama, tutar, tarih), ekle / düzenle;
           "Ekle"de "Tek seferlik gelir"
   - [x] **V6e** — ödeme formu: taksitli ödeme planı + planlı büyük harcama (`PaymentPlanFormPage`, `PlannedExpenseFormPage`, `S65`, `EK-V6e`)
+  - [ ] **V6f** — kayıt türü seçici (`S77`, `GS29`, `EK-V6f`; eski projede `EntryTypePickerView` + `RecordEntryPicker`).
+        "Ekle" düz diyalog yerine ayrı sayfa açar: Finansal Yapı listesinin dört grubu (Gelir · Kart · Kredi ·
+        Ödeme) aynı anda, her biri renkli başlık ve ikonlu karolarla (konsept `ekleme-ekranı-acik` / `-koyu`).
+        Karo, seçiciyle yer değiştiren formu açar. Grup iki ekranın bileşenidir (`EntryTypeTiles`); simülatör
+        `V10c`'de geçer. Aşama 1'de ~450 satır çıktığı için ikiye bölündü; Kapı A ve B ortak, Kapı C her alt adımda ayrı.
+    - [x] **V6f1** — seçici sayfası + bileşen + doğrudan formu olan 8 seçenek (Düzenli gelir, Tek seferlik
+          gelir, Kredi kartı, Bankadaki kredi, Nakit ödeme, Düzenli ödeme, Taksitli borç, Ödeme planı);
+          Finansal Yapı "Ekle" seçiciyi açar *(2026-10-03; `S77`, `GS29`; `RecordEntryPickerPage`,
+          `EntryTypeTiles`; koruyan: I131–I133. Kapı C'de iki kez döndü: grup adları ve şerit düzeni → konseptin ızgarası)*
+    - [ ] **V6f2** — üst kaydı gereken 3 seçenek (Kartla harcama → kart, Krediye erken ödeme → kredi,
+          Gelir değişikliği → gelir): kayıt yoksa önce ekleme önerisi, tekse doğrudan form, çoksa aynı
+          sayfada ikinci seviye liste. KART ve KREDİ ikinci karolarıyla yan yana düzenden kendi satırlarına geçer
 - [x] **V5** — ilk düzen seçimi: taşınmadan elendi (`S18`, `S62`, `S47`; yapay tahsis ve harcama kaydırma yerine doğal dönemsellik; sayfası ve kodu yoktur, bütçe 0)
 - [x] **V8** — 12 dönem (`S74`, `GS26`, `EK-V8`). Aşama 1'de ~400 satır (+ ~100 satır Application eki) çıktığı için
       ikiye bölündü; Kapı A ve B ortak, Kapı C her alt adımda ayrı. Zincir ana sayfanın dönem sonundan başlar,
@@ -426,7 +440,9 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
           `ProjectionChainBuilder`; koruyan: I125–I130)*. `SimulatorViewModel` 199 / 200 satırda: `V10c` liste
           yönetimini çocuk ViewModel'e ayırmak zorunda
     - [ ] **V10b2** — "bir yıl sonra ne olur, faiz ne?": `ComparisonStrip` ("12 dönem sonra"), faiz satırları, 12'li ızgara
-  - [ ] **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli
+  - [ ] **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli. *(`S77`: simülatörün
+        "Ekle"si düz diyalogdan `V6f`'in `EntryTypeTiles` bileşenine geçer; `EK-V10`'daki "Plan türü grup
+        seçici → Çıkar" satırı bu adımda geri alınır.)*
   - [ ] **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları
   - [ ] **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği
   - [ ] **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer
@@ -484,6 +500,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamam; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a tamam)* |
+| V | 9 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı (V6f1 tamam, V6f2 açık); V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

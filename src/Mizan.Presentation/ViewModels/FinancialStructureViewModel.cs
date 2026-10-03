@@ -10,8 +10,8 @@ namespace Mizan.Presentation.ViewModels;
 /// <summary>
 /// Finansal Yapı ekranının görünüm modelidir: plana giren kayıtları dört grupta sunar ve satıra
 /// dokununca tek diyalogla kart kontrolünü ya da kaydın formunu açar veya kaydı siler (EK-V6, S62).
-/// Başlıktaki "Ekle" kayıt türünü sorar; formlar ayrı sayfalardır (kart: S63, kredi: S64, düzenli gelir: S67,
-/// diğerleri V6d3–V6e).
+/// Başlıktaki "Ekle" kayıt türü seçicisini açar (S77); formlar ayrı sayfalardır (kart: S63, kredi: S64,
+/// gelir: S67, ödemeler: S65).
 /// </summary>
 public sealed partial class FinancialStructureViewModel : ViewModelBase
 {
@@ -19,13 +19,6 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
     private const string DeleteText = "Sil";
     private const string ManagePaymentText = "Ödemeyi yönet";
     private const string EditText = "Düzenle";
-    private const string AddTitle = "Ne eklemek istiyorsun?";
-    private const string RecurringIncomeText = "Düzenli gelir";
-    private const string AdHocIncomeText = "Tek seferlik gelir";
-    private const string CreditCardText = "Kredi kartı";
-    private const string LoanText = "Kredi";
-    private const string PaymentPlanText = "Ödeme planı";
-    private const string PlannedExpenseText = "Planlı büyük harcama";
     private const string DeleteConfirmTitle = "Kaydı sil";
     private const string DeleteFailedTitle = "Kayıt silinemedi";
     private const string UnexpectedErrorMessage = "Kayıt silinirken bir sorun oluştu. Tekrar dene.";
@@ -71,29 +64,11 @@ public sealed partial class FinancialStructureViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Eklenebilecek kayıt türlerini listenin grup sırasıyla sorar ve seçilen türün formunu açar
-    /// (S63-1, S64-1, S67-1).
+    /// Kayıt türü seçicisini açar: türler dört grupta, her biri ne işe yaradığını söyleyerek sunulur;
+    /// seçilen tür seçicinin yerine kendi formunu açar (S77).
     /// </summary>
     [RelayCommand]
-    private async Task AddAsync()
-    {
-        var choice = await _dialogService.ChooseAsync(
-            AddTitle, CancelText, null, RecurringIncomeText, AdHocIncomeText, CreditCardText, LoanText, PaymentPlanText, PlannedExpenseText);
-        var route = choice switch
-        {
-            RecurringIncomeText => Routes.IncomeForm,
-            AdHocIncomeText => Routes.AdHocIncomeForm,
-            CreditCardText => Routes.CardForm,
-            LoanText => Routes.LoanForm,
-            PaymentPlanText => Routes.PaymentPlanForm,
-            PlannedExpenseText => Routes.PlannedExpenseForm,
-            _ => null
-        };
-        if (route is not null)
-        {
-            await _navigationService.NavigateToAsync(route);
-        }
-    }
+    private Task AddAsync() => _navigationService.NavigateToAsync(Routes.RecordEntryPicker);
 
     /// <summary>
     /// Satırın seçeneklerini tek diyalogda sunar: kartta ödemeyi yönetme, her türde düzenleme ve silme.

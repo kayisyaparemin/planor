@@ -24,7 +24,8 @@ public sealed class DesignComponentTests
         "ChartCard",
         "StateBlock",
         "ReminderCard",
-        "HeroPager"
+        "HeroPager",
+        "EntryTypeTiles"
     ];
 
     [Fact]

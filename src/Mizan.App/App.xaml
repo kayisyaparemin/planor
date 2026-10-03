@@ -32,6 +32,8 @@
             <conv:IzgaraKonumuConverter x:Key="IzgaraKonumu" />
             <conv:ErkenKapamaDurumuConverter x:Key="ErkenKapamaDurumu" />
             <conv:DenemeBaglamiConverter x:Key="DenemeBaglami" />
+            <conv:SeciciMetniConverter x:Key="SeciciMetni" />
+            <conv:KaroIzgarasiConverter x:Key="KaroIzgarasi" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.RecordEntryPickerPage"
+             x:DataType="vm:RecordEntryPickerViewModel"
+             AutomationId="{x:Static auto:RecordEntryPickerAutomationIds.PageRecordEntryPicker}">
+
+    <!-- EK-V6f: Kayıt türü seçici, konsept "ekleme-ekranı" (GS29). Karo, bu sayfanın yerine kendi formunu açar (S77-2) -->
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space5}"
+                             Padding="{StaticResource PagePadding}"
+                             AutomationId="{x:Static auto:RecordEntryPickerAutomationIds.PickerRecordEntryType}">
+
+            <!-- S1 -->
+            <comp:PageHeader Title="{x:Static strings:RecordEntryStrings.Baslik_NeEklemek}" />
+
+            <!-- S1, S2, S3: grup rengi Finansal Yapı listesinin grubunu söyler (GS29-2) -->
+            <comp:EntryTypeTiles Section="{Binding IncomeSection}"
+                                 OptionCommand="{Binding SelectOptionCommand}"
+                                 Accent="{DynamicResource PositiveText}"
+                                 AccentSurface="{DynamicResource PositiveSurface}" />
+
+            <!-- Tek karolu iki grup yan yana (V6f2'de ikinci karolarıyla kendi satırlarına geçer) -->
+            <Grid ColumnDefinitions="*, *"
+                  ColumnSpacing="{StaticResource Space3}">
+                <comp:EntryTypeTiles Section="{Binding CardSection}"
+                                     OptionCommand="{Binding SelectOptionCommand}"
+                                     Accent="{DynamicResource Indicator}"
+                                     AccentSurface="{DynamicResource SurfaceChart}" />
+                <comp:EntryTypeTiles Grid.Column="1"
+                                     Section="{Binding LoanSection}"
+                                     OptionCommand="{Binding SelectOptionCommand}"
+                                     Accent="{DynamicResource WarningText}"
+                                     AccentSurface="{DynamicResource WarningSurface}" />
+            </Grid>
+
+            <comp:EntryTypeTiles Section="{Binding PaymentSection}"
+                                 OptionCommand="{Binding SelectOptionCommand}"
+                                 Accent="{DynamicResource NegativeText}"
+                                 AccentSurface="{DynamicResource NegativeSurface}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

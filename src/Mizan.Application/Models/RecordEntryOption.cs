@@ -1,29 +1,18 @@
 namespace Mizan.Application.Models;
 
 /// <summary>
-/// Finansal Yapı ekranında "+ Ekle" butonu ile açılan kayıt türü kartı sözleşmesi.
-/// Ortak formdan girilen kayıtlar bağlı oldukları simülatör seçeneğini de taşır.
+/// Kayıt türü seçicideki tek bir seçenek: hangi grupta durduğu ve hangi formu açtığı. Metin taşımaz;
+/// başlık ve alt satır App'in metin kataloğunda anahtarla bulunur (kural 03, GK5). Anahtarlar simülatör
+/// kataloğundaki ortak türlerle aynıdır ki iki ekran aynı metni kullanabilsin (S77-6).
 /// </summary>
 public sealed record RecordEntryOption
 {
-    /// <summary>Kayıt giriş seçeneğinin benzersiz anahtarı.</summary>
+    /// <summary>Seçeneğin benzersiz anahtarı; görünen metin bu anahtarla bulunur.</summary>
     public required string Key { get; init; }
 
-    /// <summary>Seçeneğin ait olduğu kayıt kategorisi grubu.</summary>
+    /// <summary>Seçeneğin durduğu grup.</summary>
     public required RecordEntryGroup Group { get; init; }
 
-    /// <summary>Kartın kullanıcıya gösterilen başlığı.</summary>
-    public required string Title { get; init; }
-
-    /// <summary>Kartın kısa özeti.</summary>
-    public required string Summary { get; init; }
-
-    /// <summary>Kartın detaylı açıklaması.</summary>
-    public required string Description { get; init; }
-
-    /// <summary>Kaydın hangi form bileşeni üzerinden girileceği.</summary>
+    /// <summary>Seçeneğin açtığı form.</summary>
     public required RecordEntryForm Form { get; init; }
-
-    /// <summary>Ortak formdan girilen kayıtlar için bağlı simülatör seçeneği.</summary>
-    public ScenarioOption? Scenario { get; init; }
 }

@@ -101,7 +101,7 @@ Sayfa başına:
 |---|---:|---|
 | Hero rakam | **1** | `TypeHero` kullanımı |
 | Hero yüzey | **1** | `SurfaceHero` kullanımı (`HeroInputCard` veya `InfoBanner`) |
-| Kart | **4** | `SummaryCard`, `ListCard`, `ChartCard`, `HeroInputCard` örnekleri |
+| Kart | **4** | `SummaryCard`, `ListCard`, `ChartCard`, `HeroInputCard`, `EntryTypeTiles` örnekleri |
 | Grafik | **1 (aynı anda)** | `ChartCard`, `Sparkline`, `AreaTrend`, `StackedBar`, `RingGauge`, `GraphicsView`; `HeroPager` dışındakilerin hepsi + pager başına en kalabalık sayfa |
 | Kaydırılan hero | **1** | `HeroPager` örneği; 1 kart sayılır, sayfaları ayrıca kart sayılmaz |
 | Hero sayfa | **2** | `HeroPage` örnekleri; sayfa başına en fazla 1 grafik |
@@ -159,7 +159,9 @@ hiç olmamalı.
 `Icons.cs` `AutomationIds.cs` ile aynı mantıkta çalışır: kimlik silinirse derleme kırılır.
 
 **Kart başına en fazla bir ikon.** Her satıra ikon koymak 619 etiketli ekranın ikonlu hâlini
-üretir; problem çözülmez, kılık değiştirir.
+üretir; problem çözülmez, kılık değiştirir. Karo da kart gibi sayılır: bağımsız bir dokunma yüzeyidir ve
+en fazla bir ikon taşır (tür seçici, `GS29`); bir listenin satırı karo değildir. *(Bu cümlenin testi yok;
+`docs/MIMARI.md` → "Tavsiyeler" düzeyindedir, GK6'nın testi ham glif ve ikon listesini korur.)*
 
 Eski XAML'de `→` karakteri buton metinlerine gömülüydü ("Bu dönemi kapat →"). Ok bir ikon,
 metin değil.

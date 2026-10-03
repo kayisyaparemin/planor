@@ -48,6 +48,8 @@ public static class ScreenRegistrations
         services.AddTransient<FinancialRecordRemover>();
         services.AddTransient<FinancialStructureViewModel>();
         services.AddTransient<FinancialStructurePage>();
+        services.AddTransient<RecordEntryPickerViewModel>();
+        services.AddTransient<RecordEntryPickerPage>();
         services.AddTransient<CardFormViewModel>();
         services.AddTransient<CardFormPage>();
         services.AddTransient<LoanFormViewModel>();
