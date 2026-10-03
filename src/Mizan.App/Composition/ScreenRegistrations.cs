@@ -31,6 +31,10 @@ public static class ScreenRegistrations
         services.AddTransient<FuturePeriodsPage>();
         services.AddTransient<PeriodDetailViewModel>();
         services.AddTransient<PeriodDetailPage>();
+        services.AddTransient<SimulatorViewModel>();
+        services.AddTransient<SimulatorPage>();
+        services.AddTransient<SimulationConditionViewModel>();
+        services.AddTransient<SimulationConditionPage>();
         return services;
     }
 

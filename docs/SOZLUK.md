@@ -151,7 +151,14 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | simülasyon istek doğrulayıcısı | `SimulationRequestValidator` | Simülasyon senaryo isteklerinin tutarlılığını, yasal ve matematiksel kısıtlarını ve çoklu gelir akışı çakışmalarını denetleyen saf sınıf |
 | senaryo plan kurucusu | `ScenarioPlanBuilder` | Kullanıcının simülasyon senaryo isteklerini (kart harcaması, finansman, borç, gelir artışı vb.) mevcut finansal plana uygulayarak izole bir hipotetik plan inşa eden saf hesaplayıcı |
 | simülasyon motoru | `SimulationCalculator` | Canlı baz plan ile varsayımsal senaryo koşullarını 12 dönem boyunca koşturup karşılaştıran, likidite farklarını, ek faiz maliyeti ve tasarruflarını hesaplayan ana motor |
-| simülasyon taslağı | `SimulationDraft` | Kullanıcının simülatörde kurduğu ve adlandırarak sakladığı varsayımsal koşullar paketi; canlı plana girmez |
+| simülasyon taslağı | `SimulationDraft` | Simülatörde kurulan varsayımsal koşullar paketinin saklama biçimi; canlı plana girmez. Adlı planlar taşınmadı (`S76`-4): taslak tablosunda yalnız çalışma listesinin tek kaydı yaşar |
+| çalışma listesi | `ISimulationWorkflowService.GetWorkingListAsync` / `SaveWorkingListAsync` | Simülatörün tek, kendiliğinden saklanan deneme listesi; ekleme, düzenleme, silme ve aç/kapa anında yazılır, uygulama kapanınca kaybolmaz (`S76`-4) |
+| deneme | `SimulationWorkingCondition` | Çalışma listesindeki bir simülasyon isteği: açık/kapalı hâli ve hesaba girmesini engelleyen sorunuyla. Ekranda "deneme", kodda koşul (`S76`) |
+| deneme sorunu | `SimulationConditionIssue` | Denemenin hesaba girmemesinin ve uygulanmamasının sebebi: tarihi geçti (`S76`-5) |
+| deneme kuralları | `SimulationConditionRules` | Denemenin tarihi ne zaman geçmiş sayılır: form yeni denemeyi, servis listedeki denemeyi aynı kuralla değerlendirir (`S76`-3, 5) |
+| deneme satırı | `SimulationConditionRow` | Simülatör listesinde bir denemenin satırı: ad, tür, tarih, tutar, aç/kapa anahtarı, sorun işareti |
+| simülatör | `SimulatorViewModel` | Denemeleri listeleyen, açıp kapatan, düzenlemeye gönderen ve silen sayfa (`EK-V10`); sonuç tarafı `V10b` |
+| deneme formu | `SimulationConditionViewModel` | Bir denemeyi türünün alanlarıyla ekleyen ya da düzenleyen sayfa; çalışma listesine yazar (`EK-V10`) |
 | simülasyon taslak koşulu | `SimulationDraftCondition` | Simülasyon taslağı içerisindeki tekil senaryo isteğini ve açık/kapalı (aktif/pasif) tercihini tutan kayıt |
 | simülasyon taslağı deposu | `ISimulationDraftRepository` | Simülasyon taslaklarının ve bağlı koşullarının kalıcı olarak saklanmasını, listelenmesini ve silinmesini sağlayan veri erişim portu |
 | senaryo grubu | `ScenarioGroup` | Simülasyon senaryo seçeneklerinin arayüzdeki işlevsel üst kümesi (Harcama, Borç, Gelir, Ayar) |

@@ -318,6 +318,17 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V9`, `PeriodDetailPage.xaml`, `EK-V3` (5), `DashboardPage.xaml` (5), `GS21` (iki yeni kullanım) |
 | **Durum** | uygulandı (`V9`; bütçe hero 1/1, kart 3/4, grafik 0/1, label 12/28, cümle 0/3) |
 
+### GS28 — Simülatör: konseptin dönem kartları yok, yerleşim 12 dönemden; grafikte iki çizgi
+
+| | |
+|---|---|
+| **Tür** | konsept-sapması / kasıtlı sadeleştirme |
+| **Konsept** | Yerleşim konseptinin "Simülatör" paneli (5 panelli konsept, `EK-V10` taslağı): dönem başına `MetricRow` + "Detay Gör". Panelin görüntüsü repoda yok. Eski ekran: 11 kart + 12 dönem kart şablonu, 64 `<Label>`. |
+| **Neden değiştirildi** | (a) Dönem başına satır ve "Detay Gör", 12 kart × birkaç satır demek: GK4'ü aşar ve "en çok nerede sıkışırım?" sorusuna tek bakışta cevap vermez; 12 Dönem aynı soruyu gidişat kartı + karo ızgarasıyla çözdü (`GS26`). (b) Simülatörün asıl cevabı iki zincirin farkıdır; tek seri farkı göstermez. (c) Kullanıcı kararı (2026-10-03): "12 dönemin aynısı olsun: grafik + 12'li ızgara". (d) Dönem ayrıntısı denemeyi bilmez (`S76`-9); "Detay Gör" taşınmaz. |
+| **Yeni** | (1) **Sonuç kartı** 12 Dönem'in gidişat kartının deseninde (`SurfaceChart`, `BorderSubtle`, `RadiusHero`): eyebrow, hero denemeyle en düşük dönem sonu (`TextPrimary`, eksi de olsa), şu anki gidişata göre fark (işaretli; `NegativeText` / `PositiveText`), dönem, `AreaTrend`, iki uç tarih, `MetricRow`'lar. (2) **`AreaTrend`'de karşılaştırma serisi:** `ChartTrend`'e isteğe bağlı ikinci seri (varsayılan `null`; `V3` ve `V8` değişmez). Şu anki gidişat `planned` rolüyle çizilir (`TextSecondary`, kesikli, dolgusuz); denemeyle seri düz `Indicator`, dolgu sıfır eşiğine iner (`GS26`-4). Açık deneme yoksa ikinci seri yoktur ve grafik 12 Dönem'inkiyle aynıdır. Yeni primitif yok (GK7). (3) **Dönem sonları** 12 Dönem'in 3 × 4 ızgarası (`GS26`-1), denemeyle rakamlar; karo dokunulmaz. (4) **Denemeler** `ListCard`'ı: ad, tür · tarih, tutar, aç/kapa; kapalı ya da geçersiz satır soluk. (5) **Koşul formu** V6 formlarının deseninde. Bloklar, token'lar ve aç/kapa denetimi `EK-V10` Aşama 5'te. |
+| **Etkiler** | `EK-V10`, `SimulatorPage.xaml`, `SimulationConditionPage.xaml`, `ChartTrend`, `TrendGrafigiConverter`, `AreaTrend`, `TASARIM-SISTEMI.md` § Rol → token eşlemesi (karşılaştırma serisi `planned`), `GS26` (ızgaranın ikinci kullanımı), `Styles.xaml` (`Switch` örtük stili) |
+| **Durum** | kısmen uygulandı (`V10a`: 4 ve 5'in nakit ödeme alanları; aç/kapa MAUI `Switch`, açık hâl `Indicator`, Kapı B). 1–3 `V10b`'de |
+
 ---
 
 ## Konsept otorite değildir

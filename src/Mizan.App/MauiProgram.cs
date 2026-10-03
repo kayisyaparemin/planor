@@ -13,7 +13,6 @@ using Mizan.Infrastructure.Time;
 using Mizan.App.Composition;
 using Mizan.Presentation.Dialogs;
 using Mizan.Presentation.Navigation;
-using Mizan.Presentation.Presenters;
 using Mizan.Presentation.Services;
 using SQLite;
 
@@ -152,7 +151,6 @@ public static class MauiProgram
 
     private static void RegisterPresentationAndAppServices(IServiceCollection services)
     {
-        services.AddSingleton<SimulatorInsightService>();
         services.AddSingleton<INavigationService, MauiNavigationService>();
         services.AddSingleton<IDialogService, MauiDialogService>();
         services.AddSingleton<IBackupFilePicker, AndroidBackupFilePicker>();

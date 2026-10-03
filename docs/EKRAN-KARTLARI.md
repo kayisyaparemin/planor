@@ -1865,9 +1865,169 @@ Yerleşim konseptinin "Dönem Ayrıntısı" paneli tarifiyle biliniyor (`InfoBan
 satırları); görüntüsü repoda yok. Ekran 12 Dönem'den türetildi (kullanıcı kararı, 2026-10-03): akış kartı
 gidişat kartının deseni, listeler `ListCard`. Konseptten sapmalar `GS27`'de.
 
-### EK-V10 — Simülatör
-Konsept karşılığı **var** (Simülatör paneli). Eskide 1.034 satır / 4 `partial`, 64 `<Label>`.
-Dönem başına `MetricRow` + "Detay Gör" deseni konseptte net.
+## EK-V10 — Simülatör
+
+> Sayfa dosyaları: `SimulatorPage.xaml` (yan menü "Simülatör", `//simulation`) ve `SimulationConditionPage.xaml`
+> (deneme formu: `Routes.SimulationCondition` + tür anahtarı ya da deneme kimliği).
+> Davranış `S76`, ekran `GS28`. Altı alt adım: `V10a` form + liste, `V10b` sonuç, `V10c` harcama türleri,
+> `V10d` borç türleri, `V10e` gelir türleri, `V10f` "Planıma ekle". Kapı A ve B ortak (2026-10-03).
+> Ekran gerçek kayıtlara yalnız "Planıma ekle" ile yazar; denemeler kendi listesinde saklanır.
+> Durum: `V10a` tamamlandı (2026-10-03); `V10b`–`V10f` açık.
+
+**Eski proje:** `SimulationPage.xaml` 453 satır, **64 `<Label>`**, 14 buton, 11 kart + 12 dönem kart şablonu, en az 8
+açıklama cümlesi; kod arkası 113 satır (onay ve gezinme). `ScenarioConditionFormView` 85 satır, 17 etiket, 13 giriş.
+ViewModel 1.034 satır / 4 `partial` + form 403 satır / 2 `partial`.
+
+### 1. Sorular
+
+| Kod | Soru | Eski ekran nasıl cevaplıyordu |
+|---|---|---|
+| S1 | "Bunu yaparsam önümüzdeki aylarda eksiye düşer miyim, en çok nerede sıkışırım?" | 2–5 anlatı cümlesi + "Öne Çıkanlar" + 12 dönem kartının çipleri: ~20 etiket, cevap dağınık |
+| S2 | "Bu deneme bir yıl sonra beni ne kadar geri ya da ileri götürür?" | Cevap yoktu: denemeyle "12 ay sonu" vardı, şu anki gidişatla farkı yoktu |
+| S3 | "Hangi denemeleri kurdum, hangileri hesaba giriyor?" | Koşul listesi (satır başına 4 etiket + anahtar) + "Plan değişti" ve "Hiçbir koşul açık değil" uyarıları: ~11 etiket |
+| S4 | "Bu deneme bana faiz ödetir mi, kazandırır mı?" | Faiz Karşılaştırması tablosu + Kredi Faizi Tasarrufu: ~10 etiket |
+| S5 | "Karar verdim, bunu planıma nasıl eklerim?" | "Planı Uygula" + kod arkasında iki diyalog, üretilmiş uzun onay metni |
+
+### 2. Kesme kararları (`S76`, `GS28`)
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Denemeyle en düşük dönem sonu + dönem | **Hero** (`HeroFigure`) + açıklama satırı | S1; 12 Dönem'in hero'su, denemeyle |
+| Şu anki gidişata göre fark (en düşükte) | **Satır** (hero altında, işaretli, renkli) | S1; yalnız açık deneme varsa |
+| Şu anki ve denemeyle zincir, sıfır çizgisi | **Grafik** (`AreaTrend`, iki seri) | S1 / S2 yön (`GS28`-2) |
+| 12 dönem sonra: şu an / denemeyle / fark | **Şema** (`ComparisonStrip`) | S2; açık deneme yokken 12 Dönem'deki `MetricRow` |
+| 12 dönemde faiz, faiz farkı | **Satır** (`MetricRow`; fark yalnız ≠ 0) | S4; kırılım tablosu yok (`S76`-9) |
+| Kredi faizi kazancı, kredinin maliyeti | **Satır** (`MetricRow`, yalnız o deneme varsa; `V10d`) | S4 |
+| Dönem sonları, denemeyle | **Kart** (12 Dönem'in 3 × 4 ızgarası, dokunulmaz) | S1; kullanıcı kararı "12 dönemin aynısı" |
+| Denemeler: ad, tür · tarih, tutar, aç/kapa, geçersiz işareti | **Kart** (`ListCard`; satır diyaloğu Düzenle / Sil) | S3 |
+| Deneme ekleme | **Aksiyon** (`PageHeader` "Ekle" → tür seçici) | S3; Finansal Yapı deseni |
+| Denemenin alanları | **Derine** → `SimulationConditionPage` | S3 |
+| "Planıma ekle" | **Aksiyon** (liste altında; `V10f`) | S5 |
+| Anlatı cümleleri, içgörü çipleri, "Öne Çıkanlar" | **Çıkar** | Hero + grafik + şema aynı cevabı sayıyla veriyor (GK5) |
+| Faiz kırılımı (kart / KMH / finansman), "gelirlerden kalan", "bu dönem gereken" | **Çıkar** | `S76`-9, `S18` |
+| Hedef tutar | **Çıkar** | `S76`-10 |
+| Adlı geçici planlar (kaydet / yükle / sil) | **Çıkar** | `S76`-4: tek çalışma listesi |
+| "Simülasyonu Yap", "Plan değişti", "Hiçbir koşul açık değil" | **Çıkar** | `S76`-6: canlı hesap |
+| Dönem kartı "Detayı Gör", baz ↔ senaryo dönem ayrıntısı | **Çıkar** | `S76`-9, `GS28` (d) |
+| Katalogdaki tür açıklamaları, "Plan türü" grup seçici | **Çıkar** | GK5; tür "Ekle" seçicisinde seçilir |
+| Eyebrow + açıklama cümleleri, "1 · / 2 ·" başlıkları, "Gelir kullanımı" | **Çıkar** | Başlık yeter; `S18` |
+| Spinner, durum satırı | **Çıkar** | `SkeletonBlock` / `StateBlock` (`GS14`) |
+
+### 3. Bütçe
+
+```
+SimulatorPage                        SimulationConditionPage (en dolu tür)
+Hero rakam    1 / 1                  Hero rakam   0 / 1
+Hero yüzey    0 / 1  (SurfaceChart)  Kart         0 / 4   form kartı ham Border
+Kart          3 / 4                  Grafik       0 / 1
+Grafik        1 / 1                  Label       11 / 28  alan etiketleri (ad, kart|kredi|gelir ayrı,
+NavRow        0 / 5                                        ödeme şekli, kapsam, tutar, tarih, sayı,
+Label        15 / 28                                       ilk ödeme, toplam geri ödeme)
+Cumle_        1 / 3                  Cumle_       0–1 / 3 (erken ödeme açıklaması, V10d kararı)
+```
+
+Simülatör sayfası: kart = sonuç kartı (ham `Border`), denemeler `ListCard`, dönem sonları (ham `Border`); analizci
+yalnız `ListCard`'ı sayar. Label = sonuç kartı 8 (eyebrow, hero, dönem, "şu anki gidişata göre" + tutar, iki uç
+tarih, "12 dönem sonra" eyebrow'u), deneme şablonu 3 (ad, bağlam, tutar), boş liste cümlesi 1, ızgara 3 (eyebrow,
+ay, tutar). `MetricRow` ve `ComparisonStrip` bileşen; sayfada `<Label>` değiller. Eski 64 + 17 etiketten 15 + 11'e.
+
+`V10a` sonunda: simülatör sayfası hero 0, kart 1 (denemeler `ListCard`), grafik 0, label 4 (analizci 7:
+`<Label.Triggers>`'ı da sayıyor), cümle 1; deneme formu label 3, kart 0 (form kartı ham `Border`), cümle 0. Aşama 4'teki
+`V10a` payıyla aynı; sonuç kartı (8) ve ızgara (3) `V10b`'de.
+
+### 4. Blok şeması
+
+**`SimulatorPage.xaml`**
+
+```
+┌─ PageHeader ────────────────────────────────────────────────┐
+│ Simülatör                 Baslik_Simulator        [ Ekle ]  │  ← S3; Aksiyon_Ekle → tür seçici
+└─────────────────────────────────────────────────────────────┘    (IDialogService; V10a'da tek seçenek)
+┌─ Sonuç kartı (ham Border)  SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐  V10b
+│ Etiket_EnDusukDonemSonu                  Eyebrow            │  ← S1
+│ 4.200 ₺                                  HeroFigure / TextPrimary (eksi de olsa); denemeyle
+│ 10 Mart 2027 dönemi sonunda              Bicim_EnDusukDonem, Caption / TextSecondary
+│ Şu anki gidişata göre   −30.000 ₺        Caption + Caption işaretli: eksi NegativeText,
+│                                          artı PositiveText, sıfır TextSecondary · yalnız açık deneme varsa
+│ AreaTrend  ChartHeight                                      │  ← S1, S2
+│   Series: denemeyle, zincir başı + 12 dönem sonu, düz Indicator, dolgu sıfıra (GS26-4)
+│   Karşılaştırma: şu anki gidişat, planned → TextSecondary kesikli, dolgusuz (GS28-2)
+│   Threshold 0: NegativeText kesikli (GS26-3)
+│ 10 Eki 2026                     9 Eki 2027    Caption ×2: zincir başı · 12. dönemin son günü
+│ ── açık deneme yokken: 12 Dönem'in kartının aynısı ──       │
+│ MetricRow Etiket_OnIkiDonemSonra ............... 52.300 ₺   │  ← S2; eksiyse Negative
+│ ── açık deneme varken ──                                    │
+│ Etiket_OnIkiDonemSonra                   Eyebrow            │  ← S2
+│ ComparisonStrip  Etiket_SuAn · Etiket_Denemeyle · Etiket_Fark
+│   52.300 ₺ (PlanSurface) | 22.300 ₺ (ActualSurface) | −30.000 ₺ (Negative / Positive / Default)
+│ MetricRow Etiket_OnIkiDonemdeFaiz .................. 480 ₺  │  ← S4; denemeyle, 0 ₺ dahil hep
+│ MetricRow Etiket_FaizFarki ........................ +480 ₺  │  ← S4; yalnız ≠ 0; artı Negative, eksi Positive
+│ MetricRow Etiket_KrediFaizKazanci ............... 6.200 ₺  │  ← S4; V10d, erken ödeme varsa; Positive
+│ MetricRow Etiket_KredininMaliyeti ............... 4.800 ₺  │  ← S4; V10d, kredi çekme varsa
+└─────────────────────────────────────────────────────────────┘
+┌─ ListCard  Etiket_Denemeler  (deneme yoksa görünmez) ───────┐  V10a  ← S3
+│ Telefon                                  30.000 ₺    [●  ]  │  TypeBody / TextPrimary · Figure · aç/kapa
+│ Nakit ödeme · 15 Kas 2026                                   │  Caption: DenemeBaglamiConverter (tür · tarih)
+│ Tatil                                    45.000 ₺    [  ○]  │  kapalı: ad ve tutar TextSecondary
+│ Kartla harcama · 6 taksit · 1 Ara                           │
+│ Kurs                                     12.000 ₺    [  ○]  │  geçersiz: anahtar pasif, bağlamın yerine
+│ Tarihi geçti                                                │  Etiket_TarihiGecti / Etiket_KaydiSilindi (NegativeText)
+│ … 4 satır + "+N daha" yerinde (GS21)                        │
+│ satıra dokun → diyalog: Düzenle / Sil (V6a deseni)          │
+└─────────────────────────────────────────────────────────────┘
+  Cumle_DenemeYok              Caption / TextSecondary; deneme yokken listenin yerinde  ← S3
+  [ Planıma ekle ]             Button (ActionFill); yalnız açık ve geçerli deneme varsa  ← S5, V10f
+┌─ Dönem sonları (ham Border)  SurfaceCard / BorderSubtle / RadiusCard ┐  V10b  ← S1
+│ Etiket_DonemSonlari                      Eyebrow            │
+│ 3 × 4 karo: ay (Caption) + denemeyle dönem sonu (TypeFigure; en düşük SemiBold, eksi NegativeText)
+│ 12 Dönem'in karo şablonunun aynısı (GS26-1); dokunma yok (S76-9)
+└─────────────────────────────────────────────────────────────┘
+```
+
+Sıra: önce cevap (sonuç kartı), sonra girdiler (denemeler), en altta ikinci seviye (dönem sonları). Açık deneme
+yokken sonuç kartı ve ızgara 12 Dönem'inkiyle kuruşu kuruşuna aynıdır (`S76`-1).
+
+Aç/kapa satırdaki MAUI `Switch`'tir (Kapı B, 2026-10-03): tek dokunuşla kıyas. Uygulamadaki ilk `Switch`;
+`Styles.xaml`'a örtük stil gelir, açık hâlin rengi `Indicator` (`DynamicResource`). Satırın geri kalanına dokunmak
+Düzenle / Sil diyaloğunu açar.
+
+**`SimulationConditionPage.xaml`**
+
+```
+┌─ PageHeader ────────────────────────────────────────────────┐
+│ Nakit ödeme              türün başlığı (tür anahtarı → Baslik_*)
+└─────────────────────────────────────────────────────────────┘
+┌─ Form kartı (Border, örtük stil) ───────────────────────────┐  ← S3
+│ Etiket_Ad                Eyebrow   [ Telefon          ]     │  hepsi; zorunlu (S76-8)
+│ Etiket_Kart | Etiket_Kredi | Etiket_Gelir   Picker          │  türe göre (V10c–e)
+│ Etiket_OdemeSekli · Etiket_Kapsam           Picker          │  kart ödeme şekli, erken ödeme (V10c, V10d)
+│ ┌ tutar etiketi (türe göre) ─┐ ┌ tarih etiketi (türe göre) ┐│  Grid 2 sütun
+│ │ [ 30.000        ] Numeric  │ │ [ 15.11.2026 ] DatePicker ││  tarih en erken bugün (S76-3)
+│ └────────────────────────────┘ └───────────────────────────┘│
+│ sayı etiketi (taksit / ödeme / ay)  ·  Etiket_IlkOdemeTarihi│  V10c, V10d
+│ Etiket_ToplamGeriOdeme                                      │  V10d (kredi çekme)
+└─────────────────────────────────────────────────────────────┘
+[ Kaydet ]  [ Vazgeç ]   Kaydet listeye yazar ve geri döner; Vazgeç, geri ok ve cihazın geri tuşu
+                         değişiklik varsa onay sorar (EK-V6b deseni). Doğrulama hatası diyalogla.
+```
+
+Alan blokları türler arasında ortaktır: etiketin metni türe göre değişir (converter), blok tekrarlanmaz; böylece
+dokuz tür tek sayfada 11 etikette kalır. `V10a`'da yalnız ad, tutar ve tarih vardır.
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | `StateBlock`: `Schedule` + `Bos_SimulatorYok` + `Aksiyon_FinansalYapiyaGit` — açık dönem yok ya da zincir kurulamıyor (`S76`-1, `V10b`). Deneme yoksa sayfa boş değildir: sonuç kartı şu anki gidişatla, listenin yerinde `Cumle_DenemeYok`. |
+| Yükleniyor | `SkeletonBlock`'lar: sonuç kartı (`ChartHeight`) ve liste; spinner yok (`GS14`). Canlı yeniden hesapta iskelet yok: eski sonuç yenisi gelene kadar yerinde kalır. Form: yalnız düzenlemede iki iskelet. |
+| Hata | Liste okunamazsa `StateBlock`: `Close` + `Hata_SimulatorAcilamadi` + `Aksiyon_TekrarDene`. Hesap düşerse yalnız sonuç kartının yerinde `StateBlock` (`Hata_SimulasyonHesaplanamadi` + `Aksiyon_TekrarDene`); liste kullanılabilir kalır, bozuk deneme silinebilir. Form: deneme bulunamazsa diyalog ve geri. |
+
+### 6. Konsept ilişkisi
+
+Yerleşim konseptinin "Simülatör" paneli tarifiyle biliniyor (dönem başına `MetricRow` + "Detay Gör"); görüntüsü repoda
+yok. Ekran 12 Dönem'den türetildi (kullanıcı kararı, 2026-10-03): sonuç kartı gidişat kartının deseni, ızgara aynı
+şablon, kıyas `ComparisonStrip` (tasarım sisteminde baz ↔ senaryo için duruyor, ilk kullanımı), listeler `ListCard`,
+form V6 formlarının deseni. Konseptten sapmalar `GS28`'de.
 
 ### EK-V11 — Dönem kapanışı sihirbazı
 Konsept karşılığı **yok.** Türetme adayı: `EK-V4`'ün sihirbaz deseni.
@@ -1903,7 +2063,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
 | EK-V9 | Dönem ayrıntısı | 81 | 12 | ✅ V9 |
-| EK-V10 | Simülatör | 64 | | ⬜ |
+| EK-V10 | Simülatör | 64 | 4 + 3 | ⬜ V10a (V10b–V10f açık) |
 | EK-V11 | Dönem kapanışı | 50 | | ⬜ |
 | EK-V12 | Geçmiş + ayrıntı | 29 | | ⬜ |
 | EK-V13 | Ayarlar + düzen | 52 | | ⬜ |

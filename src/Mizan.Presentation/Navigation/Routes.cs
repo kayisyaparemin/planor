@@ -68,6 +68,18 @@ public static class Routes
     /// <summary>Planlanan harcama formunun hangi harcamayı düzenleyeceğini taşıyan sorgu parametresi.</summary>
     public const string ExpenseIdParameter = "expenseId";
 
+    /// <summary>
+    /// Simülatörün deneme formu rotası: yeni deneme <see cref="ScenarioOptionParameter"/>, düzenleme
+    /// <see cref="ConditionIdParameter"/> ile açılır (EK-V10).
+    /// </summary>
+    public const string SimulationCondition = "simulation-condition";
+
+    /// <summary>Yeni denemenin türünü taşıyan sorgu parametresi: senaryo kataloğundaki seçeneğin anahtarı.</summary>
+    public const string ScenarioOptionParameter = "scenarioOption";
+
+    /// <summary>Düzenlenecek denemenin kimliğini taşıyan sorgu parametresi.</summary>
+    public const string ConditionIdParameter = "conditionId";
+
     /// <summary>Kurulum sihirbazı rotası.</summary>
     public const string Onboarding = "onboarding";
 

@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V9** — dönem ayrıntısı (`PeriodDetailPage`; S75, GS27, EK-V9) |
-| Sıradaki adım | **V10** — simülatör |
-| Test sayısı | 1946 |
+| Son tamamlanan adım | **V10a** — simülatör: deneme listesi + nakit ödeme formu (`SimulatorPage`, `SimulationConditionPage`; S76, GS28, EK-V10) |
+| Sıradaki adım | **V10b** — simülatörün sonucu (zincir 12 Dönem'le ortak, iki serili grafik, kıyas, ızgara) |
+| Test sayısı | 1963 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10a — simülatör: tek çalışma listesi, nakit ödeme denemesi, satırda aç/kapa; kararlar `S76`, `GS28`, `EK-V10`
+
+Yan menüdeki Simülatör boş sayfadan gerçek ekrana geçti: denemeler listesi (ad, "Nakit ödeme · tarih", tutar, `Switch`), "Ekle" → nakit ödeme formu (ad zorunlu, tarih en erken bugün), satıra dokununca Düzenle / Sil. Liste taslak tablosunda tek kayıt olarak kendiliğinden saklanıyor (`I122`); tarihi geçen deneme "Tarihi geçti" işaretli ve kilitli (`I123`). Port adlı taslak metotlarını bıraktı, `GetWorkingListAsync` / `SaveWorkingListAsync` aldı. ViewModel'ler 3 ve 4 bağımlılık (188 / 195 satır); eskisi 1.034 satır / 4 `partial` + form 403 satır.
+V10 Aşama 1'de ~1.500 satır çıktığı için altıya bölündü (V10a form + liste → V10b sonuç → V10c harcama → V10d borç → V10e gelir → V10f "Planıma ekle"); Kapı A ve B ortak. Kullanıcı kararları: yerleşim 12 Dönem'den (grafik + 12'li ızgara), adlı planlar yok, kart ödeme şekli kalıyor, "Simülatörde dene" yok, aç/kapa satırda anahtar.
+`A23b`'nin metin üreten sunum kodu (4 sınıf, 4 model, testleri) ve kullanıcının önceden sildiği `DetailMetric` / `DetailSemanticType` bu adımda gitti; `Mizan.Presentation/Presenters` klasörü kalmadı. Uygulamanın ilk `Switch`'i: `Styles.xaml`'da örtük stil (`OnColor` = `Indicator`).
+Dikkat: motor hâlâ eski zincirden koşuyor ve açık döneme düşen denemeyi 12 Dönem zinciri görmüyor — `V10b`'nin Application eki (`S76`-1, 2). Emülatör betiği bu adımda uygulamayı sıfırdan kurdu; 4 profil otomatik yedekten geri yüklendi. Çalışma ağacındaki izlenmeyen `docs/assets/konsept/anasayfa-*.png` bu adımın değil, commit'e girmedi.
+Bütçe: simülatör sayfası Hero 0/1, Kart 1/4, Grafik 0/1, NavRow 0/5, Label 4/28 (analizci 7), Cümle 1/3; deneme formu Label 3/28, Kart 0/4, Cümle 0/3. Görsel kontrol: kullanıcı onayladı (koyu + açık). 32 yeni test (3 Domain, 5 Application, 24 Presentation), 5 adlı taslak testi ve 10 sunucu testi silindi; toplam 1.963 test yeşil, 0 hata, 0 uyarı.
 
 ### V9 — dönem ayrıntısı: 12 Dönem karosundan tek dönem, akış dönem sonuna kuruşu kuruşuna, ödemeler ve kart faizi; kararlar `S75`, `GS27`, `EK-V9`
 

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.SimulationConditionPage"
+             x:DataType="vm:SimulationConditionViewModel"
+             AutomationId="{x:Static auto:SimulatorAutomationIds.PageSimulationCondition}">
+
+    <!-- EK-V10: Deneme formu (V10a — nakit ödeme). Geri oku da Vazgeç'ten geçer: değişiklik varsa onay -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding CancelCommand}" />
+    </Shell.BackButtonBehavior>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S3: başlık denemenin türü; tür düzenlemede değişmez (S76-7) -->
+            <comp:PageHeader Title="{x:Static strings:SimulatorStrings.Baslik_NakitOdeme}" />
+
+            <!-- Yükleniyor (yalnız düzenlemede) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: deneme alanları + kaydet / vazgeç -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- S3: form kartı; ad zorunlu (S76-8), tarih en erken bugün (S76-3) -->
+                <Border>
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <VerticalStackLayout Spacing="{StaticResource Space1}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_Ad}"
+                                   Style="{StaticResource Eyebrow}" />
+                            <Entry Text="{Binding Name}"
+                                   Placeholder="{x:Static strings:SimulatorStrings.YerTutucu_Ad}"
+                                   AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionName}" />
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*, *"
+                              ColumnSpacing="{StaticResource Space2}">
+                            <VerticalStackLayout Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:SimulatorStrings.Etiket_Tutar}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <Entry Text="{Binding AmountInput}"
+                                       Placeholder="{x:Static strings:SimulatorStrings.YerTutucu_Tutar}"
+                                       Keyboard="Numeric"
+                                       AutomationId="{x:Static auto:SimulatorAutomationIds.InputConditionAmount}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1"
+                                                 Spacing="{StaticResource Space1}">
+                                <Label Text="{x:Static strings:SimulatorStrings.Etiket_Tarih}"
+                                       Style="{StaticResource Eyebrow}" />
+                                <DatePicker Date="{Binding Date, Converter={StaticResource TarihSecici}}"
+                                            MinimumDate="{Binding MinimumDate, Converter={StaticResource TarihSecici}}"
+                                            Format="dd.MM.yyyy"
+                                            BackgroundColor="{DynamicResource SurfaceSunken}"
+                                            TextColor="{DynamicResource TextPrimary}"
+                                            FontSize="{StaticResource TypeBody}"
+                                            AutomationId="{x:Static auto:SimulatorAutomationIds.PickerConditionDate}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- S3: kaydet listeye yazar ve simülatöre döner; vazgeç değişiklik varsa onay sorar -->
+                <Grid ColumnDefinitions="*, *"
+                      ColumnSpacing="{StaticResource Space2}">
+                    <Button Text="{x:Static strings:SimulatorStrings.Aksiyon_Kaydet}"
+                            Command="{Binding SaveCommand}"
+                            AutomationId="{x:Static auto:SimulatorAutomationIds.BtnSaveCondition}" />
+                    <Button Grid.Column="1"
+                            Text="{x:Static strings:SimulatorStrings.Aksiyon_Vazgec}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding CancelCommand}"
+                            AutomationId="{x:Static auto:SimulatorAutomationIds.BtnCancelCondition}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Hata: düzenlenecek deneme okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:SimulatorStrings.Hata_DenemeYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

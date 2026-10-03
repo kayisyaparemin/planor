@@ -41,6 +41,11 @@
         <Setter Property="FontFamily" Value="OpenSansRegular" />
     </Style>
 
+    <!-- Simülatörde denemeyi açıp kapatan anahtar (EK-V10, Kapı B); açık hâlin izi vurgu renginde -->
+    <Style TargetType="Switch">
+        <Setter Property="OnColor" Value="{DynamicResource Indicator}" />
+    </Style>
+
     <Style TargetType="Editor">
         <Setter Property="BackgroundColor" Value="{DynamicResource SurfaceSunken}" />
         <Setter Property="TextColor" Value="{DynamicResource TextPrimary}" />

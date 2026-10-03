@@ -135,6 +135,9 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I119` | Dönem ayrıntısının akışı dönem sonuna kuruşu kuruşuna iner: dönem başı + gelir − ödemeler (zorunlu ödemeler ve büyük harcamalar) − yaşam gideri − KMH faizi = dönem sonu. Kart faizi borca eklenir, akışta yoktur (S75-3, S75-5). | `Mizan.Presentation.Tests.ViewModels.PeriodDetailViewModelTests.Yukle_AkisSatirlari_DonemSonunaKurusuKurusunaIner` | `V9` |
 | `I120` | Dönem ayrıntısı dönemi 12 dönem zincirinden ilk günüyle seçer, karodaki rakamla aynı sonucu söyler; dönem artık zincirde yoksa bir rakam uydurmaz, ekran boştur (S75-1, S75-2). | `Mizan.Presentation.Tests.ViewModels.PeriodDetailViewModelTests.Yukle_DonemZincirdeYoksa_BosDurumdur` | `V9` |
 | `I121` | DI kayıtları yalnız kompozisyon kökündedir: `src/Mizan.App/MauiProgram.cs` ve `src/Mizan.App/Composition/` altı (kural 01). | `Mizan.Architecture.Tests.ArchitectureTests.DiKaydi_YalnizKompozisyonKokundeOlabilir` | `V9` |
+| `I122` | Simülatörün çalışma listesi taslak tablosunda tek kayıttır: her yazma listenin tamamını aynı kayda yazar, adlı plan doğmaz (S76-4). | `Mizan.Application.Tests.Services.SimulationWorkflowServiceTests.SaveWorkingListAsync_TekrarTekrarYazilinca_TaslakTablosundaTekKayitKalir` | `V10a` |
+| `I123` | Tarihi bugünden önce kalan deneme her okumada "tarihi geçti" işaretlenir; bugüne tarihli deneme geçerlidir. Sorun saklanmaz, okunduğu güne göre değerlendirilir (S76-3, S76-5). | `Mizan.Application.Tests.Services.SimulationWorkflowServiceTests.GetWorkingListAsync_TarihiDundeKalanDeneme_TarihiGectiIsaretlenir` | `V10a` |
+| `I124` | Denemenin anahtarı yalnız o denemenin açık/kapalı hâlini değiştirir; listenin sırası ve diğer denemeler aynen yazılır (S76-4). | `Mizan.Presentation.Tests.ViewModels.SimulatorViewModelTests.Toggle_DenemeKapaninca_ListeKapaliOlarakYazilir` | `V10a` |
 
 ## Satır eklerken
 

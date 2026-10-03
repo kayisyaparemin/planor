@@ -67,7 +67,7 @@
         </FlyoutItem.Icon>
         <ShellContent Title="{x:Static strings:Strings.Baslik_Simulator}"
                       Route="simulation-content"
-                      ContentTemplate="{DataTemplate ContentPage}" />
+                      ContentTemplate="{DataTemplate pages:SimulatorPage}" />
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_FinansalYapi}"

@@ -6,8 +6,8 @@ using Mizan.Domain.Models;
 namespace Mizan.Application.Services;
 
 /// <summary>
-/// Kullanıcının What-If senaryo simülasyonlarını koşturmasını, taslak olarak yönetmesini
-/// ve açık onayla canlı plana aktarmasını sağlayan kullanım senaryosu servisidir.
+/// Kullanıcının What-If senaryo simülasyonlarını koşturmasını, denemelerini tek çalışma listesinde saklamasını
+/// (S76-4) ve açık onayla canlı plana aktarmasını sağlayan kullanım senaryosu servisidir.
 /// </summary>
 public sealed class SimulationWorkflowService(
     IClock clock,
@@ -16,6 +16,10 @@ public sealed class SimulationWorkflowService(
     SimulationCalculator simulationCalculator,
     ISimulationPlanApplier planApplier) : ISimulationWorkflowService
 {
+    // Çalışma listesi taslak tablosunda tek kayıttır (S76-4): kimliği sabit, adı hiçbir ekranda görünmez.
+    private static readonly Guid WorkingListId = new("6a1f0c3e-2b7d-4e59-9c1a-5d8e7f3b2a10");
+    private const string WorkingListName = "Çalışma listesi";
+
     private readonly IClock _clock =
         clock ?? throw new ArgumentNullException(nameof(clock));
     private readonly IPlanReader _planReader =
@@ -59,48 +63,38 @@ public sealed class SimulationWorkflowService(
     }
 
     /// <inheritdoc />
-    public async Task<SimulationDraft> SaveSimulationDraftAsync(
-        string name,
-        IReadOnlyList<SimulationDraftCondition> conditions,
-        Guid? draftId = null,
+    public async Task<IReadOnlyList<SimulationWorkingCondition>> GetWorkingListAsync(
         CancellationToken cancellationToken = default)
     {
-        var trimmed = (name ?? string.Empty).Trim();
-        if (trimmed.Length == 0)
+        var draft = await _draftRepository.GetDraftByIdAsync(WorkingListId, cancellationToken);
+        if (draft is null)
         {
-            throw new InvalidOperationException("Geçici plana bir ad vermelisin.");
+            return [];
         }
 
-        if (conditions.Count == 0)
-        {
-            throw new InvalidOperationException("Kaydedilecek en az bir koşul gerekiyor.");
-        }
-
-        var existing = draftId is { } id
-            ? await _draftRepository.GetDraftByIdAsync(id, cancellationToken)
-            : null;
-
-        var draft = new SimulationDraft(
-            existing?.Id ?? (draftId ?? Guid.NewGuid()),
-            trimmed,
-            existing?.CreatedAt ?? _clock.UtcNow,
-            _clock.UtcNow,
-            conditions);
-
-        await _draftRepository.UpsertDraftAsync(draft, cancellationToken);
-        return draft;
+        var today = _clock.Today;
+        return draft.Conditions
+            .Select(x => new SimulationWorkingCondition(x.Request, x.IsEnabled, IssueOf(x.Request, today)))
+            .ToArray();
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<SimulationDraft>> GetSimulationDraftsAsync(
-        CancellationToken cancellationToken = default) =>
-        _draftRepository.GetDraftsAsync(cancellationToken);
+    public async Task SaveWorkingListAsync(
+        IReadOnlyList<SimulationDraftCondition> conditions,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(conditions);
+        var existing = await _draftRepository.GetDraftByIdAsync(WorkingListId, cancellationToken);
+        var now = _clock.UtcNow;
+        var draft = new SimulationDraft(WorkingListId, WorkingListName, existing?.CreatedAt ?? now, now, conditions);
+        await _draftRepository.UpsertDraftAsync(draft, cancellationToken);
+    }
 
-    /// <inheritdoc />
-    public Task DeleteSimulationDraftAsync(
-        Guid id,
-        CancellationToken cancellationToken = default) =>
-        _draftRepository.DeleteDraftAsync(id, cancellationToken);
+    // Sorun saklanmaz, her okumada bugüne göre değerlendirilir: dün geçerli olan deneme bugün geçmiş olabilir (S76-5).
+    private static SimulationConditionIssue IssueOf(SimulationRequest request, DateOnly today) =>
+        SimulationConditionRules.IsDatePassed(request, today)
+            ? SimulationConditionIssue.DatePassed
+            : SimulationConditionIssue.None;
 
     /// <inheritdoc />
     public Task<SimulationApplyResult> ApplySimulationAsync(

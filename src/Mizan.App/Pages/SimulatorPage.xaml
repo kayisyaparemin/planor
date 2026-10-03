@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.SimulatorPage"
+             x:DataType="vm:SimulatorViewModel"
+             AutomationId="{x:Static auto:SimulatorAutomationIds.PageSimulator}">
+
+    <!-- EK-V10: Simülatör (V10a — denemeler), S76, GS28 -->
+    <ContentPage.Resources>
+        <!-- Deneme satırı: ad · bağlam · tutar · aç/kapa; kapalı ya da sorunlu satır soluk, satıra dokunmak Düzenle / Sil (S3) -->
+        <DataTemplate x:Key="DenemeSatiri"
+                      x:DataType="models:SimulationConditionRow">
+            <Grid ColumnDefinitions="*, Auto, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SimulatorViewModel}}, Path=SelectConditionCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding Name}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsEnabled}" Value="False">
+                                <Setter Property="TextColor" Value="{DynamicResource TextSecondary}" />
+                            </DataTrigger>
+                            <DataTrigger TargetType="Label" Binding="{Binding HasIssue}" Value="True">
+                                <Setter Property="TextColor" Value="{DynamicResource TextSecondary}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <!-- Tarihi geçen denemede bağlamın yerine işaret (S76-5) -->
+                    <Label Text="{Binding ., Converter={StaticResource DenemeBaglami}}"
+                           Style="{StaticResource Caption}">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding HasIssue}" Value="True">
+                                <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding Amount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsEnabled}" Value="False">
+                            <Setter Property="TextColor" Value="{DynamicResource TextSecondary}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding HasIssue}" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource TextSecondary}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+                <!-- Aç/kapa: tek dokunuşla kıyas (Kapı B); sorunlu denemede kilitli -->
+                <Switch Grid.Column="2"
+                        IsToggled="{Binding IsEnabled, Mode=TwoWay}"
+                        IsEnabled="{Binding CanToggle}"
+                        VerticalOptions="Center" />
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- S3: "Ekle" deneme türünü sorar -->
+            <comp:PageHeader Title="{x:Static strings:Strings.Baslik_Simulator}"
+                             ActionText="{x:Static strings:SimulatorStrings.Aksiyon_Ekle}"
+                             ActionCommand="{Binding AddCommand}"
+                             AutomationId="{x:Static auto:SimulatorAutomationIds.BtnSimulatorAdd}" />
+
+            <!-- Yükleniyor: liste yerinde iskelet; spinner yok (GS14) -->
+            <VerticalStackLayout Spacing="{StaticResource Space3}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu: denemeler; taşma yerinde açılır (GS21). Deneme yoksa listenin yerinde tek cümle -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+                <comp:ListCard EyebrowText="{x:Static strings:SimulatorStrings.Etiket_Denemeler}"
+                               ItemsSource="{Binding Conditions}"
+                               ItemTemplate="{StaticResource DenemeSatiri}"
+                               OverflowText="{Binding HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding ExpandCommand}"
+                               IsVisible="{Binding HasConditions}"
+                               AutomationId="{x:Static auto:SimulatorAutomationIds.ListSimulatorConditions}" />
+                <Label Text="{x:Static strings:SimulatorStrings.Cumle_DenemeYok}"
+                       Style="{StaticResource Caption}"
+                       IsVisible="{Binding HasConditions, Converter={StaticResource Tersi}}" />
+            </VerticalStackLayout>
+
+            <!-- Hata: çalışma listesi okunamadı -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:SimulatorStrings.Hata_SimulatorAcilamadi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:SimulatorAutomationIds.StateSimulatorError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

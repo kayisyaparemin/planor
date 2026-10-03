@@ -28,25 +28,18 @@ public interface ISimulationWorkflowService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Kullanıcının simülatörde belirlediği koşulları isimli bir taslak olarak kalıcı veri deposuna kaydeder veya günceller.
+    /// Simülatörün çalışma listesini kurulduğu sırayla okur (S76-4); her denemenin sorunu bugüne göre
+    /// değerlendirilir (S76-5). Liste hiç yazılmadıysa boş döner.
     /// </summary>
-    Task<SimulationDraft> SaveSimulationDraftAsync(
-        string name,
+    Task<IReadOnlyList<SimulationWorkingCondition>> GetWorkingListAsync(
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Çalışma listesini verilen sırayla baştan yazar: ekleme, düzenleme, silme ve aç/kapa hep bu yoldan geçer
+    /// (S76-4). Boş liste listeyi temizler.
+    /// </summary>
+    Task SaveWorkingListAsync(
         IReadOnlyList<SimulationDraftCondition> conditions,
-        Guid? draftId = null,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Kayıtlı tüm simülasyon taslaklarını son güncellenme tarihine göre azalan sırada getirir.
-    /// </summary>
-    Task<IReadOnlyList<SimulationDraft>> GetSimulationDraftsAsync(
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Belirtilen kimliğe sahip simülasyon taslağını ve tüm koşullarını kalıcı olarak siler.
-    /// </summary>
-    Task DeleteSimulationDraftAsync(
-        Guid id,
         CancellationToken cancellationToken = default);
 
     /// <summary>

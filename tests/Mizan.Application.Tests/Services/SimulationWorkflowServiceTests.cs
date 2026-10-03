@@ -102,85 +102,6 @@ public sealed class SimulationWorkflowServiceTests
     }
 
     [Fact]
-    public async Task SaveSimulationDraftAsync_EmptyName_ThrowsInvalidOperationException()
-    {
-        var sut = CreateSut();
-        var condition = new SimulationDraftCondition(new SimulationRequest
-        {
-            Type = SimulationScenarioType.CashPurchase,
-            Name = "x",
-            Amount = 100m,
-            StartDate = new DateOnly(2026, 10, 1)
-        });
-
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.SaveSimulationDraftAsync("   ", [condition]));
-        Assert.Equal("Geçici plana bir ad vermelisin.", ex.Message);
-    }
-
-    [Fact]
-    public async Task SaveSimulationDraftAsync_EmptyConditions_ThrowsInvalidOperationException()
-    {
-        var sut = CreateSut();
-
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.SaveSimulationDraftAsync("Taslak", []));
-        Assert.Equal("Kaydedilecek en az bir koşul gerekiyor.", ex.Message);
-    }
-
-    [Fact]
-    public async Task SaveSimulationDraftAsync_NewDraft_SavesAndReturns()
-    {
-        var sut = CreateSut();
-        var condition = new SimulationDraftCondition(new SimulationRequest
-        {
-            Type = SimulationScenarioType.CashPurchase,
-            Name = "x",
-            Amount = 100m,
-            StartDate = new DateOnly(2026, 10, 1)
-        });
-
-        var draft = await sut.SaveSimulationDraftAsync("Tatil Planı", [condition]);
-
-        Assert.NotNull(draft);
-        Assert.Equal("Tatil Planı", draft.Name);
-        Assert.Equal(_clock.UtcNow, draft.CreatedAt);
-        Assert.Equal(_clock.UtcNow, draft.UpdatedAt);
-
-        var drafts = await _draftRepository.GetDraftsAsync();
-        Assert.Single(drafts);
-    }
-
-    [Fact]
-    public async Task SaveSimulationDraftAsync_ExistingDraft_UpdatesAndPreservesCreatedAt()
-    {
-        var sut = CreateSut();
-        var existingId = Guid.NewGuid();
-        var originalCreated = _clock.UtcNow.AddDays(-5);
-        await _draftRepository.UpsertDraftAsync(new SimulationDraft(
-            existingId,
-            "Eski Ad",
-            originalCreated,
-            originalCreated,
-            []));
-
-        var condition = new SimulationDraftCondition(new SimulationRequest
-        {
-            Type = SimulationScenarioType.CashPurchase,
-            Name = "x",
-            Amount = 100m,
-            StartDate = new DateOnly(2026, 10, 1)
-        });
-
-        var updated = await sut.SaveSimulationDraftAsync("Yeni Ad", [condition], existingId);
-
-        Assert.Equal(existingId, updated.Id);
-        Assert.Equal("Yeni Ad", updated.Name);
-        Assert.Equal(originalCreated, updated.CreatedAt);
-        Assert.Equal(_clock.UtcNow, updated.UpdatedAt);
-    }
-
-    [Fact]
     public async Task ApplySimulationAsync_NotConfirmed_ThrowsInvalidOperationException()
     {
         var sut = CreateSut();
@@ -279,22 +200,6 @@ public sealed class SimulationWorkflowServiceTests
     }
 
     [Fact]
-    public async Task GetSimulationDraftsAsync_AndDeleteDraftAsync_DelegatesToRepository()
-    {
-        var sut = CreateSut();
-        var draftId = Guid.NewGuid();
-        await _draftRepository.UpsertDraftAsync(new SimulationDraft(
-            draftId, "Taslak", _clock.UtcNow, _clock.UtcNow, []));
-
-        var list = await sut.GetSimulationDraftsAsync();
-        Assert.Single(list);
-
-        await sut.DeleteSimulationDraftAsync(draftId);
-        var afterDelete = await sut.GetSimulationDraftsAsync();
-        Assert.Empty(afterDelete);
-    }
-
-    [Fact]
     public async Task AddRecordFromScenarioAsync_IncomeBeforeAnchor_ThrowsInvalidOperationException()
     {
         var sut = CreateSut();
@@ -311,6 +216,73 @@ public sealed class SimulationWorkflowServiceTests
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             sut.AddRecordFromScenarioAsync(request));
     }
+
+    [Fact]
+    public async Task GetWorkingListAsync_ListeHicYazilmadiysa_BosDoner()
+    {
+        var sut = CreateSut();
+
+        var list = await sut.GetWorkingListAsync();
+
+        Assert.Empty(list);
+    }
+
+    [Fact]
+    public async Task SaveWorkingListAsync_SonraOkununca_SiraVeAcikKapaliKorunur()
+    {
+        var sut = CreateSut();
+        var phone = Condition("Telefon", new DateOnly(2026, 10, 1), isEnabled: true);
+        var holiday = Condition("Tatil", new DateOnly(2026, 12, 20), isEnabled: false);
+
+        await sut.SaveWorkingListAsync([phone, holiday]);
+        var list = await sut.GetWorkingListAsync();
+
+        Assert.Equal(["Telefon", "Tatil"], list.Select(x => x.Request.Name));
+        Assert.Equal([true, false], list.Select(x => x.IsEnabled));
+        Assert.Equal(phone.Request, list[0].Request);
+    }
+
+    [Fact]
+    public async Task GetWorkingListAsync_TarihiDundeKalanDeneme_TarihiGectiIsaretlenir()
+    {
+        var sut = CreateSut();
+        var yesterday = Condition("Dün", _clock.Today.AddDays(-1), isEnabled: true);
+        var today = Condition("Bugün", _clock.Today, isEnabled: true);
+        await sut.SaveWorkingListAsync([yesterday, today]);
+
+        var list = await sut.GetWorkingListAsync();
+
+        Assert.Equal(
+            [SimulationConditionIssue.DatePassed, SimulationConditionIssue.None],
+            list.Select(x => x.Issue));
+    }
+
+    [Fact]
+    public async Task SaveWorkingListAsync_BosListe_ListeyiTemizler()
+    {
+        var sut = CreateSut();
+        await sut.SaveWorkingListAsync([Condition("Telefon", new DateOnly(2026, 10, 1), isEnabled: true)]);
+
+        await sut.SaveWorkingListAsync([]);
+
+        Assert.Empty(await sut.GetWorkingListAsync());
+    }
+
+    [Fact]
+    public async Task SaveWorkingListAsync_TekrarTekrarYazilinca_TaslakTablosundaTekKayitKalir()
+    {
+        var sut = CreateSut();
+        await sut.SaveWorkingListAsync([Condition("Telefon", new DateOnly(2026, 10, 1), isEnabled: true)]);
+
+        await sut.SaveWorkingListAsync([Condition("Tatil", new DateOnly(2026, 12, 20), isEnabled: true)]);
+
+        var drafts = await _draftRepository.GetDraftsAsync();
+        Assert.Single(drafts);
+        Assert.Equal("Tatil", Assert.Single(drafts[0].Conditions).Request.Name);
+    }
+
+    private static SimulationDraftCondition Condition(string name, DateOnly date, bool isEnabled) =>
+        new(new SimulationRequest(SimulationScenarioType.CashPurchase, name, 30_000m, date), isEnabled);
 
     private static FinancialPlan CreateValidPlan()
     {
