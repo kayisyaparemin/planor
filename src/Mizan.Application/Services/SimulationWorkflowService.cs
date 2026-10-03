@@ -6,14 +6,13 @@ using Mizan.Domain.Models;
 namespace Mizan.Application.Services;
 
 /// <summary>
-/// Kullanıcının What-If senaryo simülasyonlarını koşturmasını, denemelerini tek çalışma listesinde saklamasını
-/// (S76-4) ve açık onayla canlı plana aktarmasını sağlayan kullanım senaryosu servisidir.
+/// Kullanıcının denemelerini tek çalışma listesinde saklamasını (S76-4) ve açık onayla canlı plana aktarmasını
+/// sağlayan kullanım senaryosu servisidir. Sonucu hesaplamaz: o iş <see cref="SimulationResultService"/>'in (S76-6).
 /// </summary>
 public sealed class SimulationWorkflowService(
     IClock clock,
     IPlanReader planReader,
     ISimulationDraftRepository draftRepository,
-    SimulationCalculator simulationCalculator,
     ISimulationPlanApplier planApplier) : ISimulationWorkflowService
 {
     // Çalışma listesi taslak tablosunda tek kayıttır (S76-4): kimliği sabit, adı hiçbir ekranda görünmez.
@@ -26,41 +25,8 @@ public sealed class SimulationWorkflowService(
         planReader ?? throw new ArgumentNullException(nameof(planReader));
     private readonly ISimulationDraftRepository _draftRepository =
         draftRepository ?? throw new ArgumentNullException(nameof(draftRepository));
-    private readonly SimulationCalculator _simulationCalculator =
-        simulationCalculator ?? throw new ArgumentNullException(nameof(simulationCalculator));
     private readonly ISimulationPlanApplier _planApplier =
         planApplier ?? throw new ArgumentNullException(nameof(planApplier));
-
-    /// <inheritdoc />
-    public Task<SimulationResult> SimulateAsync(
-        SimulationRequest request,
-        DateOnly? asOf = null,
-        CancellationToken cancellationToken = default) =>
-        SimulateAsync([request ?? throw new ArgumentNullException(nameof(request))], asOf, cancellationToken: cancellationToken);
-
-    /// <inheritdoc />
-    public async Task<SimulationResult> SimulateAsync(
-        IReadOnlyList<SimulationRequest> requests,
-        DateOnly? asOf = null,
-        decimal? variableExpenseAllowanceOverride = null,
-        CancellationToken cancellationToken = default)
-    {
-        var date = asOf ?? _clock.Today;
-        var query = await _planReader.GetProjectionPlanAsync(date, cancellationToken);
-
-        if (!query.Plan.CanBuildProjection)
-        {
-            throw new InvalidOperationException(
-                "Simülasyon yapabilmek için önce gelirini veya açılış bakiyeni tanımlamalısın.");
-        }
-
-        var plan = ApplyAllowanceOverride(query.Plan, variableExpenseAllowanceOverride);
-        return _simulationCalculator.Calculate(
-            plan,
-            date,
-            requests,
-            firstPeriodStartDate: query.Boundary?.FirstUnrealizedPeriodStartDate);
-    }
 
     /// <inheritdoc />
     public async Task<IReadOnlyList<SimulationWorkingCondition>> GetWorkingListAsync(
@@ -132,15 +98,4 @@ public sealed class SimulationWorkflowService(
 
         return await _planApplier.ApplyAsync(plan, [request], "Finansal Yapı'dan eklendi", cancellationToken);
     }
-
-    private static FinancialPlan ApplyAllowanceOverride(FinancialPlan plan, decimal? allowanceOverride) =>
-        allowanceOverride is not { } budget || budget == plan.Settings.PeriodVariableExpenseAllowance
-            ? plan
-            : plan with
-            {
-                Settings = plan.Settings with
-                {
-                    PeriodVariableExpenseAllowance = budget
-                }
-            };
 }

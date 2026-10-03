@@ -17,88 +17,20 @@ public sealed class SimulationWorkflowServiceTests
     private readonly FakePlanReader _planReader = new();
     private readonly FakeSimulationPlanApplier _planApplier = new();
 
-    private readonly SimulationCalculator _calculator;
-
-    public SimulationWorkflowServiceTests()
-    {
-        var periodCalc = new CashFlowPeriodCalculator();
-        var incomeCalc = new IncomeProjectionCalculator(new IncomeResolver());
-        var cardCalc = new CreditCardStatementCalculator();
-        var loanSchedule = new LoanScheduleCalculator();
-        var loanAmortization = new LoanAmortizationCalculator(loanSchedule);
-        var loanScheduleBuilder = new LoanPaymentScheduleBuilder(loanSchedule, loanAmortization);
-        var loanValidator = new LoanPrepaymentValidator(loanAmortization, loanScheduleBuilder);
-        var mandatoryCalc = new MandatoryPaymentCalculator(loanScheduleBuilder, new ScheduledPaymentCalculator());
-        var grouper = new PeriodObligationGrouper();
-
-        var projectionCalculator = new FinancialProjectionCalculator(
-            periodCalc,
-            incomeCalc,
-            cardCalc,
-            mandatoryCalc,
-            grouper);
-
-        var installments = new InstallmentScheduleCalculator();
-        var planBuilder = new ScenarioPlanBuilder(installments, loanValidator);
-        _calculator = new SimulationCalculator(projectionCalculator, planBuilder, loanScheduleBuilder);
-    }
-
     private SimulationWorkflowService CreateSut() =>
-        new(_clock, _planReader, _draftRepository, _calculator, _planApplier);
+        new(_clock, _planReader, _draftRepository, _planApplier);
 
     [Fact]
     public void Constructor_NullArguments_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationWorkflowService(null!, _planReader, _draftRepository, _calculator, _planApplier));
+            new SimulationWorkflowService(null!, _planReader, _draftRepository, _planApplier));
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationWorkflowService(_clock, null!, _draftRepository, _calculator, _planApplier));
+            new SimulationWorkflowService(_clock, null!, _draftRepository, _planApplier));
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationWorkflowService(_clock, _planReader, null!, _calculator, _planApplier));
+            new SimulationWorkflowService(_clock, _planReader, null!, _planApplier));
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationWorkflowService(_clock, _planReader, _draftRepository, null!, _planApplier));
-        Assert.Throws<ArgumentNullException>(() =>
-            new SimulationWorkflowService(_clock, _planReader, _draftRepository, _calculator, null!));
-    }
-
-    [Fact]
-    public async Task SimulateAsync_CannotBuildProjection_ThrowsInvalidOperationException()
-    {
-        var sut = CreateSut();
-        _planReader.PlanToReturn = new FinancialPlan(); // CanBuildProjection = false
-
-        var request = new SimulationRequest
-        {
-            Type = SimulationScenarioType.CashPurchase,
-            Name = "Harcama",
-            Amount = 5_000m,
-            StartDate = new DateOnly(2026, 10, 1)
-        };
-
-        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.SimulateAsync(request));
-        Assert.Equal("Simülasyon yapabilmek için önce gelirini veya açılış bakiyeni tanımlamalısın.", ex.Message);
-    }
-
-    [Fact]
-    public async Task SimulateAsync_ValidPlan_ReturnsSimulationResult()
-    {
-        var sut = CreateSut();
-        _planReader.PlanToReturn = CreateValidPlan();
-
-        var request = new SimulationRequest
-        {
-            Type = SimulationScenarioType.CashPurchase,
-            Name = "Harcama",
-            Amount = 5_000m,
-            StartDate = new DateOnly(2026, 10, 1)
-        };
-
-        var result = await sut.SimulateAsync(request);
-
-        Assert.NotNull(result);
-        Assert.Equal(12, result.Baseline.Count);
-        Assert.Equal(12, result.Scenario.Count);
+            new SimulationWorkflowService(_clock, _planReader, _draftRepository, null!));
     }
 
     [Fact]
@@ -176,27 +108,6 @@ public sealed class SimulationWorkflowServiceTests
 
         Assert.NotNull(result);
         Assert.Equal("Finansal Yapı'dan eklendi", _planApplier.LastTrigger);
-    }
-
-    [Fact]
-    public async Task SimulateAsync_WithAllowanceOverride_CalculatesWithModifiedBudget()
-    {
-        var sut = CreateSut();
-        _planReader.PlanToReturn = CreateValidPlan();
-        var request = new SimulationRequest
-        {
-            Type = SimulationScenarioType.CashPurchase,
-            Name = "Harcama",
-            Amount = 5_000m,
-            StartDate = new DateOnly(2026, 10, 1)
-        };
-
-        var withoutOverride = await sut.SimulateAsync([request]);
-        var withOverride = await sut.SimulateAsync([request], variableExpenseAllowanceOverride: 50_000m);
-
-        Assert.NotEqual(
-            withoutOverride.Scenario[0].EndingBalance,
-            withOverride.Scenario[0].EndingBalance);
     }
 
     [Fact]

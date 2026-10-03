@@ -53,9 +53,9 @@ public sealed class FutureProjectionService(
             cancellationToken);
     }
 
-    // Açık dönem yoksa zincir yoktur (S74-2). Kural zincirin kendisine sorulur: gelir silinmiş ama ana sayfada bakiye
-    // varsa zincir erimeyi gösterir.
-    private async Task<Chain?> LoadChainAsync(CancellationToken cancellationToken)
+    // Açık dönem yoksa zincir yoktur (S74-2). Zincirin kendisi ortak kurucudadır: simülatör de aynısını kullanır (S76-1).
+    // Zincirin ilk dönemi açık dönemin bittiği gündür; öneri bu yüzden açık dönemin taksitlerini denemez (S74-7).
+    private async Task<ProjectionChain?> LoadChainAsync(CancellationToken cancellationToken)
     {
         var progress = await _progressService.GetAsync(cancellationToken);
         if (progress is null)
@@ -65,21 +65,6 @@ public sealed class FutureProjectionService(
 
         var today = _clock.Today;
         var query = await _planReader.GetProjectionPlanAsync(today, cancellationToken);
-        var plan = ChainFrom(query.Plan, progress);
-        return plan.CanBuildProjection ? new Chain(plan, today, progress.PeriodEnd) : null;
+        return ProjectionChainBuilder.Build(query.Plan, progress, today);
     }
-
-    // Planın çapası ve açılışı açık dönemin başıdır; ikisi de ana sayfanın dönem sonuyla değişir (S74-1).
-    private static FinancialPlan ChainFrom(FinancialPlan plan, PeriodProgress progress) =>
-        plan with
-        {
-            Settings = plan.Settings with
-            {
-                ProjectionAnchorDate = progress.PeriodEnd,
-                ProjectionOpeningBalance = progress.ProjectedEndingBalance ?? progress.PlannedEndingBalance
-            }
-        };
-
-    // Zincirin ilk dönemi açık dönemin bittiği gündür; öneri bu yüzden açık dönemin taksitlerini denemez (S74-7).
-    private sealed record Chain(FinancialPlan Plan, DateOnly Today, DateOnly FirstPeriodStart);
 }

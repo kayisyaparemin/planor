@@ -11,7 +11,7 @@
              x:DataType="vm:SimulatorViewModel"
              AutomationId="{x:Static auto:SimulatorAutomationIds.PageSimulator}">
 
-    <!-- EK-V10: Simülatör (V10a — denemeler), S76, GS28 -->
+    <!-- EK-V10: Simülatör (V10a — denemeler, V10b1 — sonuç kartının üst yarısı), S76, GS28 -->
     <ContentPage.Resources>
         <!-- Deneme satırı: ad · bağlam · tutar · aç/kapa; kapalı ya da sorunlu satır soluk, satıra dokunmak Düzenle / Sil (S3) -->
         <DataTemplate x:Key="DenemeSatiri"
@@ -85,9 +85,85 @@
                 <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
             </VerticalStackLayout>
 
-            <!-- Dolu: denemeler; taşma yerinde açılır (GS21). Deneme yoksa listenin yerinde tek cümle -->
+            <!-- Dolu: önce cevap (sonuç kartı), sonra girdiler (denemeler). Taşma yerinde açılır (GS21);
+                 deneme yoksa listenin yerinde tek cümle -->
             <VerticalStackLayout Spacing="{StaticResource Space4}"
                                  IsVisible="{Binding IsContent}">
+
+                <!-- Sonuç kartı: denemeyle en düşük dönem sonu, aynı dönemde şu anki gidişata göre fark, iki çizgili yol (S1) -->
+                <Border BackgroundColor="{DynamicResource SurfaceChart}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        IsVisible="{Binding Result.IsContent}"
+                        AutomationId="{x:Static auto:SimulatorAutomationIds.CardSimulatorResult}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:SimulatorStrings.Etiket_EnDusukDonemSonu}"
+                               Style="{StaticResource Eyebrow}" />
+                        <Label Text="{Binding Result.LowestEndingBalance, Converter={StaticResource Para}}"
+                               Style="{StaticResource HeroFigure}"
+                               AutomationId="{x:Static auto:SimulatorAutomationIds.LblSimulatorLowest}" />
+                        <Label Text="{Binding Result.LowestPeriodStart, Converter={StaticResource Tarih}, ConverterParameter='d MMMM yyyy', StringFormat={x:Static strings:SimulatorStrings.Bicim_EnDusukDonem}}"
+                               Style="{StaticResource Caption}" />
+
+                        <!-- Yalnız açık deneme varken: eksi olumsuz, artı olumlu, sıfır sönük -->
+                        <Grid ColumnDefinitions="*, Auto"
+                              IsVisible="{Binding Result.HasDifference}">
+                            <Label Text="{x:Static strings:SimulatorStrings.Etiket_SuAnkiGidisataGore}"
+                                   Style="{StaticResource Caption}" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Result.DifferenceAtLowest, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                   Style="{StaticResource Caption}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Result.IsDifferenceNegative}" Value="True">
+                                        <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding Result.IsDifferencePositive}" Value="True">
+                                        <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Grid>
+
+                        <!-- Denemeli çizgi düz, şu anki gidişat kesikli; sıfır çizgisi her zaman, dolgu ona iner (GS26-3, 4, GS28-2) -->
+                        <GraphicsView Drawable="{Binding Result.Trend, Converter={StaticResource TrendGrafigi}}"
+                                      HeightRequest="{StaticResource ChartHeight}"
+                                      InputTransparent="True" />
+
+                        <Grid ColumnDefinitions="*, *">
+                            <Label Grid.Column="0"
+                                   Text="{Binding Result.ChainStart, Converter={StaticResource Tarih}, ConverterParameter='d MMM yyyy'}"
+                                   Style="{StaticResource Caption}" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Result.HorizonLastDay, Converter={StaticResource Tarih}, ConverterParameter='d MMM yyyy'}"
+                                   Style="{StaticResource Caption}"
+                                   HorizontalTextAlignment="End" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Sonucun kendi durumları: liste bunlardan bağımsız kullanılabilir (S76 V10b notları e, f) -->
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}"
+                                    IsVisible="{Binding Result.IsLoading}" />
+                <comp:StateBlock CurrentState="Empty"
+                                 IconGlyph="{x:Static icons:Icons.Schedule}"
+                                 Message="{x:Static strings:SimulatorStrings.Bos_SimulatorYok}"
+                                 ActionText="{x:Static strings:SimulatorStrings.Aksiyon_FinansalYapiyaGit}"
+                                 ActionCommand="{Binding Result.OpenFinancialStructureCommand}"
+                                 IsVisible="{Binding Result.IsEmpty}"
+                                 AutomationId="{x:Static auto:SimulatorAutomationIds.StateSimulatorResultEmpty}" />
+                <comp:StateBlock CurrentState="Error"
+                                 IconGlyph="{x:Static icons:Icons.Close}"
+                                 Message="{x:Static strings:SimulatorStrings.Hata_SimulasyonHesaplanamadi}"
+                                 ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                                 ActionCommand="{Binding Result.RetryCommand}"
+                                 IsVisible="{Binding Result.IsError}"
+                                 AutomationId="{x:Static auto:SimulatorAutomationIds.StateSimulatorResultError}" />
+
                 <comp:ListCard EyebrowText="{x:Static strings:SimulatorStrings.Etiket_Denemeler}"
                                ItemsSource="{Binding Conditions}"
                                ItemTemplate="{StaticResource DenemeSatiri}"

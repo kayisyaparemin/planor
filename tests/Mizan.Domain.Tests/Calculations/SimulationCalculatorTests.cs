@@ -138,23 +138,6 @@ public sealed class SimulationCalculatorTests
         var result = _calculator.Calculate(plan, new DateOnly(2026, 8, 20), request, periodCount: 3);
 
         Assert.True(result.ScenarioInterest.CreditCardInterest <= result.BaselineInterest.CreditCardInterest);
-        Assert.NotNull(result.FriendlySummary);
-    }
-
-    [Fact]
-    public void Calculate_FriendlySummary_ReportsEndingDifferenceAndDeficit()
-    {
-        var plan = CreateBasicPlan(openingBalance: 0m, monthlyIncome: 30000m, livingAllowance: 35000m);
-        var request = new SimulationRequest(
-            SimulationScenarioType.CashPurchase,
-            "Açık Yaratan Harcama",
-            50000m,
-            new DateOnly(2026, 9, 20));
-
-        var result = _calculator.Calculate(plan, new DateOnly(2026, 8, 20), request, periodCount: 3);
-
-        Assert.Contains("azaltıyor", result.FriendlySummary);
-        Assert.Contains("finansman açığı oluşturuyor", result.FriendlySummary);
     }
 
     private static FinancialPlan CreateBasicPlanWithCard(Guid cardId, decimal carriedBalance)

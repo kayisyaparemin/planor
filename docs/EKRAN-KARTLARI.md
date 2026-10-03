@@ -1872,7 +1872,7 @@ gidişat kartının deseni, listeler `ListCard`. Konseptten sapmalar `GS27`'de.
 > Davranış `S76`, ekran `GS28`. Altı alt adım: `V10a` form + liste, `V10b` sonuç, `V10c` harcama türleri,
 > `V10d` borç türleri, `V10e` gelir türleri, `V10f` "Planıma ekle". Kapı A ve B ortak (2026-10-03).
 > Ekran gerçek kayıtlara yalnız "Planıma ekle" ile yazar; denemeler kendi listesinde saklanır.
-> Durum: `V10a` tamamlandı (2026-10-03); `V10b`–`V10f` açık.
+> Durum: `V10a` ve `V10b1` tamamlandı (2026-10-03); `V10b2`–`V10f` açık.
 
 **Eski proje:** `SimulationPage.xaml` 453 satır, **64 `<Label>`**, 14 buton, 11 kart + 12 dönem kart şablonu, en az 8
 açıklama cümlesi; kod arkası 113 satır (onay ve gezinme). `ScenarioConditionFormView` 85 satır, 17 etiket, 13 giriş.
@@ -1893,7 +1893,7 @@ ViewModel 1.034 satır / 4 `partial` + form 403 satır / 2 `partial`.
 | Bilgi / Öğe | Karar | Gerekçe |
 |---|---|---|
 | Denemeyle en düşük dönem sonu + dönem | **Hero** (`HeroFigure`) + açıklama satırı | S1; 12 Dönem'in hero'su, denemeyle |
-| Şu anki gidişata göre fark (en düşükte) | **Satır** (hero altında, işaretli, renkli) | S1; yalnız açık deneme varsa |
+| Şu anki gidişata göre fark (aynı dönemde) | **Satır** (hero altında, işaretli, renkli) | S1; yalnız açık deneme varsa; denemeyle en düşük dönemin denemesiz sonuyla fark (`S76` V10b notları c) |
 | Şu anki ve denemeyle zincir, sıfır çizgisi | **Grafik** (`AreaTrend`, iki seri) | S1 / S2 yön (`GS28`-2) |
 | 12 dönem sonra: şu an / denemeyle / fark | **Şema** (`ComparisonStrip`) | S2; açık deneme yokken 12 Dönem'deki `MetricRow` |
 | 12 dönemde faiz, faiz farkı | **Satır** (`MetricRow`; fark yalnız ≠ 0) | S4; kırılım tablosu yok (`S76`-9) |
@@ -1935,6 +1935,12 @@ ay, tutar). `MetricRow` ve `ComparisonStrip` bileşen; sayfada `<Label>` değill
 `<Label.Triggers>`'ı da sayıyor), cümle 1; deneme formu label 3, kart 0 (form kartı ham `Border`), cümle 0. Aşama 4'teki
 `V10a` payıyla aynı; sonuç kartı (8) ve ızgara (3) `V10b`'de.
 
+`V10b` iki alt adım (2026-10-03, Aşama 1: ~500 satır). **`V10b1`** sonuç kartının üst yarısını getirir: hero, fark
+satırı, grafik, iki uç tarih (7 etiket) → simülatör sayfası hero 1/1, kart 2/4 (sonuç kartı ham `Border` +
+denemeler `ListCard`), grafik 1/1, label 11/28 (analizci 15: `<Label.Triggers>`'ı da sayıyor), cümle 1/3, NavRow 0/5.
+**`V10b2`** kartın alt yarısını (`ComparisonStrip` "12 dönem sonra", faiz `MetricRow`'ları, "12 dönem sonra" eyebrow'u:
++1 etiket) ve dönem sonları ızgarasını (kart 3/4, +3 etiket) ekler → toplam yukarıdaki tablo.
+
 ### 4. Blok şeması
 
 **`SimulatorPage.xaml`**
@@ -1943,7 +1949,7 @@ ay, tutar). `MetricRow` ve `ComparisonStrip` bileşen; sayfada `<Label>` değill
 ┌─ PageHeader ────────────────────────────────────────────────┐
 │ Simülatör                 Baslik_Simulator        [ Ekle ]  │  ← S3; Aksiyon_Ekle → tür seçici
 └─────────────────────────────────────────────────────────────┘    (IDialogService; V10a'da tek seçenek)
-┌─ Sonuç kartı (ham Border)  SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐  V10b
+┌─ Sonuç kartı (ham Border)  SurfaceChart / BorderSubtle / RadiusHero / CardPadding ┐  V10b1 (iki uç tarihe kadar)
 │ Etiket_EnDusukDonemSonu                  Eyebrow            │  ← S1
 │ 4.200 ₺                                  HeroFigure / TextPrimary (eksi de olsa); denemeyle
 │ 10 Mart 2027 dönemi sonunda              Bicim_EnDusukDonem, Caption / TextSecondary
@@ -1954,6 +1960,7 @@ ay, tutar). `MetricRow` ve `ComparisonStrip` bileşen; sayfada `<Label>` değill
 │   Karşılaştırma: şu anki gidişat, planned → TextSecondary kesikli, dolgusuz (GS28-2)
 │   Threshold 0: NegativeText kesikli (GS26-3)
 │ 10 Eki 2026                     9 Eki 2027    Caption ×2: zincir başı · 12. dönemin son günü
+│ ── buradan aşağısı V10b2 ──                                 │
 │ ── açık deneme yokken: 12 Dönem'in kartının aynısı ──       │
 │ MetricRow Etiket_OnIkiDonemSonra ............... 52.300 ₺   │  ← S2; eksiyse Negative
 │ ── açık deneme varken ──                                    │
@@ -1977,7 +1984,7 @@ ay, tutar). `MetricRow` ve `ComparisonStrip` bileşen; sayfada `<Label>` değill
 └─────────────────────────────────────────────────────────────┘
   Cumle_DenemeYok              Caption / TextSecondary; deneme yokken listenin yerinde  ← S3
   [ Planıma ekle ]             Button (ActionFill); yalnız açık ve geçerli deneme varsa  ← S5, V10f
-┌─ Dönem sonları (ham Border)  SurfaceCard / BorderSubtle / RadiusCard ┐  V10b  ← S1
+┌─ Dönem sonları (ham Border)  SurfaceCard / BorderSubtle / RadiusCard ┐  V10b2  ← S1
 │ Etiket_DonemSonlari                      Eyebrow            │
 │ 3 × 4 karo: ay (Caption) + denemeyle dönem sonu (TypeFigure; en düşük SemiBold, eksi NegativeText)
 │ 12 Dönem'in karo şablonunun aynısı (GS26-1); dokunma yok (S76-9)
@@ -2018,7 +2025,7 @@ dokuz tür tek sayfada 11 etikette kalır. `V10a`'da yalnız ad, tutar ve tarih 
 
 | Durum | Görünen |
 |---|---|
-| Boş | `StateBlock`: `Schedule` + `Bos_SimulatorYok` + `Aksiyon_FinansalYapiyaGit` — açık dönem yok ya da zincir kurulamıyor (`S76`-1, `V10b`). Deneme yoksa sayfa boş değildir: sonuç kartı şu anki gidişatla, listenin yerinde `Cumle_DenemeYok`. |
+| Boş | `StateBlock`: `Schedule` + `Bos_SimulatorYok` + `Aksiyon_FinansalYapiyaGit` — açık dönem yok ya da zincir kurulamıyor (`S76`-1, `V10b`). Deneme yoksa sayfa boş değildir: sonuç kartı şu anki gidişatla, listenin yerinde `Cumle_DenemeYok`. `StateBlock` **sonuç kartının yerinde** durur (`S76` V10b notları f): deneme listesi ve "Ekle" kalır, kullanıcı denemelerini silebilir. |
 | Yükleniyor | `SkeletonBlock`'lar: sonuç kartı (`ChartHeight`) ve liste; spinner yok (`GS14`). Canlı yeniden hesapta iskelet yok: eski sonuç yenisi gelene kadar yerinde kalır. Form: yalnız düzenlemede iki iskelet. |
 | Hata | Liste okunamazsa `StateBlock`: `Close` + `Hata_SimulatorAcilamadi` + `Aksiyon_TekrarDene`. Hesap düşerse yalnız sonuç kartının yerinde `StateBlock` (`Hata_SimulasyonHesaplanamadi` + `Aksiyon_TekrarDene`); liste kullanılabilir kalır, bozuk deneme silinebilir. Form: deneme bulunamazsa diyalog ve geri. |
 
@@ -2063,7 +2070,7 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
 | EK-V9 | Dönem ayrıntısı | 81 | 12 | ✅ V9 |
-| EK-V10 | Simülatör | 64 | 4 + 3 | ⬜ V10a (V10b–V10f açık) |
+| EK-V10 | Simülatör | 64 | 11 + 3 | ⬜ V10a, V10b1 (V10b2–V10f açık) |
 | EK-V11 | Dönem kapanışı | 50 | | ⬜ |
 | EK-V12 | Geçmiş + ayrıntı | 29 | | ⬜ |
 | EK-V13 | Ayarlar + düzen | 52 | | ⬜ |

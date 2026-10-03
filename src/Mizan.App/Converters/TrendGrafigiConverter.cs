@@ -7,7 +7,8 @@ namespace Mizan.App.Converters;
 /// <summary>
 /// ViewModel'in sunduğu trend verisini (<see cref="ChartTrend"/>) bir <see cref="AreaTrend"/> çizimine çevirir ve
 /// <c>GraphicsView.Drawable</c>'a bağlanır: katedilen yol düz, önümüzdeki yol kesikli, bakiye günleri nokta,
-/// bugün ve plan seviyesi ince çizgi (GS23, GS24). Veri yoksa çizim de yoktur.
+/// bugün ve plan seviyesi ince çizgi (GS23, GS24), simülatörde karşılaştırma serisi kesikli ve dolgusuz (GS28-2).
+/// Veri yoksa çizim de yoktur.
 /// </summary>
 public sealed class TrendGrafigiConverter : IValueConverter
 {
@@ -21,7 +22,8 @@ public sealed class TrendGrafigiConverter : IValueConverter
                 Today = trend.Today,
                 PlanLevel = trend.PlanLevel,
                 MarkerSeries = trend.Markers,
-                Threshold = trend.Threshold
+                Threshold = trend.Threshold,
+                PlannedSeries = trend.Comparison
             }
             : null;
 

@@ -14,7 +14,7 @@ namespace Mizan.Presentation.ViewModels;
 /// Simülatör sayfasının görünüm modeli (EK-V10, S76). Kullanıcının "şunu yaparsam ne olur?" diye kurduğu
 /// denemeleri tek çalışma listesinde tutar: listeler, açıp kapatır, düzenlemeye gönderir, siler. Liste
 /// kendiliğinden saklanır (S76-4); eskiden ekranda yaşıyor ve uygulama kapanınca kayboluyordu. Gerçek kayıtlara
-/// dokunmaz. Sonuç tarafı (grafik, kıyas, dönem sonları) V10b'de gelir.
+/// dokunmaz. Sonuç kartı çocuk ViewModel'dedir (<see cref="Result"/>); liste her değiştiğinde ona verilir.
 /// </summary>
 public sealed partial class SimulatorViewModel : ViewModelBase
 {
@@ -44,16 +44,21 @@ public sealed partial class SimulatorViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(HasOverflow))]
     private int hiddenCount;
 
-    /// <summary>Görünüm modelini üç dar bağımlılıkla başlatır (Kural M3).</summary>
+    /// <summary>Görünüm modelini dört dar bağımlılıkla başlatır (Kural M3).</summary>
     public SimulatorViewModel(
         ISimulationWorkflowService simulationService,
         INavigationService navigationService,
-        IDialogService dialogService)
+        IDialogService dialogService,
+        SimulationResultViewModel result)
     {
         _simulationService = simulationService ?? throw new ArgumentNullException(nameof(simulationService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+        Result = result ?? throw new ArgumentNullException(nameof(result));
     }
+
+    /// <summary>Sonuç kartı; liste her değiştiğinde yeniden hesaplanır (S76-6).</summary>
+    public SimulationResultViewModel Result { get; }
 
     /// <summary>Ekranda görünen deneme satırları, kurulduğu sırayla.</summary>
     public ObservableCollection<SimulationConditionRow> Conditions { get; } = [];
@@ -61,7 +66,7 @@ public sealed partial class SimulatorViewModel : ViewModelBase
     /// <summary>Gizli satır varsa taşma satırı görünür.</summary>
     public bool HasOverflow => HiddenCount > 0;
 
-    /// <summary>Çalışma listesini okur; okuma hatasında hata durumuna düşer.</summary>
+    /// <summary>Çalışma listesini okur, sonucu o listeyle hesaplatır; okuma hatasında hata durumuna düşer (S76-6).</summary>
     [RelayCommand]
     public async Task LoadAsync()
     {
@@ -82,6 +87,11 @@ public sealed partial class SimulatorViewModel : ViewModelBase
         {
             SetBusy(false);
         }
+
+        if (State == ScreenState.Content)
+        {
+            await Recalculate();
+        }
     }
 
     /// <summary>Denenebilecek türleri sorar ve seçilen türün formunu açar.</summary>
@@ -91,14 +101,12 @@ public sealed partial class SimulatorViewModel : ViewModelBase
         var titles = AddableOptions.Select(x => x.Title).ToArray();
         var choice = await _dialogService.ChooseAsync(AddTitle, CancelText, null, titles);
         var option = AddableOptions.FirstOrDefault(x => x.Title == choice);
-        if (option is null)
+        if (option is not null)
         {
-            return;
+            await _navigationService.NavigateToAsync(
+                Routes.SimulationCondition,
+                new Dictionary<string, object> { [Routes.ScenarioOptionParameter] = option.Key });
         }
-
-        await _navigationService.NavigateToAsync(
-            Routes.SimulationCondition,
-            new Dictionary<string, object> { [Routes.ScenarioOptionParameter] = option.Key });
     }
 
     /// <summary>Satırın seçeneklerini tek diyalogda sunar: düzenle, sil.</summary>
@@ -121,7 +129,7 @@ public sealed partial class SimulatorViewModel : ViewModelBase
         {
             _conditions.RemoveAll(x => x.Request.ScenarioId == row.Id);
             Refresh();
-            await PersistAsync();
+            await Task.WhenAll(PersistAsync(), Recalculate());
         }
     }
 
@@ -161,14 +169,17 @@ public sealed partial class SimulatorViewModel : ViewModelBase
         }
 
         var index = _conditions.FindIndex(x => x.Request.ScenarioId == row.Id);
-        if (index < 0)
+        if (index >= 0)
         {
-            return;
+            _conditions[index] = _conditions[index] with { IsEnabled = row.IsEnabled };
+            _ = PersistAsync();
+            _ = Recalculate();
         }
-
-        _conditions[index] = _conditions[index] with { IsEnabled = row.IsEnabled };
-        _ = PersistAsync();
     }
+
+    // Sonuç, yazmanın bitmesini beklemeden ekrandaki listeyle hesaplanır; sorun işaretini servis kendisi değerlendirir.
+    private Task Recalculate() =>
+        Result.RefreshAsync(_conditions.Select(x => new SimulationDraftCondition(x.Request, x.IsEnabled)).ToArray());
 
     // Yazma düşerse ekran diskteki listeye döner; kullanıcı kaydedilmemiş bir hâli görmeye devam etmez.
     private async Task PersistAsync()

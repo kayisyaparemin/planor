@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10a** — simülatör: deneme listesi + nakit ödeme formu (`SimulatorPage`, `SimulationConditionPage`; S76, GS28, EK-V10) |
-| Sıradaki adım | **V10b** — simülatörün sonucu (zincir 12 Dönem'le ortak, iki serili grafik, kıyas, ızgara) |
-| Test sayısı | 1963 |
+| Son tamamlanan adım | **V10b1** — simülatörün sonuç kartı: zincir 12 Dönem'le ortak, açık döneme düşen etki, hero + fark + iki çizgili grafik (`SimulationResultViewModel`; S76, GS28, EK-V10) |
+| Sıradaki adım | **V10b2** — sonuç kartının alt yarısı: "12 dönem sonra" kıyası (`ComparisonStrip`), faiz satırları, 12'li ızgara |
+| Test sayısı | 1987 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10b1 — simülatörün sonuç kartı: en düşükte ne olur, aynı dönemde şu anki gidişata göre fark, iki çizgili yol; kararlar `S76` V10b notları, `GS28`, `EK-V10`
+
+Simülatörün üstünde deneme listesinden önce bir sonuç kartı var: denemeyle 12 dönemin en düşük dönem sonu (hero) ve hangi dönem, o dönemde şu anki gidişata göre fark (eksi kırmızı, artı yeşil, yalnız açık deneme varken), iki çizgili grafik (denemeli düz, şu anki gidişat kesikli, sıfır çizgisi) ve iki uç tarih. Anahtar çevrildikçe, deneme silindikçe ve sayfa her görününce sonuç yeniden hesaplanır; eski sonuç yenisi gelene kadar yerinde kalır, üst üste binen isteklerde son istek kazanır (`I128`). Açık dönem yoksa ya da plan kurulamıyorsa kartın yerinde boş durum, hesap düşerse hata durumu; liste ikisinde de kullanılabilir kalır.
+Zinciri kuran kod artık ortak: `ProjectionChainBuilder` (saf, `FutureProjectionService` ve yeni `SimulationResultService` kullanır). Deneme yokken simülatör 12 Dönem'le kuruşu kuruşuna aynı rakamı söyler (`I125`). Bugün ile açık dönem sonu arasına düşen deneme senaryo zincirinin açılışına eklenir; etki akış farkıdır, KMH faizi ana sayfadaki gerçek dönem sonu üzerinden işler (`I126`, `I127`). Sonuç, ViewModel'in elindeki listeyle istenir (`ISimulationResultService`); hesaba yalnız açık ve tarihi geçmemiş denemeler girer (`I129`). 12 Dönem ile simülatör grafik kurucusunu (`ProjectionTrend`) ve en düşük dönem kuralını (`ProjectionSummary`) paylaşır; `ChartTrend`'e karşılaştırma serisi eklendi, `AreaTrend` değişmedi (`PlannedSeries` zaten vardı).
+Silinenler: `TargetAmountCalculator` + testleri (`I18` düştü), `SimulationResult.FriendlySummary`, iki `SimulateAsync` aşırı yüklemesi ve hiçbir ekranca kullanılmayan harcama havuzu ezmesi parametresi. `SimulationWorkflowService` 4 bağımlılığa indi.
+Dikkat: `SimulatorViewModel` **199 / 200** satırda; V10c'nin yeni türleri için liste yönetimi bir çocuk ViewModel'e ayrılmak zorunda. `ProjectionChain` 6 değer taşıdığı için `required` özelliklerle kuruldu (yapıcı ≤ 5 kuralı). `SimulationRiskSummary` ve `SimulationImpactRow` ekrana bağlı kalmadı; `V10d`'de karar. Üretim kodu net ~+415 satır (XAML 80 dahil; Aşama 1 tahmini ~350). Çalışma ağacındaki izlenmeyen `docs/assets/konsept/anasayfa-*.png` bu adımın değil, commit'e girmedi.
+Bütçe: Hero 1/1, Hero yüzey 0/1, Kart 2/4 (sonuç kartı ham `Border` + denemeler `ListCard`), Grafik 1/1, NavRow 0/5, Label 11/28 (analizci 15), Cümle 1/3. Görsel kontrol: kullanıcı "devam" ile onayladı (Kapı C). 41 yeni test (7 Domain, 11 Application, 23 Presentation), 17 silinen test (13 hedef tutar, 1 özet cümlesi, 3 eski simülasyon); toplam 1.987 test yeşil, 0 hata, 0 uyarı.
 
 ### V10a — simülatör: tek çalışma listesi, nakit ödeme denemesi, satırda aç/kapa; kararlar `S76`, `GS28`, `EK-V10`
 

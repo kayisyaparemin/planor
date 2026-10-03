@@ -29,6 +29,24 @@ public static class SimulatorStrings
     /// <summary>Tarih alanının etiketi.</summary>
     public const string Etiket_Tarih = "TARİH";
 
+    /// <summary>Sonuç kartının hero etiketi: denemeyle 12 dönemin en düşük dönem sonu.</summary>
+    public const string Etiket_EnDusukDonemSonu = "EN DÜŞÜK DÖNEM SONU";
+
+    /// <summary>Hero'nun altındaki fark satırının etiketi: denemeyle, şu anki gidişatın aynı dönemine göre fark.</summary>
+    public const string Etiket_SuAnkiGidisataGore = "Şu anki gidişata göre";
+
+    /// <summary>Hero rakamın altında hangi dönem olduğu; {0} dönemin ilk günü.</summary>
+    public const string Bicim_EnDusukDonem = "{0} dönemi sonunda";
+
+    /// <summary>Açık dönem ya da kurulabilir plan yokken sonuç kartının yerindeki metin (S76-1).</summary>
+    public const string Bos_SimulatorYok = "Simülatör, gelir ya da bakiye bilgisi girildiğinde hesaplanır.";
+
+    /// <summary>Boş hâlin aksiyonu: gelir ve bakiye bilgisinin girildiği yer.</summary>
+    public const string Aksiyon_FinansalYapiyaGit = "Finansal Yapı'ya Git";
+
+    /// <summary>Sonuç hesaplanamadığında (örn. denemedeki kart silinmiş) sonuç kartının yerindeki metin.</summary>
+    public const string Hata_SimulasyonHesaplanamadi = "Sonuç şu an hesaplanamadı.";
+
     /// <summary>Deneme adı alanının yer tutucusu.</summary>
     public const string YerTutucu_Ad = "Örn. Telefon, tatil";
 

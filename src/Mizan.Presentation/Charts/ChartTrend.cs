@@ -22,4 +22,10 @@ public sealed record ChartTrend(
     /// uzaklık güvenlik payıdır, eksi dönemler sıfırın altında ayrı bir cep olur (GS26-3, 4). Ana sayfa vermez.
     /// </summary>
     public ChartThreshold? Threshold { get; init; }
+
+    /// <summary>
+    /// Karşılaştırma serisi: simülatörde denemeli çizginin yanında "şu anki gidişat" (<c>planned</c> rolü: kesikli,
+    /// dolgusuz). Verilmezse tek çizgi vardır ve grafik 12 Dönem'inkiyle aynıdır (GS28-2).
+    /// </summary>
+    public ChartSeries? Comparison { get; init; }
 }

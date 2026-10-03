@@ -53,14 +53,6 @@ public sealed class FakeSimulationWorkflowService : ISimulationWorkflowService
         return Task.CompletedTask;
     }
 
-    public Task<SimulationResult> SimulateAsync(SimulationRequest request, DateOnly? asOf = null, CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException();
-
-    public Task<SimulationResult> SimulateAsync(
-        IReadOnlyList<SimulationRequest> requests, DateOnly? asOf = null, decimal? variableExpenseAllowanceOverride = null,
-        CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException();
-
     public Task<SimulationApplyResult> ApplySimulationAsync(SimulationRequest request, bool confirmed, CancellationToken cancellationToken = default) =>
         throw new NotSupportedException();
 

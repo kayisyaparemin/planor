@@ -1,32 +1,15 @@
 using Mizan.Application.Models;
-using Mizan.Domain.Calculations;
 using Mizan.Domain.Models;
 
 namespace Mizan.Application.Abstractions;
 
 /// <summary>
-/// Kullanıcının What-If senaryo simülasyonlarını koşturmasını, geçici taslak olarak saklamasını
-/// ve onaylanan senaryoları canlı finansal plana aktarmasını sağlayan kullanım senaryosu portu.
+/// Kullanıcının What-If denemelerini tek çalışma listesinde saklamasını ve onaylanan denemeleri canlı finansal
+/// plana aktarmasını sağlayan kullanım senaryosu portu. Denemelerin sonucu burada hesaplanmaz:
+/// <see cref="ISimulationResultService"/> okur, bu port yazar (M4).
 /// </summary>
 public interface ISimulationWorkflowService
 {
-    /// <summary>
-    /// Tek bir simülasyon isteği için mevcut planı temel alarak 12 dönemlik karşılaştırma projeksiyonunu hesaplar.
-    /// </summary>
-    Task<SimulationResult> SimulateAsync(
-        SimulationRequest request,
-        DateOnly? asOf = null,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Çoklu simülasyon istekleri için isteğe bağlı harcama havuzu ezmesiyle 12 dönemlik karşılaştırma projeksiyonunu hesaplar.
-    /// </summary>
-    Task<SimulationResult> SimulateAsync(
-        IReadOnlyList<SimulationRequest> requests,
-        DateOnly? asOf = null,
-        decimal? variableExpenseAllowanceOverride = null,
-        CancellationToken cancellationToken = default);
-
     /// <summary>
     /// Simülatörün çalışma listesini kurulduğu sırayla okur (S76-4); her denemenin sorunu bugüne göre
     /// değerlendirilir (S76-5). Liste hiç yazılmadıysa boş döner.

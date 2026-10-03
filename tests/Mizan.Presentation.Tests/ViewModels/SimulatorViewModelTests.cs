@@ -16,13 +16,15 @@ public sealed class SimulatorViewModelTests
     private static readonly DateOnly Today = new(2026, 10, 3);
 
     private readonly FakeSimulationWorkflowService _service = new();
+    private readonly FakeSimulationResultService _resultService = new();
     private readonly FakeNavigationService _navigation = new();
     private readonly FakeDialogService _dialog = new();
     private readonly SimulatorViewModel _viewModel;
 
     public SimulatorViewModelTests()
     {
-        _viewModel = new SimulatorViewModel(_service, _navigation, _dialog);
+        var result = new SimulationResultViewModel(_resultService, _navigation);
+        _viewModel = new SimulatorViewModel(_service, _navigation, _dialog, result);
     }
 
     [Fact]
@@ -181,6 +183,83 @@ public sealed class SimulatorViewModelTests
 
         Assert.Empty(_service.LastSaved!);
         Assert.False(_viewModel.HasConditions);
+    }
+
+    // Sonuç kartı (S76-6): liste her değiştiğinde ve sayfa her görününce, ViewModel'in elindeki listeyle yeniden hesaplanır.
+    [Fact]
+    public async Task Load_ListeOkununca_SonucuListeyleHesaplar()
+    {
+        var phone = Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true);
+        var holiday = Condition("Tatil", 45_000m, Today.AddDays(80), isEnabled: false);
+        _service.Seed(phone, holiday);
+
+        await _viewModel.LoadAsync();
+
+        var call = Assert.Single(_resultService.Calls);
+        Assert.Equal([phone.Request, holiday.Request], call.Select(x => x.Request));
+        Assert.Equal([true, false], call.Select(x => x.IsEnabled));
+    }
+
+    [Fact]
+    public async Task Load_ListeOkunamazsa_SonucHesaplanmaz()
+    {
+        _service.ThrowOnGet = new InvalidOperationException("okunamadı");
+
+        await _viewModel.LoadAsync();
+
+        Assert.Empty(_resultService.Calls);
+    }
+
+    [Fact]
+    public async Task Toggle_DenemeKapaninca_SonucYenidenHesaplanir()
+    {
+        _service.Seed(Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true));
+        await _viewModel.LoadAsync();
+
+        _viewModel.Conditions[0].IsEnabled = false;
+
+        Assert.Equal(2, _resultService.Calls.Count);
+        Assert.Equal([false], _resultService.Calls[^1].Select(x => x.IsEnabled));
+    }
+
+    [Fact]
+    public async Task Select_Sil_SonucSilinenDenemesizHesaplanir()
+    {
+        var phone = Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true);
+        var holiday = Condition("Tatil", 45_000m, Today.AddDays(80), isEnabled: true);
+        _service.Seed(phone, holiday);
+        await _viewModel.LoadAsync();
+        _dialog.NextChooseResponse = "Sil";
+
+        await _viewModel.SelectConditionCommand.ExecuteAsync(_viewModel.Conditions[0]);
+
+        Assert.Equal(2, _resultService.Calls.Count);
+        Assert.Equal([holiday.Request], _resultService.Calls[^1].Select(x => x.Request));
+    }
+
+    [Fact]
+    public async Task Expand_TasmaAcilinca_SonucuYenidenHesaplamaz()
+    {
+        _service.Seed(Enumerable.Range(1, 6).Select(i => Condition($"Deneme {i}", 1_000m * i, Today.AddDays(i), true)).ToArray());
+        await _viewModel.LoadAsync();
+
+        _viewModel.ExpandCommand.Execute(null);
+
+        Assert.Single(_resultService.Calls);
+        Assert.Equal(6, _resultService.Calls[0].Count);
+    }
+
+    [Fact]
+    public async Task Load_SonucHesabiDusunce_ListeKullanilabilirKalir()
+    {
+        _service.Seed(Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true));
+        _resultService.Failure = new InvalidOperationException("kart bulunamadı");
+
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.IsContent);
+        Assert.True(_viewModel.Result.IsError);
+        Assert.Single(_viewModel.Conditions);
     }
 
     private static SimulationDraftCondition Condition(string name, decimal amount, DateOnly date, bool isEnabled) =>

@@ -60,7 +60,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **D20** — projeksiyon modeli: `CashFlowPeriodProjection`, `FinancialProjectionResult`
 - [x] **D21** — **12 dönemlik projeksiyon motoru**: `FinancialProjectionCalculator`
       — *Domain'in yakınsama noktası; Application'ın kapısı*
-- [x] **D22** — hedef tutar: `TargetAmountCalculator`
+- [x] **D22** — hedef tutar: `TargetAmountCalculator` *(V10b1'de silindi: `S76`-10; "şu tarihte X harcarsam?" bir nakit ödeme denemesidir)*
 - [x] **D23** — senaryo sözlüğü: `SimulationRequest`, `SimulationResult`
 - [x] **D24** — simülasyon motoru: `SimulationCalculator`
       *(düğüm T1: bağımlılığını kendisi `new`lemeyecek, zorunlu parametre — K3/K4 gereği `ScenarioPlanBuilder` ve `SimulationCalculator` olarak ayrıştırıldı)*
@@ -418,8 +418,14 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         tek çalışma listesi (taslak tablosu, port yeniden şekillenir); `A23b` sunum kodu silinir
         *(2026-10-03; `S76`, `GS28`; `SimulatorPage`, `SimulationConditionPage`; koruyan: I122–I124)*. Tek istekli
         `SimulateAsync` / `ApplySimulationAsync` aşırı yüklemeleri (`S76`-4) dokunulacakları `V10b` / `V10f`'ye kaldı.
-  - [ ] **V10b** — sonuç: zincir 12 Dönem'le ortak + açık döneme düşen etki (Application eki), hero, iki serili
-        `AreaTrend`, 12'li ızgara, satırlar, canlı hesap; `TargetAmountCalculator` ve `FriendlySummary` silinir
+  - [ ] **V10b** — sonuç; Aşama 1'de ~500 satır çıktığı için ikiye bölündü (2026-10-03); Kapı A ve B `V10` ile ortak
+    - [x] **V10b1** — "en düşükte ne olur?": zincir 12 Dönem'le ortak + açık döneme düşen etki (Application / Domain eki),
+          sonuç kartı (hero, aynı dönemde şu anki gidişata göre fark, iki serili `AreaTrend`, iki uç tarih), canlı hesap,
+          boş / hata durumu; `TargetAmountCalculator`, `FriendlySummary` ve tek istekli `SimulateAsync` silinir
+          *(2026-10-03; `S76` V10b notları, `GS28`; `SimulationResultViewModel`, `ISimulationResultService`,
+          `ProjectionChainBuilder`; koruyan: I125–I130)*. `SimulatorViewModel` 199 / 200 satırda: `V10c` liste
+          yönetimini çocuk ViewModel'e ayırmak zorunda
+    - [ ] **V10b2** — "bir yıl sonra ne olur, faiz ne?": `ComparisonStrip` ("12 dönem sonra"), faiz satırları, 12'li ızgara
   - [ ] **V10c** — harcama türleri: kartla harcama, düzenli ödeme; kart ödeme şekli
   - [ ] **V10d** — borç türleri: kredi çekme, taksitli nakit borç, krediye erken ödeme; kredi satırları
   - [ ] **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği
@@ -478,6 +484,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamam; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 altı alt adıma bölündü, V10a tamam)* |
+| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamam; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

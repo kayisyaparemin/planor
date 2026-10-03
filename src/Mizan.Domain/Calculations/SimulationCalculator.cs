@@ -27,29 +27,72 @@ public sealed class SimulationCalculator(
         return Calculate(currentPlan, asOf, [request], periodCount, firstPeriodStartDate);
     }
 
-    /// <summary>Çoklu simülasyon istekleri için 12 dönemlik karşılaştırma projeksiyonu ve risk özetini hesaplar.</summary>
+    /// <summary>
+    /// Çoklu simülasyon istekleri için 12 dönemlik karşılaştırma projeksiyonu ve risk özetini hesaplar.
+    /// <paramref name="scenarioOpeningShift"/> yalnız senaryo zincirinin açılışına eklenir: zincirden önce düşen
+    /// (açık dönemdeki) denemenin etkisi buradan zincire girer, baz zincir değişmez (S76-2).
+    /// </summary>
     public SimulationResult Calculate(
-        FinancialPlan currentPlan, DateOnly asOf, IReadOnlyList<SimulationRequest> requests, int periodCount = 12, DateOnly? firstPeriodStartDate = null)
+        FinancialPlan currentPlan, DateOnly asOf, IReadOnlyList<SimulationRequest> requests, int periodCount = 12,
+        DateOnly? firstPeriodStartDate = null, decimal scenarioOpeningShift = 0m)
     {
         ArgumentNullException.ThrowIfNull(currentPlan);
         SimulationRequestValidator.Validate(requests);
 
         var baselineResult = _projectionCalculator.CalculatePlan(currentPlan, asOf, periodCount, firstPeriodStartDate);
-        var scenarioPlan = _planBuilder.Build(currentPlan, requests);
+        var builtPlan = _planBuilder.Build(currentPlan, requests);
+        var scenarioPlan = ShiftOpening(builtPlan, scenarioOpeningShift);
         var scenarioResult = _projectionCalculator.CalculatePlan(scenarioPlan, asOf, periodCount, firstPeriodStartDate);
 
         var baseline = baselineResult.Periods;
         var scenario = scenarioResult.Periods;
         var rows = baseline.Zip(scenario, (b, s) => new SimulationImpactRow(b, s)).ToArray();
-        var loanImpacts = BuildLoanImpacts(currentPlan, scenarioPlan);
+        var loanImpacts = BuildLoanImpacts(currentPlan, builtPlan);
         var risk = BuildRiskSummary(scenario, requests, loanImpacts);
 
-        var interestDiff = scenarioResult.TotalInterestCost - baselineResult.TotalInterestCost;
-        var endingDiff = scenario[^1].EndingBalance - baseline[^1].EndingBalance;
-        var summary = BuildFriendlySummary(risk, interestDiff, endingDiff);
-
-        return new SimulationResult(baseline, scenario, rows, risk, summary) { LoanImpacts = loanImpacts };
+        return new SimulationResult(baseline, scenario, rows, risk) { LoanImpacts = loanImpacts };
     }
+
+    private static FinancialPlan ShiftOpening(FinancialPlan plan, decimal shift) =>
+        shift == 0m
+            ? plan
+            : plan with { Settings = plan.Settings with { ProjectionOpeningBalance = plan.Settings.ProjectionOpeningBalance + shift } };
+
+    /// <summary>
+    /// Bugün ile açık dönemin bitişi arasına düşen denemelerin açık dönemin sonuna etkisini bulur (S76-2). Deneme
+    /// zincirden önce düştüğü için zincirin kendisinde görünmez; bu fark senaryo zincirinin açılışına eklenir.
+    /// Etki, denemeli ve denemesiz açık dönem akışının farkıdır ve plandaki açılışa bağlı değildir. Faiz ise bu
+    /// akış farkı ana sayfadaki gerçek dönem sonuna eklendikten sonra yeniden işletilir (V10b notları b).
+    /// </summary>
+    /// <param name="openPeriodPlan">Açık dönemi içeren plan; çapası açık dönemin başına çekilmek üzere alınır.</param>
+    /// <param name="asOf">Hesabın günü.</param>
+    /// <param name="requests">Hesaba giren açık ve geçerli denemeler.</param>
+    /// <param name="openPeriodStart">Açık dönemin ilk günü.</param>
+    /// <param name="endingBeforeDeficitInterest">Ana sayfadaki dönem sonunun faiz öncesi hâli (dönem sonu + KMH faizi).</param>
+    /// <returns>Denemeli dönem sonu eksi denemesiz dönem sonu; deneme açık dönemi etkilemiyorsa tam sıfır.</returns>
+    public decimal CalculateOpenPeriodEffect(
+        FinancialPlan openPeriodPlan, DateOnly asOf, IReadOnlyList<SimulationRequest> requests,
+        DateOnly openPeriodStart, decimal endingBeforeDeficitInterest)
+    {
+        ArgumentNullException.ThrowIfNull(openPeriodPlan);
+        SimulationRequestValidator.Validate(requests);
+
+        var plan = openPeriodPlan with { Settings = openPeriodPlan.Settings with { ProjectionAnchorDate = openPeriodStart } };
+        var baseSurplus = OpenPeriodSurplus(plan, asOf, openPeriodStart);
+        var scenarioSurplus = OpenPeriodSurplus(_planBuilder.Build(plan, requests), asOf, openPeriodStart);
+
+        var rate = plan.Settings.DeficitFinancingInterestRate;
+        var baseEnding = EndingAfterInterest(endingBeforeDeficitInterest, rate);
+        var scenarioEnding = EndingAfterInterest(endingBeforeDeficitInterest + scenarioSurplus - baseSurplus, rate);
+        return scenarioEnding - baseEnding;
+    }
+
+    // Akış açılıştan bağımsızdır: yalnız gelir, zorunlu ödeme, yaşam havuzu ve büyük harcama girer.
+    private decimal OpenPeriodSurplus(FinancialPlan plan, DateOnly asOf, DateOnly openPeriodStart) =>
+        _projectionCalculator.CalculatePlan(plan, asOf, 1, openPeriodStart).Periods[0].EstimatedSurplus;
+
+    private static decimal EndingAfterInterest(decimal endingBeforeInterest, decimal rate) =>
+        endingBeforeInterest - DeficitFinancingRules.CalculateInterest(endingBeforeInterest, rate);
 
     private static SimulationRiskSummary BuildRiskSummary(
         IReadOnlyList<CashFlowPeriodProjection> scenario, IReadOnlyList<SimulationRequest> requests, IReadOnlyList<LoanPrepaymentImpact> impacts)
@@ -120,48 +163,4 @@ public sealed class SimulationCalculator(
         SimulationScenarioType.RecurringPayment => req.Amount * req.PaymentCount,
         _ => req.Amount
     };
-
-    private static string BuildFriendlySummary(SimulationRiskSummary risk, decimal additionalInterest, decimal endingDiff)
-    {
-        var parts = new List<string>
-        {
-            endingDiff switch
-            {
-                > 0m => $"Bu plan 12 ay sonundaki tahmini finansal durumunu {FormatMoney(endingDiff)} artırıyor.",
-                < 0m => $"Bu plan 12 ay sonundaki tahmini finansal durumunu {FormatMoney(Math.Abs(endingDiff))} azaltıyor.",
-                _ => "Bu plan 12 ay sonundaki tahmini finansal durumu değiştirmiyor."
-            }
-        };
-
-        if (risk.FirstNegativeProjectedBalancePeriod is { } negative)
-        {
-            parts.Add($"Bu plan {FormatPeriod(negative)} döneminde finansman açığı oluşturuyor.");
-            parts.Add(risk.RecoveryPeriod is { } recovered
-                ? $"Açık {FormatPeriod(recovered)} döneminde kapanıyor."
-                : "Açık gösterilen dönemlerde kapanmıyor.");
-        }
-        else if (risk.MaximumCarryOverDeficit > 0m)
-        {
-            parts.Add(risk.RecoveryPeriod is { } openRecovery
-                ? $"Devreden açık {FormatPeriod(openRecovery)} döneminde kapanıyor."
-                : "Devreden açık gösterilen dönemlerde kapanmıyor.");
-        }
-        else
-        {
-            parts.Add("12 dönemlik görünümde finansman açığı oluşmuyor.");
-        }
-
-        parts.Add(additionalInterest switch
-        {
-            > 0m => $"Bu planın tahmini ek faiz yükü {FormatMoney(additionalInterest)}.",
-            < 0m => $"Bu plan mevcut plana göre {FormatMoney(Math.Abs(additionalInterest))} daha düşük faiz yükü oluşturuyor.",
-            _ => "Bu plan tahmini faiz yükünü değiştirmiyor."
-        });
-
-        return string.Join(" ", parts);
-    }
-
-    private static string FormatMoney(decimal value) => $"{value:N2} TL";
-
-    private static string FormatPeriod(CashFlowPeriod p) => $"{p.Start:yyyy-MM}";
 }

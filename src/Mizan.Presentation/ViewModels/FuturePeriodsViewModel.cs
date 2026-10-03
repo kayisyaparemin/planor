@@ -18,9 +18,6 @@ namespace Mizan.Presentation.ViewModels;
 /// </summary>
 public sealed partial class FuturePeriodsViewModel : ViewModelBase
 {
-    // Rol anahtarı (TASARIM-SISTEMI § Rol → token): tek seri düz çizgi.
-    private const string ActualKey = "actual";
-
     private readonly IFutureProjectionService _projectionService;
     private readonly INavigationService _navigationService;
 
@@ -140,7 +137,7 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
 
     private void ApplyPeriods(IReadOnlyList<CashFlowPeriodProjection> periods)
     {
-        var lowest = LowestIndex(periods);
+        var lowest = ProjectionSummary.LowestIndex(periods);
         Periods.Clear();
         for (var index = 0; index < periods.Count; index++)
         {
@@ -153,7 +150,7 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
 
     private void ApplySummary(IReadOnlyList<CashFlowPeriodProjection> periods, decimal totalInterest)
     {
-        var lowest = periods[LowestIndex(periods)];
+        var lowest = periods[ProjectionSummary.LowestIndex(periods)];
         LowestEndingBalance = lowest.EndingBalance;
         LowestPeriodStart = lowest.PeriodStart;
         FinalEndingBalance = periods[^1].EndingBalance;
@@ -161,7 +158,7 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
         TotalInterest = totalInterest;
         ChainStart = periods[0].PeriodStart;
         HorizonLastDay = periods[^1].PeriodEnd.AddDays(-1); // PeriodEnd sonraki dönemin ilk günü (S72-7 ile aynı)
-        Trend = BuildTrend(periods);
+        Trend = ProjectionTrend.Build(periods);
     }
 
     private void ShowEmptyState()
@@ -172,27 +169,5 @@ public sealed partial class FuturePeriodsViewModel : ViewModelBase
         IsFinalNegative = false;
         Trend = null;
         State = ScreenState.Empty;
-    }
-
-    // Eşitlikte ilk dönem: kullanıcı en erken sıkışacağı anı görmeli.
-    private static int LowestIndex(IReadOnlyList<CashFlowPeriodProjection> periods)
-    {
-        var lowest = 0;
-        for (var index = 1; index < periods.Count; index++)
-        {
-            if (periods[index].EndingBalance < periods[lowest].EndingBalance)
-            {
-                lowest = index;
-            }
-        }
-        return lowest;
-    }
-
-    // Zincirin başı + 12 dönem sonu; sıfır eşiği her zaman ölçekte, dolgu ona iner (GS26-3, 4).
-    private static ChartTrend BuildTrend(IReadOnlyList<CashFlowPeriodProjection> periods)
-    {
-        var points = new List<ChartPoint> { new(periods[0].PeriodStart, periods[0].OpeningBalance) };
-        points.AddRange(periods.Select(period => new ChartPoint(period.PeriodEnd, period.EndingBalance)));
-        return new ChartTrend(new ChartSeries(ActualKey, points), null, null, null, null) { Threshold = new ChartThreshold(0m) };
     }
 }

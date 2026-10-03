@@ -66,7 +66,7 @@ public sealed class SimulationModelsTests
             EndingProjectedBalance = 10_000m
         };
 
-        var result = new SimulationResult(baseline, scenario, rows, risk, "Özet açıklama");
+        var result = new SimulationResult(baseline, scenario, rows, risk);
 
         Assert.Equal(1_200m, result.BaselineInterest.TotalInterestCost);
         Assert.Equal(1_700m, result.ScenarioInterest.TotalInterestCost);
@@ -103,7 +103,7 @@ public sealed class SimulationModelsTests
             EndingProjectedBalance = 50_000m
         };
 
-        var result = new SimulationResult(baseline, scenario, rows, risk, "Faiz tasarrufu");
+        var result = new SimulationResult(baseline, scenario, rows, risk);
 
         Assert.Equal(3_000m, result.BaselineInterest.TotalInterestCost);
         Assert.Equal(1_200m, result.ScenarioInterest.TotalInterestCost);

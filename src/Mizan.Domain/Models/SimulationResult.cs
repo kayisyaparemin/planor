@@ -8,8 +8,7 @@ public sealed record SimulationResult(
     IReadOnlyList<CashFlowPeriodProjection> Baseline,
     IReadOnlyList<CashFlowPeriodProjection> Scenario,
     IReadOnlyList<SimulationImpactRow> Rows,
-    SimulationRiskSummary Risk,
-    string FriendlySummary)
+    SimulationRiskSummary Risk)
 {
     /// <summary>Mevcut baz plana ait 12 dönemlik kümülatif faiz maliyetleri özeti.</summary>
     public ProjectionInterestSummary BaselineInterest =>

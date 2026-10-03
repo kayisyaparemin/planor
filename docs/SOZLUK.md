@@ -131,7 +131,6 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | projeksiyon faiz özeti | `ProjectionInterestSummary` | Kredi kartı ve finansman açığı kümülatif faiz maliyetleri özeti |
 | kart projeksiyon durumu | `CreditCardPaymentProjectionStatus` | Kredi kartının belirli bir ekstre döngüsündeki simüle edilen borç, ödeme ve carry faizini kart kimliğiyle sunan sözleşme |
 | finansal projeksiyon hesaplayıcısı | `FinancialProjectionCalculator` | Kullanıcının tüm finansal planını (gelirler, krediler, kredi kartları, vadeli borçlar, büyük harcamalar) 12 nakit akış dönemi boyunca simüle eden ana motor |
-| hedef tutar hesaplayıcısı | `TargetAmountCalculator` | Nakit akış projeksiyonu üzerinde kullanıcının hedef tutarına hangi dönemde ulaştığını deterministik olarak hesaplayan saf Domain motoru. Bugün ekranı ve DI kaydı yok: 12 dönemde taşınmadı, soru `V10`'a not (`S74`-5) |
 | projeksiyon başlangıç sınırı | `ProjectionBoundary` | Projeksiyonun başlangıç çapa tarihini, ilk projeksiyon dönemi başlangıcını ve devreden açılış bakiyesini taşıyan sınır sözleşmesi |
 | projeksiyon başlangıç sınırı çözümleyicisi | `ProjectionBoundaryResolver` | Kapanan dönem gerçekleşmelerini ve mevcut durumu analiz ederek projeksiyonun başlangıç çapasını ve ilk açık dönemini belirleyen servis |
 | ana ekran özeti | `DashboardSnapshot` | Aktif dönemi, çapa öncesi açık kalemleri, yaklaşan ilk 5 ödemeyi, 12 dönem sonu nakit dengesini ve en sıkışık dönemi sunan özet sözleşmesi |
@@ -157,7 +156,15 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | deneme sorunu | `SimulationConditionIssue` | Denemenin hesaba girmemesinin ve uygulanmamasının sebebi: tarihi geçti (`S76`-5) |
 | deneme kuralları | `SimulationConditionRules` | Denemenin tarihi ne zaman geçmiş sayılır: form yeni denemeyi, servis listedeki denemeyi aynı kuralla değerlendirir (`S76`-3, 5) |
 | deneme satırı | `SimulationConditionRow` | Simülatör listesinde bir denemenin satırı: ad, tür, tarih, tutar, aç/kapa anahtarı, sorun işareti |
-| simülatör | `SimulatorViewModel` | Denemeleri listeleyen, açıp kapatan, düzenlemeye gönderen ve silen sayfa (`EK-V10`); sonuç tarafı `V10b` |
+| simülatör | `SimulatorViewModel` | Denemeleri listeleyen, açıp kapatan, düzenlemeye gönderen ve silen sayfa (`EK-V10`); sonuç kartı çocuğu `SimulationResultViewModel`'dedir |
+| simülatör sonucu | `SimulationResultViewModel` | Simülatörün sonuç kartı: denemeyle en düşük dönem sonu, şu anki gidişata göre fark, iki çizgili grafik; liste her değiştiğinde yeniden hesaplanır, son istek kazanır (`S76`-6, `V10b`) |
+| zincir | `ProjectionChain` | Açık dönemden sonraki 12 dönemin kurulduğu plan: açılış ana sayfanın dönem sonu, ilk dönem açık dönemin bittiği gün (`S74`-1). Açık dönemin kendi planı da içinde taşınır: denemenin açık döneme düşen etkisi oradan hesaplanır |
+| zincir kurucu | `ProjectionChainBuilder` | Zinciri kuran saf yardımcı; 12 Dönem ve simülatör aynı kodu kullanır, iki ekran aynı dönem için iki ayrı rakam söylemez (`S76`-1, M8) |
+| simülasyon sonuç servisi | `ISimulationResultService` | Verilen deneme listesinden şu anki gidişat zincirini ve açık ve geçerli deneme varsa denemeli zinciri hesaplayan okuma portu; hiçbir şey yazmaz (`S76`-6) |
+| simülasyon çıktısı | `SimulationOutcome` | Sonuç servisinin cevabı: şu anki gidişatın 12 dönemi ve açık ve geçerli deneme varsa denemeli 12 dönem |
+| açık dönem etkisi | `SimulationCalculator.CalculateOpenPeriodEffect` | Bugün ile açık dönemin bitişi arasına düşen denemenin dönem sonuna etkisi; denemeli zincirin açılışına eklenir (`S76`-2, V10b notları b) |
+| grafik kurucu | `ProjectionTrend` | Dönem listesinden `ChartTrend` kuran ortak yardımcı: 12 Dönem tek seri, simülatör denemeli seri + şu anki gidişat karşılaştırması (GS28-2) |
+| zincir özeti | `ProjectionSummary` | 12 Dönem ile simülatörün aynı zincirden aynı soruyu aynı kuralla cevaplaması için ortak özet kuralı: en düşük dönem sonu, eşitlikte ilk dönem (M8) |
 | deneme formu | `SimulationConditionViewModel` | Bir denemeyi türünün alanlarıyla ekleyen ya da düzenleyen sayfa; çalışma listesine yazar (`EK-V10`) |
 | simülasyon taslak koşulu | `SimulationDraftCondition` | Simülasyon taslağı içerisindeki tekil senaryo isteğini ve açık/kapalı (aktif/pasif) tercihini tutan kayıt |
 | simülasyon taslağı deposu | `ISimulationDraftRepository` | Simülasyon taslaklarının ve bağlı koşullarının kalıcı olarak saklanmasını, listelenmesini ve silinmesini sağlayan veri erişim portu |

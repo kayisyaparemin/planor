@@ -18,6 +18,18 @@ public static class SimulatorAutomationIds
     /// <summary>Hata hâli: çalışma listesi okunamadı.</summary>
     public const string StateSimulatorError = "state-simulator-error";
 
+    /// <summary>Sonuç kartı: en düşük dönem sonu, fark ve iki çizgili grafik.</summary>
+    public const string CardSimulatorResult = "card-simulator-result";
+
+    /// <summary>Hero rakam: denemeyle 12 dönemin en düşük dönem sonu.</summary>
+    public const string LblSimulatorLowest = "lbl-simulator-lowest";
+
+    /// <summary>Boş hâl: açık dönem ya da kurulabilir plan yok.</summary>
+    public const string StateSimulatorResultEmpty = "state-simulator-result-empty";
+
+    /// <summary>Hata hâli: sonuç hesaplanamadı.</summary>
+    public const string StateSimulatorResultError = "state-simulator-result-error";
+
     /// <summary>Deneme formu sayfası kimliği.</summary>
     public const string PageSimulationCondition = "page-simulation-condition";
 
