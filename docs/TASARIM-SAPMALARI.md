@@ -348,10 +348,21 @@ daha kullanılmaz.
 | **Konsept** | Ana sayfa hero kartında çizgi rota yerine 10 sütunlu grafik: bugüne kadarkiler dolu, bugünden sonrakiler soluk; plan seviyesini gösteren yatay hairline çizgi; planın altına düşen sütun olumsuz renkte (`NegativeText`); bugünkü sütunun üzerinde "Bugün" rozeti/etiketi; altta iki uç tarih ("10 Eylül", "9 Ekim"). |
 | **Neden değiştirildi** | Çizgi rota (`AreaTrend`) bakiyenin dönemin hangi diliminde ne kadar olduğunu tek bakışta söylemiyordu; 30 günlük ince çizgi dalgalanması yerine konsept dönemi eşit dilimlere bölerek (~10 sütun) bakiye seviyesini ve plan altı durumu çok daha net iletiyor. Kullanıcı kararıyla (2026-10-04) 5. grafik primitifi olarak `ColumnTrend` sisteme eklendi ve "Bakiye gir" önizlemesi de aynı sütun dilini konuşacak şekilde güncellendi (M8). |
 | **Yeni** | (1) **Beşinci primitif (`ColumnTrend`):** `src/Mizan.App/Charts/ColumnTrend.cs`. Soru: "Dönem boyunca bakiye nerede, plana göre nerede bitiyor?". Girdi: `IReadOnlyList<ChartColumn>` + `PlanLevel` + `TodayLabel`. GK7 genişletildi. (2) **Dilimleme (`ChartColumns`):** Saf yardımcı `Mizan.Presentation/Charts/ChartColumns.cs` dönemi en fazla 10 eşit dilime böler; bugünün dilimi "Bugün" olarak işaretlenir, sonraki dilimler tahmin kabul edilir (`IsAhead`). (3) **Görsel dil:** Bugüne kadarki sütunlar `Indicator`, tahmin sütunları %45 opaklıkta (`AheadAlpha`). Plan seviyesinin (`PlanLevel`) altında kalan sütun `NegativeText` rengini alır. Sıfır çizgisi `BorderSubtle`, plan seviyesi `TextSecondary`. (4) **"Bugün" etiketi:** Bugünkü sütunun üzerinde hap şeklinde rozet (`Indicator` zemin, `TextOnAction` metin, `TypeEyebrow` puntosunda). (5) **İki ekran aynı dil:** Ana sayfa (`DashboardPage`) ve "Bakiye gir" (`BalanceEntryPage`) ikisi de `SutunGrafigi` çevirmenini kullanır. |
-| **Etkiler** | `EK-V3`, `EK-V3b`, `DashboardPage.xaml`, `BalanceEntryPage.xaml`, `ColumnTrend.cs`, `ChartColumn.cs`, `ChartColumns.cs`, `SutunGrafigiConverter.cs`, `TASARIM-SISTEMI.md` (§ Grafikler), `.claude/rules/06-tasarim.md` (GK4, GK7), `DesignChartTests` |
 | **Durum** | uygulandı (2026-10-04) |
 
+### GS31 — Dönem kapanışı özet sayfası: StackedBar ve Gelir satırı çıkarıldı; Hero ve Fark kartı SurfaceCard zemininde
+
+| | |
+|---|---|
+| **Tür** | konsept uygulaması + kesme kararları (konsept `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`, `anasayfa-donemi-kapat.png`, `anasayfa-donemi-kapat-koyu.png`) |
+| **Konsept** | Üstte ✕ ve başlık ile dönem aralığı; altında dönem sonu hero kartı (hero rakam, plana göre fark ve altında Plan / Gerçekleşen yatay StackedBar çubukları); altında "Farkın kaynağı" kartı (Gelir, Yaşam gideri, Ödemeler satırları ve en altta Kapanış bakiyesi + "Değiştir" butonu); en altta bilgilendirme cümlesi ve "Dönemi kapat" butonu. |
+| **Neden değiştirildi** | (a) Konseptteki Plan / Gerçekleşen yatay çubukları (`StackedBar`) bu ölçekte farkı hissettirmiyor ve alttaki "Farkın kaynağı" kartı zaten aynı bilgiyi TL olarak doğrudan veriyor (`TASIMA-PLANI.md` V11 Aşama 4 kararı); çubuk çıkarılarak ekran sadeleştirildi. (b) Gelir gerçekleşmesi satırı konseptte yer alıyordu; ancak sistem gelirin fiilen ne zaman/ne kadar yattığını sormaz, planlandığı tarihte yattığı varsayılır (`S31`, `S78`; kullanıcı kararı); bu nedenle çıkarıldı. (c) Hero kart zemini `T9`'daki kontrast kuralı (`GS22`) uyarınca koyu temada metin ve fark etiketlerinin tam kontrast sağlaması için `SurfaceHero` yerine `SurfaceCard` olarak belirlendi. |
+| **Yeni** | (1) **Hero Özet Kartı:** `SurfaceCard` zemininde `Etiket_DonemSonu` eyebrow, `HeroFigure` ile kapanış tutarı, altında semantik renkli fark ve plan tutarı satırı. (2) **Farkın Kaynağı Kartı:** `SurfaceCard` zemininde yaşam gideri satırı (planlanan / harcanan ve fark), ödemeler satırı (kaçının ödendiği ve varsa fark), eksi bakiye varsa KMH faizi satırı; altta ince ayırıcı ile kapanış bakiyesi ve `Aksiyon_Degistir` butonu. (3) **Aksiyon ve Bilgilendirme:** Altta tek bilgilendirme cümlesi (`Cumle_DonemGecmiseTasinir`) ve tam genişlik `Aksiyon_DonemiKapat` butonu. (4) **Görsel Bütçe:** Hero 1/1, Kart 2/4, Grafik 0/1, Cümle 1/3, Etiket 14/28. |
+| **Etkiler** | `EK-V11`, `PeriodSettlementPage.xaml`, `PeriodSettlementViewModel`, `TASARIM-SISTEMI.md`, `DesignBudgetAnalyzer` |
+| **Durum** | uygulandı |
+
 ---
+
 
 ## Konsept otorite değildir
 

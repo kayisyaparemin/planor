@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.PeriodSettlementPage"
+             x:DataType="vm:PeriodSettlementViewModel"
+             AutomationId="{x:Static auto:PeriodSettlementAutomationIds.Page}">
+
+    <!-- EK-V11: Dönem Kapanışı Özet Sayfası (GS31, S78) -->
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding DismissCommand}">
+            <BackButtonBehavior.IconOverride>
+                <FontImageSource FontFamily="MaterialSymbols"
+                                 Glyph="{x:Static icons:Icons.Close}"
+                                 Size="{StaticResource IconLarge}"
+                                 Color="{DynamicResource TextPrimary}" />
+            </BackButtonBehavior.IconOverride>
+        </BackButtonBehavior>
+    </Shell.BackButtonBehavior>
+
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*, Auto" Padding="{StaticResource TitleBarPadding}">
+            <Label Grid.Column="0"
+                   Text="{x:Static strings:PeriodSettlementStrings.Baslik_DonemiKapat}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+            <Label Grid.Column="1"
+                   Style="{StaticResource Caption}"
+                   VerticalTextAlignment="Center">
+                <Label.Text>
+                    <MultiBinding StringFormat="{x:Static strings:PeriodSettlementStrings.Bicim_DonemAraligi}">
+                        <Binding Path="PeriodStart" Converter="{StaticResource Tarih}" />
+                        <Binding Path="PeriodLastDay" Converter="{StaticResource Tarih}" />
+                    </MultiBinding>
+                </Label.Text>
+            </Label>
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor: kartlar yerinde iskelet -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 AutomationId="{x:Static auto:PeriodSettlementAutomationIds.StateLoading}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+            </VerticalStackLayout>
+
+            <!-- Dolu İçerik -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- 1. Kart: Dönem Sonu Özeti (S1) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        AutomationId="{x:Static auto:PeriodSettlementAutomationIds.CardSummary}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space1}">
+                        <Label Text="{x:Static strings:PeriodSettlementStrings.Etiket_DonemSonu}"
+                               Style="{StaticResource Eyebrow}" />
+
+                        <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
+                               Style="{StaticResource HeroFigure}"
+                               AutomationId="{x:Static auto:PeriodSettlementAutomationIds.LblEndingBalance}" />
+
+                        <Label Style="{StaticResource Caption}"
+                               AutomationId="{x:Static auto:PeriodSettlementAutomationIds.LblEndingDeviation}">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{x:Static strings:PeriodSettlementStrings.Bicim_PlanaGoreFark}">
+                                    <Binding Path="EndingDeviation" Converter="{StaticResource Para}" ConverterParameter="Isaretli" />
+                                    <Binding Path="PlannedEndingBalance" Converter="{StaticResource Para}" />
+                                </MultiBinding>
+                            </Label.Text>
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsBehindPlan}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsAheadOfPlan}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- 2. Kart: Farkın Kaynağı (S2, S3) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        AutomationId="{x:Static auto:PeriodSettlementAutomationIds.CardDifferences}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space3}">
+                        <Label Text="{x:Static strings:PeriodSettlementStrings.Etiket_FarkinKaynagi}"
+                               Style="{StaticResource SectionTitle}" />
+
+                        <!-- Yaşam gideri satırı -->
+                        <Grid ColumnDefinitions="*, Auto"
+                              RowDefinitions="Auto, Auto"
+                              AutomationId="{x:Static auto:PeriodSettlementAutomationIds.RowLivingSpend}">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{x:Static strings:PeriodSettlementStrings.Etiket_YasamGideri}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextPrimary}" />
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Style="{StaticResource Caption}">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{x:Static strings:PeriodSettlementStrings.Bicim_YasamPlaniHarcanan}">
+                                        <Binding Path="PlannedLivingSpend" Converter="{StaticResource Para}" />
+                                        <Binding Path="ActualLivingSpend" Converter="{StaticResource Para}" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Label Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                   Text="{Binding LivingDifference, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   FontFamily="OpenSansSemibold"
+                                   VerticalOptions="Center">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsLivingSaved}" Value="True">
+                                        <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsLivingOverspent}" Value="True">
+                                        <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Grid>
+
+                        <!-- Ödemeler satırı -->
+                        <Grid ColumnDefinitions="*, Auto"
+                              RowDefinitions="Auto, Auto"
+                              AutomationId="{x:Static auto:PeriodSettlementAutomationIds.RowPayments}">
+                            <Label Grid.Row="0" Grid.Column="0"
+                                   Text="{x:Static strings:PeriodSettlementStrings.Etiket_Odemeler}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextPrimary}" />
+                            <Label Grid.Row="1" Grid.Column="0"
+                                   Style="{StaticResource Caption}">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{x:Static strings:PeriodSettlementStrings.Bicim_OdemeDurumu}">
+                                        <Binding Path="TotalPaymentsCount" />
+                                        <Binding Path="PaidPaymentsCount" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Label Grid.Row="0" Grid.RowSpan="2" Grid.Column="1"
+                                   Text="{Binding PaymentsDifference, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextSecondary}"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                        <!-- KMH faizi satırı (yalnız faiz varsa) -->
+                        <Grid ColumnDefinitions="*, Auto"
+                              IsVisible="{Binding HasDeficitInterest}"
+                              AutomationId="{x:Static auto:PeriodSettlementAutomationIds.RowDeficitInterest}">
+                            <Label Grid.Column="0"
+                                   Text="{x:Static strings:PeriodSettlementStrings.Etiket_KmhFaizi}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource TextPrimary}" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding ActualDeficitInterest, Converter={StaticResource Para}, ConverterParameter=Eksi}"
+                                   FontSize="{StaticResource TypeBody}"
+                                   FontFamily="OpenSansSemibold"
+                                   TextColor="{DynamicResource NegativeText}" />
+                        </Grid>
+
+                        <!-- İnce Ayırıcı Çizgi -->
+                        <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                                 Color="{DynamicResource BorderSubtle}" />
+
+                        <!-- Kapanış bakiyesi ve Değiştir aksiyonu (S3) -->
+                        <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                            <Label Grid.Column="0"
+                                   Style="{StaticResource Caption}"
+                                   VerticalOptions="Center">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{x:Static strings:PeriodSettlementStrings.Bicim_KapanisBakiyeTarihi}">
+                                        <Binding Path="ConfirmedBalance" Converter="{StaticResource Para}" />
+                                        <Binding Path="ConfirmedDate" Converter="{StaticResource Tarih}" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Button Grid.Column="1"
+                                    Text="{x:Static strings:PeriodSettlementStrings.Aksiyon_Degistir}"
+                                    Command="{Binding ChangeBalanceCommand}"
+                                    Style="{StaticResource SecondaryButton}"
+                                    VerticalOptions="Center"
+                                    AutomationId="{x:Static auto:PeriodSettlementAutomationIds.BtnChangeBalance}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Yeni Dönem Bilgilendirme Notu (S4) -->
+                <Label HorizontalTextAlignment="Center"
+                       Style="{StaticResource Caption}">
+                    <Label.Text>
+                        <Binding Path="NextPeriodStart"
+                                 Converter="{StaticResource Tarih}"
+                                 StringFormat="{x:Static strings:PeriodSettlementStrings.Bicim_YeniDonemBaslangici}" />
+                    </Label.Text>
+                </Label>
+
+                <!-- Dönemi Kapat Birincil Butonu (S1, S4) -->
+                <Button Text="{x:Static strings:PeriodSettlementStrings.Aksiyon_DonemiKapat}"
+                        Command="{Binding ClosePeriodCommand}"
+                        AutomationId="{x:Static auto:PeriodSettlementAutomationIds.BtnClosePeriod}" />
+
+            </VerticalStackLayout>
+
+            <!-- Boş: kapatılacak dönem yok -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.Check}"
+                             Message="{x:Static strings:PeriodSettlementStrings.Cumle_KapatilacakDonemYok}"
+                             ActionText="{x:Static strings:PeriodSettlementStrings.Aksiyon_AnaSayfayaDon}"
+                             ActionCommand="{Binding DismissCommand}"
+                             IsVisible="{Binding IsEmpty}"
+                             AutomationId="{x:Static auto:PeriodSettlementAutomationIds.StateEmpty}" />
+
+            <!-- Hata: yüklenemedi -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:PeriodSettlementStrings.Hata_DonemKapanisiYuklenemedi}"
+                             ActionText="{x:Static strings:Strings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:PeriodSettlementAutomationIds.StateError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -43,5 +43,6 @@ public partial class AppShell : Microsoft.Maui.Controls.Shell
         Routing.RegisterRoute(Routes.PeriodDetail, typeof(PeriodDetailPage));
         Routing.RegisterRoute(Routes.SimulationConditionPicker, typeof(SimulationConditionPickerPage));
         Routing.RegisterRoute(Routes.SimulationCondition, typeof(SimulationConditionPage));
+        Routing.RegisterRoute(Routes.PeriodSettlement, typeof(PeriodSettlementPage));
     }
 }

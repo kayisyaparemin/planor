@@ -38,6 +38,8 @@ public static class ScreenRegistrations
         services.AddTransient<SimulationConditionPickerPage>();
         services.AddTransient<SimulationConditionViewModel>();
         services.AddTransient<SimulationConditionPage>();
+        services.AddTransient<PeriodSettlementViewModel>();
+        services.AddTransient<PeriodSettlementPage>();
         return services;
     }
 

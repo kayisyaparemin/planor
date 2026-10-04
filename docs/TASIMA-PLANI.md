@@ -465,9 +465,9 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         *(2026-10-04; `S76`-12, `EK-V10` S5: atomik yazma portu `ISimulationBatchWriter` ve `SqliteSimulationBatchWriter` transaction adaptörü;
         tekil `ApplySimulationAsync` aşırı yüklemeleri kaldırıldı; kullanıcı onay diyaloğu, uygulananların listeden düşmesi,
         `CanApply` görünürlüğü; koruyan: I150–I154)*
-- [ ] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
+- [x] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
       `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`; kaynak eski proje değil, eski
-      `PeriodReviewPage` okunmaz)*. Çapa günü uygulama açılınca kendiliğinden
+      `PeriodReviewPage` okunmaz; S78, GS31, EK-V11)*. Çapa günü uygulama açılınca kendiliğinden
       açılır: dönem sonu, plana göre fark, farkın kaynağı ve tek "Dönemi kapat". ✕ ile kapatmak ertelemek
       demek; ana sayfada "Dönemi kapat" kalır ve bu sayfayı açar. Kapanış bakiyesinin yanındaki "Değiştir"
       bakiyeyi kapanışın içinde değiştirir, gözlem yazmaz ve "Bakiye gir"i açmaz (S68-5): "planlandığı gibi"
@@ -519,6 +519,6 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | A | 28 | 28 *(A22 ve A25 taşınmıyor; A28, A29, A30 V3 yenilemesi için açıldı)* |
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
-| V | 10 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a, V10b, V10c, V10d ve V10e tamam)* |
+| V | 11 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a–V10f tamam; V11 dönem kapanışı özeti tamam)* |
 | K | 0 | 4 |
 | G | 0 | 1 |

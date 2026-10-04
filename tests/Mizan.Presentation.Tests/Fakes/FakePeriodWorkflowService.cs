@@ -26,29 +26,94 @@ public sealed class FakePeriodWorkflowService : IPeriodWorkflowService
         CancellationToken cancellationToken = default) =>
         Task.FromResult(Availability);
 
+    /// <summary>Bağlam nesnesi.</summary>
+    public PeriodSettlementContext? Context { get; set; }
+
+    /// <summary>Gözlemli taslak nesnesi.</summary>
+    public PeriodSettlementDraft? ObservedDraft { get; set; }
+
+    /// <summary>Önizleme sonucu.</summary>
+    public PeriodSettlementPreview? Preview { get; set; }
+
+    /// <summary>Kesinleştirme sonucu.</summary>
+    public PeriodSettlementResult? FinalizeResult { get; set; }
+
+    /// <summary>Son kesinleştirilen taslak.</summary>
+    public PeriodSettlementDraft? FinalizedDraft { get; private set; }
+
     /// <summary>Bağlam nesnesini döndürür.</summary>
     public Task<PeriodSettlementContext> GetSettlementContextAsync(
         Guid? planId = null,
         CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
+        Context is not null ? Task.FromResult(Context) : throw new InvalidOperationException("Bağlam bulunamadı.");
 
     /// <summary>Gözlemli taslak nesnesini döndürür.</summary>
     public Task<PeriodSettlementDraft?> GetObservedSettlementDraftAsync(
         Guid periodPlanSnapshotId,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult<PeriodSettlementDraft?>(null);
+        Task.FromResult(ObservedDraft);
 
     /// <summary>Önizlemeyi döndürür.</summary>
     public Task<PeriodSettlementPreview> PreviewSettlementAsync(
         PeriodSettlementDraft draft,
         CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
+        Preview is not null ? Task.FromResult(Preview) : throw new InvalidOperationException("Önizleme bulunamadı.");
 
     /// <summary>Mutabakatı kesinleştirir.</summary>
     public Task<PeriodSettlementResult> FinalizeSettlementAsync(
         PeriodSettlementDraft draft,
-        CancellationToken cancellationToken = default) =>
-        throw new NotImplementedException();
+        CancellationToken cancellationToken = default)
+    {
+        FinalizedDraft = draft;
+        if (FinalizeResult is not null)
+        {
+            return Task.FromResult(FinalizeResult);
+        }
+
+        var dummySnapshot = new FinancialSnapshot
+        {
+            Id = Guid.NewGuid(),
+            SnapshotDate = new DateOnly(2026, 10, 10),
+            ProjectionAnchorDate = new DateOnly(2026, 10, 10),
+            ProjectionOpeningBalance = 42180m,
+            Anchor = new PeriodAnchor(10),
+            Source = FinancialSnapshotSource.MonthlyUpdate,
+            IsCurrent = true,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        var dummyPlan = new PeriodPlanSnapshot
+        {
+            Id = Guid.NewGuid(),
+            FinancialSnapshotId = dummySnapshot.Id,
+            PeriodStart = new DateOnly(2026, 10, 10),
+            PeriodEnd = new DateOnly(2026, 11, 10),
+            SettlementAvailableFrom = new DateOnly(2026, 11, 10),
+            OpeningBalance = 42180m,
+            PlannedIncome = 70000m,
+            PlannedVariableExpenseAllowance = 29650m,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        };
+        var dummyActual = new PeriodActual
+        {
+            Id = Guid.NewGuid(),
+            PeriodPlanSnapshotId = draft.PeriodPlanSnapshotId,
+            SourceFinancialSnapshotId = dummySnapshot.Id,
+            ResultFinancialSnapshotId = dummySnapshot.Id,
+            PeriodStart = new DateOnly(2026, 9, 10),
+            PeriodEnd = new DateOnly(2026, 10, 10),
+            FinalizedAtUtc = DateTimeOffset.UtcNow,
+            ConfirmedEndingBalance = draft.ConfirmedEndingBalance ?? 42180m
+        };
+        var dummyComparison = new PlanActualComparison(43900m, 42180m, -1720m, "Özet", []);
+
+        return Task.FromResult(new PeriodSettlementResult
+        {
+            NewSnapshot = dummySnapshot,
+            NewPlan = dummyPlan,
+            Actual = dummyActual,
+            Comparison = dummyComparison
+        });
+    }
 
     /// <summary>Kaydedilen en son bakiye gözleminin istenen günü; gün verilmediyse <c>null</c>.</summary>
     public DateOnly? LastObservedOn { get; private set; }

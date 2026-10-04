@@ -1,0 +1,23 @@
+{
+  "Baslik_DonemiKapat": "Dönemi Kapat",
+  "Etiket_DonemSonu": "DÖNEM SONU",
+  "Etiket_FarkinKaynagi": "Farkın kaynağı",
+  "Etiket_YasamGideri": "Yaşam gideri",
+  "Etiket_Odemeler": "Ödemeler",
+  "Etiket_KmhFaizi": "KMH faizi",
+  "Etiket_KapanisBakiyesi": "Kapanış bakiyesi",
+  "Aksiyon_Degistir": "Değiştir",
+  "Aksiyon_DonemiKapat": "Dönemi Kapat",
+  "Aksiyon_AnaSayfayaDon": "Ana Sayfaya Dön",
+  "Cumle_DonemGecmiseTasinir": "Dönem Geçmiş dönemler'e taşınır; yeni dönem başlar.",
+  "Cumle_KapatilacakDonemYok": "Kapatılmaya hazır bir dönem bulunmuyor.",
+  "Hata_DonemKapanisiYuklenemedi": "Dönem kapanışı bilgileri yüklenemedi.",
+  "Bicim_DonemAraligi": "{0} – {1}",
+  "Bicim_YasamPlaniHarcanan": "Planlanan {0} · harcanan {1}",
+  "Bicim_OdemeDurumu": "{0} ödemenin {1}'si ödendi",
+  "Bicim_KapanisBakiyeTarihi": "Kapanış bakiyesi {0} · {1}",
+  "Bicim_PlanaGoreFark": "Plana göre {0} · Plan {1}",
+  "Bicim_YeniDonemBaslangici": "Dönem Geçmiş dönemler'e taşınır; yeni dönem {0}'de başlar.",
+  "Diyalog_BakiyeDegistirBaslik": "Kapanış Bakiyesi",
+  "Diyalog_BakiyeDegistirMesaj": "Dönem sonundaki kesinleşen banka bakiyesini girin:"
+}

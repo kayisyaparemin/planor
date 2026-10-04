@@ -4,15 +4,24 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer (S76-12, EK-V10) |
-| Sıradaki adım | **V11** — dönem kapanışı: özet sayfası (kullanıcı kararları, konsept ana-sayfa-rota-tempo-kapanis.png, EK-V11) |
-| Test sayısı | 2067 |
+| Son tamamlanan adım | **V11** — dönem kapanışı: özet sayfası (kullanıcı kararları, S78, GS31, EK-V11) |
+| Sıradaki adım | **V12** — geçmiş + geçmiş ayrıntısı (S68-6, 7) |
+| Test sayısı | 2074 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V11 — dönem kapanışı: özet sayfası; kararlar `S78`, `GS31`, `EK-V11`
+
+Biten dönemi tek dokunuşla kapatan ve mutabakat sağlayan dönem kapanışı özet sayfası tamamlandı.
+(1) Davranış ve Tasarım Sözleşmesi (`S78`, `GS31`, `EK-V11`): Eski çok adımlı sihirbaz yerine tek sayfada dönem sonu gerçekleşmesi, plana göre sapma, farkın kaynakları ve kesinleşen bakiye sunuldu. Eksik yatan gelirin yaşam giderinde görünmesi bilinen sınır olarak belgelendi (`S78-1`). Konseptteki salt dekoratif Plan/Gerçekleşen çubukları elendi (`GS31-1`).
+(2) Sunum ve İş Mantığı (`PeriodSettlementViewModel`): `IPeriodWorkflowService` üzerinden dönem durumu ve taslak (`GetSettlementAvailabilityAsync`, `GetObservedSettlementDraftAsync`, `PreviewSettlementAsync`) okunarak bağlandı. Kapanış bakiyesini değiştirme butonu (`ChangeBalanceAsync`) diyalogla yeni bakiye alıp önizlemeyi anında günceller (`S68-5`). "Dönemi Kapat" butonu (`ClosePeriodAsync`) atomik `FinalizeSettlementAsync` çağırarak yeni dönemi başlatır ve Dashboard'a yönlendirir.
+(3) Arayüz ve Otomasyon: `PeriodSettlementPage.xaml`, `PeriodSettlementAutomationIds` (`btn-confirm-close-period` vb.), `PeriodSettlementStrings`. Bütçe: Hero 1/1, Kart 3/4, Grafik 0/1, Label 19/28, Cümle 2/3.
+(4) Mimari ve Kalkanlar: Dosya satır (≤ 200 satır; ViewModel 198 satır) ve metot satır (≤ 40 satır) sınırları korundu; XAML token kuralları tam yeşil.
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 7 yeni sunum testi; toplam 2.074 test yeşil, 0 hata, 0 uyarı.
 
 ### V10f — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer; kararlar `S76`-12, `EK-V10` S5
 

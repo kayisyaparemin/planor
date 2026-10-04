@@ -2199,8 +2199,99 @@ yok. Ekran 12 Dönem'den türetildi (kullanıcı kararı, 2026-10-03): sonuç ka
 şablon, kıyas `ComparisonStrip` (tasarım sisteminde baz ↔ senaryo için duruyor, ilk kullanımı), listeler `ListCard`,
 form V6 formlarının deseni. Konseptten sapmalar `GS28`'de.
 
-### EK-V11 — Dönem kapanışı sihirbazı
-Konsept karşılığı **yok.** Türetme adayı: `EK-V4`'ün sihirbaz deseni.
+### EK-V11 — Dönem kapanışı: özet sayfası
+
+> Sayfa dosyası: `PeriodSettlementPage.xaml` (`Routes.PeriodSettlement`)
+> Durum: tamamlandı (Aşama 8)
+> Konsept karşılığı: `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png` (ve `anasayfa-donemi-kapat.png`, `anasayfa-donemi-kapat-koyu.png`).
+> Eski hâl: `PeriodReviewPage.xaml` (515 satır, 50+ `<Label>`, 5 adımlı sihirbaz).
+> Yeni hâl: Tek sayfada özet mutabakatı ve kapanış onayı (`GS31`, `S78`).
+
+#### 1. Sorular
+
+| Kod | Soru | Eski sihirbaz nasıl cevaplıyordu |
+|---|---|---|
+| S1 | "Dönem kaç lirayla kapandı, planladığımdan ne kadar saptım?" | Adım 5'te bakiye mutabakatı ve döküm kartında; fark açıkça öne çıkmıyordu |
+| S2 | "Planımla gerçek arasındaki fark nereden kaynaklandı?" | Adım 1–4 boyunca gelir, ödeme, yaşam harcaması ve faizleri tek tek sorarak |
+| S3 | "Kapanış bakiyesi doğru mu, değiştirmem gerekir mi?" | Adım 5'te bakiye giriş alanı ile |
+| S4 | "Dönemi şimdi kapatırsam ne olur?" | Sihirbaz sonu onay butonu |
+| S5 | "Şimdi kapatmak istemiyorsam ne yapabilirim?" | Sihirbazdan iptal ile çıkış |
+
+#### 2. Kesme kararları (`GS31`)
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Dönem sonu gerçekleşen bakiye | **Hero** (`HeroFigure`, `TypeHero`) | S1 ekranın ana sayısı |
+| Plana göre fark + plan tutarı | **Satır** (`TypeCaption`, `NegativeText`/`PositiveText`) | S1 sapma yönü ve büyüklüğü |
+| Plan / Gerçekleşen çubukları (`StackedBar`) | **Çıkar** | Fark çubukta hissedilmez, alt kart aynı veriyi TL olarak verir |
+| Konseptteki Gelir satırı | **Çıkar** | Gelir planlandığı gibi kabul edilir (`S31`, `S78`) |
+| "Farkın kaynağı" kartı | **Kart** (`SurfaceCard`, `BorderSubtle`, `RadiusCard`, `CardPadding`) | S2 farkın kaynakları (yaşam gideri, ödemeler, KMH) |
+| Yaşam gideri satırı | **Satır** (kart içinde) | S2 planlanan / harcanan ve fark |
+| Ödemeler satırı | **Satır** (kart içinde) | S2 ödenen adet ve tutar farkı |
+| KMH faizi satırı | **Satır** (kart içinde, eksi bakiye varsa) | S2 faiz maliyeti |
+| Kapanış bakiyesi teyidi + [Değiştir] | **Satır** (kart içi alt satır) | S3 bakiye teyidi; düzenleme diyalogla, gözlem yazmaz |
+| Yeni dönem başlangıç takvimi notu | **Satır** (`TypeCaption`, `TextSecondary`) | S4 yeni dönemin başlangıç günü |
+| [Dönemi kapat] | **Aksiyon** (`ActionFill`, tam genişlik) | S1, S4 kapanış onayı |
+| [✕] erteleme aksiyonu | **Aksiyon** (üst bar `BackButtonBehavior` / `Icons.Close`) | S5 erteleme |
+
+#### 3. Bütçe
+
+```
+Hero rakam    1 / 1     Dönem sonu bakiyesi (HeroFigure)
+Hero yüzey    0 / 1     SurfaceCard zemin kullanılır (T9 kontrast kararı)
+Kart          2 / 4     Dönem sonu özet kartı (SurfaceCard), Farkın kaynağı kartı (SurfaceCard)
+Grafik        0 / 1     StackedBar çıkarıldı (0/1)
+NavRow        0 / 5     Yok
+Label        14 / 28    Başlık (2), Hero kartı (3), Farkın kaynağı kartı (8), Alt not (1)
+Cumle_        1 / 3     Cumle_DonemGecmiseTasinir (≤ 90 kr)
+```
+
+#### 4. Blok şeması
+
+```
+┌─ Shell ────────────────────────────────────────────────────────┐
+│ [✕] BackButtonBehavior IconOverride: Icons.Close, IconLarge,   │  ← S5
+│     TextPrimary; Command: CloseCommand                         │
+│ Shell.TitleView:                                               │
+│   Baslik_DonemiKapat (SectionTitle)  Bicim_DonemAraligi (Cap)  │  ← S1
+└────────────────────────────────────────────────────────────────┘
+┌─ Dönem Sonu Özet Kartı (SurfaceCard / BorderSubtle / RadCard) ─┐  ← S1
+│ Etiket_DonemSonu                         TypeEyebrow           │
+│ 42.180 ₺                                 HeroFigure / TextPrim │
+│ Plana göre −1.720 ₺  ·  Plan 43.900 ₺    TypeCaption           │
+│   (fark NegativeText/PositiveText, plan TextSecondary)         │
+└────────────────────────────────────────────────────────────────┘
+┌─ Farkın Kaynağı Kartı (SurfaceCard / BorderSubtle / RadCard) ──┐  ← S2
+│ Etiket_FarkinKaynagi                     TypeSection           │
+│                                                                │
+│ Yaşam gideri                                            +900 ₺ │
+│ Planlanan 29.650 ₺ · harcanan 28.750 ₺                         │
+│                                                                │
+│ Ödemeler                                                   0 ₺ │
+│ 7 ödemenin 7'si ödendi                                         │
+│                                                                │
+│ KMH faizi                                               −120 ₺ │  (varsa)
+│ ────────────────────────────────────────────────────────────── │
+│ Kapanış bakiyesi 42.180 ₺ · 9 Ekim                 [ Değiştir ]│  ← S3
+└────────────────────────────────────────────────────────────────┘
+│ Dönem Geçmiş dönemler'e taşınır; yeni dönem 10 Ekim'de başlar. │  ← S4
+│ Cumle_DonemGecmiseTasinir  TypeCaption / TextSecondary         │
+│                                                                │
+[ Aksiyon_DonemiKapat                      ActionFill, tam genişlik ] ← S1, S4
+```
+
+#### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| Boş | Kapatılmaya hazır dönem yoksa `StateBlock`: `Check` ikonu + `Cumle_KapatilacakDonemYok` + `Aksiyon_AnaSayfayaDon`. |
+| Yükleniyor | İki kart şeklinde `SkeletonBlock` (özet kartı ve fark kartı yüksekliğinde); spinner yok (`GS14`). |
+| Hata | `StateBlock`: `Close` ikonu + `Hata_DonemKapanisiYuklenemedi` + `Aksiyon_TekrarDene`. |
+
+#### 6. Konsept ilişkisi
+
+Claude Design konsepti: `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png` (ve `anasayfa-donemi-kapat.png`, `anasayfa-donemi-kapat-koyu.png`). Yerleşim oradan türetildi, renkler token'lardan (`T1`). Konseptten sapmalar `GS31`'de: StackedBar çubukları bilgi eklemediği için çıkarıldı, Gelir satırı kullanıcı kararıyla (`S31`, `S78`) kaldırıldı, zemin koyu tema kontrastı için `SurfaceCard` seçildi.
+
 
 ### EK-V12 — Geçmiş + geçmiş ayrıntısı
 Konsept karşılığı **var** (Geçmiş paneli, grafikli). Tek grafikli ekranların referansı;
