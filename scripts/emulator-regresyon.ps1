@@ -37,7 +37,7 @@ $packageId = "com.mizan.app"
 
 # $PSScriptRoot parametre varsayılanında bazı ortamlarda boş gelir; bu yüzden gövdede çözülür.
 if (-not $Akis) {
-    $Akis = Join-Path $PSScriptRoot "...maestrolowsull_regression_flow.yaml"
+    $Akis = Join-Path $PSScriptRoot "..\.maestro\flows\full_regression_flow.yaml"
 }
 
 function Stop-WithError([string]$message) {
