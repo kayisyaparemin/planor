@@ -36,7 +36,7 @@ public sealed class DesignBrandTests
             foreach (Match m in VisibleTextAttrRegex.Matches(doc.Content))
             {
                 var val = m.Groups["val"].Value;
-                if (Regex.IsMatch(val, $@"\b{Regex.Escape(oldName)}\b", RegexOptions.IgnoreCase))
+                if (ContainsName(val, oldName))
                 {
                     failures.Add($"{doc.FileName}: '{m.Groups["attr"].Value}' içinde eski ad '{oldName}' bulundu -> {val}");
                 }
@@ -49,7 +49,7 @@ public sealed class DesignBrandTests
             foreach (var file in Directory.GetFiles(stringsPath, "*.*", SearchOption.AllDirectories))
             {
                 var text = File.ReadAllText(file);
-                if (Regex.IsMatch(text, $@"\b{Regex.Escape(oldName)}\b", RegexOptions.IgnoreCase))
+                if (ContainsName(text, oldName))
                 {
                     failures.Add($"{Path.GetFileName(file)}: Eski ad '{oldName}' bulundu.");
                 }
@@ -119,12 +119,19 @@ public sealed class DesignBrandTests
     {
         foreach (Match m in VisibleTextAttrRegex.Matches(snippet))
         {
-            var val = m.Groups["val"].Value;
-            if (Regex.IsMatch(val, $@"\b{Regex.Escape(oldName)}\b", RegexOptions.IgnoreCase))
+            if (ContainsName(m.Groups["val"].Value, oldName))
             {
                 return true;
             }
         }
         return false;
     }
+
+    // RegexOptions.IgnoreCase "İ"yi yalnız tr-TR kültüründe "i" sayar; CI'ın kültürsüz Linux
+    // koşucusunda "MİZAN" kaçıyordu. "İ" önce "I"ya indirilir, eşleştirme kültürden bağımsız yapılır.
+    private static bool ContainsName(string text, string name) =>
+        Regex.IsMatch(
+            text.Replace('İ', 'I'),
+            $@"\b{Regex.Escape(name)}\b",
+            RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 }

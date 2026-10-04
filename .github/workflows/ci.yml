@@ -56,11 +56,15 @@ jobs:
       - name: Derle
         run: dotnet build Mizan.sln --configuration Release --no-restore -warnaserror
 
+      # Takılan test işi 45 dakikalık zaman aşımına kadar sessizce bekletmesin: 5 dakikada düşer
+      # ve takılan testin adını yazar. Döküm alınmaz; ad yeterli.
       - name: Test
         run: >
           dotnet test Mizan.sln
           --configuration Release
           --no-build
+          --blame-hang-timeout 5m
+          --blame-hang-dump-type none
           --logger "console;verbosity=minimal"
           --collect:"XPlat Code Coverage"
           --settings .runsettings
