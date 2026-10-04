@@ -141,15 +141,12 @@ internal static class CodeStructureRules
         }
     }
 
-    private static IEnumerable<string> GetHandwrittenSourceFiles()
+    internal static IEnumerable<string> GetHandwrittenSourceFiles()
     {
-        var srcDir = SolutionPaths.SourceDirectory;
-        if (!Directory.Exists(srcDir))
-        {
-            return [];
-        }
-
-        return Directory.GetFiles(srcDir, "*.cs", SearchOption.AllDirectories)
+        // tools/ de taranır: CI'ın güvendiği doğrulayıcı, koruduğu koddan gevşek yazılamaz (K2a).
+        return new[] { SolutionPaths.SourceDirectory, SolutionPaths.ToolsDirectory }
+            .Where(Directory.Exists)
+            .SelectMany(dir => Directory.GetFiles(dir, "*.cs", SearchOption.AllDirectories))
             .Where(f => !f.Contains("\\obj\\") && !f.Contains("/obj/") &&
                         !f.Contains("\\bin\\") && !f.Contains("/bin/"));
     }

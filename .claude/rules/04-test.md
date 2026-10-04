@@ -13,8 +13,8 @@ paths:
 | `Mizan.Application.Tests` | **yalnız** Application | Kullanım senaryoları, el yapımı fake portlarla |
 | `Mizan.Infrastructure.Tests` | **yalnız** Infrastructure | Gerçek SQLite, geçici dosya |
 | `Mizan.Presentation.Tests` | **yalnız** Presentation | ViewModel davranışı |
-| `Mizan.Architecture.Tests` | beşi birden | Kural kitabının kendisi (K1–K9) |
-| `Mizan.Regression.Tests` | Domain + Application + Infrastructure | Uçtan uca finansal doğruluk |
+| `Mizan.Architecture.Tests` | beşi birden + `Mizan.ApkVerifier` | Kural kitabının kendisi (K1–K9); `tools/` da taranır |
+| `Mizan.Regression.Tests` | Domain + Application + Infrastructure + Presentation + `Mizan.ApkVerifier` | Uçtan uca finansal doğruluk, E2E akış üretimi (K1), APK kuralları (K2a) |
 
 Bu ayrım kozmetik değil: eski projede tek bir `Mizan.Tests` vardı ve bir domain testi
 rahatça `TestFactory.Service()` çağırabiliyordu. Saf hesap çekirdeği bu yüzden servislere dolandı.

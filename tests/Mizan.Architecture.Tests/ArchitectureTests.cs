@@ -43,6 +43,15 @@ public sealed class ArchitectureTests
     }
 
     [Fact]
+    public void MimariTarama_ToolsKlasorunuKapsar()
+    {
+        var scannedFiles = CodeStructureRules.GetHandwrittenSourceFiles();
+
+        Assert.Contains(scannedFiles, f => f.StartsWith(SolutionPaths.ToolsDirectory, StringComparison.OrdinalIgnoreCase));
+        Assert.Contains("Mizan.ApkVerifier", TypeSafetyRules.ProductionAssemblies);
+    }
+
+    [Fact]
     public void KaynakTarayanTest_YalnizBuradaOlabilir()
     {
         var violations = ArchitectureRules.VerifySourceScanningTestsOnlyHere();

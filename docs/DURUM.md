@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **K1** — E2E: Maestro akışı (Faz K — Kalkanlar) |
-| Sıradaki adım | **K2** — CI: PR kapısı, kapsam eşiği, APK doğrulama (Faz K — Kalkanlar) |
-| Test sayısı | 2092 |
+| Son tamamlanan adım | **K2a** — APK doğrulayıcı (Faz K — Kalkanlar) |
+| Sıradaki adım | **K2b** — iş akışları: `ci.yml` PR kapısı, `release.yml`, kapsam eşikleri (Faz K — Kalkanlar) |
+| Test sayısı | 2114 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### K2a — APK doğrulayıcı; karar `S80` (1–2)
+
+Eskide iki iş akışına kopyalanmış, test edilmeyen `sed` zinciri tek bir saf kural sınıfına (`tools/Mizan.ApkVerifier/ApkRules.cs`) döndü. Okunamayan değer her zaman ihlaldir. K2 adım sınırını aştığı için K2a (doğrulayıcı) ve K2b (iş akışları) olarak bölündü.
+Sekiz kontrol: imza, yayın imzası (yalnız `-RequireReleaseSignature`), paket kimliği, versionCode, versionName, etiket, ağ izni (`uses-permission` ve `uses-permission-sdk-23`), `allowBackup=false`. Etiket verilirse sürüm etiketi de denetlenir. Beklenen kimlik csproj'dan okunur (`ApkIdentity`); kimliğin kendisini `AppIdentityTests` sabitler (K7 gereği Architecture.Tests'te).
+Mimari tarama `tools/`'u da kapsar (K3–K6). Bunun ilk sonucu, 6 parametreli `ApkExpectation`'ın `ApkIdentity` + bağlam olarak ayrılması oldu.
+`scripts/verify-apk.ps1` yerel Release APK'da 8/8 geçti; aynı APK yayın modunda debug imzası ve yanlış etiket yüzünden reddedildi. Windows PowerShell 5.1'de varsayılan yol hatası yerel denemede yakalanıp düzeltildi.
+Dikkat: doğrulayıcı henüz CI'a bağlı değil, bu iş K2b'de. I40'ın koruyan test sütununa birleşmiş manifest kontrolü de K2b'de eklenecek. 20 APK testi + 2 mimari test; toplam 2.114 test yeşil, 0 hata, 0 uyarı.
 
 ### K1 — E2E: `AutomationIds` sabitinden üretilen Maestro akışı
 

@@ -8,12 +8,13 @@ namespace Mizan.Architecture.Tests;
 /// </summary>
 internal static class TypeSafetyRules
 {
-    private static readonly string[] ProductionAssemblies =
+    internal static readonly string[] ProductionAssemblies =
     [
         "Mizan.Domain",
         "Mizan.Application",
         "Mizan.Infrastructure",
-        "Mizan.Presentation"
+        "Mizan.Presentation",
+        "Mizan.ApkVerifier"
     ];
 
     public static IReadOnlyList<string> CheckNoAsyncVoid()

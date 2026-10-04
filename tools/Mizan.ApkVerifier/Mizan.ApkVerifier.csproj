@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    K2: APK doğrulayıcı (S80). Eskide aynı kontroller iki iş akışına kopyalanmış, test edilmeyen
+    satır içi bash'ti. Kurallar burada tek yerde durur; Mizan.Regression.Tests negatif durumlarla
+    sınar, CI ve yerel kullanım scripts/verify-apk.ps1 üzerinden bu aracı çağırır.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+</Project>

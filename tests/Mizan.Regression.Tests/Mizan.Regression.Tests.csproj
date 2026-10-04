@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\src\Mizan.Application\Mizan.Application.csproj" />
     <ProjectReference Include="..\..\src\Mizan.Infrastructure\Mizan.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Mizan.Presentation\Mizan.Presentation.csproj" />
+    <ProjectReference Include="..\..\tools\Mizan.ApkVerifier\Mizan.ApkVerifier.csproj" />
   </ItemGroup>
 
 </Project>

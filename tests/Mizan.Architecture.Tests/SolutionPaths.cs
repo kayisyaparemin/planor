@@ -15,6 +15,9 @@ internal static class SolutionPaths
 
     public static string TestsDirectory => Path.Combine(Root, "tests");
 
+    /// <summary>Derleme ve doğrulama araçları (K2a: APK doğrulayıcı); üretim kodu gibi K3–K6'ya tabidir.</summary>
+    public static string ToolsDirectory => Path.Combine(Root, "tools");
+
     private static string ResolveSolutionRoot()
     {
         var current = new DirectoryInfo(AppContext.BaseDirectory);
