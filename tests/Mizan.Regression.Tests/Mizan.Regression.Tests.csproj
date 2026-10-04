@@ -24,6 +24,7 @@
     <ProjectReference Include="..\..\src\Mizan.Domain\Mizan.Domain.csproj" />
     <ProjectReference Include="..\..\src\Mizan.Application\Mizan.Application.csproj" />
     <ProjectReference Include="..\..\src\Mizan.Infrastructure\Mizan.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Mizan.Presentation\Mizan.Presentation.csproj" />
   </ItemGroup>
 
 </Project>

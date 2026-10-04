@@ -489,7 +489,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 
 ## Faz K — Kalkanlar
 
-- [ ] **K1** — E2E: `AutomationIds` sabitinden **üretilen** Maestro akışı
+- [x] **K1** — E2E: `AutomationIds` sabitinden **üretilen** Maestro akışı *(2026-10-04; MaestroFlowBuilder, RegressionFlowDefinition, MaestroFlowGenerator, full_regression_flow.yaml; C# sembollerinden tam tip-güvenli E2E akışı; koruyan: MaestroFlowGeneratorTests)*
 - [ ] **K2** — CI: PR kapısı, kapsam eşiği, APK doğrulama *(debug imza reddi, package id,
       versionCode, versionName, label kontrolleri)*
 - [ ] **K3** — Emülatör regresyon betiği *(eskinin açığı: yedek koordinat ile tıklayıp
@@ -519,5 +519,5 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
 | V | 12 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a–V10f tamam; V11 dönem kapanışı özeti tamam; V12 geçmiş ve geçmiş ayrıntısı tamam)* |
-| K | 0 | 4 |
+| K | 1 | 4 |
 | G | 0 | 1 |

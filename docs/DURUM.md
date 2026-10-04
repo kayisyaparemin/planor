@@ -4,15 +4,24 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V13** — ayarlar + düzen değişikliği (`S4`, `S18`, `S19`, `S79`, `GS33`, `EK-V13`) |
-| Sıradaki adım | **K1** — E2E: Maestro akışı (Faz K — Kalkanlar) |
-| Test sayısı | 2089 |
+| Son tamamlanan adım | **K1** — E2E: Maestro akışı (Faz K — Kalkanlar) |
+| Sıradaki adım | **K2** — CI: PR kapısı, kapsam eşiği, APK doğrulama (Faz K — Kalkanlar) |
+| Test sayısı | 2092 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### K1 — E2E: `AutomationIds` sabitinden üretilen Maestro akışı
+
+Planör'ün tüm ana rotalarını ve ekran akışlarını uçtan uca otomatik test eden tip-güvenli Maestro akış jeneratörü ve regresyon pakedi tamamlandı.
+(1) Davranış ve Kalkan Güvencesi: Eski projede elle yazılmış, paket kimliği eski (`com.coinflow.mobile.dev`), yapay butonlara (`btn-load-canonical-seed`) ve kırılgan metin eşleşmelerine dayalı 98 satırlık YAML akışı elendi. Yerine `com.mizan.app` hedefli, 10 ana senaryoyu kapsayan (temiz profil, onboarding kurulumu, ana sayfa bakiye girişi, 12 dönem projeksiyonu, dönem ayrıntısı dökümü, finansal yapı, simülatör, geçmiş, ayarlar ve profil değiştirme) tam döngülü E2E akışı kuruldu.
+(2) Tip-Güvenli C# Jeneratör Mimarisi (`MaestroFlowBuilder`, `RegressionFlowDefinition`, `MaestroFlowGenerator`): Akıştaki tüm ID'ler doğrudan `AutomationIds`, `FuturePeriodsAutomationIds`, `SettingsAutomationIds` vb. C# statik sembollerinden derlenir. Ekrandaki bir kimlik silindiğinde veya adı değiştiğinde regresyon projesi derleme zamanında (`CS0117`) kırılarak sessiz regresyonları imkânsız kılar.
+(3) E2E Dosyası ve Kalkan Testleri: `.maestro/flows/full_regression_flow.yaml` dosyası jeneratör tarafından üretildi. `MaestroFlowGeneratorTests` ile dosyanın C# modeliyle birebir senkron kaldığı ve akıştaki tüm ID'lerin geçerli otomasyon sınıflarında tanımlı olduğu otomatik doğrulandı.
+(4) Mimari ve Kalkanlar: Tüm dosyalar K3 (≤ 200 satır) ve K4 (metot ≤ 40 satır) sınırlarına tam uydu.
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 3 yeni regresyon testi eklendi; toplam 2.092 test yeşil, 0 hata, 0 uyarı.
 
 ### V13 — ayarlar + düzen değişikliği; kararlar `S4`, `S18`, `S19`, `S79`, `GS33`, `EK-V13`
 

@@ -1,0 +1,135 @@
+appId: com.mizan.app
+---
+- launchApp:
+    clearState: true
+
+# ============================================================
+# SENARYO 1: Profil Seçimi ve Temiz Başlangıç
+# ============================================================
+- assertVisible:
+    id: "page-profile-selection"
+- tapOn:
+    id: "btn-clean-start"
+- inputText: "RegresyonTesti"
+- tapOn: "Oluştur"
+
+# ============================================================
+# SENARYO 2: Onboarding (Kurulum Sihirbazı)
+# ============================================================
+- assertVisible:
+    id: "page-onboarding"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-next"
+- tapOn:
+    id: "btn-onboarding-start"
+- assertVisible:
+    id: "page-dashboard"
+
+# ============================================================
+# SENARYO 3: Dashboard ve Bakiye Gözlemi
+# ============================================================
+- assertVisible:
+    id: "card-dashboard-hero"
+- tapOn:
+    id: "btn-balance-entry"
+- assertVisible:
+    id: "page-balance-entry"
+- tapOn:
+    id: "input-balance-amount"
+- inputText: "50000"
+- tapOn:
+    id: "btn-save-balance"
+- assertVisible:
+    id: "page-dashboard"
+- assertVisible:
+    id: "lbl-projected-ending"
+
+# ============================================================
+# SENARYO 4: 12 Dönem Projeksiyonu
+# ============================================================
+- tapOn: "Open navigation drawer"
+- tapOn:
+    id: "flyout-item-projection"
+- assertVisible:
+    id: "page-future-periods"
+- assertVisible:
+    id: "card-future-trend"
+
+# ============================================================
+# SENARYO 5: Dönem Detayı Akışı
+# ============================================================
+- tapOn:
+    id: "grid-future-periods"
+- assertVisible:
+    id: "page-period-detail"
+- back
+- assertVisible:
+    id: "page-future-periods"
+
+# ============================================================
+# SENARYO 6: Finansal Yapı
+# ============================================================
+- tapOn: "Open navigation drawer"
+- tapOn:
+    id: "flyout-item-financial-structure"
+- assertVisible:
+    id: "page-financial-structure"
+- tapOn:
+    id: "btn-structure-add"
+- assertVisible:
+    id: "page-record-entry-picker"
+- back
+- assertVisible:
+    id: "page-financial-structure"
+
+# ============================================================
+# SENARYO 7: Simülatör
+# ============================================================
+- tapOn: "Open navigation drawer"
+- tapOn:
+    id: "flyout-item-simulation"
+- assertVisible:
+    id: "page-simulator"
+- assertVisible:
+    id: "btn-simulator-add"
+
+# ============================================================
+# SENARYO 8: Geçmiş (Tarihçe)
+# ============================================================
+- tapOn: "Open navigation drawer"
+- tapOn:
+    id: "flyout-item-history"
+- assertVisible:
+    id: "page-history"
+
+# ============================================================
+# SENARYO 9: Ayarlar
+# ============================================================
+- tapOn: "Open navigation drawer"
+- tapOn:
+    id: "flyout-item-settings"
+- assertVisible:
+    id: "page-settings"
+- assertVisible:
+    id: "btn-settings-save"
+
+# ============================================================
+# SENARYO 10: Profil Değiştirme
+# ============================================================
+- tapOn: "Open navigation drawer"
+- tapOn:
+    id: "flyout-item-switch-profile"
+- assertVisible:
+    id: "page-profile-selection"
