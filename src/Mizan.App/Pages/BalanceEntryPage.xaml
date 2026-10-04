@@ -123,8 +123,8 @@
                                Style="{StaticResource Caption}"
                                IsVisible="{Binding HasLastObservation}" />
 
-                        <!-- Rota: ana sayfanın rolleri; taslak giriş grafikte nokta -->
-                        <GraphicsView Drawable="{Binding Preview.Trend, Converter={StaticResource TrendGrafigi}}"
+                        <!-- Rota sütunlarla: dönem eşit dilimlerde, bugünkü sütun etiketli -->
+                        <GraphicsView Drawable="{Binding Preview.Trend, Converter={StaticResource SutunGrafigi}}"
                                       HeightRequest="{StaticResource ChartHeight}"
                                       InputTransparent="True" />
                     </VerticalStackLayout>

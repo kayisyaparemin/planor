@@ -340,6 +340,17 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V6f`, `EK-V10` (`V10c`), `TASARIM-SISTEMI.md` (§ Bileşenler, § İkonlar, § Kontrast çiftleri), `.claude/rules/06-tasarim.md` (GK4 kart listesi, GK6 karo cümlesi), `Icons.cs`, `DesignBudgetAnalyzer` (bileşen kart sayılır), `DesignComponentTests` |
 | **Durum** | uygulandı (`V6f1`, Kapı C onaylı 2026-10-03, koyu + açık; `V6f2`, Kapı C onaylı 2026-10-04) |
 
+### GS30 — Rota grafiği yerine sütunlar: ColumnTrend primitifi, eşit dilimler, plan altı olumsuz renk ve "Bugün" etiketi
+
+| | |
+|---|---|
+| **Tür** | konsept uygulaması + yeni primitif (konsept `docs/assets/konsept/anasayfa-grafik-yerine-sutun.png`, kullanıcı getirdi 2026-10-04) |
+| **Konsept** | Ana sayfa hero kartında çizgi rota yerine 10 sütunlu grafik: bugüne kadarkiler dolu, bugünden sonrakiler soluk; plan seviyesini gösteren yatay hairline çizgi; planın altına düşen sütun olumsuz renkte (`NegativeText`); bugünkü sütunun üzerinde "Bugün" rozeti/etiketi; altta iki uç tarih ("10 Eylül", "9 Ekim"). |
+| **Neden değiştirildi** | Çizgi rota (`AreaTrend`) bakiyenin dönemin hangi diliminde ne kadar olduğunu tek bakışta söylemiyordu; 30 günlük ince çizgi dalgalanması yerine konsept dönemi eşit dilimlere bölerek (~10 sütun) bakiye seviyesini ve plan altı durumu çok daha net iletiyor. Kullanıcı kararıyla (2026-10-04) 5. grafik primitifi olarak `ColumnTrend` sisteme eklendi ve "Bakiye gir" önizlemesi de aynı sütun dilini konuşacak şekilde güncellendi (M8). |
+| **Yeni** | (1) **Beşinci primitif (`ColumnTrend`):** `src/Mizan.App/Charts/ColumnTrend.cs`. Soru: "Dönem boyunca bakiye nerede, plana göre nerede bitiyor?". Girdi: `IReadOnlyList<ChartColumn>` + `PlanLevel` + `TodayLabel`. GK7 genişletildi. (2) **Dilimleme (`ChartColumns`):** Saf yardımcı `Mizan.Presentation/Charts/ChartColumns.cs` dönemi en fazla 10 eşit dilime böler; bugünün dilimi "Bugün" olarak işaretlenir, sonraki dilimler tahmin kabul edilir (`IsAhead`). (3) **Görsel dil:** Bugüne kadarki sütunlar `Indicator`, tahmin sütunları %45 opaklıkta (`AheadAlpha`). Plan seviyesinin (`PlanLevel`) altında kalan sütun `NegativeText` rengini alır. Sıfır çizgisi `BorderSubtle`, plan seviyesi `TextSecondary`. (4) **"Bugün" etiketi:** Bugünkü sütunun üzerinde hap şeklinde rozet (`Indicator` zemin, `TextOnAction` metin, `TypeEyebrow` puntosunda). (5) **İki ekran aynı dil:** Ana sayfa (`DashboardPage`) ve "Bakiye gir" (`BalanceEntryPage`) ikisi de `SutunGrafigi` çevirmenini kullanır. |
+| **Etkiler** | `EK-V3`, `EK-V3b`, `DashboardPage.xaml`, `BalanceEntryPage.xaml`, `ColumnTrend.cs`, `ChartColumn.cs`, `ChartColumns.cs`, `SutunGrafigiConverter.cs`, `TASARIM-SISTEMI.md` (§ Grafikler), `.claude/rules/06-tasarim.md` (GK4, GK7), `DesignChartTests` |
+| **Durum** | uygulandı (2026-10-04) |
+
 ---
 
 ## Konsept otorite değildir

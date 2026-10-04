@@ -46,7 +46,7 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 |---|---|---|
 | Dönem sonu (tahmin; bakiye yoksa plan) | **Hero** (`HeroFigure`), kaydırılan kartın 1. sayfası | S1 ekranın asıl sorusu; bakiye yokken planın dediği gösterilir, tire değil (`S72-1`) |
 | Plana göre fark + plan tutarı | **Satır** (hero'nun altında) | S1; yalnız bakiye girildiyse (`S72-2`), fark işaretli ve semantik renkli |
-| Bakiye rotası | **Grafik** (`AreaTrend`), 1. sayfa | S1 "oraya nasıl gidiyorum": `Travelled` düz, `Ahead` kesikli, `Today`, `PlanLevel` (`S71`); bakiye yokken planın rotası |
+| Bakiye rotası | **Grafik** (`ColumnTrend`), 1. sayfa | S1 "oraya nasıl gidiyorum": eşit dilimli sütunlar; bugüne kadarki dolu `Indicator`, tahmin soluk, plan altı olumsuz renk, bugün rozeti (`GS30`); bakiye yokken planın rotası |
 | Dönemin ilk ve son günü | **Satır** (grafiğin altında iki etiket) | Grafiğin tarih ekseni; son gün `PeriodEnd − 1` (`S72-7`) |
 | Kalan yaşam gideri | **Şema** (`RingGauge` ortasında, `TypeTitle`), 2. sayfa | S2; halka dolgusu harcanan oran, işareti geçen süre (`S72-3`) |
 | Harcanan % / geçen süre % | **Satır** (2 × `MetricRow`) | S2 halkanın sayı karşılığı; ikisi de son bakiyenin gününe göre |
@@ -62,7 +62,7 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 | Ödeme satırı ikonları | **Çıkar** | GK6: kart başına en fazla bir ikon |
 | Harcanan tutarı | **Çıkar** | S2 oranı soruyor |
 | Halkadaki "10 gün kaldı" | **Çıkar** | Başlıktaki gün sayacıyla aynı bilgi |
-| Grafikteki "Bugün" / "Plan" yazıları, gözlem noktası işareti | **Çıkar** | `AreaTrend` yazı ve işaret çizmez; çizgiler kalır, rota gözlem gününde kırılır |
+| Grafikteki "Bugün" / "Plan" yazıları, gözlem noktası işareti | **Çıkar** | `AreaTrend` yazı ve işaret çizmez; `ColumnTrend` rozet taşır (`GS30`) |
 | Sayfa içi bakiye girişi (`HeroInputCard`) | **Çıkar** → `V3b` | Tarih ve önizlemeyle ayrı sayfa |
 
 ### 3. Bütçe
@@ -71,7 +71,7 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 Hero rakam    1 / 1     dönem sonu (tahmin ya da plan)
 Hero yüzey    0 / 1     kaydırılan kart tonlu SurfaceChart (GS24), SurfaceHero değil; HeroInputCard kalktı
 Kart          4 / 4     HeroPager, bakiye/kapanış kartı, ReminderCard, ListCard
-Grafik        1 / 1     aynı anda: 1. sayfada AreaTrend, 2. sayfada RingGauge
+Grafik        1 / 1     aynı anda: 1. sayfada ColumnTrend, 2. sayfada RingGauge
 Hero sayfa    2 / 2
 NavRow        0 / 5
 Label        25 / 28    başlık 4, 1. sayfa 7, 2. sayfa 5, bakiye kartı 6, ödeme satırı şablonu 3
@@ -97,11 +97,10 @@ dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML
 │ │ 41.723 ₺                                HeroFigure / TextPrimary
 │ │ Plana göre −2.177 ₺  ·  Plan 43.900 ₺   TypeCaption; fark NegativeText /
 │ │   (yalnız bakiye girildiyse)            PositiveText, plan TextSecondary
-│ │ AreaTrend   yükseklik ChartHeight                          │ │
-│ │   Travelled: düz Indicator + Indicator %20 dolgu           │ │
-│ │   Ahead: kesikli Indicator, sonu içi boş halka             │ │
-│ │   bakiye günleri dolu nokta · Today: kesikli TextSecondary │ │
-│ │   PlanLevel: noktalı TextSecondary                         │ │
+│ │ ColumnTrend  yükseklik ChartHeight                         │ │
+│ │   Eşit dilimler: bugüne kadarki sütun Indicator, tahmin    │ │
+│ │   soluk (%45); plan altı NegativeText; Bugün rozeti;       │ │
+│ │   PlanLevel yatay TextSecondary hairline                   │ │
 │ │ 10 Eylül                                        9 Ekim     │ │  Caption
 │ └────────────────────────────────────────────────────────────┘ │
 │ ┌ HeroPage 2 ────────────────────────────────────────────────┐ │  ← S2
@@ -188,7 +187,7 @@ boş hâlde ortak `StateBlock`.
 | Bu girişle dönem sonu | **Kart** (önizleme), `TypeTitle` | S2; yalnız geçerli tutar varken (`S73-2`) |
 | Plana göre fark | **Satır** (kartta, işaretli, renk artı/eksiye göre) | S2 |
 | Önceki tahmin | **Satır** (kartta), yalnız önceki giriş varsa | S2 "girişim neyi değiştirdi" (`S73-6`); konseptteki okun yerine |
-| Önizleme rotası | **Grafik** (`AreaTrend`, `ChartHeight`) | S2 "oraya nasıl"; ana sayfanın 1. sayfasıyla aynı roller, taslak giriş noktadır |
+| Önizleme rotası | **Grafik** (`ColumnTrend`, `ChartHeight`) | S2 "oraya nasıl"; ana sayfanın 1. sayfasıyla aynı roller, taslak giriş noktadır |
 | Kaydet | **Buton** (tam genişlik) | S1 |
 | Dönem bitti + "Dönemi Kapat" | **Durum** (`StateBlock`) | `S68-4`: kapanışı bekleyen döneme bakiye yazılmaz (`S73-5`) |
 | "güncel" kelimesi | **Çıkar** | Geriye tarihli girişte yanlış |
@@ -204,7 +203,7 @@ boş hâlde ortak `StateBlock`.
 Hero rakam    1 / 1     girilen bakiye (tutar alanı)
 Hero yüzey    0 / 1     önizleme kartı tonlu SurfaceChart (GS25), SurfaceHero değil
 Kart          1 / 4     önizleme kartı (ham Border; analizci 0 sayar)
-Grafik        1 / 1     önizleme rotası
+Grafik        1 / 1     önizleme rotası (ColumnTrend)
 Hero sayfa    0 / 2
 NavRow        0 / 5
 Label        11 / 28    başlık 1, tutar 2, son giriş 2, bugün 1, önizleme 5
@@ -239,9 +238,9 @@ Etiket sayımı analizcinin sayımıdır: `<Label.Text>` (son giriş) ve `<Label
 │ 44.380 ₺                        TypeTitle / OpenSansSemibold / TextPrimary
 │ Plana göre +480 ₺     Bicim_PlanaGore  Caption; NegativeText / PositiveText
 │ Önceki tahmin 41.723 ₺  Bicim_OncekiTahmin  Caption (yalnız önceki giriş varsa)
-│ AreaTrend  ChartHeight — ana sayfanın rolleri: Travelled düz + dolgu,    │
-│   Ahead kesikli + dönem sonu halkası, bakiye noktaları (taslak dahil),   │
-│   Today kesikli, PlanLevel noktalı                                       │
+│ ColumnTrend  ChartHeight — ana sayfanın rolleri: eşit dilimler,          │
+│   bugüne kadarki sütun Indicator, tahmin soluk (%45), plan altı Negative, │
+│   Bugün rozeti, PlanLevel yatay TextSecondary                            │
 │ yalnız geçerli tutar ve başarılı önizleme varken görünür                 │
 └──────────────────────────────────────────────────────────────────────────┘
 [ Aksiyon_Kaydet                                 ActionFill, tam genişlik ]  ← S1

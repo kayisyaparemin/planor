@@ -420,7 +420,7 @@ olduğunu bilmez.
 
 Dizin: `src/Mizan.App/Charts/`. Her biri bir `IDrawable`, ≤ 200 satır.
 
-Dört primitif var, beşincisi yok (kural GK7). Her birinin `<summary>`'si cevapladığı soruyu
+Beş primitif var, altıncısı yok (kural GK7). Her birinin `<summary>`'si cevapladığı soruyu
 cümle olarak taşır.
 
 | Primitif | Cevapladığı soru | Girdi |
@@ -429,6 +429,7 @@ cümle olarak taşır.
 | `AreaTrend` | "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" | Bir seri (tarih eksenli) + isteğe bağlı eşik, plan serisi, kesikli devam, bugün ve plan seviyesi (`GS23`). Eşik verilirse alan dolgusu tabana değil eşiğe iner (`GS26`-4). |
 | `StackedBar` | "Bu dönem neyden oluşuyor?" | ≤ 4 kategori. |
 | `RingGauge` | "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?" | Tek oran (0–1) + isteğe bağlı geçen süre oranı (0–1) (`GS23`). |
+| `ColumnTrend` | "Dönem boyunca bakiye nerede, plana göre nerede bitiyor?" | Sütunlar (tarih dilimleri) + plan seviyesi + bugün etiketi (`GS30`). |
 
 **Ekranda aynı anda en fazla bir grafik görünür.** İkinci bir grafik gerekiyorsa o ekran iki
 ekrandır; tek istisna `HeroPager`: en fazla bir kaydırılan kart, en fazla iki sayfa, sayfa

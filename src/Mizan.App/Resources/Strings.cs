@@ -96,4 +96,7 @@ public static class Strings
 
     /// <summary>Açık dönem bulunmadığı durum metni.</summary>
     public const string Durum_AcikDonemYok = "Henüz açık bir nakit akış dönemi yok.";
+
+    /// <summary>Sütunlu rota grafiğinde bugünün sütununun üstündeki etiket (ana sayfa ve "Bakiye gir").</summary>
+    public const string Etiket_Bugun = "Bugün";
 }

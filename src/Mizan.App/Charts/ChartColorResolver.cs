@@ -14,6 +14,7 @@ public static class ChartColorResolver
     private static readonly Color DefaultNegativeText = Color.FromArgb("#EE9D96");
     private static readonly Color DefaultSurfaceChart = Color.FromArgb("#233040");
     private static readonly Color DefaultBorderSubtle = Color.FromArgb("#343B46");
+    private static readonly Color DefaultTextOnAction = Color.FromArgb("#1E232A");
 
     // Dolgu ve halka izi çizgi renginin bu kadar saydam tonudur (GS24): zemin tonlu da olsa düz de olsa seçilir.
     private const float TintAlpha = 0.2f;
@@ -47,6 +48,7 @@ public static class ChartColorResolver
             "NegativeText" => DefaultNegativeText,
             "SurfaceChart" => DefaultSurfaceChart,
             "BorderSubtle" => DefaultBorderSubtle,
+            "TextOnAction" => DefaultTextOnAction,
             _ => Colors.Transparent
         };
     }

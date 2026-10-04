@@ -28,5 +28,6 @@
   "Baslik_NavGelirPlani": "Gelir Planı",
   "Etiket_GelirPlaniOzet": "Maaş ve yan gelirler",
   "Baslik_NavOdemePlanlari": "Ödeme Planları",
-  "Durum_AcikDonemYok": "Henüz açık bir nakit akış dönemi yok."
+  "Durum_AcikDonemYok": "Henüz açık bir nakit akış dönemi yok.",
+  "Etiket_Bugun": "Bugün"
 }

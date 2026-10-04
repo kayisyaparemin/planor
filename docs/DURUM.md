@@ -6,13 +6,23 @@
 |---|---|
 | Son tamamlanan adım | **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği (S77, EK-V10) |
 | Sıradaki adım | **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer |
-| Test sayısı | 2057 |
+| Test sayısı | 2061 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Düzeltme / Konsept uyumu — Ana sayfa ve "Bakiye gir" rota grafiği yerine sütun tasarımı (`ColumnTrend`, `GS30`, `EK-V3`, `EK-V3b`)
+
+Ana sayfa ve "Bakiye gir" önizleme kartındaki çizgi rota grafiği (`AreaTrend`), konsept tasarımına (`docs/assets/konsept/anasayfa-grafik-yerine-sutun.png`) uygun olarak sütun grafiğiyle değiştirildi (kullanıcı kararı, 2026-10-04).
+(1) Yeni grafik primitifi `ColumnTrend`: 5. primitif olarak sisteme eklendi (GK7 genişletildi). Soru: "Dönem boyunca bakiye nerede, plana göre nerede bitiyor?".
+(2) Dilimleme (`ChartColumns`): saf yardımcı dönemi en fazla 10 eşit dilime böler; bugünün dilimi "Bugün" olarak işaretlenir, sonraki dilimler tahmin kabul edilir (`IsAhead`).
+(3) Görsel dil: Bugüne kadarki sütunlar `Indicator`, tahmin sütunları %45 opaklıkta (`AheadAlpha`). Plan seviyesinin (`PlanLevel`) altında kalan sütun `NegativeText` rengini alır. Tüm sütunlar tabana oturur ve yukarı doğru yükselir (eksi bakiyede dahi ters dönmez); üst köşeleri yuvarlak, alt köşeleri düzdür. Bugünkü sütunun üzerinde "Bugün" rozeti (`Indicator` zemin, `TextOnAction` metin) yer alır.
+(4) İki ekran aynı dil: Ana sayfa (`DashboardPage`) ve "Bakiye gir" (`BalanceEntryPage`) ikisi de `SutunGrafigi` çevirmenini kullanır (M8).
+Bütçe: Ana Sayfa (Hero 1/1, Kart 4/4, Grafik 1/1 `ColumnTrend`, Label 25/28, Cümle 3/3); Önizleme (Hero 1/1, Kart 1/4, Grafik 1/1 `ColumnTrend`, Label 11/28, Cümle 1/3).
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 4 yeni test (Presentation); toplam 2.061 test yeşil, 0 hata, 0 uyarı.
 
 ### V10e — gelir türleri: tek seferlik gelir, gelir değişikliği; kararlar `S77` V10 notları i, `EK-V10`
 

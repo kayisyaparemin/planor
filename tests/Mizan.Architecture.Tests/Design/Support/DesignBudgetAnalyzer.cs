@@ -19,7 +19,7 @@ internal static class DesignBudgetAnalyzer
     public const int MaxNavRows = 5;
     public const int MaxSentences = 3;
 
-    private const string ChartPattern = @"<(?:[A-Za-z0-9_]+:)?(?:ChartCard|Sparkline|AreaTrend|StackedBar|RingGauge)\b|<GraphicsView\b";
+    private const string ChartPattern = @"<(?:[A-Za-z0-9_]+:)?(?:ChartCard|Sparkline|AreaTrend|StackedBar|RingGauge|ColumnTrend)\b|<GraphicsView\b";
     private const string HeroPagerPattern = @"<(?:[A-Za-z0-9_]+:)?HeroPager\b.*?</(?:[A-Za-z0-9_]+:)?HeroPager>";
     private const string HeroPagePattern = @"<(?:[A-Za-z0-9_]+:)?HeroPage\b[^>]*?(?:/>|>.*?</(?:[A-Za-z0-9_]+:)?HeroPage>)";
 

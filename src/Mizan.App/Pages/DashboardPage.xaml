@@ -126,8 +126,8 @@
                                        Style="{StaticResource Caption}" />
                             </HorizontalStackLayout>
 
-                            <!-- Rota: katedilen düz, önümüzdeki kesikli, bugün ve plan seviyesi ince çizgi -->
-                            <GraphicsView Drawable="{Binding Trend, Converter={StaticResource TrendGrafigi}}"
+                            <!-- Rota sütunlarla: dönem eşit dilimlerde; bugüne kadarki dolu, tahmin soluk, plan altı olumsuz renkte, bugün etiketli (GS30) -->
+                            <GraphicsView Drawable="{Binding Trend, Converter={StaticResource SutunGrafigi}}"
                                           HeightRequest="{StaticResource ChartHeight}"
                                           InputTransparent="True" />
 

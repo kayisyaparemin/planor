@@ -23,7 +23,7 @@ Bu dosya `.claude/rules/03-mvvm.md`'nin üzerine biner: o ViewModel ile sayfa ar
 | **GK4** | Görsel bütçe: sayfa başına ≤ 1 hero, ≤ 4 kart, aynı anda ≤ 1 grafik, ≤ 28 `<Label>` | `DesignBudgetTests.Sayfa_GorselButceyiAsamaz`, `DesignHeroPagerTests` |
 | **GK5** | Cümle bütçesi: sayfa başına ≤ 3 `Cumle_*` dizesi, her biri ≤ 90 karakter | `DesignBudgetTests.Sayfa_CumleButcesiniAsamaz` |
 | **GK6** | İkon tek kaynaktan (`Icons.cs`); XAML'de ham glif veya emoji yok; boyut 16/20/24 | `DesignTokenTests.Xaml_HamGlif_Iceremez` |
-| **GK7** | Grafik yalnız dört primitiften biri olabilir; verisi `Mizan.Presentation`'dan ham seri gelir | `DesignChartTests.Grafik_YalnizPrimitiflerden` |
+| **GK7** | Grafik yalnız beş primitiften biri olabilir; verisi `Mizan.Presentation`'dan ham seri gelir | `DesignChartTests.Grafik_YalnizPrimitiflerden` |
 | **GK8** | İki tema, tek mekanizma: iki palet aynı anahtar kümesiyle tanımlı, XAML renge yalnız `DynamicResource` ile bakar, `AppThemeBinding` yasak | `DesignTokenTests.Renkler_SistemdekiTokenlarlaBirebir`, `DesignTokenTests.Xaml_RenkTokeni_DynamicResourceIle`, `DesignTokenTests.Xaml_AppThemeBinding_Yasak` |
 | **GK9** | Her sayfanın `docs/EKRAN-KARTLARI.md`'de bir kartı vardır ve kart sayfadaki kartları/grafiği listeler | `DesignBudgetTests.HerSayfanin_EkranKarti_Var` |
 | **GK10** | `docs/TASARIM-SISTEMI.md`'deki kontrast çiftleri **iki temada da** eşiği geçer | `DesignContrastTests.KontrastCiftleri_EsigiGecer` |
@@ -102,7 +102,7 @@ Sayfa başına:
 | Hero rakam | **1** | `TypeHero` kullanımı |
 | Hero yüzey | **1** | `SurfaceHero` kullanımı (`HeroInputCard` veya `InfoBanner`) |
 | Kart | **4** | `SummaryCard`, `ListCard`, `ChartCard`, `HeroInputCard`, `EntryTypeTiles` örnekleri |
-| Grafik | **1 (aynı anda)** | `ChartCard`, `Sparkline`, `AreaTrend`, `StackedBar`, `RingGauge`, `GraphicsView`; `HeroPager` dışındakilerin hepsi + pager başına en kalabalık sayfa |
+| Grafik | **1 (aynı anda)** | `ChartCard`, `Sparkline`, `AreaTrend`, `StackedBar`, `RingGauge`, `ColumnTrend`, `GraphicsView`; `HeroPager` dışındakilerin hepsi + pager başına en kalabalık sayfa |
 | Kaydırılan hero | **1** | `HeroPager` örneği; 1 kart sayılır, sayfaları ayrıca kart sayılmaz |
 | Hero sayfa | **2** | `HeroPage` örnekleri; sayfa başına en fazla 1 grafik |
 | `<Label>` | **28** | XAML'deki `<Label` sayısı |
@@ -166,10 +166,10 @@ en fazla bir ikon taşır (tür seçici, `GS29`); bir listenin satırı karo de�
 Eski XAML'de `→` karakteri buton metinlerine gömülüydü ("Bu dönemi kapat →"). Ok bir ikon,
 metin değil.
 
-## GK7 — Dört grafik primitifi
+## GK7 — Beş grafik primitifi
 
 `src/Mizan.App/Charts/` altında yalnız şunlar olabilir: `Sparkline`, `AreaTrend`,
-`StackedBar`, `RingGauge`.
+`StackedBar`, `RingGauge`, `ColumnTrend`.
 
 Her birinin `<summary>`'si **cevapladığı soruyu cümle olarak** taşır (K8 zaten `<summary>`
 zorunlu kılıyor; bu kural içeriğini kısıtlıyor):
@@ -189,7 +189,7 @@ token'a düştüğü `docs/TASARIM-SISTEMI.md` § Rol → token eşlemesi'nde ya
 Drawable rengi **çizim anında** kaynaklardan okur, kurucuda saklamaz; tema değişince
 grafik yeniden çizilir.
 
-Beşinci bir primitif eklemek: önce cevapladığı soruyu yaz, sonra kullanıcıya sor.
+Altıncı bir primitif eklemek: önce cevapladığı soruyu yaz, sonra kullanıcıya sor.
 
 ## GK8 — İki tema, tek mekanizma
 

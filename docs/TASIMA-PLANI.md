@@ -308,7 +308,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       aynı görüntüdeki kapanış sayfası `V11`'in). Görüntüler **yalnız bu ekranın yerleşim konseptidir**:
       renkleri token değildir, grafiğindeki iniş çıkışlar bugün hiçbir veriye dayanmıyor (bkz. `H5`).
       - Kaydırılan kart, iki sayfa, iki nokta; açılışta her zaman 1. sayfa.
-        1. Dönem sonu tahmini (hero rakam) + plana göre fark (`PlannedEndingBalance` hazır) + bakiye trendi (`AreaTrend`).
+        1. Dönem sonu tahmini (hero rakam) + plana göre fark (`PlannedEndingBalance` hazır) + bakiye trendi (`ColumnTrend`, konsept `anasayfa-grafik-yerine-sutun.png`, `GS30`).
         2. Kalan yaşam gideri + tempo halkası (`RingGauge`) + harcanan / geçen süre + tek tempo cümlesi.
       - Bankadaki bakiye (son gözlem ve tarihi) + "Bakiye gir"; hatırlatıcı kartı; kalan ödemeler
         (adet · toplam, ilk satırlar, "Tümünü gör").
