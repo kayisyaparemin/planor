@@ -792,3 +792,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `K2a` (doğrulayıcı, 1–2), `K2b` (iş akışları ve eşikler, 3–8), `S60` (birleşmiş manifest açığı kapandı), `I40`, `F4` |
 | **İlgili** | Repoda henüz git remote yok; kapının zorlanması (branch protection: `main`'e doğrudan push kapalı, `CI` zorunlu durum denetimi) remote açıldığında GitHub ayarlarından elle yapılır. Release secret'ları: `MIZAN_KEYSTORE_BASE64`, `MIZAN_KEYSTORE_PASSWORD`, `MIZAN_KEY_ALIAS`, `MIZAN_KEY_PASSWORD`. |
 | **Durum** | uygulandı: 1–2 `K2a`'da; 3–8 `K2b`'de |
+
+### S81 — Emülatör regresyonu: tıklayan Maestro'dur, betik yalnız hazırlar ve sonucu olduğu gibi döner
+
+| | |
+|---|---|
+| **Eski** | `run-emulator-regression-tests.ps1` (688 satır) kendi tıklama ve doğrulama motorunu taşıyordu: `uiautomator dump` çıktısını regex'le tarar, düğüm bulunamazsa sabit koordinata (`input tap 75 136`, `438 1400`, `538 <y>`) düşer, her senaryoyu `try/catch` içinde `Record-Test` ile kaydeder. Doğrulamalar `$xml -match "Kredi\|Kart\|TL\|Net"` gibi hemen her ekranda doğru çıkan desenlerdi. App id eski (`com.coinflow.mobile.dev`), veri koruması yoktu. |
+| **Neden yanlış** | a) Yedek koordinatla tıklayıp sonucu koşulsuz başarılı saymak, kırık bir ekranı yeşil gösterir; kalkanın tek işi bunu yakalamaktı. b) Gevşek regex bir ekranın *var olduğunu* değil *bir şey çizildiğini* sınar. c) K1 aynı akışı `AutomationIds` sembollerinden derleme zamanında tip-güvenli üretiyor; ikinci bir elle yazılmış akış onunla ayrışır. d) K1 akışı `clearState: true` ile başlıyor: korumasız koşarsa emülatördeki profiller (telefon verisi dahil) silinir (V7'deki kayıp). |
+| **Yeni** | 1) **Tek akış, tek tıklayıcı:** gezinme ve doğrulama yalnız `.maestro/flows/full_regression_flow.yaml`'dadır (K1 üretir); betik `maestro test` çağırır, koordinat, `input tap/swipe` ve ekran dökümü regex'i içermez. 2) **Sonuç yutulmaz:** betiğin çıkış kodu Maestro'nun çıkış koduyla birebir aynıdır; başarı iletisi yalnız kod 0 ise yazılır. 3) **Veri koruması:** hazırlık `scripts/emulatorde-ac.ps1`'e bırakılır (yeni APK, profil yedeği); profil varken yeni yedek oluşmadıysa akış hiç koşmaz. Akıştan sonra (hata olsa da, `finally`) `files/profiles` boşaltılıp yedek `-GeriYukle` ile geri yüklenir; akışın açtığı test profili emülatörde kalmaz. 4) **Maestro CLI kullanıcının kurulumudur;** yoksa betik net bir hata ile durur, kendisi indirmez. 5) Taşınmayanlar: `Record-Test`/`Capture-Screen` altyapısı, `Navigate-Flyout` koordinat tablosu, `matrix` ve Firebase betikleri, `MizanDevBuild`/`.dev` app id. |
+| **Etkiler** | `K3`, `K1` (akışın ilk gerçek koşusu), `emulatorde-ac.ps1` (değişmez, çağrılır) |
+| **İlgili** | Betik korumasını `EmulatorScriptTests` kaynak metninden sınar (K7); gerçek koşu Maestro kurulumunu ve emülatörü gerektirir, CI'da koşmaz. |
+| **Durum** | uygulandı: `K3` (gerçek emülatör koşusu Maestro kurulunca) |

@@ -503,10 +503,11 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         *(2026-10-05; S80-3…8; `ci.yml` `workflow_call` ile çağrılabilir, `release.yml` önce onu çağırır;
         eşikler 95/95/90/80, ölçülemeyen katman kırmızı; `04-test.md` eşik tablosu güncellendi;
         YAML GitHub'da henüz çalıştırılmadı (remote yok); koruyan: WorkflowTests)*
-- [ ] **K3** — Emülatör regresyon betiği *(eskinin açığı: yedek koordinat ile tıklayıp
+- [x] **K3** — Emülatör regresyon betiği *(eskinin açığı: yedek koordinat ile tıklayıp
       sonucu koşulsuz "başarılı" sayıyordu — bu tekrarlanmayacak)*. Ekran adımlarında ajan
       uygulamayı yalnız `scripts/emulatorde-ac.ps1` ile açar, bakmak kullanıcıdadır;
       otomatik emülatör regresyonunun yeri burasıdır.
+      *(2026-10-05; S81; `scripts/emulator-regresyon.ps1`: tıklayan yalnız K1 Maestro akışı, çıkış kodu Maestro'nunkiyle aynı, `clearState` için yedek + `finally` geri yükleme; Maestro kurulu olmadığından betik henüz gerçek emülatörde koşmadı; koruyan: EmulatorScriptTests)*
 - [ ] **K4** — Sürüm hattı: sürüm notları `CHANGELOG.md`'den okunur, elle `echo` edilmez
 
 ## Faz G — Geçiş

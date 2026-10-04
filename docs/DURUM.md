@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **K2b** — CI iş akışları ve kapsam eşikleri (Faz K — Kalkanlar) |
-| Sıradaki adım | **K3** — emülatör regresyon betiği (Faz K — Kalkanlar) |
-| Test sayısı | 2136 |
+| Son tamamlanan adım | **K3** — emülatör regresyon betiği (Faz K — Kalkanlar) |
+| Sıradaki adım | **K4** — sürüm hattı: sürüm notları `CHANGELOG.md`'den (Faz K — Kalkanlar) |
+| Test sayısı | 2150 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### K3 — emülatör regresyon betiği; karar `S81`
+
+`scripts/emulator-regresyon.ps1` (≈110 satır) eski 688 satırlık betiğin yerine geldi. Tıklayan ve doğrulayan **yalnız** K1'in ürettiği Maestro akışıdır; betik hazırlar (`emulatorde-ac.ps1`: emülatör, yeni APK, profil yedeği), `maestro --device <serial> test` çağırır ve **Maestro'nun çıkış koduyla** biter. Eskinin açığı kapandı: yedek koordinat, `try/catch` içinde koşulsuz başarı ve "bir şey çizildi mi" regex'leri taşınmadı (`S81`-1, 2).
+Akış `clearState` ile başladığı için emülatör verisi korunur: profil varken bu koşunun yedeği yoksa akış koşmaz; akıştan sonra (`finally`) akışın açtığı test profili silinir, yedek `-GeriYukle` ile döner (`S81`-3).
+Koruyan: `EmulatorScriptTests` (14 test; `EmulatorScriptRules` betiğin kaynak metnini tarar — koordinat/`uiautomator` yasağı, çıkış kodu, `finally` sırası, profil temizliği). Toplam 2.150 test yeşil, 0 hata, 0 uyarı.
+**Dikkat:** Maestro CLI bu makinede kurulu değil ve betik **henüz gerçek emülatörde koşmadı**; yalnız PowerShell ayrıştırması ve kural testleri doğrulandı. K1 akışının ilk gerçek koşusu bu betikle olacak ve ilk koşuda akış hataları çıkabilir. Kurulum kullanıcıya bırakıldı (`S81`-4); `emulatorde-ac.ps1` değişmedi.
 
 ### K2b — CI iş akışları ve kapsam eşikleri; karar `S80` (3–8)
 
