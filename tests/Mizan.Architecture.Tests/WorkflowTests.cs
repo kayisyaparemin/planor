@@ -32,6 +32,8 @@ public sealed class WorkflowTests
               - env: { A: "${{ secrets.MIZAN_KEYSTORE_BASE64 }}", B: "${{ secrets.MIZAN_KEYSTORE_PASSWORD }}" }
               - env: { C: "${{ secrets.MIZAN_KEY_ALIAS }}", D: "${{ secrets.MIZAN_KEY_PASSWORD }}" }
               - run: ./scripts/verify-apk.ps1 -Apk a.apk -Tag "$GITHUB_REF_NAME" -RequireReleaseSignature
+              - run: ./scripts/release-notes.ps1 -Tag "$GITHUB_REF_NAME" -Output release-notes.md
+              - run: gh release create "$GITHUB_REF_NAME" a.apk --verify-tag --notes-file release-notes.md
         """;
 
     private const string GoodScript = """
@@ -95,6 +97,22 @@ public sealed class WorkflowTests
     public void ReleaseKurali_EksikParcayiYakalar(string remove, string with)
     {
         Assert.NotEmpty(WorkflowRules.CheckReleaseContent(GoodRelease.Replace(remove, with)));
+    }
+
+    [Theory]
+    [InlineData("./scripts/release-notes.ps1", "./scripts/x.ps1")]
+    [InlineData("--notes-file", "--notes")]
+    public void ReleaseKurali_NotunChangelogtanOkunmasiniZorunluKilar(string remove, string with)
+    {
+        Assert.NotEmpty(WorkflowRules.CheckReleaseContent(GoodRelease.Replace(remove, with)));
+    }
+
+    [Theory]
+    [InlineData("--generate-notes")]
+    [InlineData("echo \"- Elle yazılmış madde\" >> release-notes.md")]
+    public void ReleaseKurali_ElleUretilmisSurumNotunuYakalar(string forbidden)
+    {
+        Assert.NotEmpty(WorkflowRules.CheckReleaseContent(GoodRelease + "\n      - run: " + forbidden));
     }
 
     [Theory]

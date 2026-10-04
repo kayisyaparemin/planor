@@ -43,6 +43,10 @@ internal static class WorkflowRules
             Require(violations, yaml, "release.yml", $"secrets.{secret}", "imza secret'ı kullanılmalı");
         }
 
+        Require(violations, yaml, "release.yml", "release-notes.ps1", "sürüm notu CHANGELOG.md'den okunmalı (S82-3)");
+        Require(violations, yaml, "release.yml", "--notes-file", "GitHub Release notu okunan dosyadan gelmeli (S82-3)");
+        Forbid(violations, yaml, "release.yml", "--generate-notes", "sürüm notu commit dökümü değil, CHANGELOG.md'dir (S82-3)");
+        Forbid(violations, yaml, "release.yml", ">> release-notes", "sürüm notu iş akışında echo ile üretilmez (S82-3)");
         Forbid(violations, yaml, "release.yml", "continue-on-error", "kapı adımı başarısızlıkla geçilemez");
         return violations;
     }

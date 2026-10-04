@@ -803,3 +803,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `K3`, `K1` (akışın ilk gerçek koşusu), `emulatorde-ac.ps1` (değişmez, çağrılır) |
 | **İlgili** | Betik korumasını `EmulatorScriptTests` kaynak metninden sınar (K7); gerçek koşu Maestro kurulumunu ve emülatörü gerektirir, CI'da koşmaz. |
 | **Durum** | uygulandı: `K3` (gerçek emülatör koşusu Maestro kurulunca) |
+
+### S82 — Sürüm notu veridir: `CHANGELOG.md`'den okunur, iş akışında `echo` ile üretilmez
+
+| | |
+|---|---|
+| **Eski** | `release.yml` (eski repo) sürüm notunu 8 ardışık `echo ... >> release-notes.md` ile üretiyordu; başlık ("Dondurulmuş Plan Kilitleme…"), madde metinleri ve "588/588 birim testi" gibi rakamlar iş akışına gömülüydü. Eski repoda `CHANGELOG.md` yoktu. v2'de geçici çözüm `gh release create --generate-notes` (`S80`-6). |
+| **Neden yanlış** | a) Not bir sürüme bağlı değildi: sonraki etiket atıldığında iş akışı eski sürümün notunu, yeni sürümün başlığıyla yayınlardı ve bunu hiçbir şey yakalamazdı. b) Not kodun içinde olduğu için sürümü artıran PR notu da getirmek zorunda değildi; metin YAML'da kayboluyordu. c) `--generate-notes` commit başlıklarının dökümüdür; kullanıcıya dönük değildir ve Türkçe konvansiyonla uyuşmaz. d) Okuyucu yoksa "boş not" ve "yanlış sürümün notu" test edilemez. |
+| **Yeni** | 1) **Not `CHANGELOG.md`'dedir** (Keep a Changelog, Türkçe): her sürüm `## [X.Y.Z] - YYYY-AA-GG` başlığı ve altında en az bir `- ` maddesi taşır; alt başlıklar (`### Eklendi`, `### Değişti`, `### Düzeltildi`) serbesttir. `## [Yayınlanmamış]` bölümü bir sürüm değildir ve yayınlanamaz. 2) **Tek okuyucu:** `tools/Mizan.ReleaseNotes` içindeki saf `ChangelogReader` (metin + sürüm → not) bölümü bulur; **bölüm yoksa, boşsa (madde yoksa), başlığı ya da tarihi okunamıyorsa ya da aynı sürüm iki kez geçiyorsa ihlaldir** (`K2a`'daki "okunamayan değer ihlaldir" ilkesi). Negatif fixture'larla `Mizan.Regression.Tests`'te sınanır. 3) **`release.yml` notu `scripts/release-notes.ps1` ile üretir** ve `gh release create --notes-file` verir; `--generate-notes` ve `echo >> release-notes` yasaktır. Not eksikse imzalama başlamadan önce durur. 4) **Eksiklik PR'da yakalanır:** `Mizan.Architecture.Tests` içindeki bir test csproj'daki `ApplicationDisplayVersion`'ın `CHANGELOG.md`'de dolu bir bölümü olmasını arar; `ci.yml` zaten `dotnet test Mizan.sln` koştuğu için ayrı bir CI adımı gerekmez, sürümü artıran PR notu da getirmek zorundadır. 5) Sürüm otoritesi csproj'dur (`S80`-5); okuyucu sürüm üretmez, yalnız o sürümün notunu okur. |
+| **Etkiler** | `K4`, `S80`-6 (gömülü sürüm notları taşınmaz → notun yeni yeri), `release.yml` |
+| **İlgili** | Etiket ile csproj sürümünün eşleşmesini `verify-apk.ps1 -Tag` denetler (`S80`-5); okuyucu etiketin sürümünü alır, böylece not etiketle, etiket csproj'la bağlanır. |
+| **Durum** | uygulandı: `K4` |

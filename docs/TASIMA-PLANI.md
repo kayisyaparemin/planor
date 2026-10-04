@@ -508,7 +508,8 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       uygulamayı yalnız `scripts/emulatorde-ac.ps1` ile açar, bakmak kullanıcıdadır;
       otomatik emülatör regresyonunun yeri burasıdır.
       *(2026-10-05; S81; `scripts/emulator-regresyon.ps1`: tıklayan yalnız K1 Maestro akışı, çıkış kodu Maestro'nunkiyle aynı, `clearState` için yedek + `finally` geri yükleme; Maestro kurulu olmadığından betik henüz gerçek emülatörde koşmadı; koruyan: EmulatorScriptTests)*
-- [ ] **K4** — Sürüm hattı: sürüm notları `CHANGELOG.md`'den okunur, elle `echo` edilmez
+- [x] **K4** — Sürüm hattı: sürüm notları `CHANGELOG.md`'den okunur, elle `echo` edilmez
+      *(2026-10-05; S82; `tools/Mizan.ReleaseNotes` (`ChangelogReader`), `scripts/release-notes.ps1`, `CHANGELOG.md`; `release.yml` notu imzalamadan önce okur ve `--notes-file` verir, bölüm yoksa/boşsa yayın durur; csproj sürümünün notu PR'da da denetlenir; YAML GitHub'da henüz çalıştırılmadı (remote yok); koruyan: ChangelogReaderTests, ReleaseNotesProgramTests, ChangelogTests, WorkflowTests)*
 
 ## Faz G — Geçiş
 

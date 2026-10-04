@@ -4,15 +4,23 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **K3** — emülatör regresyon betiği (Faz K — Kalkanlar) |
-| Sıradaki adım | **K4** — sürüm hattı: sürüm notları `CHANGELOG.md`'den (Faz K — Kalkanlar) |
-| Test sayısı | 2150 |
+| Son tamamlanan adım | **K4** — sürüm hattı: sürüm notları `CHANGELOG.md`'den (Faz K — Kalkanlar) |
+| Sıradaki adım | **G1** — eski uygulamanın yedek arşivini okuyan içe aktarıcı (Faz G — Geçiş); Faz K tamam |
+| Test sayısı | 2184 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### K4 — sürüm hattı: sürüm notu `CHANGELOG.md`'den; karar `S82`
+
+Eskide sürüm notu `release.yml` içinde 8 ardışık `echo` ile üretiliyordu ve hiçbir sürüme bağlı değildi; v2'de geçici `--generate-notes` vardı. Artık not `CHANGELOG.md`'nin (Keep a Changelog, Türkçe) etiketin sürümüne ait bölümüdür. Okuyucu `tools/Mizan.ReleaseNotes/ChangelogReader.cs`: bölüm yoksa, boşsa (madde yoksa), tarih okunamıyorsa ya da sürüm iki kez geçiyorsa ihlaldir; `[Yayınlanmamış]` yayınlanamaz.
+`release.yml` notu `scripts/release-notes.ps1` ile **imzalamadan önce** okur ve `gh release create --notes-file` verir; araç hata verirse eski çıktıyı da siler, yanlış sürümün notu yayınlanamaz. `--generate-notes` ve `>> release-notes` artık yasak (`WorkflowRules`).
+PR'da erken yakalama ayrı bir CI adımı değil bir testtir: `ChangelogTests` csproj'daki sürümün `CHANGELOG.md`'de dolu bölümü olmasını arar; `dotnet test` zaten PR kapısında koştuğu için sürümü artıran PR notu da getirmek zorundadır. İlk bölüm `0.1.0` yazıldı.
+Koruyan: `ChangelogReaderTests`, `ReleaseNotesProgramTests` (Regression), `ChangelogTests`, `WorkflowTests` (Architecture). Toplam 2.184 test yeşil, 0 hata, 0 uyarı.
+**Dikkat:** repoda git remote yok; `release.yml`'in yeni adımı GitHub'da hiç koşmadı, yalnız betik yerelde gerçek ve bozuk sürümle denendi. Windows PowerShell 5.1 BOM'suz `.ps1`'deki Türkçe `Write-Host` metnini bozuk gösteriyor (araç çıktısı etkilenmiyor; CI `pwsh` kullanır). Sürümü artırmak artık üç yeri birlikte değiştirir: csproj, `CHANGELOG.md` bölümü, etiket.
 
 ### K3 — emülatör regresyon betiği; karar `S81`
 

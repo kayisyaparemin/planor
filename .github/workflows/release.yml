@@ -52,6 +52,12 @@ jobs:
       - name: Restore
         run: dotnet restore src/Mizan.App/Mizan.App.csproj
 
+      # Not CHANGELOG.md'nin etiketin sürümüne ait bölümüdür (S82). Bölüm yoksa ya da boşsa yayın
+      # imzalamaya geçmeden durur; pahalı adımlardan önce, secret denetimi gibi erken başarısız olur.
+      - name: Sürüm notunu CHANGELOG.md'den oku
+        shell: pwsh
+        run: ./scripts/release-notes.ps1 -Tag "$env:GITHUB_REF_NAME" -Output "$env:RUNNER_TEMP/release-notes.md"
+
       # Secret eksikse yayın başlamadan durur; eksik imza sessizce debug anahtarına düşmez.
       - name: İmza anahtarını hazırla
         shell: bash
@@ -111,7 +117,6 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      # Sürüm notu geçici olarak GitHub'ın ürettiği özettir; K4 bunu CHANGELOG.md'ye bağlar.
       - name: GitHub Release oluştur
         env:
           GH_TOKEN: ${{ github.token }}
@@ -121,7 +126,7 @@ jobs:
           gh release create "$GITHUB_REF_NAME" "${{ steps.apk.outputs.path }}" \
             --verify-tag \
             --title "Planör $GITHUB_REF_NAME" \
-            --generate-notes
+            --notes-file "$RUNNER_TEMP/release-notes.md"
 
       - name: Geçici keystore'u sil
         if: always()
