@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.HistoryPage"
+             x:DataType="vm:HistoryViewModel"
+             AutomationId="{x:Static auto:HistoryAutomationIds.PageHistory}">
+
+    <!-- EK-V12: geçmiş dönemler listesi, S29, GS32 -->
+
+    <Shell.TitleView>
+        <Grid Padding="{StaticResource TitleBarPadding}">
+            <Label Text="{x:Static strings:HistoryStrings.Baslik_Gecmis}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor durumu: İskelet -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+            </VerticalStackLayout>
+
+            <!-- İçerik durumu -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Son 3 dönem özeti kartı (S1, S29) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        IsVisible="{Binding HasSummary}"
+                        AutomationId="{x:Static auto:HistoryAutomationIds.CardHistorySummary}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:HistoryStrings.Etiket_SonDonemlerOzeti}"
+                               Style="{StaticResource Eyebrow}" />
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_PlanlananNetDegisim}"
+                                        ValueText="{Binding SummaryPlannedNetChange, Converter={StaticResource Para}, ConverterParameter=Isaretli}" />
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_GerceklesenNetDegisim}"
+                                        ValueText="{Binding SummaryActualNetChange, Converter={StaticResource Para}, ConverterParameter=Isaretli}" />
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_NetFark}"
+                                        ValueText="{Binding SummaryDifference, Converter={StaticResource Para}, ConverterParameter=Isaretli}">
+                            <comp:MetricRow.Triggers>
+                                <DataTrigger TargetType="comp:MetricRow" Binding="{Binding IsSummaryDifferencePositive}" Value="True">
+                                    <Setter Property="Semantic" Value="Positive" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="comp:MetricRow" Binding="{Binding IsSummaryDifferenceNegative}" Value="True">
+                                    <Setter Property="Semantic" Value="Negative" />
+                                </DataTrigger>
+                            </comp:MetricRow.Triggers>
+                        </comp:MetricRow>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Kapanmış dönemler listesi (S2) -->
+                <VerticalStackLayout Spacing="{StaticResource Space2}"
+                                     BindableLayout.ItemsSource="{Binding Periods}"
+                                     AutomationId="{x:Static auto:HistoryAutomationIds.ListHistoryPeriods}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:HistoryPeriodRow">
+                            <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                                    Stroke="{DynamicResource BorderSubtle}"
+                                    StrokeThickness="{StaticResource StrokeHairline}"
+                                    Padding="{StaticResource CardPadding}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                                </Border.StrokeShape>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HistoryViewModel}}, Path=OpenDetailCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+
+                                <Grid ColumnDefinitions="*, Auto, Auto"
+                                      ColumnSpacing="{StaticResource Space3}">
+                                    <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                                         VerticalOptions="Center">
+                                        <Label Style="{StaticResource SectionTitle}">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{x:Static strings:HistoryStrings.Bicim_DonemAraligi}">
+                                                    <Binding Path="PeriodStart" Converter="{StaticResource Tarih}" ConverterParameter="d MMM" />
+                                                    <Binding Path="PeriodLastDay" Converter="{StaticResource Tarih}" ConverterParameter="d MMM yyyy" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                        <Label Style="{StaticResource Caption}">
+                                            <Label.Text>
+                                                <MultiBinding StringFormat="{x:Static strings:HistoryStrings.Bicim_PlanaGoreFark}">
+                                                    <Binding Path="Difference" Converter="{StaticResource Para}" ConverterParameter="Isaretli" />
+                                                    <Binding Path="PlannedEndingBalance" Converter="{StaticResource Para}" />
+                                                </MultiBinding>
+                                            </Label.Text>
+                                        </Label>
+                                    </VerticalStackLayout>
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding ActualEndingBalance, Converter={StaticResource Para}}"
+                                           Style="{StaticResource Figure}"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="2"
+                                           Text="{x:Static icons:Icons.ChevronRight}"
+                                           FontFamily="MaterialSymbols"
+                                           FontSize="{StaticResource IconSmall}"
+                                           TextColor="{DynamicResource Indicator}"
+                                           VerticalTextAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+            <!-- Boş durum: Henüz kapanmış dönem yok (S29) -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.Schedule}"
+                             Message="{x:Static strings:HistoryStrings.Cumle_KapanmisDonemYok}"
+                             ActionText="{x:Static strings:HistoryStrings.Aksiyon_AnaSayfayaDon}"
+                             ActionCommand="{Binding GoBackCommand}"
+                             IsVisible="{Binding IsEmpty}"
+                             AutomationId="{x:Static auto:HistoryAutomationIds.StateHistoryEmpty}" />
+
+            <!-- Hata durumu -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:HistoryStrings.Hata_GecmisYuklenemedi}"
+                             ActionText="{x:Static strings:HistoryStrings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:HistoryAutomationIds.StateHistoryError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

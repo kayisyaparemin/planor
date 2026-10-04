@@ -40,6 +40,10 @@ public static class ScreenRegistrations
         services.AddTransient<SimulationConditionPage>();
         services.AddTransient<PeriodSettlementViewModel>();
         services.AddTransient<PeriodSettlementPage>();
+        services.AddTransient<HistoryViewModel>();
+        services.AddTransient<HistoryPage>();
+        services.AddTransient<HistoryDetailViewModel>();
+        services.AddTransient<HistoryDetailPage>();
         return services;
     }
 

@@ -103,4 +103,10 @@ public static class Routes
 
     /// <summary>"Bakiye gir" sayfası rotası: tutar, gözlem günü ve kaydetmeden önce önizleme (S72-8, sayfası V3b).</summary>
     public const string BalanceEntry = "balance-entry";
+
+    /// <summary>Geçmiş dönem ayrıntısı sayfası rotası (EK-V12).</summary>
+    public const string HistoryDetail = "history-detail";
+
+    /// <summary>Geçmiş dönem ayrıntısına hangi gerçekleşme kaydının açılacağını taşıyan sorgu parametresi.</summary>
+    public const string HistoryActualIdParameter = "actualId";
 }

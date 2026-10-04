@@ -4,15 +4,24 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V11** — dönem kapanışı: özet sayfası (kullanıcı kararları, S78, GS31, EK-V11) |
-| Sıradaki adım | **V12** — geçmiş + geçmiş ayrıntısı (S68-6, 7) |
-| Test sayısı | 2074 |
+| Son tamamlanan adım | **V12** — geçmiş + geçmiş ayrıntısı (`S68-6, 7`, `S29`, `GS32`, `EK-V12`) |
+| Sıradaki adım | **V13** — ayarlar + düzen değişikliği |
+| Test sayısı | 2081 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V12 — geçmiş + geçmiş ayrıntısı; kararlar `S68-6, 7`, `S29`, `GS32`, `EK-V12`
+
+Kapanmış tüm finansal dönemlerin listelendiği geçmiş sayfası ve seçilen dönemin karnesini, bakiye çizgisini ve gerçekleşme dökümünü sunan ayrıntı sayfası tamamlandı.
+(1) Davranış ve Tasarım Sözleşmesi (`S68-6, 7`, `S29`, `GS32`, `EK-V12`): Eski projedeki bakiye stoku toplamı yerine son 3 dönemin net tasarruf/değişim toplamı (`S29`) ve semantik farkı gösterildi. Dönem ayrıntısında kapanan dönemin saklanan gözlem noktalarıyla birlikte bakiye seyri trend grafiği (`ChartCard`, `AreaTrend`, `S68-6, 7`) çizildi. Farkın kaynağı kartında yaşam harcaması ve borç gerçekleşmeleri (`S4`), ödemeler kartında 4 satırı aşan listelerin yerinde açılıp kapanması (`ListCard` + "+N daha", `S5`) sunuldu.
+(2) Sunum ve İş Mantığı (`HistoryViewModel`, `HistoryDetailViewModel`): `HistoryQueryService` üzerinden kapanmış dönemler ve son dönem özeti okundu. Dönem satırına dokunulduğunda `Routes.HistoryDetail`'e `actualId` parametresiyle yönlendirildi. `HistoryDetailViewModel`, `IPeriodObservationRepository` ile dondurulmuş planın gözlemlerini çekip `ChartTrend` kurdu; `TogglePayments` ile yerinde genişleme yönetildi.
+(3) Arayüz ve Otomasyon: `HistoryPage.xaml`, `HistoryDetailPage.xaml`, `HistoryAutomationIds`, `HistoryStrings`. Bütçe: Liste (Hero 0/1, Kart 1/4, Grafik 0/1, Label 6/28, Cümle 1/3); Ayrıntı (Hero 1/1, Kart 2/4, Grafik 1/1, Label 12/28, Cümle 1/3).
+(4) Mimari ve Kalkanlar: Tüm dosyalar K3 (≤ 200 satır; ViewModel 198 satır, Page 125/190 satır) ve K4 (metot ≤ 40 satır) sınırlarına tam uydu.
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 7 yeni sunum testi eklendi; toplam 2.081 test yeşil, 0 hata, 0 uyarı.
 
 ### V11 — dönem kapanışı: özet sayfası; kararlar `S78`, `GS31`, `EK-V11`
 

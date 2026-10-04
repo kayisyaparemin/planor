@@ -361,6 +361,17 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V11`, `PeriodSettlementPage.xaml`, `PeriodSettlementViewModel`, `TASARIM-SISTEMI.md`, `DesignBudgetAnalyzer` |
 | **Durum** | uygulandı |
 
+### GS32 — Geçmiş ve Geçmiş Ayrıntısı: Net Değişim Özeti, Kategori Kırılımlarının Kaldırılması ve Bakiye Çizgisi
+
+| | |
+|---|---|
+| **Tür** | konsept uygulaması + kasıtlı sadeleştirme (`EK-V12`, `S29`, `S68-6, 7`) |
+| **Konsept** | Planör'ün 5 yerleşim panelinden "Geçmiş" paneli; `ChartCard` (başlık + lejant çipi) ve tek grafikli trend görünümü bu konseptten gelir. |
+| **Neden değiştirildi** | (a) Eski `HistoryPage` bakiye stoklarını toplayarak gerçeği yansıtmayan hayalî toplamlar gösteriyordu; `S29` uyarınca net değişim toplamına geçildi. (b) Eski `HistoryDetailPage` mikro harcama fişlerine dayalı "Kategori Farkları" ve sonraki dönemin açılışını gösteren "Yeni Güncel Durum" kartları taşıyordu; v2'de mikro fiş takibi yoktur (`S20`), yaşam harcaması makro çözülür, sonraki dönem verisi ise bu ekranın sorusu değildir. (c) Eski projede kapanışta silinen gözlemler nedeniyle bakiye çizgisi çizilemiyordu; v2'de gözlemler saklanır (`S68-7`) ve ayrıntıda dönemin bakiye çizgisi `ChartCard` içinde trend olarak çizilir. |
+| **Yeni** | (1) **Sayfa 1 — Geçmiş Listesi (`HistoryPage`):** Üstte son N dönemin net değişim özet kartı (planlanan net değişim, fiilî net değişim ve net fark), altında kapanmış dönemlerin kronolojik listesi (`SurfaceCard` öğeler: dönem aralığı, teyitli kapanış bakiyesi, plana göre fark/plan ve `ChevronRight` yönlendirmesi). (2) **Sayfa 2 — Geçmiş Ayrıntısı (`HistoryDetailPage`):** Üstte dönem sonu kapanış kartı (hero rakam + fark), altında dönemin bakiye çizgisi (`ChartCard` içinde açılıştan kapanışa seyir), altında farkın kaynağı kartı (`V11` ile aynı dil: yaşam gideri ve ödemeler gerçekleşmesi) ve gerçekleşen borç ödemeleri listesi (`ListCard`, ≤ 4 satır). |
+| **Etkiler** | `EK-V12`, `HistoryPage.xaml`, `HistoryDetailPage.xaml`, `HistoryViewModel`, `HistoryDetailViewModel`, `S29`, `S68` |
+| **Durum** | uygulandı |
+
 ---
 
 

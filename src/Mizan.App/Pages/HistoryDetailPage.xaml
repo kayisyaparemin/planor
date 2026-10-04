@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:models="clr-namespace:Mizan.Presentation.Models;assembly=Mizan.Presentation"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.HistoryDetailPage"
+             x:DataType="vm:HistoryDetailViewModel"
+             AutomationId="{x:Static auto:HistoryAutomationIds.PageHistoryDetail}">
+
+    <!-- EK-V12: geçmiş dönem ayrıntısı, S68-6, 7, GS32 -->
+
+    <ContentPage.Resources>
+        <DataTemplate x:Key="OdemeSatiri" x:DataType="models:HistoryPaymentRow">
+            <Grid ColumnDefinitions="*, Auto, Auto"
+                  ColumnSpacing="{StaticResource Space3}">
+                <VerticalStackLayout Spacing="{StaticResource Space1}"
+                                     VerticalOptions="Center">
+                    <Label Text="{Binding Name}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+                    <Label Text="{Binding PlannedDate, Converter={StaticResource Tarih}}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="{Binding ActualAmount, Converter={StaticResource Para}}"
+                       Style="{StaticResource Figure}"
+                       VerticalTextAlignment="Center" />
+                <Label Grid.Column="2"
+                       Text="{Binding StatusText}"
+                       Style="{StaticResource Caption}"
+                       VerticalTextAlignment="Center">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding StatusSemantic}" Value="Positive">
+                            <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding StatusSemantic}" Value="Warning">
+                            <Setter Property="TextColor" Value="{DynamicResource WarningText}" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Label" Binding="{Binding StatusSemantic}" Value="Negative">
+                            <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Grid>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Shell.TitleView>
+        <Grid Padding="{StaticResource TitleBarPadding}">
+            <Label Text="{x:Static strings:HistoryStrings.Baslik_GecmisAyrintisi}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor durumu -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource ChartHeight}" />
+            </VerticalStackLayout>
+
+            <!-- İçerik durumu -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Dönem sonu hero kartı (S3) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        AutomationId="{x:Static auto:HistoryAutomationIds.CardPeriodHero}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusHero}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:HistoryStrings.Etiket_DonemSonu}"
+                               Style="{StaticResource Eyebrow}" />
+                        <Label Text="{Binding ActualEndingBalance, Converter={StaticResource Para}}"
+                               Style="{StaticResource HeroFigure}" />
+
+                        <Grid ColumnDefinitions="*, Auto">
+                            <Label Style="{StaticResource Caption}">
+                                <Label.Text>
+                                    <MultiBinding StringFormat="{x:Static strings:HistoryStrings.Bicim_DonemAraligi}">
+                                        <Binding Path="PeriodStart" Converter="{StaticResource Tarih}" ConverterParameter="d MMM" />
+                                        <Binding Path="PeriodLastDay" Converter="{StaticResource Tarih}" ConverterParameter="d MMM yyyy" />
+                                    </MultiBinding>
+                                </Label.Text>
+                            </Label>
+                            <Label Grid.Column="1"
+                                   Text="{Binding OpeningBalance, Converter={StaticResource Para}, StringFormat={x:Static strings:HistoryStrings.Bicim_AcilisBakiyesi}}"
+                                   Style="{StaticResource Caption}" />
+                        </Grid>
+
+                        <Label Style="{StaticResource Caption}">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{x:Static strings:HistoryStrings.Bicim_PlanaGoreFark}">
+                                    <Binding Path="Difference" Converter="{StaticResource Para}" ConverterParameter="Isaretli" />
+                                    <Binding Path="PlannedEndingBalance" Converter="{StaticResource Para}" />
+                                </MultiBinding>
+                            </Label.Text>
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsDifferencePositive}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource PositiveText}" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsDifferenceNegative}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource NegativeText}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Bakiye çizgisi grafiği (S68-6, 7) -->
+                <comp:ChartCard Title="{x:Static strings:HistoryStrings.Etiket_BakiyeSeyri}"
+                                Drawable="{Binding Trend, Converter={StaticResource TrendGrafigi}}"
+                                AutomationId="{x:Static auto:HistoryAutomationIds.CardBalanceTrend}" />
+
+                <!-- Farkın kaynağı kartı (S4) -->
+                <Border BackgroundColor="{DynamicResource SurfaceCard}"
+                        Stroke="{DynamicResource BorderSubtle}"
+                        StrokeThickness="{StaticResource StrokeHairline}"
+                        Padding="{StaticResource CardPadding}"
+                        AutomationId="{x:Static auto:HistoryAutomationIds.CardVarianceSource}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="{StaticResource RadiusCard}" />
+                    </Border.StrokeShape>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space2}">
+                        <Label Text="{x:Static strings:HistoryStrings.Etiket_FarkinKaynagi}"
+                               Style="{StaticResource Eyebrow}" />
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_YasamGideri}"
+                                        ValueText="{Binding ActualLivingSpend, Converter={StaticResource Para}, ConverterParameter=Eksi}">
+                            <comp:MetricRow.Triggers>
+                                <DataTrigger TargetType="comp:MetricRow" Binding="{Binding IsLivingDifferencePositive}" Value="True">
+                                    <Setter Property="Semantic" Value="Positive" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="comp:MetricRow" Binding="{Binding IsLivingDifferenceNegative}" Value="True">
+                                    <Setter Property="Semantic" Value="Negative" />
+                                </DataTrigger>
+                            </comp:MetricRow.Triggers>
+                        </comp:MetricRow>
+                        <Label Style="{StaticResource Caption}">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{x:Static strings:HistoryStrings.Bicim_YasamPlaniHarcanan}">
+                                    <Binding Path="PlannedLivingSpend" Converter="{StaticResource Para}" />
+                                    <Binding Path="ActualLivingSpend" Converter="{StaticResource Para}" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_Odemeler}"
+                                        ValueText="{Binding ActualMandatory, Converter={StaticResource Para}, ConverterParameter=Eksi}" />
+                        <Label Style="{StaticResource Caption}">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{x:Static strings:HistoryStrings.Bicim_OdemeDurumu}">
+                                    <Binding Path="TotalPaymentCount" />
+                                    <Binding Path="PaidPaymentCount" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_KmhFaizi}"
+                                        ValueText="{Binding ActualInterest, Converter={StaticResource Para}, ConverterParameter=Eksi}"
+                                        IsVisible="{Binding HasActualInterest}" />
+
+                        <comp:MetricRow LabelText="{x:Static strings:HistoryStrings.Etiket_KasaDuzeltmesi}"
+                                        ValueText="{Binding ReconciliationAdjustment, Converter={StaticResource Para}, ConverterParameter=Isaretli}"
+                                        IsVisible="{Binding HasReconciliationAdjustment}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Gerçekleşen ödemeler listesi (S5) -->
+                <comp:ListCard EyebrowText="{x:Static strings:HistoryStrings.Etiket_Odemeler}"
+                               ItemsSource="{Binding Payments}"
+                               ItemTemplate="{StaticResource OdemeSatiri}"
+                               OverflowText="{Binding HiddenPaymentCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding TogglePaymentsCommand}"
+                               IsVisible="{Binding HasPayments}"
+                               AutomationId="{x:Static auto:HistoryAutomationIds.CardHistoryPayments}" />
+
+                <!-- Karşılaştırma özeti -->
+                <Label Text="{Binding SummaryText}"
+                       Style="{StaticResource Caption}"
+                       Padding="{StaticResource Space2}"
+                       HorizontalTextAlignment="Center" />
+
+            </VerticalStackLayout>
+
+            <!-- Boş durum -->
+            <comp:StateBlock CurrentState="Empty"
+                             IconGlyph="{x:Static icons:Icons.Schedule}"
+                             Message="{x:Static strings:HistoryStrings.Cumle_DonemKaydiBulunamadi}"
+                             ActionText="{x:Static strings:HistoryStrings.Aksiyon_GeriDon}"
+                             ActionCommand="{Binding GoBackCommand}"
+                             IsVisible="{Binding IsEmpty}"
+                             AutomationId="{x:Static auto:HistoryAutomationIds.StateHistoryDetailEmpty}" />
+
+            <!-- Hata durumu -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:HistoryStrings.Hata_DonemAyrintisiYuklenemedi}"
+                             ActionText="{x:Static strings:HistoryStrings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:HistoryAutomationIds.StateHistoryDetailError}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

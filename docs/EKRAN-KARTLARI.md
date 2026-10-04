@@ -2293,9 +2293,155 @@ Cumle_        1 / 3     Cumle_DonemGecmiseTasinir (≤ 90 kr)
 Claude Design konsepti: `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png` (ve `anasayfa-donemi-kapat.png`, `anasayfa-donemi-kapat-koyu.png`). Yerleşim oradan türetildi, renkler token'lardan (`T1`). Konseptten sapmalar `GS31`'de: StackedBar çubukları bilgi eklemediği için çıkarıldı, Gelir satırı kullanıcı kararıyla (`S31`, `S78`) kaldırıldı, zemin koyu tema kontrastı için `SurfaceCard` seçildi.
 
 
-### EK-V12 — Geçmiş + geçmiş ayrıntısı
-Konsept karşılığı **var** (Geçmiş paneli, grafikli). Tek grafikli ekranların referansı;
-`ChartCard` + lejant çipi deseni buradan gelir.
+## EK-V12 — Geçmiş + geçmiş ayrıntısı
+
+> Sayfa dosyaları: `HistoryPage.xaml` (Sayfa 1: liste ve net değişim özeti), `HistoryDetailPage.xaml` (Sayfa 2: karne, bakiye çizgisi ve döküm)
+> Rota: `//history` (Flyout), `history-detail` (`Routes.HistoryDetail` + `actualId`)
+
+**Eski proje:** `HistoryPage.xaml` 50 satır / 19 `<Label>` / 4 `Border`; `HistoryDetailPage.xaml` 40 satır / 35 `<Label>` / 8 `Border`. Toplam: 54 `<Label>`, 12 `Border`.
+
+### 1. Sorular
+
+| Kod | Soru | Önceki hâl nasıl cevaplıyordu |
+|---|---|---|
+| S1 | "Son dönemlerde genel olarak planıma göre neredeyim, toplamda ne kadar saptım?" | 3 sütunlu stok toplamı (7 etiket, bakiye stoklarını topladığı için yanıltıcıydı, `S29`) |
+| S2 | "Geçmiş dönemlerim nasıl kapandı?" | CollectionView içinde kartlar (kart başına 7 etiket, renkli rozetler) |
+| S3 | "Seçtiğim dönemde bakiye gün gün nasıl aktı, dalgalanma nereden kaynaklandı?" | Cevaplamıyordu; kapanışta gözlemler siliniyordu, grafik yoktu (`S68`) |
+| S4 | "O dönemde plandan neden saptım, fark nereden kaynaklandı?" | 3 mini kart + yaşam giderleri kartı + kategori farkları + yeni durum kartı (20+ etiket) |
+| S5 | "O dönemde hangi borçlarımı/ödemelerimi ödedim, hangileri aksadı?" | Ödemeler listesi (öğe başına 7 etiket) |
+
+### 2. Kesme kararları (`GS32`)
+
+| Bilgi / Öğe | Karar | Gerekçe |
+|---|---|---|
+| Son dönemler net değişim özeti | **Kart** (`SurfaceCard`, `BorderSubtle`, `RadiusCard`, `CardPadding`), Sayfa 1 | S1 makro karnesi; bakiye stoku değil net değişim (`S29`) |
+| Planlanan / Gerçekleşen net değişim ve Fark | **Satır** (`MetricRow` × 3, kart içinde) | S1 sayısal karşılıkları; fark işaretli ve semantik renkli |
+| Kapanmış dönemler listesi | **Kart** (`SurfaceCard` öğeler), Sayfa 1 | S2 dönem listesi |
+| Dönem aralığı + durum rozeti | **Satır** (kart başlığı: `TypeSection` + `RadiusChip`) | S2 takvim bağlamı ve başarı durumu |
+| Kapanış bakiyesi + plana göre fark | **Satır** (kart içinde: `TypeHeading` + `TypeCaption`) | S2 dönemin kapanış sayısı ve sapması |
+| Ayrıntıya geçiş oku | **İkon** (`ChevronRight`, kart başına tek ikon) | S2 dokunarak ayrıntıya gitme |
+| Dönem sonu gerçekleşen bakiye | **Hero** (`HeroFigure`, `SurfaceCard`), Sayfa 2 | S4 dönemin kapanış sayısı |
+| Plana göre fark + plan tutarı | **Satır** (hero altında, semantik renkli) | S4 sapma |
+| Dönemin bakiye çizgisi | **Grafik** (`ChartCard`, yükseklik `ChartHeight`), Sayfa 2 | S3 bakiye seyri (`S68-6, 7`, `T4`) |
+| Açılış bakiyesi | **Satır** (`ChartCard` lejant çipi, `TypeEyebrow`) | S3 grafiğin başlangıç noktası |
+| Farkın kaynağı kartı | **Kart** (`SurfaceCard`, `V11` ile aynı dil), Sayfa 2 | S4 sapmanın kaynakları |
+| Yaşam gideri gerçekleşmesi | **Satır** (kart içi, planlanan / harcanan ve fark) | S4 |
+| Ödemeler gerçekleşmesi | **Satır** (kart içi, planlanan / ödenen ve fark) | S4 |
+| KMH faizi gerçekleşmesi | **Satır** (kart içi, eksi bakiye olduysa faiz) | S4 |
+| Mutabakat düzeltmesi | **Satır** (kart içi, varsa kasa düzeltmesi) | S4 |
+| Ödemeler gerçekleşme listesi | **Kart** (`ListCard`, ≤ 4 satır + yerinde açılır "+N daha"), Sayfa 2 | S5 tekil borç ödemelerinin durumu (`S75-7`) |
+| Kapanış notu / özet cümlesi | **Satır** (`TypeCaption`, `TextSecondary`) | Karşılaştırma özeti (`Comparison.Summary`) |
+| "PLAN vs GERÇEK" sloganı | **Çıkar** | GK5; bilgi taşımıyor |
+| "Geçmiş planlar donmuş halde kalır..." notu | **Çıkar** | GK5; sistem açıklaması |
+| "Yeni Güncel Durum" kartı | **Çıkar** | Gelecek dönemin açılışı geçmişin sorusu değildir |
+| "Kategori Farkları" dökümü | **Çıkar** | v2'de mikro harcama fişi takibi yoktur (`S20`) |
+| Revizyon sayacı notu | **Çıkar** | GK5; dondurulan nihai plana göre karne tek ve nettir (`I27`) |
+
+### 3. Bütçe
+
+**Sayfa 1 — Geçmiş Listesi (`HistoryPage`):**
+```
+Hero rakam    0 / 1     Listeleme ekranı, hero rakam yok
+Hero yüzey    0 / 1     Yok
+Kart          2 / 4     Özet kartı (SurfaceCard), Dönem listesi kartları (DataTemplate)
+Grafik        0 / 1     Liste ekranında grafik yok
+NavRow        0 / 5     Yok; kartların kendisi ChevronRight ile tıklanabilir
+Label         9 / 28    Başlık (1), Özet kartı (4), Liste öğe şablonu (4)
+Cumle_        1 / 3     Boş durum / özet cümlesi
+```
+
+**Sayfa 2 — Geçmiş Ayrıntısı (`HistoryDetailPage`):**
+```
+Hero rakam    1 / 1     Gerçekleşen dönem sonu bakiyesi (HeroFigure)
+Hero yüzey    0 / 1     SurfaceCard zemin kullanılır (T9 kontrast kararı)
+Kart          3 / 4     Dönem sonu kartı, Farkın kaynağı kartı, Ödemeler kartı (ListCard)
+Grafik        1 / 1     Bakiye seyri (ChartCard içinde trend)
+NavRow        0 / 5     Yok
+Label        17 / 28    Başlık (2), Hero kartı (3), Farkın kaynağı (6), Ödeme satır şablonu (4), Kapanış notu (2)
+Cumle_        1 / 3     Karşılaştırma özet cümlesi (Comparison.Summary)
+```
+
+### 4. Blok şeması
+
+#### Sayfa 1 — Geçmiş Listesi (`HistoryPage`)
+```
+┌─ Shell.TitleView ────────────────────────────────────────────┐  ← S1
+│ [☰ kabuk]  Geçmiş                                             │
+│            Baslik_Gecmis  TypeSection / TextPrimary          │
+└──────────────────────────────────────────────────────────────┘
+┌─ Son Dönemler Özeti (ham Border)  SurfaceCard / BorderSubtle ┐  ← S1
+│ Etiket_SonDonemlerOzeti        TypeEyebrow / TextSecondary   │
+│ MetricRow  Etiket_PlanlananNetDegisim ........ +12.000 ₺     │  TextPrimary / PositiveText
+│ MetricRow  Etiket_GerceklesenNetDegisim ...... +11.500 ₺     │  TextPrimary / PositiveText
+│ ──────────────────────────────────────────────────────────── │  BorderSubtle Hairline
+│ MetricRow  Etiket_NetFark ...................... −500 ₺      │  TextPrimary / NegativeText
+└──────────────────────────────────────────────────────────────┘
+┌─ Dönem Kartı (ham Border)  SurfaceCard / BorderSubtle / RadCard ┐  ← S2
+│ 10 Ağustos – 9 Eylül 2026           [ Planın üzerinde ]      │  TypeSection · RadiusChip
+│                                                              │
+│ 41.500 ₺                                           › (Chevron│  TypeHeading · IconMedium
+│                                                              │
+│ Plana göre +500 ₺  ·  Plan 41.000 ₺                          │  TypeCaption (fark semantik)
+└──────────────────────────────────────────────────────────────┘
+```
+
+#### Sayfa 2 — Geçmiş Ayrıntısı (`HistoryDetailPage`)
+```
+┌─ Shell.TitleView ────────────────────────────────────────────┐  ← S4
+│ [← geri]  10 Ağustos – 9 Eylül 2026                          │
+│           Bicim_DonemAraligi  TypeSection / TextPrimary      │
+└──────────────────────────────────────────────────────────────┘
+┌─ Dönem Sonu Kapanışı (ham Border)  SurfaceCard / RadCard ────┐  ← S4
+│ Etiket_DonemSonu                         TypeEyebrow         │
+│ 41.500 ₺                                 HeroFigure / TextPr │
+│ Plana göre +500 ₺  ·  Plan 41.000 ₺      TypeCaption (fark sem)
+└──────────────────────────────────────────────────────────────┘
+┌─ ChartCard (SurfaceCard / BorderSubtle / RadiusCard) ────────┐  ← S3
+│ Title: Etiket_BakiyeSeyri  LegendText: Açılış 50.000 ₺ (Chip)│
+│ ╭──────────────────────────────────────────────────────────╮ │
+│ │ AreaTrend (veya rota çizgisi)  yükseklik ChartHeight     │ │
+│ │   Açılıştan kapanışa günlük bakiye çizgisi (actual),     │ │
+│ │   gözlem noktaları, plan eşik çizgisi                    │ │
+│ ╰──────────────────────────────────────────────────────────╯ │
+│ 10 Ağustos                                          9 Eylül  │  TypeCaption / TextSecondary
+└──────────────────────────────────────────────────────────────┘
+┌─ Farkın Kaynağı Kartı (ham Border)  SurfaceCard / RadCard ───┐  ← S4
+│ Etiket_FarkinKaynagi                     TypeSection         │
+│                                                              │
+│ Yaşam gideri                                          +300 ₺ │  TypeBody / TextPrimary · Figure
+│ Planlanan 25.000 ₺ · harcanan 24.700 ₺                       │  TypeCaption / TextSecondary
+│                                                              │
+│ Ödemeler                                              +200 ₺ │  TypeBody / TextPrimary · Figure
+│ 5 ödemenin 5'i ödendi                                        │  TypeCaption / TextSecondary
+│                                                              │
+│ KMH faizi (varsa)                                     −120 ₺ │  TypeBody / NegativeText · Figure
+│ ──────────────────────────────────────────────────────────── │  BorderSubtle Hairline
+│ Kasa düzeltmesi (varsa)                               +150 ₺ │  TypeCaption / TextSecondary
+└──────────────────────────────────────────────────────────────┘
+┌─ ListCard ───────────────────────────────────────────────────┐  ← S5
+│ Etiket_Odemeler                        5 ödeme · 18.500 ₺    │
+│ Kira                                      15.000 ₺  [Ödendi] │  TypeBody · Figure · RadiusChip
+│ 15 Ağustos                                                   │  TypeCaption / TextSecondary
+│ … en fazla 4 satır                                           │
+│ +N daha                                (yerinde açılır)      │
+└──────────────────────────────────────────────────────────────┘
+│ Cumle_GecmisDonemOzeti  TypeCaption / TextSecondary          │  ← S1, S4
+```
+
+### 5. Üç durum
+
+| Sayfa | Durum | Görünen |
+|---|---|---|
+| **Sayfa 1 (Geçmiş)** | Boş | Henüz kapatılmış dönem yoksa `StateBlock`: `Schedule` ikonu + `Cumle_KapanmisDonemYok` + `Aksiyon_AnaSayfayaDon`. |
+| | Yükleniyor | İki kart şeklinde `SkeletonBlock` (özet kartı ve liste kartı yüksekliğinde); spinner yok (`GS14`). |
+| | Hata | `StateBlock`: `Error` ikonu + `Hata_GecmisYuklenemedi` + `Aksiyon_TekrarDene`. |
+| **Sayfa 2 (Ayrıntı)** | Boş | İlgili dönemin gerçekleşme kaydı bulunamazsa `StateBlock`: `Help` ikonu + `Cumle_DonemKaydiBulunamadi` + `Aksiyon_GeriDon`. |
+| | Yükleniyor | Üç kart şeklinde `SkeletonBlock` (hero kartı, grafik kartı ve fark kartı yüksekliğinde). |
+| | Hata | `StateBlock`: `Error` ikonu + `Hata_DonemAyrintisiYuklenemedi` + `Aksiyon_TekrarDene`. |
+
+### 6. Konsept ilişkisi
+
+Planör'ün 5 temel konsept panelinden "Geçmiş" panelidir. `ChartCard` (başlık + lejant çipi) ve tek grafikli trend görünümü bu konseptten doğmuştur (`T4`, `GS13`). Konseptten sapmalar `GS32`'dedir: bakiye stokları yerine net değişim toplamı (`S29`), mikro fiş kategorileri ve sonraki dönem verisinin çıkarılması (`S20`), kapanan dönemin gözlemleriyle bakiye seyrinin `ChartCard` üzerinde çizilmesi (`S68-6, 7`).
 
 ### EK-V13 — Ayarlar + düzen değişikliği
 Konsept karşılığı **yok.** Türetme adayı: `NavRow` listesi; kart kullanılmaz. Uygulama içi tema

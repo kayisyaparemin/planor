@@ -94,7 +94,7 @@
         </FlyoutItem.Icon>
         <ShellContent Title="{x:Static strings:Strings.Baslik_Gecmis}"
                       Route="history-content"
-                      ContentTemplate="{DataTemplate ContentPage}" />
+                      ContentTemplate="{DataTemplate pages:HistoryPage}" />
     </FlyoutItem>
 
     <FlyoutItem Title="{x:Static strings:Strings.Baslik_Ayarlar}"
