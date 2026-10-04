@@ -10,8 +10,10 @@ public sealed class FakeProfileBackupHandler : IProfileBackupHandler
 {
     public BackupSummary? NextRestoreSummary { get; set; }
     public BackupImportResult? NextAddResult { get; set; }
+    public BackupImportResult? NextLegacyResult { get; set; }
     public bool RestoreCalled { get; private set; }
     public bool AddCalled { get; private set; }
+    public bool LegacyCalled { get; private set; }
 
     public Task<BackupSummary?> RestoreAsync()
     {
@@ -23,5 +25,11 @@ public sealed class FakeProfileBackupHandler : IProfileBackupHandler
     {
         AddCalled = true;
         return Task.FromResult(NextAddResult);
+    }
+
+    public Task<BackupImportResult?> ImportLegacyAsync()
+    {
+        LegacyCalled = true;
+        return Task.FromResult(NextLegacyResult);
     }
 }

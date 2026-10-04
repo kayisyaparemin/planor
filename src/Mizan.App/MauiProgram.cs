@@ -6,6 +6,7 @@ using Mizan.Application.Models;
 using Mizan.Application.Services;
 using Mizan.Domain.Calculations;
 using Mizan.Infrastructure.Backup;
+using Mizan.Infrastructure.LegacyImport;
 using Mizan.Infrastructure.Persistence;
 using Mizan.Infrastructure.Persistence.Repositories;
 using Mizan.Infrastructure.Telemetry;
@@ -95,6 +96,8 @@ public static class MauiProgram
             new AndroidStorageAccess()));
         services.AddSingleton(new BackupOptions(Path.Combine(FileSystem.CacheDirectory, "backup")));
         services.AddSingleton<IBackupService, BackupService>();
+        services.AddSingleton<ILegacyBackupImporter, LegacyBackupImporter>();
+        services.AddSingleton<ILegacyImportService, LegacyImportService>();
 
         RegisterRepositories(services);
     }

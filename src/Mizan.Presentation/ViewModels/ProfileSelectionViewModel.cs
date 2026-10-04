@@ -112,13 +112,30 @@ public sealed partial class ProfileSelectionViewModel(
 
     /// <summary>İlk kurulumda yedekten tüm profilleri geri yükler.</summary>
     [RelayCommand]
-    public async Task RestoreFromBackupAsync()
+    public Task RestoreFromBackupAsync() =>
+        ReloadWhenAddedAsync(async () => await backupHandler.RestoreAsync() is not null);
+
+    /// <summary>Mevcut profiller korunarak yedekten profil ekler.</summary>
+    [RelayCommand]
+    public Task AddFromBackupAsync() =>
+        ReloadWhenAddedAsync(async () => await backupHandler.AddAsync() is not null);
+
+    /// <summary>Eski uygulamanın yedeğinden profilleri mevcutların yanına ekler.</summary>
+    [RelayCommand]
+    public Task ImportFromLegacyAsync() =>
+        ReloadWhenAddedAsync(async () => await backupHandler.ImportLegacyAsync() is not null);
+
+    /// <summary>
+    /// Üç yedek akışının ortak iskeleti: meşgulken ikinci dokunuşu yok sayar, akış profil getirdiyse listeyi
+    /// yeniler (iptalde dokunmaz).
+    /// </summary>
+    private async Task ReloadWhenAddedAsync(Func<Task<bool>> backupFlow)
     {
         if (IsBusy) { return; }
         try
         {
             SetBusy(true);
-            if (await backupHandler.RestoreAsync() is not null)
+            if (await backupFlow())
             {
                 await ReloadInternalAsync();
             }
@@ -127,25 +144,6 @@ public sealed partial class ProfileSelectionViewModel(
         {
             SetBusy(false);
             OnPropertyChanged(nameof(IsFirstRun));
-        }
-    }
-
-    /// <summary>Mevcut profiller korunarak yedekten profil ekler.</summary>
-    [RelayCommand]
-    public async Task AddFromBackupAsync()
-    {
-        if (IsBusy) { return; }
-        try
-        {
-            SetBusy(true);
-            if (await backupHandler.AddAsync() is not null)
-            {
-                await ReloadInternalAsync();
-            }
-        }
-        finally
-        {
-            SetBusy(false);
         }
     }
 

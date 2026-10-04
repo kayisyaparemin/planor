@@ -63,7 +63,7 @@ yapmıştık?" diye geri alınır.
 | **Neden yanlış** | Üç ayda bir KDV ödeyen ya da aylık mutabakat yapan biri için "dönemin döndüğü an" ile "paranın yattığı an" farklı şeyler. |
 | **Yeni** | `PeriodAnchor` (dönem ne zaman döner) ile gelir olayı ayrı tutulur. Mutabakat çapadan türer, gelirden değil. |
 | **Etkiler** | `D3`, `A10`, `A16`, `A21` |
-| **Durum** | uygulandı: 1–7 `G1a`'da; 8'in `G1b` yarısı açık |
+| **Durum** | açık |
 
 ### S5 — "Diğer gelir" maaşa göre tanımlı
 
@@ -83,7 +83,7 @@ yapmıştık?" diye geri alınır.
 | **Neden yanlış** | İki varsayım: ayrıcalıklı bir "ilk" gelir var, ve tüm tahsis stratejisi ona asılı. Üç akış giren düzensiz kazanan için "ilki" keyfî. |
 | **Yeni** | Çapa başlatma **dönem yapılandırması** adımına ait, ilk gelir satırına değil. |
 | **Etkiler** | `A20`, `V4` |
-| **Durum** | uygulandı: 1–7 `G1a`'da; 8'in `G1b` yarısı açık |
+| **Durum** | açık |
 
 ### S7 — Yaşam gideri aylık, dönem ise aylık değil
 
@@ -113,7 +113,7 @@ yapmıştık?" diye geri alınır.
 | **Neden yanlış** | Arayüz ile motor farklı şeyler söylüyor. Kullanıcı arayüze inanıyor ve yanlış sonuç alıyor (S2). |
 | **Yeni** | Arayüz motorun gerçekten yaptığını söyler. Kayıt türü ayrımı `enum`, sihirli metin değil. |
 | **Etkiler** | `V4`, `V6`, `V13` |
-| **Durum** | uygulandı: 1–7 `G1a`'da; 8'in `G1b` yarısı açık |
+| **Durum** | açık |
 
 ### S10 — Körlemesine find/replace hasarı
 
@@ -123,7 +123,7 @@ yapmıştık?" diye geri alınır.
 | **Neden yanlış** | Mekanik yeniden adlandırmanın kanıtı ve gizli hata kaynağı. |
 | **Yeni** | `.editorconfig` içinde `IDE1006` hata seviyesinde. Bu sınıf hasar derleme zamanında yakalanır, göze bırakılmaz. |
 | **Etkiler** | tüm adımlar (mekanizma, `F1`'de kurulur) |
-| **Durum** | uygulandı: 1–7 `G1a`'da; 8'in `G1b` yarısı açık |
+| **Durum** | açık |
 
 ---
 
@@ -176,7 +176,7 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Neden yanlış** | Kullanıcı uygulamayı sadece 5 gün önce kurmuşken ve ortada bir maaş veya tam dönem bütçesi yokken 5 günlük yapay bir dönemi kapatmaya zorlanması kafa karıştırıcı ve anlamsızdır. Kullanıcının planladığı ilk tam dönem çapa gününde başlar. |
 | **Yeni** | İlk resmi nakit akış dönemi, kurulum tarihi veya sonrasındaki ilk çapa gününe kenetlenir (`GetFirstPeriodStartOnOrAfter(installDate, anchor)`). Örneğin 5 Eylül'de kurulum yapılıp çapa 10 seçildiyse ilk dönem `[10 Eylül, 10 Ekim)` olur; ilk mutabakat/kapanış istemi 10 Eylül'de değil, 10 Ekim'de gelir. Kurulum ile çapa arasındaki ara dönem (varsa) sadece bekleme penceresidir. `UserSettings.ProjectionOpeningBalance` ise ilk çapa gününün açılış bakiyesidir ve Ayarlar UI ekranından düzenlenmez. |
 | **Etkiler** | `D9`, `A9`, `A10`, `A15`, `A16`, `A21`, `V4` |
-| **Durum** | uygulandı: 1–7 `G1a`'da; 8'in `G1b` yarısı açık |
+| **Durum** | açık |
 
 ### S20 — Dönem içi plansız akış girme spekülatif özelliği elendi (Expense Tracker modeli reddedildi)
 
@@ -824,4 +824,4 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Yeni** | 1) **Hedef v1:** her eski profil önce `SchemaMigrations.All[0]` ile kurulmuş boş bir v1 veritabanına dönüştürülür, sonra `ProfileImportTransaction`'ın kullandığı `DatabaseSchema` onu güncel sürüme yükseltir. 2) **Tek klasör:** eski şemanın adlarını (tablo, kolon, `coinflow.db3`) yalnız `src/Mizan.Infrastructure/LegacyImport/` içindeki dosyalar ve onları sınayan `tests/.../LegacyImport/` taşır; `docs/SOZLUK.md` yasaklı terim tablosunda `Salary`, `CoinFlow`, `Savings` ve `Review` satırlarının istisnası bu klasördür. Üretim kodunun geri kalanında eski ad geçemez. 3) **Taslaklar taşınmaz** (Hiç taşıma): `simulation_drafts` ve koşulları atlanır, çalışma listesi boş başlar. 4) **`S31`:** her plan ve revizyon için toplam `PlannedIncome > 0` ise tek gelir satırı türetilir (tarih: `StrategyUsed` 0 → dönem başı, 1 → dönem sonu); satırların toplamı plan gelirine kuruşu kuruşuna eşittir (`I28`). Açık plan yeniden dondurulmaz: bu Infrastructure'da iş kuralı hesaplamak olurdu (M7). 5) **`S2`/`S3`:** `salary_schedule` boş değilse tek bir düzenli gelir akışı, adı **"Gelir"** (yasaklı `maaş` yerine), ödeme günü eski global gün; her `salary_schedule` satırı o akışın tutar geçmişi satırıdır. Boşsa akış kurulmaz. 6) **Yetim satırlar** (karşı tablosu olmayan çocuklar) elenir; eski şemada yabancı anahtar zorlanmıyordu. 7) **Normal geri yükleme eskisi gibi** biçim 1'i reddeder (`I37`); içe aktarma ayrı bir port (`ILegacyBackupImporter`) ve ayrı bir giriştir. 8) **İki adım:** `G1a` Infrastructure içe aktarıcısı + port + testler; `G1b` profil seçimi ekranında giriş. |
 | **Etkiler** | `G1a`, `G1b`, `F1` (K9 testi `LegacyImport/` istisnasını tablodan okur), `S57`, `S58`, `S76` |
 | **İlgili** | Telefon verisinin 27 Eylül'deki elle dönüşümü yalnız ad ("Maaş") ve taslaklar bakımından bundan ayrılır; kalıcı yol artık budur. |
-| **Durum** | uygulandı: 1–7 `G1a`'da; 8'in `G1b` yarısı açık |
+| **Durum** | uygulandı: `G1a` (Infrastructure içe aktarıcısı), `G1b` (profil seçimi girişi) |

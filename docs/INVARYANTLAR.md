@@ -164,6 +164,8 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I149` | Eski yedekten içe aktarma hep-ya-hiç çalışır: seçilen profillerden biri tanınmayan şema sürümündeyse hiçbiri eklenmez ve hazırlık klasörü kalmaz (S83, S58). | `Mizan.Infrastructure.Tests.LegacyImport.LegacyBackupImporterRulesTests.ImportAsync_ProfildenBiriTanimayanSemadaysa_HicbiriEklenmez` | `G1a` |
 | `I150` | Eski kredinin `StartDate` kolonu içe aktarmada sonraki ödeme tarihi, kart harcamasının `DueDate` kolonu işlem tarihi olur; karşı kaydı olmayan çocuk satırlar taşınmaz (S83). | `Mizan.Infrastructure.Tests.LegacyImport.LegacyBackupImporterDataTests.ImportAsync_Kredi_EskiBaslangicTarihiniSonrakiOdemeTarihineKoyar` | `G1a` |
 | `I151` | Eski yedekteki simülasyon taslakları içe aktarılmaz; çalışma listesi boş başlar (S76-3, S83-3). | `Mizan.Infrastructure.Tests.LegacyImport.LegacyBackupImporterDataTests.ImportAsync_SimulasyonTaslaklari_Tasinmaz` | `G1a` |
+| `I152` | Eski yedekten içe aktarmada kimliği zaten var olan profil kopya adıyla ve yeni kimlikle eklenir; mevcut profile dokunulmaz (S83). | `Mizan.Application.Tests.Services.LegacyImportServiceTests.ImportAsync_KimligiZatenVarsa_KopyaAdiylaYeniKimlikleEkler_MevcutuDegistirmez` | `G1b` |
+| `I153` | Eski yedek olmayan bir dosya seçilirse kullanıcıya açık mesaj gösterilir ve ekran çökmez; hiçbir profil eklenmez (S83-7, S58). | `Mizan.Presentation.Tests.Services.ProfileBackupHandlerTests.ImportLegacyAsync_DosyaEskiYedekDegilse_MesajiGosterirVeNullDoner` | `G1b` |
 
 ## Satır eklerken
 

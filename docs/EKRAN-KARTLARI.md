@@ -378,6 +378,7 @@ henüz başlamadığını gösterir** — kartı önceden doldurmak, onay kapıs
 | Profil seçenekleri ("Düzenle") | **Satır** (Aksiyon butonu) | Ad değiştirme veya silme diyaloğunu tetikler (S4) |
 | Yeni profil oluşturma | **Aksiyon** (`ActionFill`) | Listenin altındaki ana buton (S2) |
 | Yedekten profil ekleme | **Aksiyon** (İkincil buton) | Harici veya yerel yedekten profil ekleme (S3) |
+| Eski uygulamadan alma | **Aksiyon** (İkincil buton) | `Aksiyon_EskiUygulamadanAl`; dolu listede "Yedekten Ekle"nin, ilk kurulumda "Yedekten Geri Yükle"nin altında; yeni etiket ve cümle yok, bütçe değişmez (S3, G1b) |
 | İlk kurulum karşılama | **Kart** (`StateBlock`) | Profil yokken temiz başla veya yedekten dön kartı (S5) |
 | `MİZAN` üst etiketi | **Çıkar** | GK11 (ürün adı Planör; eski ad yasağı) |
 | Veri izolasyonu uzun açıklaması | **Çıkar** | GK5 cümle bütçesi; bilişsel yükü azaltma |

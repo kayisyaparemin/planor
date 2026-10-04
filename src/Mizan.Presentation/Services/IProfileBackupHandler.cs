@@ -16,4 +16,10 @@ public interface IProfileBackupHandler
     /// Kullanıcıya yedek seçtirerek profilleri mevcutların yanına ekler ve sonucu bildirir; iptalde null döner.
     /// </summary>
     Task<BackupImportResult?> AddAsync();
+
+    /// <summary>
+    /// Kullanıcıya eski uygulamanın yedeğini seçtirerek profillerini mevcutların yanına ekler ve sonucu
+    /// bildirir; iptalde null döner. Seçilen dosya eski yedek değilse hata fırlatır, ekran yakalar.
+    /// </summary>
+    Task<BackupImportResult?> ImportLegacyAsync();
 }

@@ -155,4 +155,39 @@ public sealed class ProfileSelectionViewModelTests : IDisposable
 
         Assert.True(_backupHandler.AddCalled);
     }
+
+    [Fact]
+    public async Task EskiUygulamadanAl_BasariliOlursa_ProfilListesiniYeniler()
+    {
+        await _repo.SaveProfileAsync(new UserProfile { Id = Guid.NewGuid(), Name = "Eski Ev" });
+        _backupHandler.NextLegacyResult = new BackupImportResult(new BackupSummary(DateTimeOffset.UtcNow, []), []);
+
+        await _viewModel.ImportFromLegacyCommand.ExecuteAsync(null);
+
+        Assert.True(_backupHandler.LegacyCalled);
+        Assert.Equal("Eski Ev", Assert.Single(_viewModel.Profiles).Name);
+        Assert.False(_viewModel.IsBusy);
+    }
+
+    [Fact]
+    public async Task EskiUygulamadanAl_SecimIptalEdilirse_ListeyiYenilemez()
+    {
+        await _repo.SaveProfileAsync(new UserProfile { Id = Guid.NewGuid(), Name = "Eski Ev" });
+        _backupHandler.NextLegacyResult = null;
+
+        await _viewModel.ImportFromLegacyCommand.ExecuteAsync(null);
+
+        Assert.Empty(_viewModel.Profiles);
+        Assert.Null(_dialog.LastAlertTitle);
+    }
+
+    [Fact]
+    public async Task EskiUygulamadanAl_IslemBitince_MesguliyetiKaldirir()
+    {
+        _backupHandler.NextLegacyResult = null;
+
+        await _viewModel.ImportFromLegacyCommand.ExecuteAsync(null);
+
+        Assert.False(_viewModel.IsBusy);
+    }
 }

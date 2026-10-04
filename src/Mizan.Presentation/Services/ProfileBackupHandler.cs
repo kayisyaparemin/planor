@@ -9,7 +9,12 @@ namespace Mizan.Presentation.Services;
 /// </summary>
 public sealed class ProfileBackupHandler : IProfileBackupHandler
 {
+    private const string LegacyImportFailedTitle = "İçe Aktarılamadı";
+    private const string LegacyImportUnexpectedMessage =
+        "Eski yedek içe aktarılamadı. Dosyayı kontrol edip tekrar dene.";
+
     private readonly IBackupService backupService;
+    private readonly ILegacyImportService legacyImportService;
     private readonly IBackupFilePicker filePicker;
     private readonly IDialogService dialogService;
 
@@ -18,10 +23,12 @@ public sealed class ProfileBackupHandler : IProfileBackupHandler
     /// </summary>
     public ProfileBackupHandler(
         IBackupService backupService,
+        ILegacyImportService legacyImportService,
         IBackupFilePicker filePicker,
         IDialogService dialogService)
     {
         this.backupService = backupService;
+        this.legacyImportService = legacyImportService;
         this.filePicker = filePicker;
         this.dialogService = dialogService;
     }
@@ -54,5 +61,36 @@ public sealed class ProfileBackupHandler : IProfileBackupHandler
             await dialogService.ShowAlertAsync("Yedekten Eklendi", $"{result.Added.Count} profil eklendi.");
             return result;
         }
+    }
+
+    /// <inheritdoc />
+    public async Task<BackupImportResult?> ImportLegacyAsync()
+    {
+        var stream = await filePicker.PickAndOpenAsync();
+        if (stream is null) { return null; }
+
+        try
+        {
+            await using (stream)
+            {
+                var result = await legacyImportService.ImportAsync(stream);
+                var names = string.Join(", ", result.Added.Select(added => added.Profile.Name));
+                await dialogService.ShowAlertAsync(
+                    "Eski Uygulamadan Alındı",
+                    $"{result.Added.Count} profil eklendi: {names}. Eski simülasyon taslakları taşınmaz.");
+                return result;
+            }
+        }
+        catch (InvalidOperationException ex)
+        {
+            await dialogService.ShowAlertAsync(LegacyImportFailedTitle, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfileBackupHandler ERROR] {ex}");
+            await dialogService.ShowAlertAsync(LegacyImportFailedTitle, LegacyImportUnexpectedMessage);
+        }
+
+        return null;
     }
 }

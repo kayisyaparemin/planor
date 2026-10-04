@@ -49,6 +49,9 @@ public static class Strings
     /// <summary>Yedekten profil ekleme butonu.</summary>
     public const string Aksiyon_YedektenEkle = "Yedekten Ekle";
 
+    /// <summary>Eski uygulamanın yedeğinden profil alma butonu.</summary>
+    public const string Aksiyon_EskiUygulamadanAl = "Eski Uygulamadan Al";
+
     /// <summary>Profil düzenleme butonu.</summary>
     public const string Aksiyon_Duzenle = "Düzenle";
 

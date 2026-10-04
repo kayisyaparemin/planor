@@ -99,6 +99,11 @@
                         Command="{Binding AddFromBackupCommand}"
                         Style="{StaticResource SecondaryButton}" />
 
+                <Button Text="{x:Static strings:Strings.Aksiyon_EskiUygulamadanAl}"
+                        AutomationId="{x:Static auto:ProfileSelectionAutomationIds.BtnImportLegacy}"
+                        Command="{Binding ImportFromLegacyCommand}"
+                        Style="{StaticResource SecondaryButton}" />
+
                 <!-- Alt Bilgi Notu -->
                 <Label Text="{x:Static strings:Strings.Cumle_ProfilSecimNotu}"
                        Style="{StaticResource Caption}"
@@ -119,6 +124,11 @@
                 <Button Text="{x:Static strings:Strings.Aksiyon_YedektenGeriYukle}"
                         AutomationId="{x:Static auto:AutomationIds.BtnRestore}"
                         Command="{Binding RestoreFromBackupCommand}"
+                        Style="{StaticResource SecondaryButton}" />
+
+                <Button Text="{x:Static strings:Strings.Aksiyon_EskiUygulamadanAl}"
+                        AutomationId="{x:Static auto:ProfileSelectionAutomationIds.BtnImportLegacy}"
+                        Command="{Binding ImportFromLegacyCommand}"
                         Style="{StaticResource SecondaryButton}" />
             </VerticalStackLayout>
 

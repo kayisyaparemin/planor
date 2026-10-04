@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **G1a** — eski uygulamanın yedeğinden içe aktarma, Infrastructure (Faz G — Geçiş) |
-| Sıradaki adım | **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi (Faz G — Geçiş) |
-| Test sayısı | 2209 |
+| Son tamamlanan adım | **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi (Faz G — Geçiş) |
+| Sıradaki adım | Planlanmış adım kalmadı; açık işler için `docs/TASIMA-PLANI.md` |
+| Test sayısı | 2223 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### G1b — profil seçimi ekranında "Eski uygulamadan al" girişi; karar `S83`-8
+
+Profil seçimi ekranına, hem dolu listede hem ilk kurulumda, "Eski Uygulamadan Al" düğmesi geldi. Akış: mevcut dosya seçici zip'i açar → `ProfileBackupHandler.ImportLegacyAsync` → yeni `LegacyImportService` (Application) yedeğin **bütün** profillerini `BackupRetentionRules.CreateImportedProfile` ile adlandırır (kimlik çakışırsa "(… yedeği)" kopyası, `I152`) ve `ILegacyBackupImporter`'ı çağırır. Başarı diyaloğu eklenen profilleri sayar ve eski simülasyon taslaklarının taşınmadığını söyler (S83-3).
+Yeni dosya seçici yazılmadı: eski yedekler aynı `Mizan` klasöründe ve zip. `IBackupService` 10 metotta, `BackupService` 5 bağımlılıkta olduğu için içe aktarma ayrı bir dar porta kondu (M3, M5). `MauiProgram`'a `ILegacyBackupImporter` ve `ILegacyImportService` kaydı eklendi; G1a'dan beri kayıtsızdı.
+Yanlış dosya ya da bozuk yedekte işleyici mesajı diyalogla gösterir, istisna ekrana sızmaz (`I153`). Ekran dosyası 200 satır sınırına dayandığı için üç yedek komutu ortak `ReloadWhenAddedAsync` yardımcısına bağlandı (davranış aynı); yeni kimlik `ProfileSelectionAutomationIds`'te, çünkü `AutomationIds.cs` sınırdaydı. Toplam 2.223 test yeşil, 0 hata, 0 uyarı.
+**Dikkat:** `Yedekten Geri Yükle` ve `Yedekten Ekle` hâlâ hata yakalamıyor (yanlış dosya seçilirse istisna ekrana ulaşır); bu adımın kapsamı değildi, `/duzeltme` ile ele alınmalı. Yeni akış gerçek emülatörde elle denenmedi. `SAPMALAR.md`'de S4, S6, S9, S10, S19'un "Durum"u G1a'nın commit'inde yanlışlıkla "uygulandı: 1–7 G1a'da…" yapılmıştı; "açık"a geri alındı.
 
 ### G1a — eski uygulamanın yedeğinden içe aktarma (Infrastructure); karar `S83`
 
