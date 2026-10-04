@@ -2025,7 +2025,7 @@ gidişat kartının deseni, listeler `ListCard`. Konseptten sapmalar `GS27`'de.
 > Davranış `S76`, ekran `GS28`. Altı alt adım: `V10a` form + liste, `V10b` sonuç, `V10c` harcama türleri,
 > `V10d` borç türleri, `V10e` gelir türleri, `V10f` "Planıma ekle". Kapı A ve B ortak (2026-10-03).
 > Ekran gerçek kayıtlara yalnız "Planıma ekle" ile yazar; denemeler kendi listesinde saklanır.
-> Durum: `V10a`, `V10b1`, `V10b2`, `V10c`, `V10d` ve `V10e` tamamlandı (2026-10-04); `V10f` açık.
+> Durum: `V10a`–`V10f` tamamlandı (2026-10-04); `EK-V10` simülatör ekranı eksiksiz kapandı.
 
 **Eski proje:** `SimulationPage.xaml` 453 satır, **64 `<Label>`**, 14 buton, 11 kart + 12 dönem kart şablonu, en az 8
 açıklama cümlesi; kod arkası 113 satır (onay ve gezinme). `ScenarioConditionFormView` 85 satır, 17 etiket, 13 giriş.

@@ -15,6 +15,9 @@ public static class SimulatorAutomationIds
     /// <summary>Denemeler listesi.</summary>
     public const string ListSimulatorConditions = "list-simulator-conditions";
 
+    /// <summary>Açık ve geçerli denemeleri plana ekleyen buton (V10f).</summary>
+    public const string BtnSimulatorApply = "btn-simulator-apply";
+
     /// <summary>Hata hâli: çalışma listesi okunamadı.</summary>
     public const string StateSimulatorError = "state-simulator-error";
 

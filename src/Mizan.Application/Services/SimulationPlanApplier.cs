@@ -11,16 +11,13 @@ namespace Mizan.Application.Services;
 /// </summary>
 public sealed class SimulationPlanApplier(
     ScenarioPlanBuilder planBuilder,
-    IncomePlanWriter incomeWriter,
-    FinancialInstrumentWriter instrumentWriter,
+    ISimulationBatchWriter batchWriter,
     IPlanChangeRecorder planChangeRecorder) : ISimulationPlanApplier
 {
     private readonly ScenarioPlanBuilder _planBuilder =
         planBuilder ?? throw new ArgumentNullException(nameof(planBuilder));
-    private readonly IncomePlanWriter _incomeWriter =
-        incomeWriter ?? throw new ArgumentNullException(nameof(incomeWriter));
-    private readonly FinancialInstrumentWriter _instrumentWriter =
-        instrumentWriter ?? throw new ArgumentNullException(nameof(instrumentWriter));
+    private readonly ISimulationBatchWriter _batchWriter =
+        batchWriter ?? throw new ArgumentNullException(nameof(batchWriter));
     private readonly IPlanChangeRecorder _planChangeRecorder =
         planChangeRecorder ?? throw new ArgumentNullException(nameof(planChangeRecorder));
 
@@ -105,21 +102,20 @@ public sealed class SimulationPlanApplier(
         var requestIds = requests.Select(x => x.ScenarioId).ToHashSet();
         var cardIds = requests.Where(x => x.CreditCardId.HasValue).Select(x => x.CreditCardId!.Value).ToHashSet();
 
-        await _instrumentWriter.WriteLargeExpensesAsync(
-            scenario.PlannedLargeExpenses.Where(x => requestIds.Contains(x.Id)), cancellationToken);
-        await _instrumentWriter.WritePaymentPlansAsync(
-            scenario.PaymentPlans.Where(x => requestIds.Contains(x.Id)), cancellationToken);
-        await _instrumentWriter.WriteCreditCardsAsync(
-            scenario.CreditCards.Where(x => cardIds.Contains(x.Id)), cancellationToken);
-        await _instrumentWriter.WriteLoanPrepaymentsAsync(
-            scenario.LoanPrepayments.Where(x => requestIds.Contains(x.Id)), cancellationToken);
-        await _incomeWriter.WriteAdHocIncomesAsync(
-            scenario.AdHocIncomes.Where(x => requestIds.Contains(x.Id)), cancellationToken);
-        await _incomeWriter.WriteIncomeHistoriesAsync(
-            scenario.IncomeHistories.Where(x => requests.Any(r =>
+        var batch = new SimulationPersistenceBatch
+        {
+            LargeExpenses = scenario.PlannedLargeExpenses.Where(x => requestIds.Contains(x.Id)).ToArray(),
+            PaymentPlans = scenario.PaymentPlans.Where(x => requestIds.Contains(x.Id)).ToArray(),
+            CreditCards = scenario.CreditCards.Where(x => cardIds.Contains(x.Id)).ToArray(),
+            LoanPrepayments = scenario.LoanPrepayments.Where(x => requestIds.Contains(x.Id)).ToArray(),
+            AdHocIncomes = scenario.AdHocIncomes.Where(x => requestIds.Contains(x.Id)).ToArray(),
+            IncomeHistories = scenario.IncomeHistories.Where(x => requests.Any(r =>
                 r.Type == SimulationScenarioType.IncomeChange &&
                 r.RecurringIncomeId == x.RecurringIncomeId &&
-                r.StartDate == x.EffectiveDate)), cancellationToken);
+                r.StartDate == x.EffectiveDate)).ToArray()
+        };
+
+        await _batchWriter.WriteBatchAsync(batch, cancellationToken);
     }
 
     private static SimulationApplyResult BuildAppliedResult(

@@ -427,7 +427,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       akış (dönem başı, gelir, ödemeler, yaşam gideri, KMH faizi), ödemeler (4 + yerinde açılır, kart satırı Kart Kontrol'e),
       kart faizi. Ana sayfanın "Tümünü Gör"ü yerinde açılmaya döndü. Ekran kayıtları `Composition/ScreenRegistrations.cs`'e
       ayrıldı (kural 01 testli). Simülatörün dönem kıyası `V10`'da.
-- [ ] **V10** — simülatör *(eskide 1.034 satır / 4 partial; `S74`-5: "ne zaman karşılayabilirim?" — hedef tutar — sorusu buraya not, `TargetAmountCalculator` Domain'de bekliyor; `S75`-7, 8: dönemin mevcut ↔ senaryo kıyası ve A23b'den kalan metin üreten `DetailMetric` / `DetailSemanticType`'ın kaderi burada)*.
+- [x] **V10** — simülatör *(eskide 1.034 satır / 4 partial; S74-5, S75-7, 8, S76, GS28, EK-V10. V10a–V10f tamamlandı)*.
       `S76`, `GS28`, `EK-V10`. Aşama 1'de ~1.500 satır çıktığı için altıya bölündü (2026-10-03); Kapı A ve B ortak,
       Kapı C her alt adımda ayrı. Yerleşim 12 Dönem'den türetilir (konsept görüntüsü yok).
   - [x] **V10a** — koşul formu iskeleti + nakit ödeme; simülatör sayfasında deneme listesi (aç/kapa, düzenle, sil);
@@ -461,7 +461,10 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         değişikliğinin **düzenli gelirini seçici çözer**, "Hangi gelir?"; eski simülatörde bu soru yoktu, tek maaş
         geçmişine yazıyordu. Kayıtlı düzenli gelir yoksa uyarı `I147`, tek gelirde doğrudan form `I148`, formda hedef
         gelir salt okunur ve düzenlemede değişmez `I149`; koruyan: I147–I149)*
-  - [ ] **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer
+  - [x] **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer
+        *(2026-10-04; `S76`-12, `EK-V10` S5: atomik yazma portu `ISimulationBatchWriter` ve `SqliteSimulationBatchWriter` transaction adaptörü;
+        tekil `ApplySimulationAsync` aşırı yüklemeleri kaldırıldı; kullanıcı onay diyaloğu, uygulananların listeden düşmesi,
+        `CanApply` görünürlüğü; koruyan: I150–I154)*
 - [ ] **V11** — dönem kapanışı: özet sayfası *(kullanıcı kararları, 2026-09-29; konsept
       `docs/assets/konsept/ana-sayfa-rota-tempo-kapanis.png`; kaynak eski proje değil, eski
       `PeriodReviewPage` okunmaz)*. Çapa günü uygulama açılınca kendiliğinden

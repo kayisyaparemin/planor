@@ -53,12 +53,26 @@ public sealed class FakeSimulationWorkflowService : ISimulationWorkflowService
         return Task.CompletedTask;
     }
 
-    public Task<SimulationApplyResult> ApplySimulationAsync(SimulationRequest request, bool confirmed, CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException();
+    public List<SimulationRequest> AppliedRequests { get; } = [];
+
+    public Exception? ThrowOnApply { get; set; }
 
     public Task<SimulationApplyResult> ApplySimulationAsync(
-        IReadOnlyList<SimulationRequest> requests, bool confirmed, CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException();
+        IReadOnlyList<SimulationRequest> requests, bool confirmed, CancellationToken cancellationToken = default)
+    {
+        if (ThrowOnApply is not null)
+        {
+            throw ThrowOnApply;
+        }
+
+        AppliedRequests.AddRange(requests);
+        return Task.FromResult(new SimulationApplyResult(
+            requests.Count > 0 ? requests[0].ScenarioId : Guid.NewGuid(),
+            Guid.Empty,
+            SimulationApplyDestination.Payments,
+            AlreadyApplied: false,
+            "Uygulandı"));
+    }
 
     public Task<SimulationApplyResult> AddRecordFromScenarioAsync(SimulationRequest request, CancellationToken cancellationToken = default) =>
         throw new NotSupportedException();

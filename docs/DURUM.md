@@ -4,15 +4,25 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V10e** — gelir türleri: tek seferlik gelir, gelir değişikliği (S77, EK-V10) |
-| Sıradaki adım | **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer |
-| Test sayısı | 2061 |
+| Son tamamlanan adım | **V10f** — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer (S76-12, EK-V10) |
+| Sıradaki adım | **V11** — dönem kapanışı: özet sayfası (kullanıcı kararları, konsept ana-sayfa-rota-tempo-kapanis.png, EK-V11) |
+| Test sayısı | 2067 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V10f — "Planıma ekle": tek işlem (Application + Infrastructure), onay, uygulananlar listeden düşer; kararlar `S76`-12, `EK-V10` S5
+
+Simülatör çalışma listesindeki açık ve geçerli denemeleri tek bir atomik veritabanı işleminde canlı finansal plana aktaran "Planıma ekle" altyapısı ve sunum katmanı tamamlandı.
+(1) Atomik yazma portu ve SQLite adaptörü (`ISimulationBatchWriter` / `SqliteSimulationBatchWriter`): `SimulationPlanApplier`'ın ayrık repo çağrıları tek bir `SimulationPersistenceBatch` modelinde toplandı ve `RunInTransactionAsync` içinde tek SQLite transaction'ında çalıştırıldı (`S76`-12). Yazma başarısız olursa hiçbir kayıt kaydedilmez, `IPlanChangeRecorder` çağrılmaz (`I150`, `I151`).
+(2) Tekil aşırı yükleme temizliği: `ISimulationWorkflowService` ve `SimulationWorkflowService` üzerindeki tekil `ApplySimulationAsync(SimulationRequest, ...)` metodu elendi (`S76`-4); tüm simülasyon onayları liste bazlı yürür.
+(3) Sunum ve onay akışı (`SimulatorViewModel`): Açık ve sorunsuz en az bir deneme varsa `CanApply = true` olur ve buton görünür (`I152`). Dokunulduğunda kullanıcıdan onay istenir (`ConfirmAsync`), vazgeçilirse hiçbir kayıt değişmez (`I153`). Onaylandığında uygulanan istekler çalışma listesinden düşer, kapalı veya sorunlu olanlar korunur; kalan listeyle simülatör ve dönem sonları otomatik yeniden hesaplanır (`I154`). Hata durumunda uyarı verilip liste diskten yeniden yüklenir.
+(4) Arayüz: `SimulatorPage.xaml`'de denemeler listesi ile dönem sonları ızgarası arasına `BtnSimulatorApply` butonu (`ActionFill`, varsayılan `TargetType="Button"` stiliyle) yerleştirildi. Bütçe: Hero 1/1, Kart 3/4, Grafik 1/1, Label 15/28, Cümle 1/3.
+Tüm dosyalar K3 (≤ 200 satır) ve K4 sınırlarına tam uydu (`SimulatorViewModel` 198 satır, `SimulationPlanApplier` 191 satır).
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık). 6 yeni birim testi (Application ve Presentation); toplam 2.067 test yeşil, 0 hata, 0 uyarı.
 
 ### Düzeltme / Konsept uyumu — Ana sayfa ve "Bakiye gir" rota grafiği yerine sütun tasarımı (`ColumnTrend`, `GS30`, `EK-V3`, `EK-V3b`)
 

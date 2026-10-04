@@ -248,6 +248,77 @@ public sealed class SimulatorViewModelTests
         Assert.Single(_viewModel.Conditions);
     }
 
+    [Fact]
+    public async Task CanApply_AcikVeGecerliDenemeVarsa_True()
+    {
+        _service.Seed(Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true));
+        await _viewModel.LoadAsync();
+
+        Assert.True(_viewModel.CanApply);
+    }
+
+    [Fact]
+    public async Task CanApply_YalnizKapaliVeyaGecersizDenemeVarsa_False()
+    {
+        var closed = Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: false);
+        var old = Condition("Kurs", 12_000m, Today.AddDays(-2), isEnabled: true);
+        _service.Seed(closed, old);
+        _service.Issues[old.Request.ScenarioId] = SimulationConditionIssue.DatePassed;
+
+        await _viewModel.LoadAsync();
+
+        Assert.False(_viewModel.CanApply);
+    }
+
+    [Fact]
+    public async Task Apply_KullaniciVazgecerse_HicbirSeyUygulanmaz()
+    {
+        var phone = Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true);
+        _service.Seed(phone);
+        await _viewModel.LoadAsync();
+        _dialog.NextConfirmResponse = false;
+
+        await _viewModel.ApplyCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.Empty(_service.AppliedRequests);
+        Assert.Single(_viewModel.Conditions);
+    }
+
+    [Fact]
+    public async Task Apply_KullaniciOnaylarsa_UygulananlarListedenDuserKapalilarKalir()
+    {
+        var phone = Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true);
+        var holiday = Condition("Tatil", 45_000m, Today.AddDays(80), isEnabled: false);
+        _service.Seed(phone, holiday);
+        await _viewModel.LoadAsync();
+        _dialog.NextConfirmResponse = true;
+
+        await _viewModel.ApplyCommand.ExecuteAsync(null);
+
+        Assert.Equal(1, _dialog.ConfirmCount);
+        Assert.Single(_service.AppliedRequests);
+        Assert.Equal(phone.Request.ScenarioId, _service.AppliedRequests[0].ScenarioId);
+        var remaining = Assert.Single(_viewModel.Conditions);
+        Assert.Equal("Tatil", remaining.Name);
+        Assert.False(_viewModel.CanApply);
+    }
+
+    [Fact]
+    public async Task Apply_HataOlursa_UyariGosterirVeListeyiYenidenYukler()
+    {
+        var phone = Condition("Telefon", 30_000m, Today.AddDays(12), isEnabled: true);
+        _service.Seed(phone);
+        await _viewModel.LoadAsync();
+        _dialog.NextConfirmResponse = true;
+        _service.ThrowOnApply = new InvalidOperationException("veritabanı hatası");
+
+        await _viewModel.ApplyCommand.ExecuteAsync(null);
+
+        Assert.NotNull(_dialog.LastAlertTitle);
+        Assert.Single(_viewModel.Conditions);
+    }
+
     private static SimulationDraftCondition Condition(string name, decimal amount, DateOnly date, bool isEnabled) =>
         new(new SimulationRequest(SimulationScenarioType.CashPurchase, name, amount, date), isEnabled);
 }

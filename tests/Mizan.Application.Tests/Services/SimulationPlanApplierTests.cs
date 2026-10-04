@@ -29,40 +29,119 @@ public sealed class SimulationPlanApplierTests
         _planBuilder = new ScenarioPlanBuilder(installments, loanValidator);
     }
 
-    private SimulationPlanApplier CreateSut()
+    private SimulationPlanApplier CreateSut(TestSimulationBatchWriter? batchWriter = null)
     {
-        var incomeWriter = new IncomePlanWriter(_recurringIncomeRepository, _adHocIncomeRepository);
-        var instrumentWriter = new FinancialInstrumentWriter(
-            _loanRepository,
+        var writer = batchWriter ?? new TestSimulationBatchWriter(
+            _largeExpenseRepository,
             _paymentPlanRepository,
             _creditCardRepository,
-            _largeExpenseRepository);
+            _loanRepository,
+            _adHocIncomeRepository,
+            _recurringIncomeRepository);
 
         return new SimulationPlanApplier(
             _planBuilder,
-            incomeWriter,
-            instrumentWriter,
+            writer,
             _changeRecorder);
     }
 
     [Fact]
     public void Constructor_NullArguments_ThrowsArgumentNullException()
     {
-        var incomeWriter = new IncomePlanWriter(_recurringIncomeRepository, _adHocIncomeRepository);
-        var instrumentWriter = new FinancialInstrumentWriter(
-            _loanRepository,
+        var writer = new TestSimulationBatchWriter(
+            _largeExpenseRepository,
             _paymentPlanRepository,
             _creditCardRepository,
-            _largeExpenseRepository);
+            _loanRepository,
+            _adHocIncomeRepository,
+            _recurringIncomeRepository);
 
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationPlanApplier(null!, incomeWriter, instrumentWriter, _changeRecorder));
+            new SimulationPlanApplier(null!, writer, _changeRecorder));
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationPlanApplier(_planBuilder, null!, instrumentWriter, _changeRecorder));
+            new SimulationPlanApplier(_planBuilder, null!, _changeRecorder));
         Assert.Throws<ArgumentNullException>(() =>
-            new SimulationPlanApplier(_planBuilder, incomeWriter, null!, _changeRecorder));
-        Assert.Throws<ArgumentNullException>(() =>
-            new SimulationPlanApplier(_planBuilder, incomeWriter, instrumentWriter, null!));
+            new SimulationPlanApplier(_planBuilder, writer, null!));
+    }
+
+    [Fact]
+    public async Task ApplyAsync_BatchWriterFails_DoesNotRecordChange()
+    {
+        var batchWriter = new TestSimulationBatchWriter(
+            _largeExpenseRepository,
+            _paymentPlanRepository,
+            _creditCardRepository,
+            _loanRepository,
+            _adHocIncomeRepository,
+            _recurringIncomeRepository)
+        {
+            ShouldThrow = true
+        };
+        var sut = CreateSut(batchWriter);
+        var plan = CreateBasePlan();
+        var request = new SimulationRequest
+        {
+            Type = SimulationScenarioType.CashPurchase,
+            Name = "Tadilat",
+            Amount = 50_000m,
+            StartDate = new DateOnly(2026, 10, 15),
+            ScenarioId = Guid.NewGuid()
+        };
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            sut.ApplyAsync(plan, [request], "trigger"));
+        Assert.Empty(_changeRecorder.RecordedTriggers);
+    }
+
+    private sealed class TestSimulationBatchWriter(
+        InMemoryPlannedLargeExpenseRepository largeExpenseRepo,
+        InMemoryTemporaryPaymentPlanRepository paymentPlanRepo,
+        InMemoryCreditCardRepository creditCardRepo,
+        InMemoryLoanRepository loanRepo,
+        InMemoryAdHocIncomeRepository adHocIncomeRepo,
+        InMemoryRecurringIncomeRepository recurringIncomeRepo) : ISimulationBatchWriter
+    {
+        public SimulationPersistenceBatch? LastBatch { get; private set; }
+        public bool ShouldThrow { get; set; }
+
+        public async Task WriteBatchAsync(SimulationPersistenceBatch batch, CancellationToken cancellationToken = default)
+        {
+            if (ShouldThrow)
+            {
+                throw new InvalidOperationException("Atomic write failed");
+            }
+
+            LastBatch = batch;
+            foreach (var expense in batch.LargeExpenses)
+            {
+                await largeExpenseRepo.UpsertPlannedLargeExpenseAsync(expense, cancellationToken);
+            }
+
+            foreach (var plan in batch.PaymentPlans)
+            {
+                await paymentPlanRepo.UpsertPaymentPlanAsync(plan, cancellationToken);
+            }
+
+            foreach (var card in batch.CreditCards)
+            {
+                await creditCardRepo.UpsertCreditCardAsync(card, cancellationToken);
+            }
+
+            foreach (var prepay in batch.LoanPrepayments)
+            {
+                await loanRepo.UpsertLoanPrepaymentAsync(prepay, cancellationToken);
+            }
+
+            foreach (var income in batch.AdHocIncomes)
+            {
+                await adHocIncomeRepo.UpsertAdHocIncomeAsync(income, cancellationToken);
+            }
+
+            foreach (var history in batch.IncomeHistories)
+            {
+                await recurringIncomeRepo.UpsertIncomeAmountHistoryAsync(history, cancellationToken);
+            }
+        }
     }
 
     [Fact]

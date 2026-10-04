@@ -270,6 +270,12 @@
                        Style="{StaticResource Caption}"
                        IsVisible="{Binding HasConditions, Converter={StaticResource Tersi}}" />
 
+                <!-- Planıma ekle: tek işlemle geçerli ve açık denemeleri kalıcı plana aktarır (V10f) -->
+                <Button Text="{x:Static strings:SimulatorStrings.Aksiyon_PlanimaEkle}"
+                        Command="{Binding ApplyCommand}"
+                        IsVisible="{Binding CanApply}"
+                        AutomationId="{x:Static auto:SimulatorAutomationIds.BtnSimulatorApply}" />
+
                 <!-- Dönem sonları: 3 × 4 karo, 1 px ayırıcı ızgara aralığından; dokunma yok (S76-9, GS28-3) -->
                 <Border BackgroundColor="{DynamicResource SurfaceCard}"
                         Stroke="{DynamicResource BorderSubtle}"

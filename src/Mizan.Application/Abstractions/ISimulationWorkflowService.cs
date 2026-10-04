@@ -26,15 +26,7 @@ public interface ISimulationWorkflowService
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Tek bir simülasyon isteğini açık kullanıcı onayıyla canlı finansal plana uygular.
-    /// </summary>
-    Task<SimulationApplyResult> ApplySimulationAsync(
-        SimulationRequest request,
-        bool confirmed,
-        CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Çoklu simülasyon isteklerini açık kullanıcı onayıyla atomik olarak canlı finansal plana uygular.
+    /// Çoklu simülasyon isteklerini açık kullanıcı onayıyla atomik olarak canlı finansal plana uygular (S76-12).
     /// </summary>
     Task<SimulationApplyResult> ApplySimulationAsync(
         IReadOnlyList<SimulationRequest> requests,

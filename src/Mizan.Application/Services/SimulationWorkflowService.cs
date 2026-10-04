@@ -62,12 +62,6 @@ public sealed class SimulationWorkflowService(
             ? SimulationConditionIssue.DatePassed
             : SimulationConditionIssue.None;
 
-    /// <inheritdoc />
-    public Task<SimulationApplyResult> ApplySimulationAsync(
-        SimulationRequest request,
-        bool confirmed,
-        CancellationToken cancellationToken = default) =>
-        ApplySimulationAsync([request ?? throw new ArgumentNullException(nameof(request))], confirmed, cancellationToken);
 
     /// <inheritdoc />
     public async Task<SimulationApplyResult> ApplySimulationAsync(

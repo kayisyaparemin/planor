@@ -112,6 +112,7 @@ public static class MauiProgram
         services.AddTransient<IPaymentReminderRepository, SqlitePaymentReminderRepository>();
         services.AddTransient<IPeriodObservationRepository, SqlitePeriodObservationRepository>();
         services.AddTransient<IPeriodHistoryRepository, SqlitePeriodHistoryRepository>();
+        services.AddTransient<ISimulationBatchWriter, SqliteSimulationBatchWriter>();
     }
 
     private static void RegisterApplicationServices(IServiceCollection services)
@@ -132,7 +133,6 @@ public static class MauiProgram
         services.AddSingleton<IPeriodProgressService>(sp => sp.GetRequiredService<PeriodProgressService>());
         services.AddSingleton<PeriodSettlementService>();
         services.AddSingleton<IncomePlanReader>();
-        services.AddSingleton<IncomePlanWriter>();
         services.AddSingleton<FinancialInstrumentReader>();
         services.AddSingleton<FinancialInstrumentWriter>();
         services.AddSingleton<IPlanReader, PlanReader>();

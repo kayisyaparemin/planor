@@ -103,13 +103,10 @@ public static class SimulatorStrings
 
     /// <summary>Tamamını öde seçeneği.</summary>
     public const string Secenek_TamaminiOde = "Tamamını öde";
-
     /// <summary>Asgari öde seçeneği.</summary>
     public const string Secenek_AsgariOde = "Asgari öde";
-
     /// <summary>Yalnızca bu ekstre seçeneği.</summary>
     public const string Secenek_YalnizcaBuEkstre = "Yalnızca bu ekstre";
-
     /// <summary>Bundan sonraki tüm ekstreler seçeneği.</summary>
     public const string Secenek_TumEkstreler = "Bundan sonraki tüm ekstreler";
 
@@ -121,6 +118,9 @@ public static class SimulatorStrings
 
     /// <summary>Başlıktaki deneme ekleme düğmesi.</summary>
     public const string Aksiyon_Ekle = "Ekle";
+
+    /// <summary>Denemeleri kalıcı plana aktarma aksiyonu (V10f).</summary>
+    public const string Aksiyon_PlanimaEkle = "Planıma ekle";
 
     /// <summary>Denemeyi listeye yazar.</summary>
     public const string Aksiyon_Kaydet = "Kaydet";
@@ -160,10 +160,8 @@ public static class SimulatorStrings
 
     /// <summary>Tamamen kapat erken ödeme seçeneği.</summary>
     public const string Secenek_TamamenKapat = "Tamamen kapat";
-
     /// <summary>Vadeyi kısalt erken ödeme seçeneği.</summary>
     public const string Secenek_VadeyiKisalt = "Vadeyi kısalt (ara ödeme)";
-
     /// <summary>Taksiti azalt erken ödeme seçeneği.</summary>
     public const string Secenek_TaksitiAzalt = "Taksiti azalt (ara ödeme)";
 

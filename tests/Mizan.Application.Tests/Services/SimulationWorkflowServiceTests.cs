@@ -47,7 +47,7 @@ public sealed class SimulationWorkflowServiceTests
         };
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            sut.ApplySimulationAsync(request, confirmed: false));
+            sut.ApplySimulationAsync([request], confirmed: false));
         Assert.Equal("Plan, açık kullanıcı onayı olmadan uygulanamaz.", ex.Message);
         Assert.Null(_planApplier.LastTrigger);
     }
@@ -66,7 +66,7 @@ public sealed class SimulationWorkflowServiceTests
             ScenarioId = Guid.NewGuid()
         };
 
-        var result = await sut.ApplySimulationAsync(request, confirmed: true);
+        var result = await sut.ApplySimulationAsync([request], confirmed: true);
 
         Assert.NotNull(result);
         Assert.Equal("Simülasyon planı uygulandı", _planApplier.LastTrigger);
