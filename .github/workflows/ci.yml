@@ -1,30 +1,33 @@
 name: CI
 
 # Eski projede hiçbir iş akışı pull_request üzerinde çalışmıyordu; kurallar
-# ancak main'e girdikten sonra denetleniyordu. Bu iş akışı PR'da da çalışır.
+# ancak main'e girdikten sonra denetleniyordu. Bu iş akışı PR'da da çalışır (S80-3).
+# release.yml aynı kapıyı workflow_call ile çağırır; test adımları iki yerde yaşamaz (S80-8).
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: mizan-ci-${{ github.ref }}
+  group: mizan-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
+  APK_PATH: src/Mizan.App/bin/Release/net8.0-android/com.mizan.app-Signed.apk
 
 jobs:
   build-and-test:
-    name: Derle ve test et
+    name: Derle, test et, APK'yı doğrula
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,11 +37,22 @@ jobs:
         with:
           global-json-file: global.json
 
+      # Mizan.App net8.0-android hedefli: workload ve JDK olmadan çözümün restore'u düşer.
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '17'
+
+      - name: MAUI Android workload
+        run: dotnet workload install maui-android
+
       - name: Restore
         run: dotnet restore Mizan.sln
 
       # -warnaserror ikinci bir kemer: Directory.Build.props zaten açık,
       # ama birisi tek bir projede kapatırsa burada yakalanır.
+      # Release derlemesi APK'yı da üretir (AndroidPackageFormat=apk); PR APK'sı debug imzalıdır.
       - name: Derle
         run: dotnet build Mizan.sln --configuration Release --no-restore -warnaserror
 
@@ -52,10 +66,16 @@ jobs:
           --settings .runsettings
           --results-directory TestResults
 
-      # F4: Kapsam eşiği CI'da zorlanır.
+      # F4, S80-4: Domain %95, Application %95, Presentation %90, Infrastructure %80.
       - name: Kapsam eşiklerini denetle
         shell: pwsh
         run: ./scripts/verify-coverage.ps1 -ResultsDirectory TestResults
+
+      # K2a: kimlik, sürüm, ağ izni, allowBackup. Debug imzası burada kabul;
+      # reddi yalnız release.yml'dedir (S80-3).
+      - name: APK'yı doğrula
+        shell: pwsh
+        run: ./scripts/verify-apk.ps1 -Apk $env:APK_PATH
 
       - name: Kapsam raporunu yükle
         if: always()

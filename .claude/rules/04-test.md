@@ -98,10 +98,13 @@ Her test üç bölümden oluşur ve bölümler boş satırla ayrılır: **Hazır
 
 | Katman | Alt sınır |
 |---|---|
-| `Mizan.Domain` | **%90** |
-| `Mizan.Application` | **%80** |
-| `Mizan.Presentation` | **%70** |
-| Diğer | eşik yok |
+| `Mizan.Domain` | **%95** |
+| `Mizan.Application` | **%95** |
+| `Mizan.Presentation` | **%90** |
+| `Mizan.Infrastructure` | **%80** |
+
+Ölçülemeyen (0 satır) katman da kırmızıdır (`S80-7`). Eşikleri `scripts/verify-coverage.ps1`
+varsayılanları taşır; `WorkflowTests.KapsamBetigi_S80EsikleriniTasir` bu sayılarla aynı kalmasını korur.
 
 Eski projede coverlet kuruluydu ama hiç toplanmıyordu ve hiçbir eşik yoktu; "600/600 yeşil"
 rakamı neyin test edilmediğini söylemiyordu.

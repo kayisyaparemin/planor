@@ -4,28 +4,33 @@
 
 .DESCRIPTION
     Bu betik, TestResults dizinindeki coverage.cobertura.xml dosyalarını tarar,
-    Mizan.Domain (%90), Mizan.Application (%80) ve Mizan.Presentation (%70) katmanlarının
-    birleşik satır kapsamını (merged line coverage) hesaplar ve eşiklerin altında kalınması
-    durumunda çıkış kodu 1 ile süreci sonlandırır.
+    Mizan.Domain (%95), Mizan.Application (%95), Mizan.Presentation (%90) ve Mizan.Infrastructure (%80)
+    katmanlarının birleşik satır kapsamını (merged line coverage) hesaplar ve eşiklerin altında
+    kalınması durumunda çıkış kodu 1 ile süreci sonlandırır (S80-4).
+    Ölçülemeyen (0 satır) katman da hatadır: kapsam yapılandırması bozulursa kapı yeşil kalmaz (S80-7).
 
 .PARAMETER ResultsDirectory
     Kapsam XML dosyalarının aranacağı dizin. Varsayılan: "TestResults"
 
 .PARAMETER DomainThreshold
-    Mizan.Domain katmanı için minimum kapsam yüzdesi. Varsayılan: 90
+    Mizan.Domain katmanı için minimum kapsam yüzdesi. Varsayılan: 95
 
 .PARAMETER ApplicationThreshold
-    Mizan.Application katmanı için minimum kapsam yüzdesi. Varsayılan: 80
+    Mizan.Application katmanı için minimum kapsam yüzdesi. Varsayılan: 95
 
 .PARAMETER PresentationThreshold
-    Mizan.Presentation katmanı için minimum kapsam yüzdesi. Varsayılan: 70
+    Mizan.Presentation katmanı için minimum kapsam yüzdesi. Varsayılan: 90
+
+.PARAMETER InfrastructureThreshold
+    Mizan.Infrastructure katmanı için minimum kapsam yüzdesi. Varsayılan: 80
 #>
 [CmdletBinding()]
 param (
     [string]$ResultsDirectory = "TestResults",
-    [double]$DomainThreshold = 90.0,
-    [double]$ApplicationThreshold = 80.0,
-    [double]$PresentationThreshold = 70.0
+    [double]$DomainThreshold = 95.0,
+    [double]$ApplicationThreshold = 95.0,
+    [double]$PresentationThreshold = 90.0,
+    [double]$InfrastructureThreshold = 80.0
 )
 
 $ErrorActionPreference = "Stop"
@@ -49,6 +54,7 @@ $layerCoverage = @{
     "Mizan.Domain"       = @{ "Threshold" = $DomainThreshold;       "Lines" = @{} }
     "Mizan.Application"  = @{ "Threshold" = $ApplicationThreshold;  "Lines" = @{} }
     "Mizan.Presentation" = @{ "Threshold" = $PresentationThreshold; "Lines" = @{} }
+    "Mizan.Infrastructure" = @{ "Threshold" = $InfrastructureThreshold; "Lines" = @{} }
 }
 
 foreach ($file in $coverageFiles) {
@@ -94,7 +100,8 @@ foreach ($layerName in $layerCoverage.Keys | Sort-Object) {
     $totalLines = $linesDict.Count
 
     if ($totalLines -eq 0) {
-        Write-Host "[-] $layerName : Henüz ölçülebilir kod taşınmadı (0 satır). Eşik atlandı." -ForegroundColor DarkGray
+        Write-Host "[FAIL] $layerName : hiç satır ölçülemedi; kapsam yapılandırması bozuk olabilir." -ForegroundColor Red
+        $hasFailure = $true
         continue
     }
 

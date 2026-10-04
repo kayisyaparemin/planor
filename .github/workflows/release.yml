@@ -1,0 +1,132 @@
+name: Release
+
+# Yalnız vX.Y.Z etiketiyle çalışır. Sürüm otoritesi csproj'dur (S80-5): bu iş akışı sürüm üretmez,
+# etiketin csproj'daki ApplicationDisplayVersion ile eşleştiğini doğrulayıcıya denetletir.
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mizan-release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # Test, kapsam ve APK adımları ci.yml'de tek yerde durur (S80-8).
+  kapi:
+    name: CI kapısı
+    uses: ./.github/workflows/ci.yml
+
+  yayin:
+    name: İmzala, doğrula, yayınla
+    needs: kapi
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: .NET SDK (global.json)
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '17'
+
+      - name: MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Restore
+        run: dotnet restore src/Mizan.App/Mizan.App.csproj
+
+      # Secret eksikse yayın başlamadan durur; eksik imza sessizce debug anahtarına düşmez.
+      - name: İmza anahtarını hazırla
+        shell: bash
+        env:
+          MIZAN_KEYSTORE_BASE64: ${{ secrets.MIZAN_KEYSTORE_BASE64 }}
+          MIZAN_KEYSTORE_PASSWORD: ${{ secrets.MIZAN_KEYSTORE_PASSWORD }}
+          MIZAN_KEY_ALIAS: ${{ secrets.MIZAN_KEY_ALIAS }}
+          MIZAN_KEY_PASSWORD: ${{ secrets.MIZAN_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for variable in MIZAN_KEYSTORE_BASE64 MIZAN_KEYSTORE_PASSWORD MIZAN_KEY_ALIAS MIZAN_KEY_PASSWORD; do
+            [[ -n "${!variable:-}" ]] || { echo "İmza secret'ı eksik: $variable" >&2; exit 1; }
+          done
+          keystore="$RUNNER_TEMP/mizan-release.keystore"
+          printf '%s' "$MIZAN_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          [[ -s "$keystore" ]] || { echo "Çözülen keystore boş." >&2; exit 1; }
+          chmod 600 "$keystore"
+          echo "MIZAN_KEYSTORE=$keystore" >> "$GITHUB_ENV"
+
+      - name: İmzalı APK'yı üret
+        shell: bash
+        env:
+          MIZAN_KEYSTORE_PASSWORD: ${{ secrets.MIZAN_KEYSTORE_PASSWORD }}
+          MIZAN_KEY_ALIAS: ${{ secrets.MIZAN_KEY_ALIAS }}
+          MIZAN_KEY_PASSWORD: ${{ secrets.MIZAN_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          dotnet publish src/Mizan.App/Mizan.App.csproj \
+            -f net8.0-android \
+            -c Release \
+            --no-restore \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore="$MIZAN_KEYSTORE" \
+            -p:AndroidSigningKeyAlias="$MIZAN_KEY_ALIAS" \
+            -p:AndroidSigningKeyPass=env:MIZAN_KEY_PASSWORD \
+            -p:AndroidSigningStorePass=env:MIZAN_KEYSTORE_PASSWORD
+
+      - name: APK'yı bul
+        id: apk
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="$(find src/Mizan.App/bin/Release -type f -name '*-Signed.apk' -printf '%T@ %p\n' | sort -nr | head -n 1 | cut -d' ' -f2-)"
+          [[ -n "$apk" ]] || { echo "İmzalı APK üretilmedi; yayın yapılmayacak." >&2; exit 1; }
+          echo "path=$apk" >> "$GITHUB_OUTPUT"
+
+      # Debug sertifikası reddedilir ve etiket csproj sürümüyle eşleşmelidir (S80-3, S80-5).
+      - name: APK'yı yayın kurallarıyla doğrula
+        shell: pwsh
+        run: ./scripts/verify-apk.ps1 -Apk "${{ steps.apk.outputs.path }}" -Tag "$env:GITHUB_REF_NAME" -RequireReleaseSignature
+
+      - name: APK'yı yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: planor-imzali-apk
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+          retention-days: 14
+
+      # Sürüm notu geçici olarak GitHub'ın ürettiği özettir; K4 bunu CHANGELOG.md'ye bağlar.
+      - name: GitHub Release oluştur
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release create "$GITHUB_REF_NAME" "${{ steps.apk.outputs.path }}" \
+            --verify-tag \
+            --title "Planör $GITHUB_REF_NAME" \
+            --generate-notes
+
+      - name: Geçici keystore'u sil
+        if: always()
+        shell: bash
+        run: |
+          if [[ -n "${MIZAN_KEYSTORE:-}" && -f "$MIZAN_KEYSTORE" ]]; then
+            rm -f -- "$MIZAN_KEYSTORE"
+          fi

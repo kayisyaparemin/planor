@@ -490,7 +490,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
 ## Faz K — Kalkanlar
 
 - [x] **K1** — E2E: `AutomationIds` sabitinden **üretilen** Maestro akışı *(2026-10-04; MaestroFlowBuilder, RegressionFlowDefinition, MaestroFlowGenerator, full_regression_flow.yaml; C# sembollerinden tam tip-güvenli E2E akışı; koruyan: MaestroFlowGeneratorTests)*
-- [ ] **K2** — CI: PR kapısı, kapsam eşiği, APK doğrulama *(debug imza reddi, package id,
+- [x] **K2** — CI: PR kapısı, kapsam eşiği, APK doğrulama *(debug imza reddi, package id,
       versionCode, versionName, label kontrolleri)*. Adım sınırını (~500 satır, iki katman)
       aştığı için ikiye bölündü (S80):
   - [x] **K2a** — APK doğrulayıcı: `tools/Mizan.ApkVerifier` (saf kurallar + konsol aracı),
@@ -498,8 +498,11 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         *(2026-10-05; S80-1, 2; ApkRules, ApkIdentity, ApkExpectation, ApkExpectationReader;
         yerel Release APK'da 8/8 geçti, yayın modunda debug imzası reddedildi; koruyan: ApkRulesTests,
         AppIdentityTests, ArchitectureTests.MimariTarama_ToolsKlasorunuKapsar)*
-  - [ ] **K2b** — iş akışları: `ci.yml` PR kapısı (workload + JDK, Release APK, doğrulama),
+  - [x] **K2b** — iş akışları: `ci.yml` PR kapısı (workload + JDK, Release APK, doğrulama),
         `release.yml` (etiket, imza secret'ları, debug reddi), kapsam eşikleri + Infrastructure
+        *(2026-10-05; S80-3…8; `ci.yml` `workflow_call` ile çağrılabilir, `release.yml` önce onu çağırır;
+        eşikler 95/95/90/80, ölçülemeyen katman kırmızı; `04-test.md` eşik tablosu güncellendi;
+        YAML GitHub'da henüz çalıştırılmadı (remote yok); koruyan: WorkflowTests)*
 - [ ] **K3** — Emülatör regresyon betiği *(eskinin açığı: yedek koordinat ile tıklayıp
       sonucu koşulsuz "başarılı" sayıyordu — bu tekrarlanmayacak)*. Ekran adımlarında ajan
       uygulamayı yalnız `scripts/emulatorde-ac.ps1` ile açar, bakmak kullanıcıdadır;
