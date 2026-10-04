@@ -315,7 +315,7 @@ Bu bölüm bilerek ayrıntılı: ürünün ekseni burada. Mizan yalnız maaşlı
 | yedek manifesti | `BackupManifest` | Zip'in başındaki içindekiler listesi: biçim, oluşturulma zamanı, şema sürümü ve profiller (`BackupManifestProfile`, verisi olup olmadığıyla) |
 | parmak izi | `Fingerprint` | Bütün profillerin adından ve veritabanı içeriğinden hesaplanan SHA-256; veri değişmedikçe aynı kalır, son açılış tarihi ve dosya zamanı girmez (`I34`) |
 | veritabanı anlık görüntüsü | `SqliteDatabaseSnapshot` | Açık profil yazarken bile tutarlı kopya üreten `VACUUM INTO` işlemi (`I35`) |
-| eski uygulamanın yedeği | `BackupArchiveFormat.LegacyVersion` | Biçim 1 yedek (`com.coinflow.mobile`, şema v17); tanınır ve açık mesajla reddedilir, içe aktarma `G1`'in işidir (`I37`) |
+| eski uygulamanın yedeği | `BackupArchiveFormat.LegacyVersion` | Biçim 1 yedek (`com.coinflow.mobile`, şema v17); normal geri yükleme onu tanıyıp açık mesajla reddeder (`I37`), içe aktarma ayrı bir yoldur: `ILegacyBackupImporter` / `LegacyBackupImporter` (`G1a`, `S83`) |
 | manifest okuyucu | `BackupManifestReader` | Yedek zip'ini açıp manifesti denetleyen yardımcı; özet okuma ile geri yükleme aynı denetimden geçer (biçim, şema sürümü, profil listesi) |
 | yedek veritabanı denetimi | `BackupDatabaseValidator` | Yedekteki veritabanını hazırlığa çıkarıp boyut, bütünlük (`quick_check`) ve `user_version` sınırlarını denetleyen yardımcı (`I38`) |
 | hazırlık klasörü | `.restore-*` | Geri yüklenecek veritabanlarının telefondaki profillere dokunmadan çıkarılıp doğrulandığı geçici klasör; iş bitince silinir (`BackupWorkDirectory`) |
@@ -384,15 +384,15 @@ içinde sabitlenir. Regex gevşetilirse o test kırmızıya düşer.
 
 | Yasaklı | Yerine | Kapsam | İstisna |
 |---|---|---|---|
-| `Salary` | `Income` / `RecurringIncome` | src+tests | `src/Mizan.Infrastructure/Imports/EskiSemaV17.cs` |
+| `Salary` | `Income` / `RecurringIncome` | src+tests | `src/Mizan.Infrastructure/LegacyImport/`, `tests/**/LegacyImport/` (v17 şeması, S83) |
 | `maaş` / `maas` | `gelir` / `Income` | src+tests | yok |
-| `IncomeDay` | `PeriodAnchor.DayOfMonth` | src+tests | yok |
+| `IncomeDay` | `PeriodAnchor.DayOfMonth` | src+tests | `src/Mizan.Infrastructure/LegacyImport/` (v1 şemasının kolon adı, S83) |
 | `PaymentAssignment` | `CashFlowAllocation` | src+tests | yok |
 | `PaymentAllocation` | `CashFlowAllocation` | src+tests | yok |
-| `CoinFlow` | `Mizan` | src+tests | `src/Mizan.Infrastructure/Imports/EskiSemaV17.cs` |
-| `Savings` | `Balance` | src+tests | komşu parça `Goal` veya `Target` ise muaf |
-| `LivingBudget` | `PeriodVariableExpenseAllowance` | src+tests | yok |
-| `Review` | `Settlement` | src | yok |
+| `CoinFlow` | `Mizan` | src+tests | `src/Mizan.Infrastructure/LegacyImport/`, `tests/**/LegacyImport/` (v17 şeması, S83) |
+| `Savings` | `Balance` | src+tests | komşu parça `Goal` veya `Target` ise muaf; `src/Mizan.Infrastructure/LegacyImport/`, `tests/**/LegacyImport/` (S83) |
+| `LivingBudget` | `PeriodVariableExpenseAllowance` | src+tests | `src/Mizan.Infrastructure/LegacyImport/`, `tests/**/LegacyImport/` (v17 kolon adları, S83) |
+| `Review` | `Settlement` | src | `src/Mizan.Infrastructure/LegacyImport/` (v17 kolon adları, S83) |
 
 <!-- YASAKLI-TERIMLER:BITIS -->
 

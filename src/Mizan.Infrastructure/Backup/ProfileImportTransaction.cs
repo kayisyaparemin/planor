@@ -37,7 +37,7 @@ internal static class ProfileImportTransaction
         }
     }
 
-    private static void EnsureValidSelection(IReadOnlyList<ProfileImport> imports)
+    internal static void EnsureValidSelection(IReadOnlyList<ProfileImport> imports)
     {
         if (imports.Count == 0)
         {
@@ -108,7 +108,7 @@ internal static class ProfileImportTransaction
         }
     }
 
-    private static async Task CommitAsync(
+    internal static async Task CommitAsync(
         IReadOnlyList<StagedProfile> staged,
         IProfileRepository profiles,
         IProfileFileLayout layout,
@@ -148,5 +148,5 @@ internal static class ProfileImportTransaction
     /// <summary>
     /// Doğrulanmış, yerine taşınmayı bekleyen profil: hedef kaydı ve varsa hazırlıktaki veritabanı.
     /// </summary>
-    private sealed record StagedProfile(UserProfile Target, string? StagedDatabase);
+    internal sealed record StagedProfile(UserProfile Target, string? StagedDatabase);
 }

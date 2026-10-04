@@ -4,15 +4,24 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **K4** — sürüm hattı: sürüm notları `CHANGELOG.md`'den (Faz K — Kalkanlar) |
-| Sıradaki adım | **G1** — eski uygulamanın yedek arşivini okuyan içe aktarıcı (Faz G — Geçiş); Faz K tamam |
-| Test sayısı | 2184 |
+| Son tamamlanan adım | **G1a** — eski uygulamanın yedeğinden içe aktarma, Infrastructure (Faz G — Geçiş) |
+| Sıradaki adım | **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi (Faz G — Geçiş) |
+| Test sayısı | 2209 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### G1a — eski uygulamanın yedeğinden içe aktarma (Infrastructure); karar `S83`
+
+Eski uygulamanın (`com.coinflow.mobile`, şema v17) gece yedeğini okuyan `LegacyBackupImporter` ve dar port `ILegacyBackupImporter` geldi (`src/Mizan.Infrastructure/LegacyImport/`, 9 dosya). Eski veritabanı yükseltilmez, **okunur**: boş bir v1 veritabanı kurulur, eski dosya ona `ATTACH` edilip tek işlemde kopyalanır, sonra normal göç adımları (v2, v3) hedefi güncel şemaya getirir. Dönüşüm hedefi v1 olduğu için gelecekteki şema adımları içe aktarıcıyı kırmaz.
+Kararlar: tek `salary_schedule` = "Gelir" adlı tek düzenli akışın tutar geçmişi (`maaş` yasaklı terim olduğu için ad "Gelir"); açık planlar dahil her plana ve revizyona toplamdan tek gelir satırı türetilir (`S31`, strateji 0 → dönem başı, 1 → dönem sonu; toplam plan gelirine kuruşu kuruşuna eşit); simülasyon taslakları taşınmaz; yetim satırlar elenir; `Savings`→`Balance`, `Review`→`Settlement` (`S35`). Eski adlar yalnız `LegacyImport/` klasöründe yaşar; `docs/SOZLUK.md` yasaklı terim tablosuna bu klasör için açık istisna yazıldı (F1'in K9 testi tabloyu okuyacak). Klasör adı `Imports` değil: CA1716 (VB anahtar sözcüğü).
+Mevcut sınıflarda küçük açılımlar: `BackupManifestReader.ReadLegacyAsync`, `BackupRestoreErrors.NotLegacyBackup`, `ProfileImportTransaction.CommitAsync` / `StagedProfile` / `EnsureValidSelection` artık `internal`; hep-ya-hiç taşıma iki yoldan da aynı koddur.
+Koruyan: `LegacyBackupImporterSummaryTests`, `LegacyBackupImporterDataTests`, `LegacyBackupImporterHistoryTests`, `LegacyBackupImporterRulesTests` (25 test; `I147`–`I151`). Toplam 2.209 test yeşil, 0 hata, 0 uyarı.
+Gerçek telefon yedeğiyle (iki profil) tek seferlik doğrulandı: her ikisi içe aktı, bağ kopukluğu 0, gelir satırı farkı 0, şema v3. Bu doğrulama repoya girmedi (kişisel veri).
+**Dikkat:** içe aktarıcı henüz hiçbir ekrana bağlı değil: giriş, ViewModel, dosya seçici ve kompozisyon kaydı `G1b`'dedir. Eski şemada her `float` kolon tutar taşır; kuruş gürültüsü olmaması için yuvarlama eklenmedi (eski veri aynen taşındı) — bir sapma görülürse `G1b`'de ele alınır. Test düzeneğindeki `v17-sema.sql` gerçek yedekten çıkarılmış yalnız DDL'dir.
 
 ### K4 — sürüm hattı: sürüm notu `CHANGELOG.md`'den; karar `S82`
 

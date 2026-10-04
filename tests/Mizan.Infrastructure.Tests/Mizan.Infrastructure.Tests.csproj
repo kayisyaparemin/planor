@@ -21,6 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="LegacyImport\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Mizan.Infrastructure\Mizan.Infrastructure.csproj" />
   </ItemGroup>
 

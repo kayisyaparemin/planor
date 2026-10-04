@@ -19,6 +19,12 @@ internal static class BackupRestoreErrors
         new("Bu yedek eski Mizan uygulamasından alınmış; bu sürümde geri yüklenemez.");
 
     /// <summary>
+    /// Eski uygulamadan içe aktarmaya başka bir dosya verildi (örn. Planör'ün kendi yedeği).
+    /// </summary>
+    public static InvalidOperationException NotLegacyBackup() =>
+        new("Bu yedek eski Mizan uygulamasından alınmamış.");
+
+    /// <summary>
     /// Yedeğin biçimi ya da şema sürümü bu uygulamanın tanıdığından yeni.
     /// </summary>
     public static InvalidOperationException NewerVersion() =>

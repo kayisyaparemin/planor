@@ -40,6 +40,22 @@ internal static class BackupManifestReader
         return manifest;
     }
 
+    /// <summary>
+    /// Eski uygulamanın yedeğinin manifestini okur ve denetler: biçim 1 olmalı, profil listesi geçerli olmalı.
+    /// Normal yoldaki <see cref="ReadAsync"/> biçim 1'i bilerek reddeder (S57); içe aktarma (G1) tersini ister.
+    /// </summary>
+    public static async Task<BackupManifest> ReadLegacyAsync(ZipArchive zip, CancellationToken cancellationToken)
+    {
+        var manifest = await DeserializeAsync(zip, cancellationToken);
+        if (manifest.Format != BackupArchiveFormat.LegacyVersion)
+        {
+            throw BackupRestoreErrors.NotLegacyBackup();
+        }
+
+        EnsureValidProfiles(manifest.Profiles);
+        return manifest;
+    }
+
     private static async Task<BackupManifest> DeserializeAsync(ZipArchive zip, CancellationToken cancellationToken)
     {
         var entry = zip.GetEntry(BackupArchiveFormat.ManifestEntryName) ?? throw BackupRestoreErrors.NotABackup();
