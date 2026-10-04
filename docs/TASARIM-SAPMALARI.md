@@ -372,7 +372,19 @@ daha kullanılmaz.
 | **Etkiler** | `EK-V12`, `HistoryPage.xaml`, `HistoryDetailPage.xaml`, `HistoryViewModel`, `HistoryDetailViewModel`, `S29`, `S68` |
 | **Durum** | uygulandı |
 
+### GS33 — Ayarlar Ekranı: Kart Kullanılmaz, Form Ritmi, Yapay Düzen Değişikliği Elendi, Bildirim Modu Devralındı
+
+| | |
+|---|---|
+| **Tür** | türetme + kasıtlı sadeleştirme (`EK-V13`, `GS2`, `S18`, `S4`, `S79`) |
+| **Konsept** | Planör'ün 5 temel konsept panelinde Ayarlar için doğrudan bir ekran paneli yoktur. |
+| **Neden değiştirildi** | (a) Eski `SettingsPage` 10 adet `<Border>` kart kutusu ile gereksiz görsel bölünme ve 52 etiketle aşırı kalabalık yaratıyordu. (b) Yapay gelir kullanım düzeni (`S18`) elendiği için düzen kartı, düzen geçmişi ve `StrategyChangePage` modalı kaldırıldı. (c) Geliştirici operasyonları (veri sil/test verisi yükle) temizlendi. (d) `ReminderCard`'dan (`S4`) devralınan bildirim modu çipleri ayarlar ekranında kompakt bir seçici olarak yerleştirildi. |
+| **Yeni** | (1) **Kart kullanılmaz:** Sayfada gereksiz kart kutuları (`Border`) yerine `CardFormPage`/`LoanFormPage` ve `FinancialStructurePage`'in form/satır ritmi (`VerticalStackLayout`, `Space3`/`Space4`, `BoxView` ayırıcılar) benimsenir. (2) **Gruplama:** Planlama ayarları, hatırlatıcı bildirim modu, yedekleme ve hakkında olmak üzere dört açık bölüm vardır. (3) **Bütçe:** Hero ve grafik kullanılmaz (0/1), kart kullanılmaz (0/4), etiketler 14/28, cümle bütçesi 2/3 seviyesindedir. (4) **Geri bildirim:** Eski koddaki kırmızı `StatusMessage` etiketi kalkar; doğrulama ve sonuçlar `IDialogService` üzerinden iletilir. |
+| **Etkiler** | `EK-V13`, `SettingsPage.xaml`, `SettingsViewModel`, `S79` |
+| **Durum** | uygulandı |
+
 ---
+
 
 
 ## Konsept otorite değildir

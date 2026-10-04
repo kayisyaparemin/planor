@@ -485,7 +485,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
         kartın zemini `T9`'daki kontrast kararına bağlı. Ertelenen kapanış her açılışta yeniden mi açılır,
         yoksa yalnız ana sayfadaki buton mu kalır?
 - [x] **V12** — geçmiş + geçmiş ayrıntısı *(2026-10-04; S68-6, 7, S29, GS32, EK-V12; `HistoryPage.xaml`, `HistoryDetailPage.xaml`, `HistoryViewModel`, `HistoryDetailViewModel`, `HistoryQueryService`; son dönemler net değişim özeti, bakiye çizgisi trend grafiği, farkın kaynağı, +N açılır ödemeler listesi; koruyan: HistoryViewModelTests, HistoryDetailViewModelTests)*
-- [ ] **V13** — ayarlar + düzen değişikliği
+- [x] **V13** — ayarlar + düzen değişikliği *(2026-10-04; S4, S18, S19, S79, GS33, EK-V13; `SettingsPage.xaml`, `SettingsViewModel`, `SettingsFormParser`, `SettingsStrings`; dönem başlangıç günü, serbest yaşam gideri bütçesi, faiz oranları, bildirim modu çipleri, yerel yedekleme tetikleme ve Planör sürüm güvencesi; koruyan: SettingsViewModelTests)*
 
 ## Faz K — Kalkanlar
 

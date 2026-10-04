@@ -771,3 +771,14 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `V11` (`PeriodSettlementViewModel`, `PeriodSettlementPage`), `V3` (`DashboardViewModel`), `EK-V11`, `GS31` |
 | **Durum** | uygulandı |
 
+### S79 — Ayarlar: yapay tahsis düzeni elendi, bildirim modu devralındı, yalın form ritmi
+
+| | |
+|---|---|
+| **Eski** | Eski `SettingsPage` (169 satır XAML / 41 Label) ve `StrategyChangePage` (56 satır XAML / 11 Label); genel planlama ayarlarının yanında yapay gelir kullanım düzeni (`CashFlowAllocationMode`), düzen geçmişi ve düzen geçişi önizleme motorunu barındırıyordu. Ayrıca geliştirici için verileri silme ve test verisi yükleme butonları arayüzdeydi. Bildirim modu ise ana sayfa hatırlatıcı kartında sıkıştırılmıştı (`S4`). |
+| **Neden yanlış** | a) Yapay tahsis düzeni (Upcoming/Previous) S18 ile tamamen elendi ve doğal dönemsellik ilkesi benimsendi; arayüzde düzen seçimi veya düzen modalı kalmasının bir işlevi yoktur. b) Geliştirici test operasyonları kullanıcı ekranlarında yer alamaz. c) Hatırlatıcı bildirim modu (`PaymentReminderMode`) ve izin yönetimi operasyonel kartta değil, sistemik ayarlar ekranında (`S4`) bulunmalıdır. d) Eski ekranda doğrulama hataları kırmızı metin etiketiyle gösteriliyordu; v2'de `UserSettingsValidator` kuralları çalışır ve geri bildirimler `IDialogService` ile verilir. |
+| **Yeni** | 1) **Yalın form ritmi:** Ayarlar tek sayfadır (`SettingsPage`, `SettingsViewModel`). Kart kutuları kullanılmaz, alanlar dikey form ritmi ve ayırıcılarla gruplanır (`GS33`). 2) **Planlama ayarları:** Dönem çapa günü (`AnchorDay`, 1–31), dönemsel yaşam gideri havuzu (`PeriodVariableExpenseAllowance`), kredi kartı devreden borç faizi (%) ve finansman açığı KMH faiz oranı (%) düzenlenir. Açılış bakiyesi S19 uyarınca burada düzenlenmez. 3) **Hatırlatıcı bildirim modu:** `IPaymentReminderService` üzerinden Kapalı, Rahat ve Agresif modları tek dokunuşla seçilir (`S4`). 4) **Yedekleme:** `IBackupService` üzerinden son yedekleme zamanı ve dosya adı gösterilir; kullanıcı tek tıkla "Şimdi Yedekle" çalıştırabilir. 5) **Hakkında:** Ürün adı Planör (`GK11`), sürüm bilgisi ve yerel depolama güvencesi sunulur. |
+| **Etkiler** | `V13` (`SettingsViewModel`, `SettingsPage`), `EK-V13`, `GS33` |
+| **Durum** | uygulandı |
+
+

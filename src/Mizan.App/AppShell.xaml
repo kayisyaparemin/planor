@@ -107,7 +107,7 @@
         </FlyoutItem.Icon>
         <ShellContent Title="{x:Static strings:Strings.Baslik_Ayarlar}"
                       Route="settings-content"
-                      ContentTemplate="{DataTemplate ContentPage}" />
+                      ContentTemplate="{DataTemplate pages:SettingsPage}" />
     </FlyoutItem>
 
     <MenuItem Text="{x:Static strings:Strings.Aksiyon_ProfilDegistir}"

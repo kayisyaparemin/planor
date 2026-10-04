@@ -2444,8 +2444,106 @@ Cumle_        1 / 3     Karşılaştırma özet cümlesi (Comparison.Summary)
 Planör'ün 5 temel konsept panelinden "Geçmiş" panelidir. `ChartCard` (başlık + lejant çipi) ve tek grafikli trend görünümü bu konseptten doğmuştur (`T4`, `GS13`). Konseptten sapmalar `GS32`'dedir: bakiye stokları yerine net değişim toplamı (`S29`), mikro fiş kategorileri ve sonraki dönem verisinin çıkarılması (`S20`), kapanan dönemin gözlemleriyle bakiye seyrinin `ChartCard` üzerinde çizilmesi (`S68-6, 7`).
 
 ### EK-V13 — Ayarlar + düzen değişikliği
-Konsept karşılığı **yok.** Türetme adayı: `NavRow` listesi; kart kullanılmaz. Uygulama içi tema
-seçici istenecekse kararı burada verilir (`GS7`: varsayılan, sistemi izlemek).
+
+`SettingsPage.xaml` sayfasının ekran kartıdır.
+
+### 1. Sorular
+
+1. **S1: "Dönemimin döngüsü ve serbest harcama havuzum ne?"** (Dönem başlangıç günü 1–31 ve dönemsel yaşam gideri bütçesi)
+2. **S2: "Gelecek tahminlerinde hangi faiz oranları varsayılıyor?"** (Kredi kartı devreden borç faizi % ve finansman açığı KMH faiz oranı %)
+3. **S3: "Borç hatırlatıcı bildirimlerini hangi sıklıkla almak istiyorum?"** (Bildirim modu: Kapalı / Rahat / Agresif)
+4. **S4: "Verilerim en son ne zaman yedeklendi ve şimdi yedek alabilir miyim?"** (Son yedek tarihi, izin durumu, Şimdi Yedekle aksiyonu)
+5. **S5: "Hangi sürümü kullanıyorum ve verilerim nerede saklanıyor?"** (Uygulama adı: Planör, sürüm numarası, yerel saklama güvencesi)
+
+### 2. Kesme kararları
+
+| Bilgi / Öğeler | Karar | Gerekçe |
+|---|---|---|
+| Dönem başlangıç günü (`AnchorDay`) | **Satır / Giriş** | S1: Nakit akış döneminin döngü günü |
+| Dönem yaşam gideri havuzu | **Satır / Giriş** | S1: Serbest harcama havuzu bütçesi |
+| Kredi kartı devreden faiz oranı (%) | **Satır / Giriş** | S2: Projeksiyon akdi faiz varsayımı |
+| KMH finansman açığı faiz oranı (%) | **Satır / Giriş** | S2: Eksi bakiye borçlanma faiz varsayımı |
+| Bildirim modu çipleri (Kapalı / Rahat / Agresif) | **Satır / Seçici** | S3: Hatırlatıcı bildirim sıklığı tercihi (`S4`) |
+| Son yedekleme durumu | **Satır** | S4: En son yedekleme zamanı ve dosya adı |
+| Yedekleme açıklaması | **Satır** (`Cumle_`) | S4: Cihaz içi yedekleme politikası açıklaması |
+| Yedek klasörü izin uyarısı ve "İzin Ver" | **Aksiyon** | S4: Harici depolama izni gerekliyse |
+| "Şimdi Yedekle" butonu | **Aksiyon** | S4: Kullanıcının anlık tam yedek alması |
+| Planör adı, sürüm ve yerel saklama güvencesi | **Satır** | S5: Sürüm ve "Veriler yalnızca bu cihazda saklanır" güvencesi |
+| "Değişiklikleri Kaydet" | **Aksiyon** | Genel: Değişiklikleri kalıcı veri tabanına kaydeder |
+| Gelir kullanım düzeni ve geçmişi | **Çıkar** | S18: Yapay tahsis elendi, doğal dönemsellik geçerli |
+| Düzen değiştir modal sayfası (`StrategyChangePage`) | **Çıkar** | S18: Tahsis düzeni seçimi yoktur |
+| Geliştirici test verisi yükle / sil | **Çıkar** | Geliştirici artığı |
+| Açılış bakiyesi | **Çıkar** | S19: Kurulum çapa gününe kenetlenir, Ayarlar'dan düzenlenmez |
+| `StatusMessage` hata etiketi | **Çıkar** | Hata ve bildirimler diyalog servisi ile verilir |
+
+### 3. Bütçe
+
+```
+Hero rakam    0 / 1
+Hero yüzey    0 / 1
+Kart          0 / 4
+Grafik        0 / 1
+NavRow        0 / 5
+Label        14 / 28
+Cumle_        2 / 3
+```
+
+### 4. Blok şeması
+
+`SettingsPage.xaml`:
+```
+┌─ PageHeader ────────────────────────────────────────────────────────┐
+│ Baslik_Ayarlar (TypeTitle, TextPrimary)                             │
+└─────────────────────────────────────────────────────────────────────┘
+┌─ Bölüm: Planlama Ayarları (VerticalStackLayout) ────────────────────┐
+│ Baslik_PlanlamaAyarlari (TypeSection, TextPrimary)                  │
+│                                                                     │
+│ Etiket_DonemGunu (TypeEyebrow, TextSecondary)                 ← S1 │
+│ [ 10                             ] (Entry, Numeric)                 │
+│                                                                     │
+│ Etiket_YasamGideri (TypeEyebrow, TextSecondary)               ← S1 │
+│ [ 20.000,00                      ] (Entry, Numeric)                 │
+│                                                                     │
+│ Etiket_KartDevredenFaiz (TypeEyebrow, TextSecondary)          ← S2 │
+│ [ 5,00                           ] (Entry, Numeric)                 │
+│                                                                     │
+│ Etiket_FinansmanAcigiFaizi (TypeEyebrow, TextSecondary)       ← S2 │
+│ [ 5,00                           ] (Entry, Numeric)                 │
+└─────────────────────────────────────────────────────────────────────┘
+┌─ Bölüm: Hatırlatıcı Bildirimleri ───────────────────────────────────┐
+│ Baslik_HatirlaticiBildirimleri (TypeSection, TextPrimary)           │
+│ [ Kapalı ]  [ Rahat ]  [ Agresif ] (Seçici Çipler)             ← S3 │
+└─────────────────────────────────────────────────────────────────────┘
+┌─ Bölüm: Yedekleme ──────────────────────────────────────────────────┐
+│ Baslik_Yedekleme (TypeSection, TextPrimary)                         │
+│ Son yedek: 4 Ekim 2026 22:45 · Mizan-yedegi-… (TypeBody)     ← S4 │
+│ Cumle_YedekAciklamasi (TypeCaption, TextSecondary)             ← S4 │
+│ [ İzin Ver ] (Gerekliyse, ActionOutline)                      ← S4 │
+│ [ Şimdi Yedekle ] (SecondaryAction, TextPrimary)               ← S4 │
+└─────────────────────────────────────────────────────────────────────┘
+┌─ Bölüm: Hakkında ───────────────────────────────────────────────────┐
+│ Baslik_Hakkinda (TypeSection, TextPrimary)                          │
+│ Planör (TypeSection, TextPrimary)                              ← S5 │
+│ Sürüm 2.0 (TypeCaption, TextSecondary)                        ← S5 │
+│ Cumle_VeriGuvenligi (TypeCaption, TextSecondary)               ← S5 │
+└─────────────────────────────────────────────────────────────────────┘
+┌─ Kaydet Aksiyonu ───────────────────────────────────────────────────┐
+│ [ Değişiklikleri Kaydet ] (PrimaryAction, ActionFill)               │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### 5. Üç durum
+
+| Durum | Görünen |
+|---|---|
+| **Boş** | Ayarlar varsayılan değerlerle (çapa günü 10, %5 faizler, bildirim modu Rahat) dolu gelir; boş durum söz konusu değildir. |
+| **Yükleniyor** | Form giriş alanları ve yedekleme bölümü yüksekliğinde `SkeletonBlock` iskelet blokları gösterilir; spinner kullanılmaz (`GS14`). |
+| **Hata** | Ayarlar veritabanından okunamazsa `StateBlock`: `Error` ikonu + `Hata_AyarlarYuklenemedi` + `Aksiyon_TekrarDene` butonu gösterilir. |
+
+### 6. Konsept ilişkisi
+
+Konsept paneli doğrudan **yoktur** (`GS2`). Yerleşim dili `CardFormPage`/`LoanFormPage` form aralıklarından (`Space3`, `Space4`), `FinancialStructurePage`'in bölüm başlıkları (`TypeSection`) ve buton ritminden türetilmiştir. `EK-V13` direktifi uyarınca gereksiz kart kutuları kullanılmaz, temiz ve yalın form ritmi benimsenir (`GS33`).
+
 
 ---
 
@@ -2471,8 +2569,8 @@ Adımlar tamamlandıkça doldurulur. "Eski" kolonu eski projeden ölçüldü.
 | EK-V7 | Kart kontrol | 73 | 19 | ✅ |
 | EK-V8 | 12 dönem | 37 | 15 | ✅ V8a, V8b |
 | EK-V9 | Dönem ayrıntısı | 81 | 12 | ✅ V9 |
-| EK-V10 | Simülatör | 64 | 19 + 7 | ⬜ V10a, V10b, V10c, V10d, V10e (V10f açık) |
-| EK-V11 | Dönem kapanışı | 50 | | ⬜ |
-| EK-V12 | Geçmiş + ayrıntı | 29 | | ⬜ |
-| EK-V13 | Ayarlar + düzen | 52 | | ⬜ |
+| EK-V10 | Simülatör | 64 | 15 + 7 | ✅ V10a–V10f |
+| EK-V11 | Dönem kapanışı | 50 | 19 | ✅ V11 |
+| EK-V12 | Geçmiş + ayrıntı | 29 | 6 + 12 | ✅ V12 |
+| EK-V13 | Ayarlar + düzen | 52 | 14 | ✅ V13 |
 | | **Toplam** | **619** | | |

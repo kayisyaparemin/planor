@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:appModels="clr-namespace:Mizan.Application.Models;assembly=Mizan.Application"
+             xmlns:auto="clr-namespace:Mizan.Presentation.Automation;assembly=Mizan.Presentation"
+             xmlns:comp="clr-namespace:Mizan.App.Components"
+             xmlns:icons="clr-namespace:Mizan.App.Icons"
+             xmlns:strings="clr-namespace:Mizan.App.Resources"
+             xmlns:vm="clr-namespace:Mizan.Presentation.ViewModels;assembly=Mizan.Presentation"
+             x:Class="Mizan.App.Pages.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             AutomationId="{x:Static auto:SettingsAutomationIds.Page}">
+
+    <!-- EK-V13: Ayarlar ve düzen (GS33, S4, S18, S19, S79) -->
+
+    <Shell.TitleView>
+        <Grid Padding="{StaticResource TitleBarPadding}">
+            <Label Text="{x:Static strings:SettingsStrings.Baslik_Ayarlar}"
+                   Style="{StaticResource SectionTitle}"
+                   VerticalTextAlignment="Center" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="{StaticResource Space4}"
+                             Padding="{StaticResource PagePadding}">
+
+            <!-- Yükleniyor durumu: İskelet -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsLoading}"
+                                 AutomationId="{x:Static auto:SettingsAutomationIds.StateLoading}">
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+                <comp:SkeletonBlock HeightRequest="{StaticResource Space6}" />
+            </VerticalStackLayout>
+
+            <!-- Hata durumu -->
+            <comp:StateBlock CurrentState="Error"
+                             IconGlyph="{x:Static icons:Icons.Close}"
+                             Message="{x:Static strings:SettingsStrings.Hata_AyarlarYuklenemedi}"
+                             ActionText="{x:Static strings:SettingsStrings.Aksiyon_TekrarDene}"
+                             ActionCommand="{Binding LoadCommand}"
+                             IsVisible="{Binding IsError}"
+                             AutomationId="{x:Static auto:SettingsAutomationIds.StateError}" />
+
+            <!-- Dolu İçerik -->
+            <VerticalStackLayout Spacing="{StaticResource Space4}"
+                                 IsVisible="{Binding IsContent}">
+
+                <!-- Bölüm 1: Dönem ve Yaşam Havuzu (S1) -->
+                <VerticalStackLayout Spacing="{StaticResource Space3}">
+                    <Label Text="{x:Static strings:SettingsStrings.Etiket_PlanlamaAyarlari}"
+                           Style="{StaticResource Eyebrow}" />
+
+                    <VerticalStackLayout Spacing="{StaticResource Space1}">
+                        <Label Text="{x:Static strings:SettingsStrings.Etiket_DonemGunu}"
+                               Style="{StaticResource Caption}" />
+                        <Entry Text="{Binding AnchorDayInput}"
+                               Keyboard="Numeric"
+                               AutomationId="{x:Static auto:SettingsAutomationIds.InputAnchorDay}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space1}">
+                        <Label Text="{x:Static strings:SettingsStrings.Etiket_YasamGideri}"
+                               Style="{StaticResource Caption}" />
+                        <Entry Text="{Binding PeriodVariableExpenseAllowanceInput}"
+                               Keyboard="Numeric"
+                               AutomationId="{x:Static auto:SettingsAutomationIds.InputAllowance}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                         Color="{DynamicResource BorderSubtle}" />
+
+                <!-- Bölüm 2: Faiz Oranları (S2) -->
+                <VerticalStackLayout Spacing="{StaticResource Space3}">
+                    <Label Text="{x:Static strings:SettingsStrings.Etiket_FaizOranlari}"
+                           Style="{StaticResource Eyebrow}" />
+
+                    <VerticalStackLayout Spacing="{StaticResource Space1}">
+                        <Label Text="{x:Static strings:SettingsStrings.Etiket_KartDevredenFaiz}"
+                               Style="{StaticResource Caption}" />
+                        <Entry Text="{Binding CreditCardCarryInterestRateInput}"
+                               Keyboard="Numeric"
+                               AutomationId="{x:Static auto:SettingsAutomationIds.InputCardInterestRate}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="{StaticResource Space1}">
+                        <Label Text="{x:Static strings:SettingsStrings.Etiket_FinansmanAcigiFaizi}"
+                               Style="{StaticResource Caption}" />
+                        <Entry Text="{Binding DeficitFinancingInterestRateInput}"
+                               Keyboard="Numeric"
+                               AutomationId="{x:Static auto:SettingsAutomationIds.InputDeficitInterestRate}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                         Color="{DynamicResource BorderSubtle}" />
+
+                <!-- Bölüm 3: Hatırlatıcı Bildirim Modu (S3, S4) -->
+                <VerticalStackLayout Spacing="{StaticResource Space3}">
+                    <Label Text="{x:Static strings:SettingsStrings.Etiket_Hatirlatici}"
+                           Style="{StaticResource Eyebrow}" />
+
+                    <Grid ColumnDefinitions="*, *, *"
+                          ColumnSpacing="{StaticResource Space2}">
+                        <Button Text="{x:Static strings:SettingsStrings.Etiket_ModKapali}"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SetReminderModeCommand}"
+                                CommandParameter="{x:Static appModels:PaymentReminderMode.Off}"
+                                AutomationId="{x:Static auto:SettingsAutomationIds.BtnReminderDisabled}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsReminderModeOff}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource ActionFill}" />
+                                    <Setter Property="BorderColor" Value="{DynamicResource ActionFill}" />
+                                    <Setter Property="TextColor" Value="{DynamicResource TextOnAction}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                        <Button Grid.Column="1"
+                                Text="{x:Static strings:SettingsStrings.Etiket_ModRahat}"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SetReminderModeCommand}"
+                                CommandParameter="{x:Static appModels:PaymentReminderMode.Relaxed}"
+                                AutomationId="{x:Static auto:SettingsAutomationIds.BtnReminderRelaxed}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsReminderModeRelaxed}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource ActionFill}" />
+                                    <Setter Property="BorderColor" Value="{DynamicResource ActionFill}" />
+                                    <Setter Property="TextColor" Value="{DynamicResource TextOnAction}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                        <Button Grid.Column="2"
+                                Text="{x:Static strings:SettingsStrings.Etiket_ModAgresif}"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding SetReminderModeCommand}"
+                                CommandParameter="{x:Static appModels:PaymentReminderMode.Aggressive}"
+                                AutomationId="{x:Static auto:SettingsAutomationIds.BtnReminderAggressive}">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button" Binding="{Binding IsReminderModeAggressive}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource ActionFill}" />
+                                    <Setter Property="BorderColor" Value="{DynamicResource ActionFill}" />
+                                    <Setter Property="TextColor" Value="{DynamicResource TextOnAction}" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                         Color="{DynamicResource BorderSubtle}" />
+
+                <!-- Bölüm 4: Veri ve Yedekleme (S4) -->
+                <VerticalStackLayout Spacing="{StaticResource Space3}">
+                    <Label Text="{x:Static strings:SettingsStrings.Etiket_Yedekleme}"
+                           Style="{StaticResource Eyebrow}" />
+
+                    <Label Text="{Binding LastBackupText}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}"
+                           AutomationId="{x:Static auto:SettingsAutomationIds.LblLastBackup}" />
+
+                    <Label Text="{x:Static strings:SettingsStrings.Cumle_YedekAciklamasi}"
+                           Style="{StaticResource Caption}" />
+
+                    <Button Text="{x:Static strings:SettingsStrings.Aksiyon_ErisimIzniVer}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding RequestBackupAccessCommand}"
+                            IsVisible="{Binding NeedsBackupAccess}"
+                            AutomationId="{x:Static auto:SettingsAutomationIds.BtnRequestBackupAccess}" />
+
+                    <Button Text="{x:Static strings:SettingsStrings.Aksiyon_SimdiYedekle}"
+                            Style="{StaticResource SecondaryButton}"
+                            Command="{Binding BackUpNowCommand}"
+                            AutomationId="{x:Static auto:SettingsAutomationIds.BtnBackUpNow}" />
+                </VerticalStackLayout>
+
+                <BoxView HeightRequest="{StaticResource StrokeHairline}"
+                         Color="{DynamicResource BorderSubtle}" />
+
+                <!-- Bölüm 5: Uygulama Hakkında (S5) -->
+                <VerticalStackLayout Spacing="{StaticResource Space2}">
+                    <Label Text="{x:Static strings:SettingsStrings.Etiket_Hakkinda}"
+                           Style="{StaticResource Eyebrow}" />
+
+                    <Label Text="{Binding VersionText, StringFormat='Planör · {0}'}"
+                           FontSize="{StaticResource TypeBody}"
+                           TextColor="{DynamicResource TextPrimary}" />
+
+                    <Label Text="{x:Static strings:SettingsStrings.Cumle_VeriGuvenligi}"
+                           Style="{StaticResource Caption}" />
+                </VerticalStackLayout>
+
+                <!-- Değişiklikleri Kaydet Butonu -->
+                <Button Text="{x:Static strings:SettingsStrings.Aksiyon_DegisiklikleriKaydet}"
+                        Command="{Binding SaveSettingsCommand}"
+                        IsEnabled="{Binding IsDirty}"
+                        AutomationId="{x:Static auto:SettingsAutomationIds.BtnSave}" />
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

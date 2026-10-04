@@ -4,15 +4,24 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **V12** — geçmiş + geçmiş ayrıntısı (`S68-6, 7`, `S29`, `GS32`, `EK-V12`) |
-| Sıradaki adım | **V13** — ayarlar + düzen değişikliği |
-| Test sayısı | 2081 |
+| Son tamamlanan adım | **V13** — ayarlar + düzen değişikliği (`S4`, `S18`, `S19`, `S79`, `GS33`, `EK-V13`) |
+| Sıradaki adım | **K1** — E2E: Maestro akışı (Faz K — Kalkanlar) |
+| Test sayısı | 2089 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### V13 — ayarlar + düzen değişikliği; kararlar `S4`, `S18`, `S19`, `S79`, `GS33`, `EK-V13`
+
+Planlama parametrelerini, bildirim modunu, veri yedekleme operasyonlarını ve uygulama güvencesini yöneten Ayarlar sayfası tamamlandı.
+(1) Davranış ve Tasarım Sözleşmesi (`S4`, `S18`, `S19`, `S79`, `GS33`, `EK-V13`): Eski projede 52 `<Label>` ve ayrı düzen değiştirme modalına (`StrategyChangePage`) dağılmış olan ayarlar tek sayfada toplandı. S18 ile yapay tahsis elendiğinden düzen seçimi kaldırıldı; S19 ile açılış bakiyesi kurulum çapa gününe kenetlendiği için buradan çıkarıldı. S4 uyarınca bildirim modları (Kapalı/Rahat/Agresif) ve izin tetikleyicisi bu ekrana alındı (`S79`). Kullanıcı geri bildirimiyle "Dönem çapa günü" etiketi "Dönem başlangıç günü" olarak netleştirildi.
+(2) Sunum ve İş Mantığı (`SettingsViewModel`, `SettingsFormParser`): `IUserSettingsRepository`, `IPaymentReminderService`, `IBackupService` ve `IDialogService` portları doğrudan enjekte edildi; `MizanService` cephesi kullanılmadı (`S47`, `S52`). Sayısal ve ondalık girdiler kültür duyarlı `SettingsFormParser` ile ayrıştırıldı ve `UserSettingsValidator` ile doğrulandı. `IsDirty` bayrağı form değiştiğinde aktifleşerek "Değişiklikleri Kaydet" butonunu kontrol eder.
+(3) Arayüz ve Otomasyon: `SettingsPage.xaml`, `SettingsAutomationIds`, `SettingsStrings`. Görsel bütçe (`GS33`): Hero 0/1, Kart 0/4, Grafik 0/1, Label 14/28, Cümle 2/3. Bölümler kart kutuları yerine dikey form ritmi ve ince ayırıcılarla (`StrokeHairline`) ayrıldı.
+(4) Mimari ve Kalkanlar: Tüm dosyalar K3 (≤ 200 satır; ViewModel 186 satır, FormParser 95 satır, XAML 185 satır) ve K4 (metot ≤ 40 satır) kurallarına tam uydu.
+Görsel kontrol: kullanıcı emülatörde onayladı (koyu + açık, Gate C). 8 yeni sunum testi eklendi; toplam 2.089 test yeşil, 0 hata, 0 uyarı.
 
 ### V12 — geçmiş + geçmiş ayrıntısı; kararlar `S68-6, 7`, `S29`, `GS32`, `EK-V12`
 

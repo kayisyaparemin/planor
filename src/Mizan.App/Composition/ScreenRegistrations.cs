@@ -44,6 +44,8 @@ public static class ScreenRegistrations
         services.AddTransient<HistoryPage>();
         services.AddTransient<HistoryDetailViewModel>();
         services.AddTransient<HistoryDetailPage>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<SettingsPage>();
         return services;
     }
 
