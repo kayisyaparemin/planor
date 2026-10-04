@@ -18,7 +18,7 @@
     Çalışan emülatör yoksa başlatılacak AVD. Varsayılan: "mizan_emulator"
 
 .PARAMETER Akis
-    Koşulacak Maestro akışı. Varsayılan: .maestro/flows/full_regression_flow.yaml
+    Koşulacak Maestro akışı. Varsayılan: .maestro/flows/full_regression_flow.yaml (betiğe göre)
 
 .PARAMETER YedekKlasoru
     emulatorde-ac.ps1'in profil yedeklerini yazdığı klasör (içinde kişisel veri var, repo dışında durur).
@@ -26,7 +26,7 @@
 [CmdletBinding()]
 param (
     [string]$Avd = "mizan_emulator",
-    [string]$Akis = (Join-Path $PSScriptRoot "..\.maestro\flows\full_regression_flow.yaml"),
+    [string]$Akis,
     [string]$YedekKlasoru = (Join-Path ([Environment]::GetFolderPath("MyDocuments")) "planor-emulator-yedek\emulator\otomatik")
 )
 
@@ -34,6 +34,11 @@ param (
 $ErrorActionPreference = "Continue"
 
 $packageId = "com.mizan.app"
+
+# $PSScriptRoot parametre varsayılanında bazı ortamlarda boş gelir; bu yüzden gövdede çözülür.
+if (-not $Akis) {
+    $Akis = Join-Path $PSScriptRoot "...maestrolowsull_regression_flow.yaml"
+}
 
 function Stop-WithError([string]$message) {
     Write-Host "HATA: $message" -ForegroundColor Red
