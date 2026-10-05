@@ -477,6 +477,9 @@ Konsept panellerinde profil seçimi ekranı yer almamaktadır (`GS2`). Yerleşim
 
 > Sayfası yok (çocuk kart, sayfasız çocuk ViewModel). GK9 istisnası: `ReminderCard` bir `*Page` değil (`GS15`).
 > `EK-V3` (Ana Sayfa) içinde ve vadesi gelen/ertelenen aktif ödeme olduğunda görünür.
+> "Vadesi gelen" vade günüdür: ödeme "Ödedim" ya da "Ertele" denene kadar vade günü boyunca kartta kalır,
+> bildirim saati onu kaldırmaz. Vadesi geçmiş cevapsız ödeme sorulmaz, vade kuralıyla ödenmiş sayılır; S1'deki
+> "vadesi geçmiş" yalnız ertelenmiş ödeme için geçerlidir (`S66`, `I167`).
 
 **Eski hâl:** `PaymentReminderCardView.xaml` (141 satır, 11 `<Label>`, 3 `<Border>`, 3 `<Button>` + FlexLayout içi buton şablonu) ve `PaymentReminderPaidView.xaml` (50 satır, 4 `<Label>`, 2 `<Border>`). Toplam 191 satır, 15 `<Label>`, 5 Border/kart.
 

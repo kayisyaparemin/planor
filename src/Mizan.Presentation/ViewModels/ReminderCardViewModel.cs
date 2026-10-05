@@ -112,10 +112,7 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
             };
         }
 
-        var payment = board.Upcoming
-            .Where(d => d.DueDate <= today)
-            .SelectMany(d => d.Payments)
-            .FirstOrDefault();
+        var payment = board.DueToday.Count > 0 ? board.DueToday[0] : null;
 
         return payment is null ? null : new ReminderItem
         {

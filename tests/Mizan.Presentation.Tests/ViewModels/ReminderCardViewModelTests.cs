@@ -53,7 +53,7 @@ public sealed class ReminderCardViewModelTests : IDisposable
         _service.CurrentBoard = new PaymentReminderBoard
         {
             Mode = PaymentReminderMode.Relaxed,
-            Upcoming = [new PaymentReminderDay(today, "Bugün", "Konut Kredisi · 12.500,00 ₺", "10:00", [payment])]
+            DueToday = [payment]
         };
 
         await _viewModel.LoadAsync(_profileId);
@@ -69,22 +69,24 @@ public sealed class ReminderCardViewModelTests : IDisposable
     }
 
     [Fact]
-    public async Task YukleAsync_GecikmisOdemeVarsa_ActiveReminderDoldurulur()
+    public async Task LoadAsync_BildirimSaatiGecmisOlsaBileVadesiBugunOlanOdemeKarttaGorunur()
     {
-        var pastDate = _clock.Today.AddDays(-2);
-        var payment = new PaymentDue("card-1", "Bonus Kart", pastDate, 4500m);
+        // Hazırla — vade gününün bildirimi çaldı, çalmamış bildirim kalmadı; ödemeye cevap verilmedi
+        var payment = new PaymentDue("card-1", "Akbank Axess", _clock.Today, 26_747m);
         _service.CurrentBoard = new PaymentReminderBoard
         {
             Mode = PaymentReminderMode.Relaxed,
-            Upcoming = [new PaymentReminderDay(pastDate, "2 gün önce", "Bonus Kart · 4.500,00 ₺", "10:00", [payment])]
+            Upcoming = [],
+            DueToday = [payment]
         };
 
+        // Uygula
         await _viewModel.LoadAsync(_profileId);
 
+        // Doğrula — kart "Ödedim" ya da "Ertele" denene kadar gün boyu durur (S66)
         Assert.True(_viewModel.HasActiveReminder);
-        Assert.Equal("Bonus Kart", _viewModel.PaymentName);
-        Assert.Equal(4500m, _viewModel.Amount);
-        Assert.Equal(pastDate, _viewModel.DueDate);
+        Assert.Equal("card-1", _viewModel.ActiveReminder?.DueKey);
+        Assert.Equal(26_747m, _viewModel.Amount);
     }
 
     [Fact]
@@ -165,7 +167,7 @@ public sealed class ReminderCardViewModelTests : IDisposable
         _service.CurrentBoard = new PaymentReminderBoard
         {
             Mode = PaymentReminderMode.Relaxed,
-            Upcoming = [new PaymentReminderDay(today, "Bugün", "İhtiyaç Kredisi", "10:00", [payment])]
+            DueToday = [payment]
         };
         await _viewModel.LoadAsync(_profileId);
 
@@ -190,7 +192,7 @@ public sealed class ReminderCardViewModelTests : IDisposable
         _service.CurrentBoard = new PaymentReminderBoard
         {
             Mode = PaymentReminderMode.Relaxed,
-            Upcoming = [new PaymentReminderDay(today, "Bugün", "İhtiyaç Kredisi", "10:00", [payment])]
+            DueToday = [payment]
         };
         await _viewModel.LoadAsync(_profileId);
 
@@ -235,16 +237,12 @@ public sealed class ReminderCardViewModelTests : IDisposable
     public async Task LoadAsync_CokluAcilOdemeVarsa_IlkiniSecer()
     {
         var today = _clock.Today;
-        var p1 = new PaymentDue("loan-1", "Kredi 1", today.AddDays(-1), 1000m);
-        var p2 = new PaymentDue("loan-2", "Kredi 2", today, 2000m);
+        var p1 = new PaymentDue("loan-1", "Kredi 1", today, 2000m);
+        var p2 = new PaymentDue("loan-2", "Kredi 2", today, 1000m);
         _service.CurrentBoard = new PaymentReminderBoard
         {
             Mode = PaymentReminderMode.Relaxed,
-            Upcoming =
-            [
-                new PaymentReminderDay(today.AddDays(-1), "Dün", "Kredi 1", "10:00", [p1]),
-                new PaymentReminderDay(today, "Bugün", "Kredi 2", "10:00", [p2])
-            ]
+            DueToday = [p1, p2]
         };
 
         await _viewModel.LoadAsync(_profileId);

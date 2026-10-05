@@ -65,7 +65,7 @@ public sealed class PaymentReminderService : IPaymentReminderService
             .ThenBy(x => x.Key, StringComparer.Ordinal)
             .ToArray();
         var snoozedKeys = snoozed.Select(x => x.DueKey).ToHashSet(StringComparer.Ordinal);
-        var activeDues = dues.Where(x => !snoozedKeys.Contains(x.Key));
+        var activeDues = dues.Where(x => !snoozedKeys.Contains(x.Key)).ToArray();
         var upcoming = PaymentReminderFormatter.Preview(PaymentReminderPlanner.Plan(mode, activeDues, now), now);
 
         return new PaymentReminderBoard
@@ -73,11 +73,21 @@ public sealed class PaymentReminderService : IPaymentReminderService
             Mode = mode,
             Reminders = reminders,
             Upcoming = upcoming,
+            DueToday = DueOn(activeDues, DateOnly.FromDateTime(now)),
             Snoozed = snoozed,
             Paid = paid,
             Sample = PaymentReminderPlanner.Sample(dues, now)
         };
     }
+
+    // Kart ödemeyi vade listesinden alır, bildirim takviminden değil: takvim çalmış bildirimi atar ve ödeme bildirim
+    // saatinde karttan düşerdi (S66). Sıra bildirimdekiyle aynı: büyük tutar önce.
+    private static PaymentDue[] DueOn(IEnumerable<PaymentDue> dues, DateOnly day) =>
+        dues
+            .Where(x => x.DueDate == day)
+            .OrderByDescending(x => x.Amount ?? 0m)
+            .ThenBy(x => x.Name, StringComparer.Create(PaymentReminderFormatter.TurkishCulture, false))
+            .ToArray();
 
     /// <inheritdoc />
     public async Task RecordAnswerAsync(

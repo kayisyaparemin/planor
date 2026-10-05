@@ -166,6 +166,59 @@ public sealed class PaymentReminderServiceTests
     }
 
     [Fact]
+    public async Task GetBoardAsync_VadeGunuBildirimSaatiGectiyse_OdemeBugununListesindeKalir()
+    {
+        // Hazırla — 10 Eylül'de iki ödeme; Rahat modun tek bildirimi 09:00'da çaldı
+        var service = CreateService(out _, out var planReader);
+        planReader.PlanToReturn = CreateSampleFinancialPlan();
+        await SeedCurrentPlanAsync(planReader.PlanToReturn, Aidat());
+        await service.SaveModeAsync(PaymentReminderMode.Relaxed);
+
+        // Uygula — öğleden sonra
+        var board = await service.GetBoardAsync(new DateTime(2026, 9, 10, 14, 0, 0));
+
+        // Doğrula — ödenmemiş ödeme gün boyu kartın listesinde, büyük tutar önce (S66)
+        Assert.Equal(["Kira / Kredi", "Aidat"], board.DueToday.Select(x => x.Name));
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_DunVadeliCevapsizOdeme_BugununListesindeOlmaz()
+    {
+        // Hazırla — 10 Eylül'ün ödemesine cevap verilmedi
+        var service = CreateService(out _, out var planReader);
+        planReader.PlanToReturn = CreateSampleFinancialPlan();
+        await SeedCurrentPlanAsync(planReader.PlanToReturn, Aidat());
+        await service.SaveModeAsync(PaymentReminderMode.Relaxed);
+
+        // Uygula — ertesi gün
+        var board = await service.GetBoardAsync(new DateTime(2026, 9, 11, 10, 0, 0));
+
+        // Doğrula — vade günü geçti; ödeme vade kuralıyla ödenmiş sayılır, kart onu sormaz (S66, S68)
+        Assert.Empty(board.DueToday);
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_ErteleDenenOdeme_BugununListesindeOlmaz()
+    {
+        // Hazırla — 10 Eylül 10:00'da "Kira / Kredi"ye "Ertele" dendi, 13:00'e kadar
+        var service = CreateService(out _, out var planReader);
+        planReader.PlanToReturn = CreateSampleFinancialPlan();
+        var plan = await SeedCurrentPlanAsync(planReader.PlanToReturn, Aidat());
+        var kira = plan.PaymentLines[0];
+        var due = new PaymentDue(
+            PaymentReminderPlanner.DueKey(kira.SourceEntityId, kira.Name, kira.PlannedDate), kira.Name, kira.PlannedDate, 10_000m);
+        await service.SaveModeAsync(PaymentReminderMode.Relaxed);
+        await service.RecordAnswerAsync(new PaymentReminderAnswer(
+            PaymentReminderAnswerKind.Snoozed, new DateTime(2026, 9, 10, 10, 0, 0), new DateTime(2026, 9, 10, 13, 0, 0), [due]));
+
+        // Uygula
+        var board = await service.GetBoardAsync(new DateTime(2026, 9, 10, 11, 0, 0));
+
+        // Doğrula — ertelenen ödeme erteleme süresi dolunca kendi yolundan gelir, hemen geri dönmez
+        Assert.Equal(["Aidat"], board.DueToday.Select(x => x.Name));
+    }
+
+    [Fact]
     public async Task RecordAnswerAsync_BosGeldiginde_HicbirSeyYapmaz()
     {
         var service = CreateService(out _, out _);
@@ -526,6 +579,17 @@ public sealed class PaymentReminderServiceTests
         Name = card.Name,
         PlannedDate = new DateOnly(2026, 9, 15),
         PlannedAmount = plannedAmount
+    };
+
+    // Örnek planın "Kira / Kredi" satırıyla (10.000) aynı gün vadeli, daha küçük bir ödeme.
+    private static PeriodPlanPaymentLine Aidat() => new()
+    {
+        Id = Guid.NewGuid(),
+        SourceType = PlanPaymentSourceType.OtherScheduledPayment,
+        SourceEntityId = Guid.NewGuid(),
+        Name = "Aidat",
+        PlannedDate = new DateOnly(2026, 9, 10),
+        PlannedAmount = 2_000m
     };
 
     private static PaymentDue AnsweredDue(DateOnly dueDate) =>

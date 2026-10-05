@@ -305,6 +305,8 @@ yeni token ya da bileşen gerektiği için `/development T7` gibi yürür):
       `Routes`, `AutomationIds`, `AppShell`, `MauiProgram`
 - [x] **V1** — profil seçimi
 - [x] **V2** — hatırlatıcı kartı *(sayfasız çocuk ViewModel)*
+      *Not (2026-10-05):* kart vadesi gelen ödemeyi çalmamış bildirimlerden seçtiği için vade günü bildirim saatinde
+      kayboluyordu; artık panonun `DueToday` listesinden seçer (hata düzeltme "ödeme günü kartı öğlen kayboluyor", `I167`).
 - [x] **V3** — ana sayfa (dashboard). **"Rota + Tempo" yenilemesi (2026-09-29 geri açıldı, 2026-09-30 kapandı: `V3a` + `V3b`).**
       *Kaynak eski proje değil:* bugünkü `DashboardPage` ve aşağıdaki konsept görüntüleri.
       İlk hâl (`GS20`: halka + hero rakam + gözlem kartı + gezinme satırları) tamamlanmıştı. Yeni yerleşim

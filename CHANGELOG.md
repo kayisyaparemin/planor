@@ -21,6 +21,7 @@ değildir ve yayınlanamaz.
 - Kredi kartı ödeme hatırlatıcısı artık dönem başında planlanan tutarı değil, dönem içinde girilen harcamalarla güncellenen ödemeyi gösteriyor; ana sayfadaki "Şu an" tutarıyla aynı.
 - Ana sayfadaki "Kalan ödemeler" listesi, vadesi henüz gelmemiş kredi kartı ödemesini artık dönem başında planlanan tutarla değil, dönem içinde girilen harcamalarla güncellenen tutarla gösteriyor; listenin toplamı da buna göre hesaplanıyor.
 - Ana sayfadaki dönem sonu tahmini, kredi kartının son ödeme günü gelince ya da ödemesine "Ödedim" denince artık iyimserleşmiyor: kart ödemesi dönem başında planlanan tutarla değil, dönem içinde girilen harcamalarla güncellenen tutarla düşülüyor. Bakiye ödemeden sonra girildiyse harcanan yaşam gideri de artık kartın bu farkını içermiyor.
+- Ödeme günü ana sayfadaki hatırlatıcı kartı artık öğlen kaybolmuyor; vadesi bugün olan ödeme, "Ödedim" ya da "Ertele" denene kadar gün boyu kartta kalıyor.
 
 ## [0.1.1] - 2026-10-05
 
