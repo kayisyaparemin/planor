@@ -30,8 +30,9 @@ public static class PeriodProgressCalculator
         var plan = ledger.Plan;
         var latest = ledger.LatestRevision;
         var lines = PeriodPaymentLineClassifier.Classify(ledger, today);
+        var remaining = RemainingPayments(lines.RemainingLines, currentCardPayments);
         var allowance = latest?.PlannedVariableExpenseAllowance ?? plan.PlannedVariableExpenseAllowance;
-        var trajectory = ProjectTrajectory(ledger, lines, currentCardPayments, allowance, deficitFinancingInterestRate);
+        var trajectory = ProjectTrajectory(ledger, lines, remaining, allowance, deficitFinancingInterestRate);
         var totalDays = Math.Max(0, plan.PeriodEnd.DayNumber - plan.PeriodStart.DayNumber);
 
         return new PeriodProgress
@@ -60,8 +61,7 @@ public static class PeriodProgressCalculator
                 ? PeriodBalancePathCalculator.FromPlan(ledger)
                 : PeriodBalancePathCalculator.FromObservations(
                     ledger, lines, currentCardPayments, trajectory.RemainingAllowance, trajectory.DeficitInterest),
-            RemainingLines = lines.RemainingLines,
-            RemainingPlannedTotal = lines.RemainingLines.Sum(x => x.PlannedAmount ?? 0m),
+            RemainingPayments = remaining,
             IsClosable = today >= plan.SettlementAvailableFrom,
             SnoozedLineIds = lines.SnoozedLineIds
         };
@@ -73,7 +73,7 @@ public static class PeriodProgressCalculator
     private static Trajectory? ProjectTrajectory(
         OpenPeriodLedger ledger,
         PeriodPaymentLineClassification lines,
-        IReadOnlyDictionary<Guid, decimal> currentCardPayments,
+        IReadOnlyList<PeriodRemainingPayment> remainingPayments,
         decimal plannedAllowance,
         decimal deficitFinancingInterestRate)
     {
@@ -91,7 +91,7 @@ public static class PeriodProgressCalculator
         var endingBeforeInterest = balance
                                    + incomeStillToCome
                                    - lines.SettledAfterObservation
-                                   - RemainingProjectedTotal(lines.RemainingLines, currentCardPayments)
+                                   - remainingPayments.Sum(x => x.Amount)
                                    - remainingAllowance;
 
         // Kart faizi burada yoktur: karta biner, sonraki ekstreye yansır; nakit dönem sonunu değiştirmez (I11).
@@ -122,12 +122,15 @@ public static class PeriodProgressCalculator
     private static decimal IncomeReceivedBy(IReadOnlyList<PeriodPlanIncomeLine> incomeLines, DateOnly observedOn) =>
         incomeLines.Where(x => x.PlannedDate <= observedOn).Sum(x => x.PlannedAmount);
 
-    // Kalan kart satırı dondurulan tahminle değil kartın bugünkü hâliyle sayılır: dönem içi plansız harcama
-    // planı değil, gidişatı değiştirir (I23).
-    private static decimal RemainingProjectedTotal(
+    // Kalan kart satırı dondurulan tahminle değil kartın bugünkü hâliyle gösterilir ve sayılır: dönem içi plansız
+    // harcama planı değil, gidişatı değiştirir (I23). Liste ve dönem sonu tahmini aynı tutarları kullanır (I165).
+    private static PeriodRemainingPayment[] RemainingPayments(
         IReadOnlyList<PeriodPlanPaymentLine> remainingLines,
         IReadOnlyDictionary<Guid, decimal> currentCardPayments) =>
-        remainingLines.Sum(line => ProjectedPaymentAmount.Of(line, currentCardPayments));
+        remainingLines
+            .Select(line => new PeriodRemainingPayment(
+                line.Id, line.Name, line.PlannedDate, ProjectedPaymentAmount.Of(line, currentCardPayments)))
+            .ToArray();
 
     private static PeriodCardComparison[] CompareCards(
         IReadOnlyList<PeriodPlanPaymentLine> lines,

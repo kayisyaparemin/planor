@@ -176,8 +176,7 @@ public sealed class PeriodComparisonViewModelTests
             Observation = null,
             Observations = [],
             Path = new PeriodBalancePath([new(Start, 0m)], [new(Start, 0m), new(end, -167552m)]),
-            RemainingLines = [],
-            RemainingPlannedTotal = 0m,
+            RemainingPayments = [],
             IsClosable = false,
             SnoozedLineIds = new HashSet<Guid>()
         };

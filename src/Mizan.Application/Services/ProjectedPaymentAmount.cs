@@ -4,9 +4,9 @@ namespace Mizan.Application.Services;
 
 /// <summary>
 /// Kalan bir ödeme satırının gidişatta sayılan tutarı: kart satırında kartın bugünkü hâli, diğerlerinde planlanan
-/// tutar (I23). Dondurulan kart tahmini dönem içindeki ekstre ve harcamaları bilmez; dönem sonu tahmini, bakiye
-/// rotası ve hatırlatıcı aynı tutarı kullanmazsa ekranlar birbirinden farklı rakam söyler. Üçü de kuralı buradan
-/// alır (M8).
+/// tutar (I23). Dondurulan kart tahmini dönem içindeki ekstre ve harcamaları bilmez; dönem sonu tahmini, kalan
+/// ödemeler listesi, bakiye rotası ve hatırlatıcı aynı tutarı kullanmazsa ekranlar birbirinden farklı rakam söyler.
+/// Hepsi kuralı buradan alır (M8, I165).
 /// </summary>
 public static class ProjectedPaymentAmount
 {

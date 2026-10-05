@@ -161,7 +161,7 @@ public sealed class PeriodProgressCalculatorTests
         var kart = Assert.Single(gidisat.Cards);
         Assert.Equal(new PeriodCardComparison(KartId, "Kart", Kart.PlannedDate, 12_000m, 14_095m), kart);
         Assert.Equal(20_905m, gidisat.ProjectedEndingBalance);
-        Assert.Equal(12_000m, gidisat.RemainingPlannedTotal);
+        Assert.Equal(14_095m, gidisat.RemainingTotal);
         Assert.Equal(23_000m, gidisat.PlannedEndingBalance);
     }
 
@@ -225,7 +225,7 @@ public sealed class PeriodProgressCalculatorTests
         Assert.Null(gidisat.ObservedLivingSpend);
         Assert.Null(gidisat.ProjectedEndingBalance);
         Assert.Null(gidisat.Observation);
-        Assert.Equal([Kart.Id], gidisat.RemainingLines.Select(x => x.Id));
+        Assert.Equal([Kart.Id], gidisat.RemainingPayments.Select(x => x.LineId));
     }
 
     // ---------------------------------------------------------------
@@ -308,8 +308,8 @@ public sealed class PeriodProgressCalculatorTests
         var gidisat = Hesapla(defter, Gun(12));
 
         // Doğrula
-        Assert.Equal([Kira.Id, Kart.Id], gidisat.RemainingLines.Select(x => x.Id));
-        Assert.Equal(27_000m, gidisat.RemainingPlannedTotal);
+        Assert.Equal([Kira.Id, Kart.Id], gidisat.RemainingPayments.Select(x => x.LineId));
+        Assert.Equal(27_000m, gidisat.RemainingTotal);
         Assert.True(gidisat.IsSnoozed(Kira.Id));
         Assert.False(gidisat.IsSnoozed(Kart.Id));
     }

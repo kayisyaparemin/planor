@@ -122,6 +122,7 @@ Geri kalan her şey bu omurgadan sarkar.
   - [x] **A15c** — mevcut dönemin gidişatı *(~440 satır ve iki iş yeteneği olduğu için iki alt adıma bölündü)*
     - [x] **A15c-1** — ödeme satırının durumu: `PeriodPaymentLineClassifier`, `PeriodPaymentLineClassification` *(S33)*
     - [x] **A15c-2** — gidişat: `PeriodProgressService`, `PeriodProgress` *(S30, S31, S32, S34)*
+      *(`I165` düzeltmesi: kalan satırların toplamı plandaki tutarla, dönem sonu tahmini kartın bugünkü ödemesiyle alınıyordu; eski projeden birebir taşınmıştı. Kalan ödemeler artık `PeriodRemainingPayment` olarak bir kez kurulur, tahmin ve "Kalan ödemeler" kartı aynı tutarları kullanır)*
 - [x] **A16** — dönem mutabakatı: `PeriodSettlementService` *(S12 gereği adlandırıldı; K3/K4 için `PeriodActualBuilder` ayrıldı, T6/M8 için `FindFinalRevisions` ortaklaştırıldı, S35–S39)*
 - [x] **A17** — **plan okuma ve plan yazma ayrılır**: `IPlanReader` + `IPlanChangeRecorder`
       — *düğüm T5, kural M4; S40, S41, S42 ile 7 dar repo kompozisyonu ve sıfır yan etkili salt okuyucu kuruldu*

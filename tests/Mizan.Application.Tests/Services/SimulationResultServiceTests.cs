@@ -243,8 +243,7 @@ public sealed class SimulationResultServiceTests
         Observation = null,
         Observations = [],
         Path = new PeriodBalancePath([], []),
-        RemainingLines = [],
-        RemainingPlannedTotal = 0m,
+        RemainingPayments = [],
         IsClosable = false,
         SnoozedLineIds = new HashSet<Guid>()
     };

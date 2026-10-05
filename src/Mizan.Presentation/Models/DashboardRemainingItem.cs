@@ -12,6 +12,6 @@ public sealed record DashboardRemainingItem
     /// <summary>Ödemenin adı.</summary>
     public required string Name { get; init; }
 
-    /// <summary>Planlanan ödeme tutarı.</summary>
+    /// <summary>Ödenecek tutar: kart satırında kartın bugünkü hâli, plandaki tahmin değil (I165).</summary>
     public required decimal Amount { get; init; }
 }

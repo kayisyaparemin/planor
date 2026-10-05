@@ -343,8 +343,7 @@ public sealed class BalanceEntryViewModelTests
         Observation = hasObservation ? Previous : null,
         Observations = hasObservation ? [Previous] : [],
         Path = new PeriodBalancePath([new(Start, 60000m)], [new(Start, 60000m), new(End, Planned)]),
-        RemainingLines = [],
-        RemainingPlannedTotal = 0m,
+        RemainingPayments = [],
         IsClosable = isClosable,
         SnoozedLineIds = new HashSet<Guid>()
     };

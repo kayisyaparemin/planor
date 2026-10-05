@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
-using Mizan.Domain.Models;
 using Mizan.Presentation.Charts;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Navigation;
@@ -22,7 +21,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
 
     private readonly IPeriodProgressService _progressService;
     private readonly INavigationService _navigationService;
-    private IReadOnlyList<PeriodPlanPaymentLine> _remaining = [];
+    private IReadOnlyList<PeriodRemainingPayment> _remaining = [];
 
     /// <summary>Vadesi gelen veya ertelenmiş acil ödemeleri yöneten çocuk görünüm modeli.</summary>
     public ReminderCardViewModel Reminders { get; }
@@ -55,7 +54,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
 
     [ObservableProperty] private decimal? lastObservedBalance; [ObservableProperty] private DateOnly? lastObservedOn;
 
-    [ObservableProperty] private int remainingCount; [ObservableProperty] private decimal remainingPlannedTotal;
+    [ObservableProperty] private int remainingCount; [ObservableProperty] private decimal remainingTotal;
     [ObservableProperty, NotifyPropertyChangedFor(nameof(HasOverflow))] private int hiddenRemainingCount;
 
     /// <summary>Ana sayfa görünüm modelini gidişat okuma portu, gezinme portu ve hatırlatıcı kartıyla başlatır.</summary>
@@ -139,20 +138,20 @@ public sealed partial class DashboardViewModel : ViewModelBase
 
     private void ApplyRemainingLines(PeriodProgress progress)
     {
-        _remaining = progress.RemainingLines;
-        RemainingCount = progress.RemainingLines.Count;
-        RemainingPlannedTotal = progress.RemainingPlannedTotal;
+        _remaining = progress.RemainingPayments;
+        RemainingCount = progress.RemainingPayments.Count;
+        RemainingTotal = progress.RemainingTotal;
         ShowRemaining(VisibleRemainingLimit);
     }
 
     private void ShowRemaining(int limit)
     {
         RemainingLines.Clear();
-        foreach (var line in _remaining.Take(limit))
+        foreach (var payment in _remaining.Take(limit))
         {
             RemainingLines.Add(new DashboardRemainingItem
             {
-                DueDate = line.PlannedDate, Name = line.Name, Amount = line.PlannedAmount ?? 0m
+                DueDate = payment.DueDate, Name = payment.Name, Amount = payment.Amount
             });
         }
         HiddenRemainingCount = _remaining.Count - RemainingLines.Count;

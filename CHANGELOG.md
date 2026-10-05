@@ -19,6 +19,7 @@ değildir ve yayınlanamaz.
 ### Düzeltildi
 
 - Kredi kartı ödeme hatırlatıcısı artık dönem başında planlanan tutarı değil, dönem içinde girilen harcamalarla güncellenen ödemeyi gösteriyor; ana sayfadaki "Şu an" tutarıyla aynı.
+- Ana sayfadaki "Kalan ödemeler" listesi, vadesi henüz gelmemiş kredi kartı ödemesini artık dönem başında planlanan tutarla değil, dönem içinde girilen harcamalarla güncellenen tutarla gösteriyor; listenin toplamı da buna göre hesaplanıyor.
 
 ## [0.1.1] - 2026-10-05
 

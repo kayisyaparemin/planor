@@ -80,11 +80,8 @@ public sealed record PeriodProgress
     /// <summary>Ana sayfa grafiğinin çizdiği bakiye rotası: her gün bir nokta, son noktası dönem sonu (S71).</summary>
     public required PeriodBalancePath Path { get; init; }
 
-    /// <summary>Henüz yapılmamış plan satırları, önce vadeye sonra ada göre sıralı.</summary>
-    public required IReadOnlyList<PeriodPlanPaymentLine> RemainingLines { get; init; }
-
-    /// <summary>Kalan satırların planlanan tutarları toplamı.</summary>
-    public required decimal RemainingPlannedTotal { get; init; }
+    /// <summary>Henüz yapılmamış ödemeler, ödenecek tutarlarıyla; önce vadeye sonra ada göre sıralı.</summary>
+    public required IReadOnlyList<PeriodRemainingPayment> RemainingPayments { get; init; }
 
     /// <summary>Dönemin kapanış mutabakatına açılıp açılmadığı.</summary>
     public required bool IsClosable { get; init; }
@@ -97,6 +94,9 @@ public sealed record PeriodProgress
         ObservedLivingSpend is { } spent && spent > PlannedVariableExpenseAllowance
             ? spent - PlannedVariableExpenseAllowance
             : null;
+
+    /// <summary>Kalan ödemelerin toplamı; dönem sonu tahmini kalan ödemeler için bu tutarı düşer.</summary>
+    public decimal RemainingTotal => RemainingPayments.Sum(x => x.Amount);
 
     /// <summary>Gidişatın planlanan dönem sonundan sapması (gidişat − plan); bakiye girilmediyse <c>null</c>.</summary>
     public decimal? EndingDeviation => ProjectedEndingBalance - PlannedEndingBalance;

@@ -198,7 +198,7 @@ public sealed class DashboardViewModelTests : IDisposable
         Assert.Equal(new DateOnly(2026, 10, 1), _viewModel.RemainingLines[0].DueDate);
         Assert.Equal(1000m, _viewModel.RemainingLines[0].Amount);
         Assert.Equal(3, _viewModel.RemainingCount);
-        Assert.Equal(3000m, _viewModel.RemainingPlannedTotal);
+        Assert.Equal(3000m, _viewModel.RemainingTotal);
         Assert.False(_viewModel.HasOverflow);
     }
 
@@ -340,17 +340,9 @@ public sealed class DashboardViewModelTests : IDisposable
         var path = observation is null
             ? new PeriodBalancePath([new(Start, 60000m)], [new(Start, 60000m), new(new DateOnly(2026, 9, 15), 45000m), new(End, planned)])
             : new PeriodBalancePath([new(Start, 60000m), new(observedOn, 58940m)], [new(observedOn, 58940m), new(End, projected!.Value)]);
-        var lines = Enumerable.Range(0, lineCount).Select(i => new PeriodPlanPaymentLine
-        {
-            Id = Guid.NewGuid(),
-            PeriodPlanSnapshotId = planId,
-            PlannedDate = new DateOnly(2026, 10, 1).AddDays(i),
-            Name = $"Ödeme {i}",
-            PlannedAmount = 1000m,
-            SourceType = PlanPaymentSourceType.OtherScheduledPayment,
-            Detail = string.Empty,
-            IsEstimate = false
-        }).ToList();
+        var payments = Enumerable.Range(0, lineCount)
+            .Select(i => new PeriodRemainingPayment(Guid.NewGuid(), $"Ödeme {i}", new DateOnly(2026, 10, 1).AddDays(i), 1000m))
+            .ToList();
 
         return new PeriodProgress
         {
@@ -375,8 +367,7 @@ public sealed class DashboardViewModelTests : IDisposable
             Observation = observation,
             Observations = observation is null ? [] : [observation],
             Path = path,
-            RemainingLines = lines,
-            RemainingPlannedTotal = lines.Sum(l => l.PlannedAmount ?? 0m),
+            RemainingPayments = payments,
             IsClosable = isClosable,
             SnoozedLineIds = new HashSet<Guid>()
         };

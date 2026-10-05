@@ -94,6 +94,33 @@ public sealed class PeriodProgressServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_VadesiGelmemisKartaHarcamaGirildiyse_KalanOdemelerKartinGuncelOdemesiniGosterir()
+    {
+        // Hazırla — plan Bonus'un 15 Eylül ödemesini 8.000 diye dondurdu; 3 Eylül'de 2.095 plansız harcama geldi
+        var kart = Kart("Bonus") with
+        {
+            StatementClosingDay = 5,
+            PaymentDueDay = 15,
+            BalanceAsOfDate = DonemBasi,
+            UnbilledSpending = 8_000m,
+            Charges = [new CardCharge { PostingDate = new DateOnly(2026, 9, 3), Amount = 2_095m }]
+        };
+        await _kartlar.UpsertCreditCardAsync(kart);
+        await AcikDonemKurAsync(new PeriodPlanSnapshot
+        {
+            PaymentLines = [KartSatiri(kart, new DateOnly(2026, 9, 15), 8_000m)]
+        });
+
+        // Uygula — vadeden önce, 4 Eylül
+        var gidisat = await Servis(new DateOnly(2026, 9, 4)).GetAsync();
+
+        // Doğrula — "Kalan ödemeler" satırı ve notundaki toplam, ana sayfanın "Şu an"ıyla aynı (I23)
+        Assert.NotNull(gidisat);
+        Assert.Equal(10_095m, Assert.Single(gidisat.RemainingPayments).Amount);
+        Assert.Equal(10_095m, gidisat.RemainingTotal);
+    }
+
+    [Fact]
     public async Task GetAsync_KmhOraniAyarlardanBugunSaattenOkunur()
     {
         // Hazırla — havuz 10.000, bakiye 0: dönem −10.000 kapanır; ayardaki oran %10

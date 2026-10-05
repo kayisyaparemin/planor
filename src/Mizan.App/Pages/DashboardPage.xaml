@@ -309,7 +309,7 @@
                     <comp:ListCard.NoteText>
                         <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_OdemeAdediToplam}">
                             <Binding Path="RemainingCount" />
-                            <Binding Path="RemainingPlannedTotal" Converter="{StaticResource Para}" />
+                            <Binding Path="RemainingTotal" Converter="{StaticResource Para}" />
                         </MultiBinding>
                     </comp:ListCard.NoteText>
                 </comp:ListCard>
