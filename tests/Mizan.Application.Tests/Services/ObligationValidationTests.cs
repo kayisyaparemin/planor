@@ -242,5 +242,6 @@ public sealed class ObligationValidationTests
     {
         public DateOnly Today { get; } = today;
         public DateTimeOffset UtcNow { get; } = utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

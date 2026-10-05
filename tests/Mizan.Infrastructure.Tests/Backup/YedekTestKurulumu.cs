@@ -193,5 +193,6 @@ internal sealed class YedekTestKurulumu : IDisposable
         public DateOnly Today => DateOnly.FromDateTime(simdi.UtcDateTime);
 
         public DateTimeOffset UtcNow => simdi;
+        public DateTimeOffset Now => UtcNow;
     }
 }

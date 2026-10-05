@@ -313,5 +313,6 @@ public sealed class BackupServiceTests
     {
         public DateOnly Today { get; set; } = today;
         public DateTimeOffset UtcNow { get; set; } = utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

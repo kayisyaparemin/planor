@@ -16,4 +16,11 @@ public interface IClock
     /// Eşgüdümlü Evrensel Zaman (UTC) anlık zaman damgası.
     /// </summary>
     DateTimeOffset UtcNow { get; }
+
+    /// <summary>
+    /// Cihazın yerel saatiyle şimdi. Kayıt zamanı UTC'dir; ama ödeme günü, bildirim saati ve gece sessizliği
+    /// kullanıcının duvar saatine göre yazılmıştır. Hatırlatıcı kartı bu ikisini karıştırıp UTC verdiği için gece
+    /// önceki günün ödemesini gösteriyor, ertelemeyi gece sessizliğine düşürüyordu.
+    /// </summary>
+    DateTimeOffset Now { get; }
 }

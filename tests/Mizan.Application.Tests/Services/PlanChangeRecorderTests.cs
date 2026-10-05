@@ -22,6 +22,7 @@ public sealed class PlanChangeRecorderTests
     {
         public DateOnly Today => today;
         public DateTimeOffset UtcNow => utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 
     private static FinancialProjectionCalculator CreateCalculator()

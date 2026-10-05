@@ -236,5 +236,6 @@ public sealed class ProfileBackupArchiveTests : IDisposable
         public DateOnly Today => new(2026, 9, 25);
 
         public DateTimeOffset UtcNow => YedekTestKurulumu.Simdi;
+        public DateTimeOffset Now => UtcNow;
     }
 }

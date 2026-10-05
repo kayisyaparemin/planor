@@ -279,5 +279,6 @@ public sealed class FutureProjectionServiceTests
     {
         public DateOnly Today => today;
         public DateTimeOffset UtcNow => new(today.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        public DateTimeOffset Now => UtcNow;
     }
 }

@@ -116,5 +116,6 @@ public sealed class LegacyImportServiceTests
     {
         public DateOnly Today { get; } = DateOnly.FromDateTime(utcNow.UtcDateTime);
         public DateTimeOffset UtcNow { get; } = utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

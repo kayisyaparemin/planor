@@ -393,5 +393,6 @@ public sealed class ObligationManagementServiceTests
     {
         public DateOnly Today => today;
         public DateTimeOffset UtcNow => utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

@@ -158,5 +158,6 @@ public sealed class OnboardingServiceTests
     {
         public DateOnly Today => today;
         public DateTimeOffset UtcNow => utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

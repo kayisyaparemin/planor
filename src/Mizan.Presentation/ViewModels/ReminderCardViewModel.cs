@@ -77,7 +77,7 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
         var targetProfileId = profileId ?? _profileService.ActiveProfile?.Id ?? Guid.Empty;
         await ApplyPendingAnswersAsync(targetProfileId, cancellationToken);
 
-        var now = _clock.UtcNow.DateTime;
+        var now = _clock.Now.DateTime;
         var today = _clock.Today;
         var board = await _reminderService.GetBoardAsync(now, cancellationToken);
 
@@ -135,7 +135,7 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
         }
 
         var due = new PaymentDue(reminder.DueKey, reminder.Name, reminder.DueDate, reminder.Amount);
-        var answer = new PaymentReminderAnswer(PaymentReminderAnswerKind.Paid, _clock.UtcNow.DateTime, null, [due]);
+        var answer = new PaymentReminderAnswer(PaymentReminderAnswerKind.Paid, _clock.Now.DateTime, null, [due]);
         await _reminderService.RecordAnswerAsync(answer, cancellationToken);
 
         ClearActive();
@@ -151,7 +151,7 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
             return;
         }
 
-        var now = _clock.UtcNow.DateTime;
+        var now = _clock.Now.DateTime;
         var snoozeUntil = PaymentReminderPlanner.SnoozeUntil(now);
         var due = new PaymentDue(reminder.DueKey, reminder.Name, reminder.DueDate, reminder.Amount);
         var answer = new PaymentReminderAnswer(PaymentReminderAnswerKind.Snoozed, now, snoozeUntil, [due]);

@@ -12,6 +12,8 @@ namespace Mizan.Presentation.Tests.ViewModels;
 /// </summary>
 public sealed class ReminderCardViewModelTests : IDisposable
 {
+    private static readonly TimeSpan TurkiyeSaati = TimeSpan.FromHours(3);
+
     private readonly FakePaymentReminderService _service = new();
     private readonly FakePaymentReminderScheduler _scheduler = new();
     private readonly FakeDialogService _dialog = new();
@@ -157,6 +159,51 @@ public sealed class ReminderCardViewModelTests : IDisposable
         Assert.Equal(PaymentReminderAnswerKind.Paid, _service.RecordedAnswers[0].Kind);
         Assert.Equal(1, _scheduler.AcknowledgedCount);
         Assert.Empty(_scheduler.PendingAnswers);
+    }
+
+    [Fact]
+    public async Task LoadAsync_GeceYarisindanSonra_PanoYerelSaatleIstenir()
+    {
+        // Hazırla — Türkiye'de 27 Eylül 00:30; UTC'de hâlâ 26 Eylül 21:30
+        _clock.YerelSaatiAyarla(new DateTimeOffset(2026, 9, 27, 0, 30, 0, TurkiyeSaati));
+
+        // Uygula
+        await _viewModel.LoadAsync(_profileId);
+
+        // Doğrula — kart yeni günün ödemelerini ister, önceki günün değil
+        Assert.Equal(new DateTime(2026, 9, 27, 0, 30, 0), _service.BoardRequestedAt);
+    }
+
+    [Fact]
+    public async Task MarkAsPaidAsync_GeceYarisindanSonra_CevapYerelSaatleYazilir()
+    {
+        // Hazırla — Türkiye'de 27 Eylül 01:30, kartta bugünün ödemesi
+        _clock.YerelSaatiAyarla(new DateTimeOffset(2026, 9, 27, 1, 30, 0, TurkiyeSaati));
+        var payment = new PaymentDue("loan-1", "İhtiyaç Kredisi", _clock.Today, 7000m);
+        _service.CurrentBoard = new PaymentReminderBoard { Mode = PaymentReminderMode.Relaxed, DueToday = [payment] };
+        await _viewModel.LoadAsync(_profileId);
+
+        // Uygula
+        await _viewModel.MarkAsPaidCommand.ExecuteAsync(null);
+
+        // Doğrula — cevap telefonun saatiyle yazılır; 3 saat geri yazılsa önceki güne sayılırdı
+        Assert.Equal(new DateTime(2026, 9, 27, 1, 30, 0), Assert.Single(_service.RecordedAnswers).AnsweredAt);
+    }
+
+    [Fact]
+    public async Task SnoozeAsync_AksamErtelenirse_KartErtesiSabahDoner()
+    {
+        // Hazırla — Türkiye'de 27 Eylül 19:30; 3 saat sonrası gece sessizliğine (22:00–08:00) düşer
+        _clock.YerelSaatiAyarla(new DateTimeOffset(2026, 9, 27, 19, 30, 0, TurkiyeSaati));
+        var payment = new PaymentDue("loan-1", "İhtiyaç Kredisi", _clock.Today, 7000m);
+        _service.CurrentBoard = new PaymentReminderBoard { Mode = PaymentReminderMode.Relaxed, DueToday = [payment] };
+        await _viewModel.LoadAsync(_profileId);
+
+        // Uygula
+        await _viewModel.SnoozeCommand.ExecuteAsync(null);
+
+        // Doğrula — ertesi sabah 09:00 (I22)
+        Assert.Equal(new DateTime(2026, 9, 28, 9, 0, 0), Assert.Single(_service.RecordedAnswers).SnoozedUntil);
     }
 
     [Fact]

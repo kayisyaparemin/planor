@@ -154,5 +154,6 @@ public sealed class ProfileServiceTests : IDisposable
         public DateOnly Today => DateOnly.FromDateTime(_now.Date);
 
         public DateTimeOffset UtcNow => _now = _now.AddSeconds(1);
+        public DateTimeOffset Now => UtcNow;
     }
 }

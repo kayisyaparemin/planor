@@ -200,5 +200,6 @@ public sealed class ObligationManagementServiceLoanPrepaymentTests
     {
         public DateOnly Today { get; } = today;
         public DateTimeOffset UtcNow { get; } = new(today.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        public DateTimeOffset Now => UtcNow;
     }
 }

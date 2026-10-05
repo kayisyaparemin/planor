@@ -13,4 +13,7 @@ public sealed class SystemClock : IClock
 
     /// <inheritdoc />
     public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
+
+    /// <inheritdoc />
+    public DateTimeOffset Now => DateTimeOffset.Now;
 }

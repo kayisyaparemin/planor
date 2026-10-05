@@ -151,5 +151,6 @@ public sealed class FinancialSnapshotServiceTests
     {
         public DateOnly Today { get; } = today;
         public DateTimeOffset UtcNow { get; } = utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

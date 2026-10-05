@@ -281,5 +281,6 @@ public sealed class PeriodProgressServiceTests
         public DateOnly Today { get; } = bugun;
 
         public DateTimeOffset UtcNow { get; } = new(bugun.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        public DateTimeOffset Now => UtcNow;
     }
 }

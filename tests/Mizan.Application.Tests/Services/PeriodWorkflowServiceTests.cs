@@ -571,6 +571,7 @@ public sealed class PeriodWorkflowServiceTests
     {
         public DateOnly Today { get; private set; } = today;
         public DateTimeOffset UtcNow { get; private set; } = utcNow;
+        public DateTimeOffset Now => UtcNow;
 
         public void SetDate(DateOnly today)
         {

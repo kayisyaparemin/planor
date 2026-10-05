@@ -13,6 +13,7 @@ internal sealed class FakePaymentReminderService : IPaymentReminderService
     public List<PaymentReminderAnswer> RecordedAnswers { get; } = [];
     public List<string> UndoneDueKeys { get; } = [];
     public List<PaymentDue> UpcomingDues { get; } = [];
+    public DateTime? BoardRequestedAt { get; private set; }
 
     public Task<PaymentReminderMode> GetModeAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(Mode);
@@ -26,8 +27,11 @@ internal sealed class FakePaymentReminderService : IPaymentReminderService
     public Task<IReadOnlyList<PaymentReminder>> GetRemindersAsync(DateTime now, CancellationToken cancellationToken = default) =>
         Task.FromResult(CurrentBoard.Reminders);
 
-    public Task<PaymentReminderBoard> GetBoardAsync(DateTime now, CancellationToken cancellationToken = default) =>
-        Task.FromResult(CurrentBoard);
+    public Task<PaymentReminderBoard> GetBoardAsync(DateTime now, CancellationToken cancellationToken = default)
+    {
+        BoardRequestedAt = now;
+        return Task.FromResult(CurrentBoard);
+    }
 
     public Task RecordAnswerAsync(PaymentReminderAnswer answer, CancellationToken cancellationToken = default)
     {

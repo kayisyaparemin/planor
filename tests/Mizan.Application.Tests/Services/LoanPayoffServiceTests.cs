@@ -403,5 +403,6 @@ public sealed class LoanPayoffServiceTests
     {
         public DateOnly Today { get; } = today;
         public DateTimeOffset UtcNow { get; } = new(today.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+        public DateTimeOffset Now => UtcNow;
     }
 }

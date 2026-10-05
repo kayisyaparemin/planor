@@ -258,5 +258,6 @@ public sealed class SimulationWorkflowServiceTests
     {
         public DateOnly Today => today;
         public DateTimeOffset UtcNow => utcNow;
+        public DateTimeOffset Now => UtcNow;
     }
 }

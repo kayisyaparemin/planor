@@ -14,6 +14,7 @@ public sealed class AppShellViewModelTests
     {
         public DateOnly Today => new(2026, 9, 26);
         public DateTimeOffset UtcNow => new(2026, 9, 26, 12, 0, 0, TimeSpan.Zero);
+        public DateTimeOffset Now => UtcNow;
     }
 
     private sealed class FakeProfileRepository : IProfileRepository
