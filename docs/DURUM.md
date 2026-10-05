@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **Hata düzeltme — hatırlatıcı kartında UTC saat** (`I168`); commit'lendi, sürüm 0.2.0 (versionCode 3) bu işin Aşama 9'unda çıkar: `[Yayınlanmamış]`'ta 3 "Değişti", 5 "Düzeltildi" maddesi |
+| Son tamamlanan adım | **Sürüm 0.2.0** (versionCode 3): ana sayfada plan / şu an tablosu ve beş düzeltme (kart tutarları, hatırlatıcı kartı); son iş **Hata düzeltme — hatırlatıcı kartında UTC saat** (`I168`) |
 | Sıradaki adım | Kullanıcı "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. Bekleyen kayıtlı hatalar: (c) kapanışta kartın gerçekleşen tutarı kilitli tahminle doluyor, (e) bakiye rotasının katedilen kısmı plan tutarıyla (okuyan ekran yok) |
 | Test sayısı | 2248 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
@@ -20,6 +20,7 @@ Belirti (Türkiye saatindeki telefonda): gece 00:00–03:00 kart önceki günün
 Düzeltme: `IClock.Now` (yerel, `DateTimeOffset`); `SystemClock` `DateTimeOffset.Now` verir, kart üç yerde `_clock.Now.DateTime` kullanır. 24 sahte saate `Now => UtcNow` eklendi (sahte saatler UTC'de yaşar, davranış aynı); kartın `SabitSaat`'i `YerelSaatiAyarla` ile UTC'den farklı yerel saat kurabiliyor, sahte hatırlatıcı servisi panonun istendiği saati kaydeder. Elenen: kartta `ToLocalTime()` (makinenin saat dilimine bağlanır, CI UTC'de), `IClock`'ta varsayılan gövdeli `Now` (yanlış varsayılanı gizler). Veri onarımı yok (kullanıcı onayı): kartın yazdığı UTC saatler eski uygulamadan içe aktarılan yerel saatlerden ayırt edilemiyor; etkisi gece 00:00–03:00 cevaplarıyla ve en fazla 3 saatlik ertelemeyle sınırlı.
 Koruyan: `ReminderCardViewModelTests.LoadAsync_GeceYarisindanSonra_PanoYerelSaatleIstenir` (kırmızıydı: 26 Eylül 21:30 ≠ 27 Eylül 00:30), `…MarkAsPaidAsync_GeceYarisindanSonra_CevapYerelSaatleYazilir` (22:30 ≠ 01:30), `…SnoozeAsync_AksamErtelenirse_KartErtesiSabahDoner` (27 Eylül 19:30 ≠ 28 Eylül 09:00) (`I168`). Hatayı dondurmuş test yoktu. Aynı sınıf: `UtcNow`'un geçtiği 20 üretim satırı tarandı, diğerleri kayıt zamanı. Ekrana dokunmadı. Toplam 2.248 test yeşil, 0 hata, 0 uyarı.
 **Dikkat:** `PaymentReminderResponse.AnsweredAt` ve `SnoozedUntil` hâlâ türsüz yerel `DateTime` (A15a notu; `DateTimeOffset`'e geçiş ayrı iş).
+Sürüm: 0.2.0 (versionCode 3).
 
 ### Hata düzeltme — ödeme günü kartı öğlen kayboluyor; kararlar `S66` (netleşti), `I167`
 

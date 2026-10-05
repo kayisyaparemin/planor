@@ -10,6 +10,8 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.2.0] - 2026-10-05
+
 ### Değişti
 
 - Ana sayfadaki sütun grafiği kaldırıldı; yerine kartlarının ve KMH faizinin bu dönem için planlanan ve şu anki tutarları yan yana geldi. Planı aşan tutar kırmızı görünür.
