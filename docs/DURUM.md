@@ -4,8 +4,8 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **F1 / K9 mimari test kalkanı** (`YasakliTerimler_KaynaktaGecemez`); kural K9 |
-| Sıradaki adım | Sürüm çıkarma (0.3.0) veya sıradaki açık işler (T7, T8, Takip vb.) |
+| Son tamamlanan adım | **Sürüm 0.3.0** (versionCode 6): F1 / K9 mimari test kalkanı (`YasakliTerimler_KaynaktaGecemez`) |
+| Sıradaki adım | Sıradaki açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.) |
 | Test sayısı | 2254 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
