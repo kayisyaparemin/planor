@@ -29,7 +29,7 @@ public static class PeriodProgressCalculator
     {
         var plan = ledger.Plan;
         var latest = ledger.LatestRevision;
-        var lines = PeriodPaymentLineClassifier.Classify(ledger, today);
+        var lines = PeriodPaymentLineClassifier.Classify(ledger, currentCardPayments, today);
         var remaining = RemainingPayments(lines.RemainingLines, currentCardPayments);
         var allowance = latest?.PlannedVariableExpenseAllowance ?? plan.PlannedVariableExpenseAllowance;
         var trajectory = ProjectTrajectory(ledger, lines, remaining, allowance, deficitFinancingInterestRate);

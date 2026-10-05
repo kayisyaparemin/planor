@@ -9,6 +9,9 @@ public sealed class PeriodPaymentLineClassifierTests
     private static readonly DateOnly DonemBasi = new(2026, 9, 1);
     private static readonly DateOnly DonemSonu = new(2026, 10, 1);
 
+    // Sınıflandırma kartın bugünkü ödemesi bilinmezken de çalışır; o zaman her satır planlanan tutarıyla sayılır.
+    private static readonly IReadOnlyDictionary<Guid, decimal> KartOdemesiYok = new Dictionary<Guid, decimal>();
+
     private static readonly PeriodPlanPaymentLine Kira = Satir("Kira", new DateOnly(2026, 9, 5), 15_000m);
     private static readonly PeriodPlanPaymentLine Kredi = Satir("Kredi", new DateOnly(2026, 9, 10), 5_000m);
     private static readonly PeriodPlanPaymentLine Kart = Satir("Kart", new DateOnly(2026, 9, 20), 12_000m);
@@ -24,7 +27,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, Kira.PlannedDate.AddDays(-1));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, Kira.PlannedDate.AddDays(-1));
 
         // Doğrula
         Assert.Equal([Kira.Id], sonuc.RemainingLines.Select(x => x.Id));
@@ -39,7 +42,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, Kira.PlannedDate);
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, Kira.PlannedDate);
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -53,7 +56,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 6)));
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 8));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 8));
 
         // Doğrula
         Assert.Equal(15_000m, sonuc.SettledBeforeObservation);
@@ -67,7 +70,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira], gozlem: Gozlem(Kira.PlannedDate));
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 6));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 6));
 
         // Doğrula
         Assert.Equal(0m, sonuc.SettledBeforeObservation);
@@ -81,7 +84,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira, Kart], cevaplar: [Cevap(Kart, PaymentReminderAnswerKind.Paid, Utc(9, 9, 9))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -97,7 +100,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira, aidat]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -113,7 +116,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kart, su, elektrik]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, DonemBasi);
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, DonemBasi);
 
         // Doğrula
         Assert.Equal([elektrik.Id, su.Id, Kart.Id], sonuc.RemainingLines.Select(x => x.Id));
@@ -130,7 +133,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kart], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kart, ActualPaymentStatus.DifferentAmount, 11_500m)]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -145,7 +148,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kira, ActualPaymentStatus.Unpaid, 0m)]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Equal([Kira.Id], sonuc.RemainingLines.Select(x => x.Id));
@@ -160,7 +163,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kira, ActualPaymentStatus.Unpaid, 0m)], cevaplar: [Cevap(Kira, PaymentReminderAnswerKind.Paid, Utc(9, 5, 9))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Equal([Kira.Id], sonuc.RemainingLines.Select(x => x.Id));
@@ -181,7 +184,7 @@ public sealed class PeriodPaymentLineClassifierTests
             cevaplar: [Cevap(Kart, PaymentReminderAnswerKind.Paid, Utc(9, 11, 9))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 12));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 12));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -199,7 +202,7 @@ public sealed class PeriodPaymentLineClassifierTests
             cevaplar: [Cevap(Kart, PaymentReminderAnswerKind.Paid, Utc(9, 12, 11))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 12));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 12));
 
         // Doğrula
         Assert.Equal(0m, sonuc.SettledBeforeObservation);
@@ -213,7 +216,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira, Kredi], cevaplar: [Cevap(Kira, PaymentReminderAnswerKind.Snoozed, Utc(9, 5, 9))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula — kredi vadesiyle ödenmiş sayılır, kira ertelendiği için kalır
         Assert.Equal([Kira.Id], sonuc.RemainingLines.Select(x => x.Id));
@@ -234,7 +237,7 @@ public sealed class PeriodPaymentLineClassifierTests
             ]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -256,7 +259,7 @@ public sealed class PeriodPaymentLineClassifierTests
             ]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 12));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 12));
 
         // Doğrula
         Assert.Equal(17_000m, sonuc.SettledBeforeObservation);
@@ -274,7 +277,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kart], gozlem: Gozlem(new DateOnly(2026, 9, 10)), isaretler: [Isaret(Kart, ActualPaymentStatus.Paid, 12_000m, new DateOnly(2026, 9, 10))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 10));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 10));
 
         // Doğrula
         Assert.Equal(0m, sonuc.SettledBeforeObservation);
@@ -288,7 +291,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 14)), isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m, new DateOnly(2026, 9, 16))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 16));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 16));
 
         // Doğrula
         Assert.Equal(0m, sonuc.SettledBeforeObservation);
@@ -302,7 +305,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kira], gozlem: Gozlem(new DateOnly(2026, 9, 14)), isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m, new DateOnly(2026, 9, 12))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 14));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 14));
 
         // Doğrula
         Assert.Equal(15_000m, sonuc.SettledBeforeObservation);
@@ -317,7 +320,7 @@ public sealed class PeriodPaymentLineClassifierTests
         var defter = Defter([Kart], gozlem: gozlem, cevaplar: [Cevap(Kart, PaymentReminderAnswerKind.Paid, Utc(9, 13, 9))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 20));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 20));
 
         // Doğrula — cevap gözlem gününden sonra, bakiyede henüz yok
         Assert.Equal(0m, sonuc.SettledBeforeObservation);
@@ -339,7 +342,7 @@ public sealed class PeriodPaymentLineClassifierTests
             cevaplar: [Cevap(Kira, PaymentReminderAnswerKind.Paid, Utc(9, 2, 9))]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 3));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -358,7 +361,7 @@ public sealed class PeriodPaymentLineClassifierTests
             isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 3));
 
         // Doğrula
         Assert.Empty(sonuc.RemainingLines);
@@ -377,7 +380,7 @@ public sealed class PeriodPaymentLineClassifierTests
             isaretler: [Isaret(revizeKira, ActualPaymentStatus.Unpaid, 0m), Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 3));
 
         // Doğrula
         Assert.Equal([revizeKira.Id], sonuc.RemainingLines.Select(x => x.Id));
@@ -396,7 +399,7 @@ public sealed class PeriodPaymentLineClassifierTests
             isaretler: [Isaret(Kira, ActualPaymentStatus.Paid, 15_000m)]);
 
         // Uygula
-        var sonuc = PeriodPaymentLineClassifier.Classify(defter, new DateOnly(2026, 9, 3));
+        var sonuc = PeriodPaymentLineClassifier.Classify(defter, KartOdemesiYok, new DateOnly(2026, 9, 3));
 
         // Doğrula
         Assert.Equal([ertelenmisKira.Id], sonuc.RemainingLines.Select(x => x.Id));

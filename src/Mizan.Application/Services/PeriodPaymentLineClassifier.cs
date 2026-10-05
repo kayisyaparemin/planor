@@ -8,6 +8,8 @@ namespace Mizan.Application.Services;
 /// Kullanıcıdan her ödemeyi tek tek işaretlemesi beklenmez; üç kaynak öncelik sırasıyla okunur:
 /// plana konmuş açık işaret, hatırlatıcıya verilen "Ödedim" / "Ertele" cevabı ve son olarak
 /// vade — vadesi gelen ödeme yapılmış sayılır, planın kendi varsayımı da budur.
+/// Yapılmış sayılan ödeme kalan ödemeyle aynı tutarla sayılır (<see cref="ProjectedPaymentAmount"/>): kart satırı
+/// vade günü kalandan yapılmışa geçerken dondurulan tahmine dönerse dönem sonu tahmini o gün sıçrar (I166).
 /// İşaret de cevap da satır kimliğine değil, ödemenin kaynağına ve vadesine bağlanır: plan revizyonu
 /// satırlara yeni kimlik verdiğinde kaybolmazlar (I22, S33).
 /// </summary>
@@ -19,15 +21,20 @@ public static class PeriodPaymentLineClassifier
     /// göre ikiye ayırır.
     /// </summary>
     /// <param name="ledger">Açık dönemin planı, revizyonları, gözlemi ve hatırlatıcı cevapları.</param>
+    /// <param name="currentCardPayments">Kart kimliğine göre kartın bugünkü hâliyle bu dönemde vadesi gelen ödeme.</param>
     /// <param name="today">Vadesi gelen ödemelerin yapılmış sayılacağı gün.</param>
-    public static PeriodPaymentLineClassification Classify(OpenPeriodLedger ledger, DateOnly today)
+    public static PeriodPaymentLineClassification Classify(
+        OpenPeriodLedger ledger,
+        IReadOnlyDictionary<Guid, decimal> currentCardPayments,
+        DateOnly today)
     {
         var marks = ExplicitMarksByDueKey(ledger);
         var answers = LatestAnswersByDueKey(ledger.ReminderAnswers);
+        var observation = ledger.LatestObservation;
         var outcomes = ledger.CurrentPaymentLines
-            .Select(line => FromExplicitMark(line, marks, ledger.LatestObservation)
-                            ?? FromReminderAnswer(line, answers, ledger.LatestObservation)
-                            ?? FromDueDate(line, ledger.LatestObservation, today))
+            .Select(line => FromExplicitMark(line, marks, observation)
+                            ?? FromReminderAnswer(line, answers, observation, currentCardPayments)
+                            ?? FromDueDate(line, observation, currentCardPayments, today))
             .ToArray();
 
         return new PeriodPaymentLineClassification
@@ -77,7 +84,8 @@ public static class PeriodPaymentLineClassifier
     private static LineOutcome? FromReminderAnswer(
         PeriodPlanPaymentLine line,
         Dictionary<string, PaymentReminderResponse> answers,
-        PeriodObservation? observation)
+        PeriodObservation? observation,
+        IReadOnlyDictionary<Guid, decimal> currentCardPayments)
     {
         if (!answers.TryGetValue(DueKey(line), out var answer))
         {
@@ -89,25 +97,33 @@ public static class PeriodPaymentLineClassifier
             return new LineOutcome(line, LineState.Snoozed, 0m);
         }
 
-        return Settled(line, observation is null || AnsweredOn(answer) < observation.ObservedOn);
+        var isReflected = observation is null || AnsweredOn(answer) < observation.ObservedOn;
+        return Settled(line, isReflected, currentCardPayments);
     }
 
     // Gözlem günü düşen ödeme bakiyeye henüz yansımamış sayılır: yanılırsak dönem sonu kötümser çıkar.
-    private static LineOutcome FromDueDate(PeriodPlanPaymentLine line, PeriodObservation? observation, DateOnly today)
+    private static LineOutcome FromDueDate(
+        PeriodPlanPaymentLine line,
+        PeriodObservation? observation,
+        IReadOnlyDictionary<Guid, decimal> currentCardPayments,
+        DateOnly today)
     {
         if (line.PlannedDate > today)
         {
             return new LineOutcome(line, LineState.Remaining, 0m);
         }
 
-        return Settled(line, observation is null || line.PlannedDate < observation.ObservedOn);
+        return Settled(line, observation is null || line.PlannedDate < observation.ObservedOn, currentCardPayments);
     }
 
-    private static LineOutcome Settled(PeriodPlanPaymentLine line, bool isReflectedInObservedBalance) =>
+    private static LineOutcome Settled(
+        PeriodPlanPaymentLine line,
+        bool isReflectedInObservedBalance,
+        IReadOnlyDictionary<Guid, decimal> currentCardPayments) =>
         new(
             line,
             isReflectedInObservedBalance ? LineState.SettledBeforeObservation : LineState.SettledAfterObservation,
-            line.PlannedAmount ?? 0m);
+            ProjectedPaymentAmount.Of(line, currentCardPayments));
 
     // Plan sürümleri eskiden yeniye dolaşılır; aynı ödemeye birden fazla sürümde işaret konmuşsa
     // en yeni sürümdeki üzerine yazılarak kalır (S33).

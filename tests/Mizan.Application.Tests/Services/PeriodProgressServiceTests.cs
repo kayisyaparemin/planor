@@ -1,4 +1,5 @@
 using Mizan.Application.Abstractions;
+using Mizan.Application.Models;
 using Mizan.Application.Services;
 using Mizan.Application.Tests.Fakes;
 using Mizan.Domain.Calculations;
@@ -121,6 +122,62 @@ public sealed class PeriodProgressServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_KartinVadesiGeldiyse_DonemSonuTahminiKartinGuncelOdemesiyleKalir()
+    {
+        // Hazırla — plan Bonus'un 15 Eylül ödemesini 8.000 diye dondurdu, ödeme 10.095'e çıktı; bakiye 4 Eylül'de
+        var kart = PlansizHarcamaliBonus();
+        await _kartlar.UpsertCreditCardAsync(kart);
+        var plan = await AcikDonemKurAsync(new PeriodPlanSnapshot
+        {
+            OpeningBalance = 20_000m,
+            PaymentLines = [KartSatiri(kart, new DateOnly(2026, 9, 15), 8_000m)]
+        });
+        await GozlemKaydetAsync(plan, new DateOnly(2026, 9, 4), 20_000m);
+
+        // Uygula — vadeden bir gün önce ve vade günü
+        var oncekiGun = await Servis(new DateOnly(2026, 9, 14)).GetAsync();
+        var vadeGunu = await Servis(new DateOnly(2026, 9, 15)).GetAsync();
+
+        // Doğrula — ödeme kalandan ödenmişe geçince tutarı değişmez: 20.000 − 10.095 (I23, I165)
+        Assert.Equal(9_905m, oncekiGun?.ProjectedEndingBalance);
+        Assert.Equal(9_905m, vadeGunu?.ProjectedEndingBalance);
+    }
+
+    [Fact]
+    public async Task GetAsync_KartaOdedimDendiktenSonraBakiyeGirildiyse_YasamGideriKartinFarkiniIcermez()
+    {
+        // Hazırla — 10.095'lik kart 12 Eylül'de ödendi ve "Ödedim" dendi; kullanıcı 1.000 harcadı,
+        // 13 Eylül'de bakiye 20.000 − 10.095 − 1.000 = 8.905
+        var kart = PlansizHarcamaliBonus();
+        var vade = new DateOnly(2026, 9, 15);
+        await _kartlar.UpsertCreditCardAsync(kart);
+        var plan = await AcikDonemKurAsync(new PeriodPlanSnapshot
+        {
+            OpeningBalance = 20_000m,
+            PlannedVariableExpenseAllowance = 5_000m,
+            PaymentLines = [KartSatiri(kart, vade, 8_000m)]
+        });
+        await _hatirlaticilar.UpsertResponsesAsync([new PaymentReminderResponse
+        {
+            DueKey = PaymentReminderPlanner.DueKey(kart.Id, kart.Name, vade),
+            Name = kart.Name,
+            DueDate = vade,
+            Amount = 10_095m,
+            Kind = PaymentReminderAnswerKind.Paid,
+            AnsweredAt = new DateTime(2026, 9, 12, 10, 0, 0)
+        }]);
+        await GozlemKaydetAsync(plan, new DateOnly(2026, 9, 13), 8_905m);
+
+        // Uygula
+        var gidisat = await Servis(new DateOnly(2026, 9, 13)).GetAsync();
+
+        // Doğrula — kartın planı aşan 2.095'i yaşam giderine yazılmaz; kalan havuz 4.000, dönem sonu 8.905 − 4.000
+        Assert.NotNull(gidisat);
+        Assert.Equal(1_000m, gidisat.ObservedLivingSpend);
+        Assert.Equal(4_905m, gidisat.ProjectedEndingBalance);
+    }
+
+    [Fact]
     public async Task GetAsync_KmhOraniAyarlardanBugunSaattenOkunur()
     {
         // Hazırla — havuz 10.000, bakiye 0: dönem −10.000 kapanır; ayardaki oran %10
@@ -198,6 +255,16 @@ public sealed class PeriodProgressServiceTests
         Limit = 50_000m,
         MinimumPaymentRate = 0.40m,
         PaymentStrategy = CreditCardPaymentStrategy.FullStatement
+    };
+
+    // Ekstresi 5 Eylül'de kesilen, 15 Eylül'de ödenen kart: dönem başında 8.000 borç, 3 Eylül'de 2.095 plansız harcama.
+    private static CreditCard PlansizHarcamaliBonus() => Kart("Bonus") with
+    {
+        StatementClosingDay = 5,
+        PaymentDueDay = 15,
+        BalanceAsOfDate = DonemBasi,
+        UnbilledSpending = 8_000m,
+        Charges = [new CardCharge { PostingDate = new DateOnly(2026, 9, 3), Amount = 2_095m }]
     };
 
     private static PeriodPlanPaymentLine KartSatiri(CreditCard kart, DateOnly vade, decimal tutar) => new()

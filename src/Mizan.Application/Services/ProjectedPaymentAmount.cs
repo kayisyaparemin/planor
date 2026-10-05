@@ -3,15 +3,16 @@ using Mizan.Domain.Models;
 namespace Mizan.Application.Services;
 
 /// <summary>
-/// Kalan bir ödeme satırının gidişatta sayılan tutarı: kart satırında kartın bugünkü hâli, diğerlerinde planlanan
+/// Bir ödeme satırının gidişatta sayılan tutarı: kart satırında kartın bugünkü hâli, diğerlerinde planlanan
 /// tutar (I23). Dondurulan kart tahmini dönem içindeki ekstre ve harcamaları bilmez; dönem sonu tahmini, kalan
 /// ödemeler listesi, bakiye rotası ve hatırlatıcı aynı tutarı kullanmazsa ekranlar birbirinden farklı rakam söyler.
-/// Hepsi kuralı buradan alır (M8, I165).
+/// Satır kalan da olsa, vadesi gelip ya da "Ödedim" denip yapılmış sayılsa da kural aynıdır; yoksa tahmin vade
+/// günü sıçrar. Hepsi kuralı buradan alır (M8, I165, I166).
 /// </summary>
 public static class ProjectedPaymentAmount
 {
     /// <summary>Satırın gidişatta sayılan tutarını döner; tutarı bilinmeyen satır 0 sayılır.</summary>
-    /// <param name="line">Kalan ödeme satırı.</param>
+    /// <param name="line">Kalan ya da yapılmış sayılan ödeme satırı.</param>
     /// <param name="currentCardPayments">Kart kimliğine göre kartın bugünkü hâliyle bu dönemde vadesi gelen ödeme.</param>
     public static decimal Of(PeriodPlanPaymentLine line, IReadOnlyDictionary<Guid, decimal> currentCardPayments) =>
         Known(line, currentCardPayments) ?? 0m;

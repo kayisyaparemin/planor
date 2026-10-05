@@ -7,7 +7,8 @@ namespace Mizan.Application.Models;
 /// yapılanların ne kadarı kullanıcının girdiği bakiyeye zaten yansımış, hangileri hâlâ kalan.
 /// Gidişat, gözlenen bakiyeden yaşam harcamasını geri çözerken yalnız bakiyeye yansımış ödemeleri
 /// düşebilir; gözlemden sonra yapılanları ise bakiyeden ayrıca çıkarmak zorundadır. Bu ayrım
-/// yapılmazsa aynı ödeme ya iki kez sayılır ya da hiç sayılmaz.
+/// yapılmazsa aynı ödeme ya iki kez sayılır ya da hiç sayılmaz. Yapılmış kart ödemesi dondurulan tahminle değil
+/// kartın bugünkü ödemesiyle toplanır; fark yaşam harcamasına yazılmaz (I166).
 /// </summary>
 public sealed record PeriodPaymentLineClassification
 {
