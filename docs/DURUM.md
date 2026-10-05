@@ -14,6 +14,14 @@
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
 
+### CI'ın GitHub'daki ilk koşusu — iki Linux hatası
+
+Repo GitHub'a (`kayisyaparemin/planor`, private) ilk kez pushlandı ve `ci.yml` ilk kez gerçek koşucuda koştu. Derleme Linux'ta temiz geçti; testte iki şey çıktı.
+(1) `DesignBrandTests.EskiAdTaramasi_KodAdiniYakalamaz` kırmızıydı: `RegexOptions.IgnoreCase` "İ"yi yalnız tr-TR kültüründe "i" sayıyor, koşucu kültürsüz. Tarama artık "İ"yi "I"ya indirip kültürden bağımsız eşleştiriyor.
+(2) `Mizan.Infrastructure.Tests` takılıyordu: 11 repository test sınıfı kurucuda `EnsureInitializedAsync(...).GetAwaiter().GetResult()` ile bekliyordu. xUnit paralel sınıfları çekirdek sayısı kadar iş parçacığıyla sürer (koşucuda 4); hepsi kurucuda bloklanınca devam adımı çalışamıyordu. `SqlitePeriodSettlementInstrumentTests` bunu daha önce `IAsyncLifetime` ile çözmüştü; diğer 11 sınıf aynı kalıba çekildi. Yerelde `xUnit.MaxParallelThreads=1` ile eski kod aynı testte takıldı, yenisi 2.223/2.223 yeşil.
+`ci.yml` test adımına `--blame-hang-timeout 5m` eklendi: takılan test işi 45 dakika bekletmez, adını yazarak düşer.
+**Dikkat:** kurucuda senkron beklemeyi yasaklayan bir mimari test yok; yeni bir test sınıfı aynı tuzağa düşerse yalnız CI'da görülür (yerel makinede çekirdek çok).
+
 ### G1b — profil seçimi ekranında "Eski uygulamadan al" girişi; karar `S83`-8
 
 Profil seçimi ekranına, hem dolu listede hem ilk kurulumda, "Eski Uygulamadan Al" düğmesi geldi. Akış: mevcut dosya seçici zip'i açar → `ProfileBackupHandler.ImportLegacyAsync` → yeni `LegacyImportService` (Application) yedeğin **bütün** profillerini `BackupRetentionRules.CreateImportedProfile` ile adlandırır (kimlik çakışırsa "(… yedeği)" kopyası, `I152`) ve `ILegacyBackupImporter`'ı çağırır. Başarı diyaloğu eklenen profilleri sayar ve eski simülasyon taslaklarının taşınmadığını söyler (S83-3).
