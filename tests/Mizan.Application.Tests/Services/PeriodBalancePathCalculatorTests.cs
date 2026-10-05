@@ -223,6 +223,28 @@ public sealed class PeriodBalancePathCalculatorTests
     }
 
     [Fact]
+    public void FromObservations_GozlemdenOncekiKartinBugunkuTutariFarkliysa_KatedilenYolGuncelTutarlaCizilirVeAciklanamayanFarkDogrudur()
+    {
+        // Hazırla — kart 20'sinde plan 12.000; dönem içi harcamayla kart 14.000'e çıktı (I23).
+        // 25'inde bakiye gözlemi 36.000:
+        // Gerçek: Açılış 30.000 − Kira (5'inde) 15.000 + Gelir (15'inde) 40.000 − Kart (20'sinde) 14.000 − Yaşam 5.000 = 36.000.
+        // Açıklanamayan yaşam harcaması 5.000 olmalı; 24 güne günde 208,33 düşer.
+        // Kart 20'sinde ödenir, 21'inin noktasında görünür:
+        // 20'sinde (kart henüz düşmedi, 19 gün harcama): 30.000 − 15.000 + 40.000 − 5.000 * 19 / 24 = 55.000 − 3.958,33 = 51.041,67.
+        // 21'inde (kart 14.000 düştü, 20 gün harcama): 30.000 − 15.000 + 40.000 − 14.000 − 5.000 * 20 / 24 = 41.000 − 4.166,67 = 36.833,33.
+        var defter = Defter(Plan, Gozlem(Gun(25), 36_000m));
+
+        // Uygula
+        var gidisat = Hesapla(defter, Gun(25), new Dictionary<Guid, decimal> { [KartId] = 14_000m });
+
+        // Doğrula — katedilen yol kartın güncel tutarını düşer ve yaşam harcamasını şişirmez
+        var gecmis = gidisat.Path.Travelled;
+        Assert.Equal(51_041.67m, Bakiye(gecmis, Gun(20)));
+        Assert.Equal(36_833.33m, Bakiye(gecmis, Gun(21)));
+        Assert.Equal(36_000m, Bakiye(gecmis, Gun(25)));
+    }
+
+    [Fact]
     public void FromObservations_ErtelenenOdeme_AradaDusulmezGozlemdenSonraDuser()
     {
         // Hazırla — kira ertelendi; 12'sinde 23.000: yalnız 7.000 yaşam harcaması

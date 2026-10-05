@@ -11,6 +11,8 @@ namespace Mizan.Application.Services;
 /// </summary>
 public static class PeriodBalancePathCalculator
 {
+    private static readonly Dictionary<Guid, decimal> EmptyCardPayments = [];
+
     /// <summary>
     /// Gözlem yokken rota saf plandır (S71-6): açılış bakiyesinden, güncel planın gelir ve ödeme satırları
     /// planlanan gün ve tutarlarıyla, yaşam havuzunun tamamı dönem boyunca eşit, planlanan KMH faizi son noktada.
@@ -24,7 +26,7 @@ public static class PeriodBalancePathCalculator
         var opening = new BalancePathPoint(plan.PeriodStart, plan.OpeningBalance);
         var ahead = Ahead(
             opening,
-            PlannedMovements(ledger, unpaidLineIds: []),
+            PlannedMovements(ledger, unpaidLineIds: [], EmptyCardPayments),
             latest?.PlannedVariableExpenseAllowance ?? plan.PlannedVariableExpenseAllowance,
             latest?.PlannedDeficitInterest ?? plan.PlannedDeficitInterest,
             plan.PeriodEnd);
@@ -50,7 +52,7 @@ public static class PeriodBalancePathCalculator
     {
         var latest = ledger.LatestObservation ??
             throw new ArgumentException("Gözlemsiz dönemin rotası plandan çizilir.", nameof(ledger));
-        var travelled = Travelled(ledger, lines);
+        var travelled = Travelled(ledger, lines, currentCardPayments);
         var ahead = Ahead(
             travelled[^1],
             MovementsAfter(latest.ObservedOn, ledger, lines, currentCardPayments),
@@ -61,12 +63,15 @@ public static class PeriodBalancePathCalculator
     }
 
     // Ödenmemiş satırlar (ertelenen, "ödenmedi" işaretli) katedilen yolda düşülmez; önümüzdeki yolda düşerler.
-    private static Movement[] PlannedMovements(OpenPeriodLedger ledger, HashSet<Guid> unpaidLineIds) =>
+    private static Movement[] PlannedMovements(
+        OpenPeriodLedger ledger,
+        HashSet<Guid> unpaidLineIds,
+        IReadOnlyDictionary<Guid, decimal> currentCardPayments) =>
         ledger.CurrentIncomeLines
             .Select(x => new Movement(x.PlannedDate, x.PlannedAmount, IsIncome: true))
             .Concat(ledger.CurrentPaymentLines
                 .Where(x => !unpaidLineIds.Contains(x.Id))
-                .Select(x => new Movement(x.PlannedDate, -(x.PlannedAmount ?? 0m), IsIncome: false)))
+                .Select(x => new Movement(x.PlannedDate, -ProjectedPaymentAmount.Of(x, currentCardPayments), IsIncome: false)))
             .ToArray();
 
     // Son gözlemde görünmeyen hareketler, gidişatın terimleriyle birebir: gözlemden sonra yatacak gelir, gözlemden
@@ -84,10 +89,13 @@ public static class PeriodBalancePathCalculator
                 new Movement(x.PlannedDate, -ProjectedPaymentAmount.Of(x, currentCardPayments), IsIncome: false)))
             .ToArray();
 
-    private static List<BalancePathPoint> Travelled(OpenPeriodLedger ledger, PeriodPaymentLineClassification lines)
+    private static List<BalancePathPoint> Travelled(
+        OpenPeriodLedger ledger,
+        PeriodPaymentLineClassification lines,
+        IReadOnlyDictionary<Guid, decimal> currentCardPayments)
     {
         var anchors = Anchors(ledger);
-        var movements = PlannedMovements(ledger, lines.RemainingLines.Select(x => x.Id).ToHashSet());
+        var movements = PlannedMovements(ledger, lines.RemainingLines.Select(x => x.Id).ToHashSet(), currentCardPayments);
         var points = new List<BalancePathPoint> { anchors[0].Point };
         for (var i = 1; i < anchors.Count; i++)
         {
