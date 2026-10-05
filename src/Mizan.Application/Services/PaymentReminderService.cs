@@ -60,8 +60,9 @@ public sealed class PaymentReminderService : IPaymentReminderService
         var mode = await _reminderRepository.GetModeAsync(cancellationToken);
         var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
         var openPlan = history.FindOpenPlan();
+        // Dönem [Start, End) olduğu için ilk günün vadesi bu döneme aittir; devreden ödemeler oraya düşer (S27, S86).
         var responses = (await _reminderRepository.GetResponsesAsync(cancellationToken))
-            .Where(x => openPlan is null || x.DueDate > openPlan.PeriodStart)
+            .Where(x => openPlan is null || x.DueDate >= openPlan.PeriodStart)
             .ToArray();
         var snoozed = responses.Where(x => x.Kind == PaymentReminderAnswerKind.Snoozed).ToArray();
         var paid = responses.Where(x => x.Kind == PaymentReminderAnswerKind.Paid).ToArray();

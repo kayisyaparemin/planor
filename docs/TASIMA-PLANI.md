@@ -133,6 +133,8 @@ Geri kalan her şey bu omurgadan sarkar.
       *(S47: tanrı arayüz ve partial elendi; kredi, vadeli plan ve büyük harcamalar 5 dar bağımlılıkla IObligationManagementService'te toplandı; gelir yönetimi IIncomePlanService portuna ayrıldı)*
 - [x] **A21** — dönem iş akışı: `IPeriodWorkflowService`
       *(S48: Kural M5 ve M3 gereği dönem mutabakat/gözlem servisi IPeriodWorkflowService ve ödeme hatırlatıcı servisi IPaymentReminderService olarak ayrıştırıldı; PaymentDueCollector odaklı yardımcı servisi eklendi)*
+      *(S85 düzeltmesi: `PaymentDueCollector` vadesi açık dönemin bitiş gününe düşen ödemeyi sonraki dönemden alır; filtre `>` yerine `>=`; `I156`, `I157`)*
+      *(S86 düzeltmesi: hatırlatıcı panosu dönemin ilk gününün cevaplarını taşır, pencere yarı açık döneme bağlandı; `I158`)*
 - [x] **A22** — cephe `MizanService`: **TAŞINMADI (ELENDİ)** — S49: Düğüm T7, Kural M3; 515 satırlık tanrı cephe elendi, ViewModel'ler dar portlara bağlanır, mimari testle yasaklandı
 - [x] **A23** — sunum yardımcıları *(~1.300 satır ve iki bağımsız sunum yeteneği olduğu için iki alt adıma bölündü; S50)*
   - [x] **A23a** — dönem ayrıntısı sunumu: `CashFlowPeriodDetailPresenter`, modelleri (`CashFlowPeriodDetailData`, `DetailMetric` …) *(S50: Mizan.Presentation projesine taşındı, S18 yapay tahsis elendi, S11/S13 yasaklı terimler düzeltildi)*

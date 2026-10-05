@@ -303,6 +303,118 @@ public sealed class PaymentReminderServiceTests
         Assert.Contains(dues, x => x.Name == "Yıllık Sigorta" && x.DueDate == new DateOnly(2026, 10, 3));
     }
 
+    [Fact]
+    public async Task GetUpcomingPaymentDuesAsync_TaksitVadesiDonemBitisGunundeyse_ListedeYerAlir()
+    {
+        // Hazırla: açık dönem [1 Eylül, 1 Ekim); taksit her ayın 1'inde, ilki 1 Ekim'de.
+        // Bitiş günü açık plana değil sonraki döneme aittir; hatırlatıcı onu oradan almalı.
+        var service = CreateService(out _, out var planReader);
+        var plan = CreateSampleFinancialPlan();
+        var loan = plan.Loans[0] with { PaymentDay = 1, NextPaymentDate = SettlementDate };
+        plan = plan with { Loans = [loan] };
+        planReader.PlanToReturn = plan;
+        await SeedCurrentPlanAsync(plan);
+
+        // Uygula
+        var dues = await service.GetUpcomingPaymentDuesAsync(new DateTime(2026, 9, 15, 10, 0, 0));
+
+        // Doğrula
+        Assert.Contains(dues, x => x.Key == PaymentReminderPlanner.DueKey(loan.Id, loan.Name, SettlementDate));
+    }
+
+    [Fact]
+    public async Task GetUpcomingPaymentDuesAsync_BuyukHarcamaDonemBitisGunundeyse_ListedeYerAlir()
+    {
+        // Hazırla: açık dönem [1 Eylül, 1 Ekim); planlı büyük harcama tam 1 Ekim'de.
+        var service = CreateService(out _, out var planReader);
+        var expense = new PlannedLargeExpense
+        {
+            Id = Guid.NewGuid(),
+            Name = "Okul Taksiti",
+            Amount = 25_000m,
+            Status = PlannedExpenseStatus.Planned,
+            ExactDate = SettlementDate
+        };
+        var plan = CreateSampleFinancialPlan() with { PlannedLargeExpenses = [expense] };
+        planReader.PlanToReturn = plan;
+        await SeedCurrentPlanAsync(plan);
+
+        // Uygula
+        var dues = await service.GetUpcomingPaymentDuesAsync(new DateTime(2026, 9, 15, 10, 0, 0));
+
+        // Doğrula
+        Assert.Contains(dues, x => x.Key == PaymentReminderPlanner.DueKey(expense.Id, expense.Name, SettlementDate));
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_DonemIlkGunuVadeliOdemeErtelendiginde_TakipHatirlatmasiKurulur()
+    {
+        var service = await CreateServiceWithOpenPlanAsync();
+        var snoozedAt = new DateTime(2026, 9, 1, 10, 0, 0);
+        await service.RecordAnswerAsync(new PaymentReminderAnswer(
+            PaymentReminderAnswerKind.Snoozed,
+            snoozedAt,
+            PaymentReminderPlanner.SnoozeUntil(snoozedAt),
+            [AnsweredDue(InitialDate)]));
+
+        var board = await service.GetBoardAsync(snoozedAt.AddMinutes(30));
+
+        Assert.Contains(board.Reminders, x => x.Key == "20260901-ertele");
+        Assert.Contains(board.Snoozed, x => x.DueDate == InitialDate);
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_DonemIlkGunuVadeliOdemeOdendiginde_PanodaOdenmisGorunur()
+    {
+        var service = await CreateServiceWithOpenPlanAsync();
+        var answeredAt = new DateTime(2026, 9, 1, 10, 0, 0);
+        await service.RecordAnswerAsync(new PaymentReminderAnswer(
+            PaymentReminderAnswerKind.Paid,
+            answeredAt,
+            null,
+            [AnsweredDue(InitialDate)]));
+
+        var board = await service.GetBoardAsync(answeredAt.AddMinutes(30));
+
+        Assert.Contains(board.Paid, x => x.DueDate == InitialDate);
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_OncekiDonemSonGunuVadeliCevaplar_PanoyaGirmez()
+    {
+        var service = await CreateServiceWithOpenPlanAsync();
+        var previousPeriodLastDay = InitialDate.AddDays(-1);
+        var answeredAt = new DateTime(2026, 9, 1, 10, 0, 0);
+        await service.RecordAnswerAsync(new PaymentReminderAnswer(
+            PaymentReminderAnswerKind.Paid, answeredAt, null, [AnsweredDue(previousPeriodLastDay)]));
+        await service.RecordAnswerAsync(new PaymentReminderAnswer(
+            PaymentReminderAnswerKind.Snoozed,
+            answeredAt,
+            PaymentReminderPlanner.SnoozeUntil(answeredAt),
+            [AnsweredDue(previousPeriodLastDay)]));
+
+        var board = await service.GetBoardAsync(answeredAt.AddMinutes(30));
+
+        Assert.Empty(board.Paid);
+        Assert.Empty(board.Snoozed);
+        Assert.DoesNotContain(board.Reminders, x => x.Key.EndsWith("-ertele", StringComparison.Ordinal));
+    }
+
+    private async Task<PaymentReminderService> CreateServiceWithOpenPlanAsync()
+    {
+        var service = CreateService(out _, out var planReader);
+        var plan = CreateSampleFinancialPlan();
+        planReader.PlanToReturn = plan;
+        await SeedCurrentPlanAsync(plan);
+        await service.SaveModeAsync(PaymentReminderMode.Relaxed);
+        return service;
+    }
+
+    // Dönem kapanışında ödenmeyen yükümlülük yeni dönemin ilk gününe devreder (S27);
+    // dönem sınırına en sık düşen hatırlatıcı cevabı budur.
+    private static PaymentDue AnsweredDue(DateOnly dueDate) =>
+        new(PaymentReminderPlanner.DueKey(Guid.NewGuid(), "Devreden Kredi", dueDate), "Devreden Kredi", dueDate, 10_000m);
+
     private async Task<PeriodPlanSnapshot> SeedCurrentPlanAsync(FinancialPlan? plan = null)
     {
         var snapshot = new FinancialSnapshot

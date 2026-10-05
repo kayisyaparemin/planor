@@ -837,3 +837,25 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `A9` |
 | **İlgili** | `S85`, `S86`: aynı kökten, hatırlatıcıdaki iki pencere. Üç düzeltme önce ayrı dallarda `S74`/`S76`/`I114`–`I117` numaralarıyla yazılmıştı; o numaralar main'de başka kayıtlara verildiği için birleştirmede yeniden numaralandı. |
 | **Durum** | uygulandı (`I155`) |
+
+### S85 — Hatırlatıcı, vadesi açık dönemin bitiş gününe düşen ödemeyi sonraki dönemden alır
+
+| | |
+|---|---|
+| **Eski** | Eski projenin `PeriodWorkflowService`'i, hatırlatma ufku açık dönemi aştığında sonraki dönemlerin vadelerini ve planlı büyük harcamaları `DueDate > openPlan.PeriodEnd` / `ExactDate > openPlan.PeriodEnd` filtresiyle ekliyordu. v2'de `PaymentDueCollector.AppendFutureDuesAsync` aynı filtreyle taşındı. |
+| **Neden yanlış** | Eski projenin sol-açık dönem modelinden kalma (bkz. `S27`, `S30`). Orada açık dönem `(başlangıç, bitiş]` olduğu için bitiş günü açık planın satırıydı ve filtre doğruydu. v2'de dönem `[Start, End)`: dondurulan plan satırları `period.Contains` ile seçiliyor, bitiş günü (sonraki dönemin ilk günü) açık planda **yok**. Gelecek dönemler açık dönemin başından üretiliyor; filtre yalnız açık dönemi ayıklamak için var, ama `>` bitiş gününü de ayıklıyordu. Vadesi tam o güne düşen ödeme iki kaynakta da bulunmuyor, **hatırlatıcıdan sessizce düşüyordu.** Çapa günü 15 ve taksit her ayın 15'iyse, her ay o taksit hatırlatılmıyordu. Eski projede hata yok. |
+| **Yeni** | Sonraki dönem vadeleri ve planlı büyük harcamalar `>= PeriodEnd` ile eklenir (`I156`, `I157`). Açık plan `< PeriodEnd`, gelecek dönemler `>= PeriodEnd` aldığı için iki kaynak ne örtüşür ne arada gün bırakır. |
+| **Etkiler** | `A21` (`PaymentDueCollector`), `V2` (hatırlatıcı kartı) |
+| **İlgili** | `S84`, `S86`. Sonraki dönemlere bakma koşulu (`last > PeriodEnd`) bilerek aynı kaldı: ufuk 35 gün, dönem en çok 31 gün; bugün açık dönemin içindeyken ufuk bitişi dönem sonunu her zaman aşar. Bugünün açık dönem başından önce olduğu kurulum durumu (aradaki günlerin vadeleri hiç hatırlatılmıyor) ayrı bir sınıftır, kayıtsız. |
+| **Durum** | uygulandı (`I156`, `I157`) |
+
+### S86 — Hatırlatıcı panosu dönemin ilk gününün cevaplarını taşır
+
+| | |
+|---|---|
+| **Eski** | Eski projenin `PeriodWorkflowService.GetPaymentReminderBoardAsync`'i, önceki dönemlerin cevaplarını elemek için hatırlatıcı cevaplarını `DueDate > openPlan.PeriodStart` ile süzüyordu; `A21`'de (`S48`) `PaymentReminderService.GetBoardAsync`'e aynen taşındı. |
+| **Neden yanlış** | Eskide dönem `(checkpoint, next]` olduğu için pencere doğruydu (`S27`): `PeriodStart` önceki döneme aitti. v2'de dönem `[Start, End)` ve `PeriodStart` açık dönemin ilk günüdür. Vadesi dönemin ilk gününe düşen ödemeye verilen cevap panodan düşüyordu. Bu gün rastgele değil: kapanışta ödenmeyen her yükümlülük oraya devreder (`S27`). "Ertele" denen ödemenin 3 saat sonraki takip bildirimi kurulmuyor, erteleme dolunca kart ertelenen ödemeyi geri getirmiyor, ödeme `Upcoming`'de ertelenmemiş gibi duruyordu. "Ödendi" cevabı panonun `Paid` listesinden düşüyordu. |
+| **Yeni** | Pano cevapları `DueDate >= PeriodStart` ile süzer (`I158`); önceki dönemin son günü (`PeriodStart − 1`) yine dışarıda kalır. Üst sınır yoktur, hatırlatma ufku sonraki döneme taşabilir. |
+| **Etkiler** | `A21` (`PaymentReminderService`), `V2` (hatırlatıcı kartı `board.Snoozed`'u okur) |
+| **İlgili** | `S27`, `S30`, `S37`, `S84`, `S85`: aynı kökten çeviri kalıntıları. Eski proje kendi modelinde doğru; dokunulmadı. |
+| **Durum** | uygulandı (`I158`) |

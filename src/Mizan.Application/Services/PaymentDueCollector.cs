@@ -82,9 +82,11 @@ public sealed class PaymentDueCollector(
         var plan = await _planReader.GetPlanAsync(cancellationToken);
         var futurePeriods = _projectionService.BuildFuturePeriods(plan, periodEnd, periodCount: 3);
 
+        // Gelecek dönemler açık dönemin kendisinden başlar; açık plan [Start, End) vadelerini zaten
+        // taşıdığı için yalnız onu ayıklıyoruz. Bitiş günü sonraki dönemin ilk günüdür, buradan gelir (S85).
         dues.AddRange(futurePeriods
             .SelectMany(x => x.MandatoryItems)
-            .Where(x => x.DueDate > periodEnd && x.DueDate >= today && x.DueDate <= last)
+            .Where(x => x.DueDate >= periodEnd && x.DueDate >= today && x.DueDate <= last)
             .Select(x => new PaymentDue(
                 PaymentReminderPlanner.DueKey(x.PaymentId, x.Name, x.DueDate),
                 x.Name,
@@ -92,7 +94,7 @@ public sealed class PaymentDueCollector(
                 x.Amount)));
 
         dues.AddRange(plan.PlannedLargeExpenses
-            .Where(x => x.Status == PlannedExpenseStatus.Planned && x.ExactDate > periodEnd && x.ExactDate >= today && x.ExactDate <= last)
+            .Where(x => x.Status == PlannedExpenseStatus.Planned && x.ExactDate >= periodEnd && x.ExactDate >= today && x.ExactDate <= last)
             .Select(x => new PaymentDue(
                 PaymentReminderPlanner.DueKey(x.Id, x.Name, x.ExactDate),
                 x.Name,
