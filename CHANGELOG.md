@@ -10,6 +10,8 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.3.1] - 2026-10-05
+
 ### Düzeltildi
 
 - Kurulum sihirbazı ayın çapa gününden sonraki bir tarihte tamamlandığında ilk dönemin bir sonraki aydan başlatılması ve cari döneme bakiye girilememesi düzeltildi; ilk dönem artık kurulum gününün içinde bulunduğu takvim döneminden başlar.
