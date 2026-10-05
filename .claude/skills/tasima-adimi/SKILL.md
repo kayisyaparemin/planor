@@ -180,6 +180,6 @@ eski şema göçleri, `*SourceTests` karşılıkları, kaldırılmış özellikl
 
 ## Adım dışında fark edilenler
 
-Bu protokol bir taşıma adımının *içinde* fark edilenleri çözer. Kullanıcı dokümanları okurken
-ya da uygulamayı kullanırken bir hata yakalarsa — yani adım dışında — o iş buraya değil
-`/duzeltme` akışına gider.
+Bu protokol bir taşıma adımının *içinde* fark edilenleri çözer. Adım dışında yakalanan bir hata
+buraya gelmez: kullanıcının gördüğü bir hataysa (yanlış davranış ya da görünüş) `/bug-fix`,
+terim, kavram ya da doküman hatasıysa `/duzeltme` akışına gider.

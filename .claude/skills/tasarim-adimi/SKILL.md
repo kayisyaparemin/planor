@@ -351,5 +351,5 @@ projenin 14 farklı görsel dilinin yeniden üretilmesi.
 ## Adım dışında fark edilenler
 
 Bu protokol ekran adımının *içinde* fark edilenleri çözer. Uygulamayı kullanırken ya da
-konsepte bakarken bir görsel tutarsızlık yakaladıysan — yani adım dışında — o iş
-`/duzeltme` akışına gider, **tür G**.
+konsepte bakarken bir görsel tutarsızlık yakaladıysan — yani adım dışında — o iş `/bug-fix`
+akışına gider.

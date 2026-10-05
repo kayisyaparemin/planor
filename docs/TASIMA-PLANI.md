@@ -264,7 +264,8 @@ yazılamaz. Faz V adımları `/tasima-adimi` değil `/tasarim-adimi` ile yürür
       sayım bileşen adlarına dayanıyor.)*
 
 Faz V sırasında kullanıcı geri bildiriminden doğan sistem işleri. Ekran içinde değil,
-bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı):
+bileşen / servis düzeyinde çözülür (`/bug-fix` → görünüş katmanı tablosunun "sistem" satırı:
+yeni token ya da bileşen gerektiği için `/development T7` gibi yürür):
 
 - [ ] **T7** — başlık aksiyonunun anlaşılırlığı: `PageHeader`'daki tek başına ikon (ilk
       kullanım: `EK-V7` kart değiştirme) dokunulabilir olduğunu belli etmiyor; kullanıcı

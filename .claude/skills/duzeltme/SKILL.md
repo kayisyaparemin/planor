@@ -1,6 +1,6 @@
 ---
 name: duzeltme
-description: Bir taşıma ya da ekran adımının dışında fark edilen hata için düzeltme akışı — terim (T), kavramsal sapma (K), doküman (D), bug (B), görsel (G). Türü belirler, kapsamı ölçer, kullanıcı seçmeden uygulamaz.
+description: Kullanıcıya görünmeyen hatalar için düzeltme akışı — terim (T), kavramsal sapma (K), doküman (D). Türü belirler, kapsamı ölçer, kullanıcı seçmeden uygulamaz. Kullanıcının gördüğü hata (yanlış davranış ya da görünüş) /bug-fix'tir.
 argument-hint: "<ne gördün>"
 ---
 
@@ -16,19 +16,24 @@ aittir — bir ekran adımındaysan `/tasarim-adimi` Aşama 3'e (davranış) ya 
 > Bu akış taşıma protokolünü **değiştirmez.** Yanında çalışır ve çıktısını ona besler:
 > düzeltme, sapma kaydına veya yasaklı terim listesine dönüşür; protokol onu oradan okur.
 
+**Kullanıcının gördüğü hatalar bu akışın işi değildir.** Yanlış davranış (eski tür B) ve yanlış
+görünüş (eski tür G) `/bug-fix`'e taşındı: orada kırmızı testle düzelir ve sürüm çıkarır. Bu akış
+kullanıcıya görünmeyen üç türü yürütür ve sürüm çıkarmaz.
+
 ---
 
 ## Aşama 1 — Türü belirle  *(kod yazılmaz)*
 
-Beş tür vardır ve her biri farklı yoldan gider. Önce hangisi olduğunu **söyle**, sonra devam et.
+Üç tür vardır ve her biri farklı yoldan gider. Önce hangisi olduğunu **söyle**, sonra devam et.
 
 | Tür | Nasıl anlarsın | Nereye gider |
 |---|---|---|
 | **T — Terim hatası** | Bir kavramın yanlış ya da eski adı kullanılmış | Sözlük + yasaklı liste + test |
 | **K — Kavramsal sapma** | Eski kod bir şeyi **yanlış modellemiş**; isim değil davranış sorunu | `SAPMALAR.md` + etkilenen adımlar |
 | **D — Doküman hatası** | Kod doğru, doküman yanlış ya da bayat | Doğrudan düzelt |
-| **B — Bug** | Taşınmış kod yanlış davranıyor | Önce kırmızı test |
-| **G — Görsel sapma** | Ekran doğru çalışıyor ama yanlış görünüyor; tutarsız token, bütçe aşımı, konseptten kopma | `TASARIM-SAPMALARI.md` + ekran kartı |
+
+Kullanıcı bir şeyi yanlış **görüyorsa** (ekranda yanlış sayı, duran bir akış, bozuk görünüş) tür
+seçme: dur ve söyle, bu iş `/bug-fix`'tir.
 
 Emin değilsen **K** varsay ve kullanıcıya sor. En pahalı hata, kavramsal bir sapmayı terim
 hatası sanıp yalnızca adını değiştirmektir — o zaman yanlış model doğru isimle hayatta kalır.
@@ -75,7 +80,9 @@ Sonra kullanıcıya üç şıkla gel:
    etkilenen adımlar, durum.
 2. `docs/TASIMA-PLANI.md`'de etkilenen adımların tarifini güncelle ve sapma koduna referans ver.
 3. Tamamlanmış bir adım etkileniyorsa kutusunu **geri aç** ve sebebini yaz.
-4. Düzeltme şimdi yapılacaksa: kırmızı test → yeşil, `/tasima-adimi` Aşama 5–7 gibi.
+4. Düzeltme şimdi yapılacaksa: kırmızı test → yeşil, `/tasima-adimi` Aşama 5–7 gibi. Düzeltme
+   kullanıcının gördüğü davranışı değiştiriyorsa kayıt burada biter, düzeltmenin kendisi
+   `/bug-fix` ile yapılır (kırmızı test ve sürüm oradadır); `S` kodu ona bildirimle verilir.
 5. Yeni bir invariant doğduysa `docs/INVARYANTLAR.md` — koruyan testin tam adıyla.
 
 ### D — Doküman hatası
@@ -86,55 +93,15 @@ Sonra kullanıcıya üç şıkla gel:
 3. Yanlış bilgi bir karara yol açmış mıysa — yani biri ona güvenerek kod yazmışsa — bu
    aslında **K**'dır; tür kararını düzelt ve oradan devam et.
 
-### B — Bug
-
-1. Hatayı **kullanıcının gördüğü hâliyle** tarif eden bir test yaz. Testi çalıştır, kırmızı
-   olduğunu göster. İç yapıyı değil davranışı iddia et.
-2. Düzelt, yeşile al.
-3. `docs/INVARYANTLAR.md`'ye satır ekle: kural + **koruyan testin tam adı**.
-4. Aynı sınıf hata başka yerde de olabilir mi? Bak ve söyle.
-
-### G — Görsel sapma
-
-Önce **hangi katmanın** sorunu olduğunu ayır — yanlış katmanda düzeltmek en pahalı hata:
-
-| Belirti | Katman | Ne yapılır |
-|---|---|---|
-| Aynı iş için iki ekranda iki farklı görünüm | Sistem | `TASARIM-SISTEMI.md` § Bileşenler'e bakılır; eksikse bileşen doğar (iki ekran kuralı) |
-| Bir ekran kalabalık ama testler yeşil | Ekran kartı | Bütçe sayımı doğru, **niteliği** yanlış; Aşama 4 kararları yeniden açılır |
-| Token yanlış kullanılmış | XAML | Doğrudan düzelt; GK testi neden yakalamadığını söyle |
-| Konsept başka şey gösteriyor | Karar | `TASARIM-SAPMALARI.md`'ye `GS` kaydı |
-
-Sonra:
-
-1. `docs/TASARIM-SAPMALARI.md`'ye `GS` kaydı: konsept ne vaat ediyor, **neden
-   uygulanmıyor**, yerine ne yapılıyor, etkilenen ekran kartları.
-2. Etkilenen `docs/EKRAN-KARTLARI.md` kartlarını güncelle — kesme kararı değiştiyse bütçe
-   sayımı da değişir.
-3. Tamamlanmış bir ekran etkileniyorsa `docs/TASIMA-PLANI.md`'de kutusunu **geri aç** ve
-   sebebini yaz.
-4. Bir GK testi bu sapmayı yakalayamadıysa **testi güçlendir** — sapmayı elle düzeltip
-   geçmek, aynı sapmanın bir sonraki ekranda tekrar doğmasına izin vermek demektir.
-5. Yeni bir token, bileşen ya da grafik primitifi gerekiyorsa bu bir **sistem değişikliğidir**:
-   `TASARIM-SISTEMI.md` + testi birlikte değişir, ve bu ayrı bir adımdır.
-
-> En pahalı görsel hata, bir sistem sorununu ekran sorunu sanıp tek ekranda düzeltmek —
-> o zaman tasarım sistemi ekran ekran çatallanır ve eski projenin 14 farklı görsel diline
-> geri dönülür.
-
 ---
 
 ## Aşama 4 — Kayıt
 
 1. `docs/DURUM.md` — "Düzeltme" başlığı altına ne değişti, neden.
 2. Etkilenen kayıtlar güncel mi: `SOZLUK.md`, `SAPMALAR.md`, `INVARYANTLAR.md`,
-   `TASIMA-PLANI.md` — görsel düzeltmede ayrıca `TASARIM-SAPMALARI.md`, `EKRAN-KARTLARI.md`,
-   `TASARIM-SISTEMI.md`.
+   `TASIMA-PLANI.md`.
 3. `dotnet build` + `dotnet test` — 0 hata, 0 uyarı, tümü yeşil.
-4. Tür **B** ya da **G** ise uygulamayı aç ve bırak: `./scripts/emulatorde-ac.ps1`. Kullanıcı
-   düzeltmeyi kendi gözüyle onaylamadan commit atılmaz. Emülatöre dokunma kuralı
-   `/tasarim-adimi` Aşama 9 ile aynıdır.
-5. **Tek commit.** `fix(...)` ya da `docs(...)`; gövdede düzeltmenin türü ve sapma kodu.
+4. **Tek commit.** `fix(...)` ya da `docs(...)`; gövdede düzeltmenin türü ve sapma kodu.
 
 ```
 fix(sozluk): period definition no longer assumes a salary

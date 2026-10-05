@@ -76,7 +76,10 @@ Yeni bir dosya yazmadan önce aynı klasördeki komşusunu oku.
 | `.claude/rules/06-tasarim.md` | XAML, renk, punto, ikon, grafik veya ekran yerleşimine dokunurken |
 | `/tasima-adimi` | Eski projeden parça taşırken — 8 aşama, atlanamaz |
 | `/tasarim-adimi` | Bir **ekran** adımında (Faz V) — 10 aşama, üç onay kapısı |
-| `/duzeltme` | Adım **dışında** bir hata yakalandığında — terim, sapma, doküman, bug, görsel |
+| `/development` | Yeni özellik ya da davranış değişikliği — 9 aşama; Kapı A (analiz), ekran şeması değişiyorsa B (blok şeması), XAML'e dokunulduysa C (görsel); sürümle biter |
+| `/bug-fix` | Kullanıcının **gördüğü** bir hata (davranış ya da görünüş) — 9 aşama, önce kırmızı test; kapılar `/development` ile aynı; sürümle biter |
+| `/surum` | Sürüm çıkarma ve yayın koşusunu bitene kadar izleme — `/development` ve `/bug-fix`'in son aşaması; tek başına da çağrılır |
+| `/duzeltme` | Kullanıcıya **görünmeyen** bir hata — terim, kavramsal sapma, doküman; sürüm çıkarmaz |
 | `mimari-bekci` ajanı | İnceleme yaparken |
 | `docs/TASIMA-PLANI.md`, `docs/DURUM.md` | Nereye kadar geldik? |
 | `docs/SOZLUK.md` | Bir terim ne demek? |
@@ -107,6 +110,10 @@ K9 zaten derlemeyi kırar.
 - İzin listesi `.claude/settings.json`'dadır. `git checkout`, `git restore` ve `git stash`
   bilerek listede yok: aynı çalışma ağacında birden fazla oturum çalışabiliyor, başkasının işini
   geri alma.
+- `git push` listede yalnız `/surum`'un tek tam komutuyla durur:
+  `git push --atomic --follow-tags origin HEAD:main` (main ve yeni etiket, hep ya hiç). Jokerli
+  push izni yoktur; force, `+` refspec ve uzak ref silme yasak listesindedir. Etiket kaldırmak
+  kullanıcının işidir.
 
 ## Bitirme ölçütü
 
@@ -117,7 +124,9 @@ dotnet build Mizan.sln    → 0 hata, 0 uyarı
 dotnet test  Mizan.sln    → tamamı yeşil
 ```
 
-ve `docs/TASIMA-PLANI.md` ile `docs/DURUM.md` güncellenmiş olmalı.
+ve `docs/DURUM.md` güncellenmiş olmalı; taşıma ve ekran adımında ayrıca `docs/TASIMA-PLANI.md`.
+`/development` ve `/bug-fix` ayrıca yayın koşusu bitip Release imzalı APK ile çıkmadan
+tamamlanmış sayılmaz (`/surum`).
 
 ## Yerel geçersiz kılmalar
 

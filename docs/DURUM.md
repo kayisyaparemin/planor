@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Son tamamlanan adım | **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi (Faz G — Geçiş) |
-| Sıradaki adım | Planlanmış adım kalmadı; açık işler için `docs/TASIMA-PLANI.md` |
+| Sıradaki adım | Planlanmış taşıma adımı kalmadı. Yeni iş `/development`, kullanıcının gördüğü hata `/bug-fix` ile; ikisi de sürümle biter. Açık işler `docs/TASIMA-PLANI.md`'de ve aşağıdaki "Dikkat" maddelerinde |
 | Test sayısı | 2230 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
@@ -13,6 +13,13 @@
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Süreç — göçten geliştirmeye: `/development`, `/bug-fix`, `/surum`
+
+Taşıma bittiği için iki yeni protokol geldi; `/tasima-adimi` ve `/tasarim-adimi`'nin kapı mantığını taşırlar ama kaynakları eski kod değil kullanıcının isteği ya da bildirdiği hatadır. **`/development`**: Kapı A analiz (ürün dili, neden, kararlar, dosya planı, riskler, ekran sınıfı, CHANGELOG taslağı); ekran şeması değişiyorsa Kapı B blok şeması; XAML'e dokunulduysa Kapı C emülatörde görsel onay. **`/bug-fix`**: Kapı A teşhis (kök neden `dosya:satır`, kanıt düzeyi Doğrulandı/Çıkarım, kayıtlı veri bozuldu mu, aynı sınıf); kırmızıya düşmeyen test teşhisi geçersiz kılar. İkisi de **`/surum`** ile biter: numara eşitlemeden sonra belirlenir (Eklendi/Değişti → minor, yalnız Düzeltildi → patch, versionCode +1), not `CHANGELOG.md`'nin `[Yayınlanmamış]` bölümünden taşınır, main ve etiket `git push --atomic --follow-tags origin HEAD:main` ile birlikte gider, `scripts/surum-izle.ps1` yayın koşusunu bitene kadar izleyip Release'de imzalı APK'yı doğrular.
+`/duzeltme` kullanıcıya görünmeyen üç türe (T, K, D) indi ve sürüm çıkarmaz; eski B ve G türleri `/bug-fix`'e taşındı (görünüş katmanı tablosu dahil). İzin listesine sürümün okuma komutları (`gh run`, `gh release view`, `git fetch`, `git ls-remote`, `git merge-base`), `git tag -a` ve **tek tam** push komutu eklendi; jokerli push izni yok, force/`+`/`--delete` yasak listesinde.
+`surum-izle.ps1` Windows PowerShell 5.1'de dört yolla denendi: tamamlanmış `v0.1.1` (0, Release adresi), bozuk etiket (1), olmayan etiket (1, zaman aşımı), geçmişteki başarısız bir CI koşusu (1, düşen işin günlüğü).
+**Dikkat:** sürüm protokolü henüz gerçek bir sürümle koşmadı; ilk `/development` ya da `/bug-fix` onun ilk sınavıdır. Ekrana dokunmayan bir davranış düzeltmesinde artık emülatör onayı yok (eski `/duzeltme` tür B'de vardı): kanıt kırmızı → yeşil testtir.
 
 ### Sürüm 0.1.1 — ayrı dallarda kalmış üç dönem sınırı düzeltmesi main'e alındı; kararlar `S84`–`S86`
 
