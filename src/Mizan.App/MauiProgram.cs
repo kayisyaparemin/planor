@@ -146,6 +146,7 @@ public static class MauiProgram
         services.AddSingleton<ISimulationResultService, SimulationResultService>();
         services.AddSingleton<IObligationManagementService, ObligationManagementService>();
         services.AddSingleton<IPeriodWorkflowService, PeriodWorkflowService>();
+        services.AddSingleton<PaymentDueCollector>();
         services.AddSingleton<IPaymentReminderService, PaymentReminderService>();
         services.AddSingleton<IIncomePlanService, IncomePlanService>();
         services.AddSingleton<OnboardingPlanWriter>();

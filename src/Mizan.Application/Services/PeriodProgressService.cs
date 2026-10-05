@@ -18,9 +18,6 @@ public sealed class PeriodProgressService(
     CreditCardStatementCalculator cardStatementCalculator,
     IClock clock) : IPeriodProgressService
 {
-    // Kartın son bilinen ekstresinden açık dönemin vadesine uzanmaya yeten ekstre sayısı.
-    private const int ProjectedStatementCount = 6;
-
     private readonly OpenPeriodLedgerReader _ledgerReader =
         ledgerReader ?? throw new ArgumentNullException(nameof(ledgerReader));
     private readonly IUserSettingsRepository _userSettingsRepository =
@@ -68,7 +65,8 @@ public sealed class PeriodProgressService(
         var settings = await _userSettingsRepository.GetSettingsAsync(cancellationToken);
         var cards = await _creditCardRepository.GetCreditCardsAsync(cancellationToken);
         var period = new CashFlowPeriod(ledger.Plan.PeriodStart, ledger.Plan.PeriodEnd);
-        var currentCardPayments = CurrentCardPayments(cards, period, settings.CreditCardCarryInterestRate);
+        var currentCardPayments = CurrentCardPayments.Of(
+            cards, period, settings.CreditCardCarryInterestRate, _cardStatementCalculator);
 
         return PeriodProgressCalculator.Calculate(
             ledger,
@@ -76,19 +74,4 @@ public sealed class PeriodProgressService(
             settings.DeficitFinancingInterestRate,
             _clock.Today);
     }
-
-    // Dondurulan plan kartın o günkü tahminini saklar; bu, aradan geçen ekstre girişleri, harcamalar ve
-    // ödeme kararlarından sonraki hâlidir. Plan satırıyla aynı yarı açık pencereden seçilir (S30).
-    private Dictionary<Guid, decimal> CurrentCardPayments(
-        IReadOnlyList<CreditCard> cards,
-        CashFlowPeriod period,
-        decimal carryInterestRate) =>
-        cards
-            .Where(card => card.IsActive && card.BalanceAsOfDate != default)
-            .ToDictionary(
-                card => card.Id,
-                card => _cardStatementCalculator
-                    .Project(card, ProjectedStatementCount, useProjectionFallback: true, carryInterestRate: carryInterestRate)
-                    .Where(x => period.Contains(x.PaymentDueDate))
-                    .Sum(x => x.Payment ?? 0m));
 }

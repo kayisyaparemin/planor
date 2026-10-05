@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **Geliştirme — ana sayfada plan / şu an** (`S87`, `GS34`); commit'lendi, **sürüm çıkmadı** (kullanıcı kararı) |
-| Sıradaki adım | `/surum` ile 0.2.0 (versionCode 3): `CHANGELOG.md` `[Yayınlanmamış]` bölümü hazır. Sonra kullanıcı telefonda görünce "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. Yeni iş `/development`, kullanıcının gördüğü hata `/bug-fix` ile |
-| Test sayısı | 2237 |
+| Son tamamlanan adım | **Hata düzeltme — hatırlatıcıda kartın plan tutarı** (`I164`); commit'lendi, **sürüm çıkmadı**: kullanıcı aynı sınıftaki iki hatayla birlikte tek sürüm istedi |
+| Sıradaki adım | Aynı sınıftan iki `/bug-fix`, bu sırayla: (a) "Kalan ödemeler" kartı vadesi gelmemiş kartı kilitli tutarla gösteriyor (`DashboardViewModel.ShowRemaining`, `PeriodProgressCalculator` `RemainingPlannedTotal`; bağlama adı değişeceği için Kapı C). (b) Vadesi gelen ya da "Ödedim" denen kart ödemesi dönem sonu tahmininden kilitli tutarla düşülüyor (`PeriodPaymentLineClassifier.Settled`); vade günü tahmin aşım kadar iyimserleşiyor. Sürüm (0.2.0, versionCode 3) yalnız sonuncusunun Aşama 9'unda bir kez çıkar. Sonra kullanıcı "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek |
+| Test sayısı | 2239 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Hata düzeltme — hatırlatıcıda kartın plan tutarı; kararlar `I23`, `S87`-1 (değişmedi), `I164`
+
+Belirti (kullanıcı, emülatörde kendi verisiyle): Akbank Axess'in 5 Ekim ödemesi dönem içi harcamalarla 26.747'ye çıkmış, ana sayfa tablosunun "Şu an"ı bunu söylüyor, ama hatırlatıcı kartı plandaki 24.233'ü gösteriyor. Kök neden: `PaymentDueCollector` açık dönem vadesinin tutarını plan satırının `PlannedAmount`'undan okuyordu; kartın bugünkü ödemesini bulan kod yalnız `PeriodProgressService`'teydi. Eski projeden (`PeriodWorkflowService.cs:223`) birebir taşınmıştı, 0.1.0'dan beri var. Kayıtlı veri bozulmadı: cevapların sakladığı tutar yalnız gösterim.
+Düzeltme: kartın bugünkü ödemesi bağımlılıksız `CurrentCardPayments`'a çıktı; gidişat servisi ve vade toplayıcı ondan alır, toplayıcı tutarı `ProjectedPaymentAmount.Known` ile söyler (bilinmeyen tutar boş kalır, "henüz belli değil"). Toplayıcıya `CreditCardStatementCalculator` eklendi, kartlar ve ayarlar zaten okuduğu plandan gelir. `PaymentReminderService`'in 5 parametreli kolaylık yapıcısı silindi (6'ya çıkacaktı); `PaymentDueCollector` `MauiProgram`'da kayıtlı. Testlerdeki `CreateService` ve yapıcı testi bu yüzden değişti; hatayı dondurmuş bir test yoktu.
+Koruyan: `PaymentReminderServiceTests.GetBoardAsync_KartaDonemIcindeHarcamaGirildiyse_HatirlaticiKartinGuncelOdemesiniGosterir` (kırmızıydı: 8.000 ≠ 10.095) ve `…_KartArtikKayitliDegilse_HatirlaticiPlandakiTutariGosterir` (`I164`). Emülatörde kullanıcının verisiyle hatırlatıcı 26.747 gösteriyor. Toplam 2.239 test yeşil, 0 hata, 0 uyarı.
+**Dikkat — aynı sınıf (kilitli kart tahmini, bugünkü tutar bilinirken):** (a) ve (b) "Nerede kalındı"da sıradaki iki `/bug-fix`. (c) Dönem kapanışında kartın gerçekleşen tutarı kilitli tahminle önceden doluyor (`PeriodSettlementViewModel.cs:194`, `PeriodActualBuilder.cs:77`); kullanıcı düzeltebiliyor, kayıtsız. (d) Ertelenen kart erteleme anındaki tutarı gösterir (3 saatlik pencere, dokunulmadı). (e) Bakiye rotasının katedilen kısmı aradaki günleri plan tutarıyla bölüştürür; uçlar doğru, okuyan ekran yok.
 
 ### Geliştirme — ana sayfada plan / şu an; kararlar `S87`, `GS34`
 

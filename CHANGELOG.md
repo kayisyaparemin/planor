@@ -16,6 +16,10 @@ değildir ve yayınlanamaz.
 - Ana sayfanın yaşam gideri sayfası planlanan ve harcanan tutarı da gösteriyor.
 - "Bakiye gir" sayfasındaki önizleme grafiği kaldırıldı; önizleme dönem sonunu ve plana göre farkı rakamla söylüyor.
 
+### Düzeltildi
+
+- Kredi kartı ödeme hatırlatıcısı artık dönem başında planlanan tutarı değil, dönem içinde girilen harcamalarla güncellenen ödemeyi gösteriyor; ana sayfadaki "Şu an" tutarıyla aynı.
+
 ## [0.1.1] - 2026-10-05
 
 ### Düzeltildi

@@ -1,5 +1,6 @@
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
+using Mizan.Domain.Calculations;
 using Mizan.Domain.Models;
 
 namespace Mizan.Application.Services;
@@ -11,7 +12,8 @@ namespace Mizan.Application.Services;
 public sealed class PaymentDueCollector(
     IPeriodObservationRepository periodObservationRepository,
     IPlanReader planReader,
-    FinancialProjectionService projectionService)
+    FinancialProjectionService projectionService,
+    CreditCardStatementCalculator cardStatementCalculator)
 {
     private readonly IPeriodObservationRepository _periodObservationRepository =
         periodObservationRepository ?? throw new ArgumentNullException(nameof(periodObservationRepository));
@@ -19,6 +21,8 @@ public sealed class PaymentDueCollector(
         planReader ?? throw new ArgumentNullException(nameof(planReader));
     private readonly FinancialProjectionService _projectionService =
         projectionService ?? throw new ArgumentNullException(nameof(projectionService));
+    private readonly CreditCardStatementCalculator _cardStatementCalculator =
+        cardStatementCalculator ?? throw new ArgumentNullException(nameof(cardStatementCalculator));
 
     /// <summary>
     /// Açık dönemin vadesi gelmemiş ödemelerini ve dönem ufkunu aşan sonraki dönem taahhütlerini toplar.
@@ -35,8 +39,9 @@ public sealed class PaymentDueCollector(
         var today = DateOnly.FromDateTime(now);
         var last = today.AddDays(PaymentReminderPlanner.HorizonDays);
         var currentLines = CurrentLines(openPlan, history);
+        var plan = await _planReader.GetPlanAsync(cancellationToken);
 
-        var dues = await CollectOpenPlanDuesAsync(openPlan, currentLines, today, last, cancellationToken);
+        var dues = await CollectOpenPlanDuesAsync(openPlan, currentLines, plan, today, last, cancellationToken);
         // Ufuk kapsayıcıdır (<= last): son günü dönem bitişine denk gelse bile o günün vadesi sonraki
         // dönemden gelir (S85).
         if (last >= openPlan.PeriodEnd)
@@ -44,7 +49,7 @@ public sealed class PaymentDueCollector(
             var openPlanKeys = currentLines
                 .Select(x => PaymentReminderPlanner.DueKey(x.SourceEntityId, x.Name, x.PlannedDate))
                 .ToHashSet();
-            await AppendFutureDuesAsync(dues, openPlan.PeriodEnd, openPlanKeys, today, last, cancellationToken);
+            AppendFutureDues(dues, plan, openPlan.PeriodEnd, openPlanKeys, today, last);
         }
 
         return dues;
@@ -60,9 +65,12 @@ public sealed class PaymentDueCollector(
             : openPlan.PaymentLines;
     }
 
+    // Kart satırı dondurulan tahminle değil kartın bugünkü hâliyle söylenir: dönem içinde girilen harcama ve ekstre
+    // ödenecek tutarı değiştirir, ana sayfanın "şu an"ı da budur (I23, S87-1).
     private async Task<List<PaymentDue>> CollectOpenPlanDuesAsync(
         PeriodPlanSnapshot openPlan,
         IReadOnlyList<PeriodPlanPaymentLine> currentLines,
+        FinancialPlan plan,
         DateOnly today,
         DateOnly last,
         CancellationToken cancellationToken)
@@ -72,6 +80,11 @@ public sealed class PaymentDueCollector(
             .Where(x => x.IsSettled)
             .Select(x => x.PeriodPlanPaymentLineId)
             .ToHashSet();
+        var cardPayments = CurrentCardPayments.Of(
+            plan.CreditCards,
+            new CashFlowPeriod(openPlan.PeriodStart, openPlan.PeriodEnd),
+            plan.Settings.CreditCardCarryInterestRate,
+            _cardStatementCalculator);
 
         return currentLines
             .Where(x => !settled.Contains(x.Id) && x.PlannedDate >= today && x.PlannedDate <= last)
@@ -79,19 +92,18 @@ public sealed class PaymentDueCollector(
                 PaymentReminderPlanner.DueKey(x.SourceEntityId, x.Name, x.PlannedDate),
                 x.Name,
                 x.PlannedDate,
-                x.PlannedAmount))
+                ProjectedPaymentAmount.Known(x, cardPayments)))
             .ToList();
     }
 
-    private async Task AppendFutureDuesAsync(
+    private void AppendFutureDues(
         List<PaymentDue> dues,
+        FinancialPlan plan,
         DateOnly periodEnd,
         HashSet<string> openPlanKeys,
         DateOnly today,
-        DateOnly last,
-        CancellationToken cancellationToken)
+        DateOnly last)
     {
-        var plan = await _planReader.GetPlanAsync(cancellationToken);
         var futurePeriods = _projectionService.BuildFuturePeriods(plan, periodEnd, periodCount: 3);
 
         // Gelecek dönemler açık dönemin kendisinden başlar; açık plan [Start, End) vadelerini zaten

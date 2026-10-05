@@ -24,20 +24,6 @@ public sealed class PaymentReminderService : IPaymentReminderService
         _dueCollector = dueCollector ?? throw new ArgumentNullException(nameof(dueCollector));
     }
 
-    /// <summary>Tüm odaklı portlarla servisi başlatan kolaylık yapıcısı.</summary>
-    public PaymentReminderService(
-        IPaymentReminderRepository reminderRepository,
-        IPeriodHistoryRepository periodHistoryRepository,
-        IPeriodObservationRepository periodObservationRepository,
-        IPlanReader planReader,
-        FinancialProjectionService projectionService)
-        : this(
-            reminderRepository,
-            periodHistoryRepository,
-            new PaymentDueCollector(periodObservationRepository, planReader, projectionService))
-    {
-    }
-
     /// <inheritdoc />
     public Task<PaymentReminderMode> GetModeAsync(CancellationToken cancellationToken = default) =>
         _reminderRepository.GetModeAsync(cancellationToken);

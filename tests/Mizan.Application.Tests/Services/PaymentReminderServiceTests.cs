@@ -40,21 +40,23 @@ public sealed class PaymentReminderServiceTests
         return new PaymentReminderService(
             _reminderRepo,
             _historyRepo,
-            _observationRepo,
-            planReader,
-            projectionService);
+            new PaymentDueCollector(_observationRepo, planReader, projectionService, cardStatementCalc));
     }
 
     [Fact]
     public void Yapici_NullParametreleri_Reddeder()
     {
         CreateService(out var projectionService, out var planReader);
+        var cardStatementCalc = new CreditCardStatementCalculator();
+        var dueCollector = new PaymentDueCollector(_observationRepo, planReader, projectionService, cardStatementCalc);
 
-        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(null!, _historyRepo, _observationRepo, planReader, projectionService));
-        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(_reminderRepo, null!, _observationRepo, planReader, projectionService));
-        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(_reminderRepo, _historyRepo, null!, planReader, projectionService));
-        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(_reminderRepo, _historyRepo, _observationRepo, null!, projectionService));
-        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(_reminderRepo, _historyRepo, _observationRepo, planReader, null!));
+        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(null!, _historyRepo, dueCollector));
+        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(_reminderRepo, null!, dueCollector));
+        Assert.Throws<ArgumentNullException>(() => new PaymentReminderService(_reminderRepo, _historyRepo, null!));
+        Assert.Throws<ArgumentNullException>(() => new PaymentDueCollector(null!, planReader, projectionService, cardStatementCalc));
+        Assert.Throws<ArgumentNullException>(() => new PaymentDueCollector(_observationRepo, null!, projectionService, cardStatementCalc));
+        Assert.Throws<ArgumentNullException>(() => new PaymentDueCollector(_observationRepo, planReader, null!, cardStatementCalc));
+        Assert.Throws<ArgumentNullException>(() => new PaymentDueCollector(_observationRepo, planReader, projectionService, null!));
     }
 
     [Fact]
@@ -125,6 +127,42 @@ public sealed class PaymentReminderServiceTests
         Assert.NotEmpty(board.Reminders);
         Assert.NotEmpty(board.Upcoming);
         Assert.NotNull(board.Sample);
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_KartaDonemIcindeHarcamaGirildiyse_HatirlaticiKartinGuncelOdemesiniGosterir()
+    {
+        // Hazırla — plan kartın 15 Eylül ödemesini 8.000 diye dondurdu; dönem içinde 2.095 harcama girildi
+        var service = CreateService(out _, out var planReader);
+        var card = CardWithInPeriodCharge();
+        planReader.PlanToReturn = CreateSampleFinancialPlan() with { CreditCards = [card] };
+        await SeedCurrentPlanAsync(planReader.PlanToReturn, CardLine(card, 8_000m));
+        await service.SaveModeAsync(PaymentReminderMode.Relaxed);
+
+        // Uygula
+        var board = await service.GetBoardAsync(new DateTime(2026, 9, 4, 10, 0, 0));
+
+        // Doğrula — hatırlatıcı ana sayfanın "şu an"ıyla aynı tutarı söyler (I23, S87-1)
+        var payment = board.Upcoming.SelectMany(x => x.Payments).Single(x => x.Name == card.Name);
+        Assert.Equal(10_095m, payment.Amount);
+    }
+
+    [Fact]
+    public async Task GetBoardAsync_KartArtikKayitliDegilse_HatirlaticiPlandakiTutariGosterir()
+    {
+        // Hazırla — plandaki kart satırının kartı artık kayıtlı değil
+        var service = CreateService(out _, out var planReader);
+        var card = CardWithInPeriodCharge();
+        planReader.PlanToReturn = CreateSampleFinancialPlan();
+        await SeedCurrentPlanAsync(planReader.PlanToReturn, CardLine(card, 8_000m));
+        await service.SaveModeAsync(PaymentReminderMode.Relaxed);
+
+        // Uygula
+        var board = await service.GetBoardAsync(new DateTime(2026, 9, 4, 10, 0, 0));
+
+        // Doğrula — bugünkü tutar uydurulmaz, plandaki tutar kalır (S87-1)
+        var payment = board.Upcoming.SelectMany(x => x.Payments).Single(x => x.Name == card.Name);
+        Assert.Equal(8_000m, payment.Amount);
     }
 
     [Fact]
@@ -466,6 +504,30 @@ public sealed class PaymentReminderServiceTests
 
     // Dönem kapanışında ödenmeyen yükümlülük yeni dönemin ilk gününe devreder (S27);
     // dönem sınırına en sık düşen hatırlatıcı cevabı budur.
+    // PeriodProgressServiceTests'teki kartla aynı: 8.000 ekstreye girmemiş harcama + 3 Eylül'de 2.095, vade 15 Eylül.
+    private static CreditCard CardWithInPeriodCharge() => new()
+    {
+        Name = "Bonus",
+        Limit = 50_000m,
+        MinimumPaymentRate = 0.40m,
+        PaymentStrategy = CreditCardPaymentStrategy.FullStatement,
+        StatementClosingDay = 5,
+        PaymentDueDay = 15,
+        BalanceAsOfDate = InitialDate,
+        UnbilledSpending = 8_000m,
+        Charges = [new CardCharge { PostingDate = new DateOnly(2026, 9, 3), Amount = 2_095m }]
+    };
+
+    private static PeriodPlanPaymentLine CardLine(CreditCard card, decimal plannedAmount) => new()
+    {
+        Id = Guid.NewGuid(),
+        SourceType = PlanPaymentSourceType.CreditCard,
+        SourceEntityId = card.Id,
+        Name = card.Name,
+        PlannedDate = new DateOnly(2026, 9, 15),
+        PlannedAmount = plannedAmount
+    };
+
     private static PaymentDue AnsweredDue(DateOnly dueDate) =>
         new(PaymentReminderPlanner.DueKey(Guid.NewGuid(), "Devreden Kredi", dueDate), "Devreden Kredi", dueDate, 10_000m);
 
