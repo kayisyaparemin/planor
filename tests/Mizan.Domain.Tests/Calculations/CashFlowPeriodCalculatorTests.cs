@@ -146,28 +146,6 @@ public sealed class CashFlowPeriodCalculatorTests
         Assert.Equal(new DateOnly(2026, 10, 10), result);
     }
 
-    [Fact]
-    public void GetFirstPeriodStartStrictlyAfter_TarihTamDonemBasiOlsaBile_SonrakiDonemBasiniDondurur()
-    {
-        var anchor = new PeriodAnchor(10);
-        var date = new DateOnly(2026, 9, 10);
-
-        var result = _calculator.GetFirstPeriodStartStrictlyAfter(date, anchor);
-
-        Assert.Equal(new DateOnly(2026, 10, 10), result);
-    }
-
-    [Fact]
-    public void GetFirstPeriodStartStrictlyAfter_TarihDonemIciyse_SonrakiDonemBasiniDondurur()
-    {
-        var anchor = new PeriodAnchor(10);
-        var date = new DateOnly(2026, 9, 15);
-
-        var result = _calculator.GetFirstPeriodStartStrictlyAfter(date, anchor);
-
-        Assert.Equal(new DateOnly(2026, 10, 10), result);
-    }
-
     [Theory]
     [InlineData(2026, 8, 20, 10, 2026, 9, 10)]
     [InlineData(2026, 9, 10, 10, 2026, 10, 10)]

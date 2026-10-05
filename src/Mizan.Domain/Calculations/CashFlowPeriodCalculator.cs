@@ -75,22 +75,6 @@ public sealed class CashFlowPeriodCalculator
     }
 
     /// <summary>
-    /// Belirtilen tarihten kesinlikle sonraki ilk dönem başlangıç tarihini bulur.
-    /// </summary>
-    /// <param name="date">Sorgu referans tarihi.</param>
-    /// <param name="anchor">Dönem çapası.</param>
-    /// <returns>Kesinlikle sonraki ilk dönem başlangıç tarihi.</returns>
-    public DateOnly GetFirstPeriodStartStrictlyAfter(DateOnly date, PeriodAnchor anchor)
-    {
-        ArgumentNullException.ThrowIfNull(anchor);
-
-        var first = GetFirstPeriodStartOnOrAfter(date, anchor);
-        return first > date
-            ? first
-            : CalendarRules.AddMonthsKeepingDay(first, 1, anchor.DayOfMonth);
-    }
-
-    /// <summary>
     /// Verilen anlık durum (snapshot) tarihinden sonraki ilk dönem kapanış (mutabakat) tarihini bulur.
     /// </summary>
     /// <param name="snapshotDate">Değerleme / anlık durum tarihi.</param>

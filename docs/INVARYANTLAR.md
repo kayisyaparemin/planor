@@ -166,6 +166,7 @@ Bu uygulamanın **hiçbir koşulda bozulmaması gereken** davranışsal sözleş
 | `I151` | Eski yedekteki simülasyon taslakları içe aktarılmaz; çalışma listesi boş başlar (S76-3, S83-3). | `Mizan.Infrastructure.Tests.LegacyImport.LegacyBackupImporterDataTests.ImportAsync_SimulasyonTaslaklari_Tasinmaz` | `G1a` |
 | `I152` | Eski yedekten içe aktarmada kimliği zaten var olan profil kopya adıyla ve yeni kimlikle eklenir; mevcut profile dokunulmaz (S83). | `Mizan.Application.Tests.Services.LegacyImportServiceTests.ImportAsync_KimligiZatenVarsa_KopyaAdiylaYeniKimlikleEkler_MevcutuDegistirmez` | `G1b` |
 | `I153` | Eski yedek olmayan bir dosya seçilirse kullanıcıya açık mesaj gösterilir ve ekran çökmez; hiçbir profil eklenmez (S83-7, S58). | `Mizan.Presentation.Tests.Services.ProfileBackupHandlerTests.ImportLegacyAsync_DosyaEskiYedekDegilse_MesajiGosterirVeNullDoner` | `G1b` |
+| `I155` | Dönem kapandıktan sonra projeksiyon sınırı kapanışın dondurduğu açık dönemden başlar: ilk projeksiyon dönemi kapanan dönemin bitişidir, arada dönem atlanmaz (S84). | `Mizan.Application.Tests.Services.PlanReaderTests.GetProjectionPlanAsync_DonemKapandiktanSonra_ProjeksiyonAcikDonemdenBaslar`, `Mizan.Application.Tests.Services.ProjectionBoundaryResolverTests.Resolve_SonGerceklesmeVarsa_ProjeksiyonKapanisinActigiDonemdenBaslar` | `A9` |
 
 ## Satır eklerken
 

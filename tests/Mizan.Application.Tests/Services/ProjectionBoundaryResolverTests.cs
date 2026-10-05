@@ -74,7 +74,7 @@ public sealed class ProjectionBoundaryResolverTests
     }
 
     [Fact]
-    public void Resolve_SonGerceklesmeVarsa_KapananDonemBitisiniVeSonrakiDonemBaslangiciniCozumler()
+    public void Resolve_SonGerceklesmeVarsa_ProjeksiyonKapanisinActigiDonemdenBaslar()
     {
         var snapshotId = Guid.NewGuid();
         var currentSnapshot = new FinancialSnapshot
@@ -103,8 +103,8 @@ public sealed class ProjectionBoundaryResolverTests
         Assert.Equal(new DateOnly(2026, 2, 15), boundary.ClosedCheckpointDate);
         Assert.Equal(actualId, boundary.SourcePeriodActualId);
         Assert.Equal(new DateOnly(2026, 2, 15), boundary.ProjectionAnchorDate);
-        // 2026-02-15'ten kesinlikle sonraki ilk dönem başlangıcı -> 2026-03-15
-        Assert.Equal(new DateOnly(2026, 3, 15), boundary.FirstUnrealizedPeriodStartDate);
+        // Kapanan dönem [15 Ocak, 15 Şubat) yarı açık; bitiş günü açık dönemin ilk günüdür (S84)
+        Assert.Equal(new DateOnly(2026, 2, 15), boundary.FirstUnrealizedPeriodStartDate);
         Assert.Equal(42500m, boundary.StartingBalance);
     }
 
@@ -143,7 +143,7 @@ public sealed class ProjectionBoundaryResolverTests
 
         Assert.Equal(yeniActual.Id, boundary.SourcePeriodActualId);
         Assert.Equal(new DateOnly(2026, 3, 1), boundary.ClosedCheckpointDate);
-        Assert.Equal(new DateOnly(2026, 4, 1), boundary.FirstUnrealizedPeriodStartDate);
+        Assert.Equal(new DateOnly(2026, 3, 1), boundary.FirstUnrealizedPeriodStartDate);
         Assert.Equal(60000m, boundary.StartingBalance);
     }
 }

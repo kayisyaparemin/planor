@@ -825,3 +825,15 @@ doğmayacağı için yasak ölü yük olur. Onlar `Hiç taşıma` kararıyla (A�
 | **Etkiler** | `G1a`, `G1b`, `F1` (K9 testi `LegacyImport/` istisnasını tablodan okur), `S57`, `S58`, `S76` |
 | **İlgili** | Telefon verisinin 27 Eylül'deki elle dönüşümü yalnız ad ("Maaş") ve taslaklar bakımından bundan ayrılır; kalıcı yol artık budur. |
 | **Durum** | uygulandı: `G1a` (Infrastructure içe aktarıcısı), `G1b` (profil seçimi girişi) |
+
+### S84 — Dönem kapandıktan sonra projeksiyon sınırı açık dönemi atlamaz
+
+| | |
+|---|---|
+| **Eski** | `ProjectionBoundaryResolver`, son kapanışa dayanan sınırda ilk projeksiyon dönemini `GetFirstPeriodStartStrictlyAfter(actual.PeriodEnd)` ile buluyordu: kapanan dönemin bitişinden **kesinlikle sonraki** dönem başı (eski adı `FirstUnrealizedSalaryDate`). Kapanan dönem [15 Ocak, 15 Şubat) ise ilk dönem 15 Mart çıkıyordu. |
+| **Neden yanlış** | Eski projenin sol-açık `(checkpoint, next]` modelinden kalma (bkz. `S27`, `S30`); orada kapanış günü kapanan döneme aitti. v2'de dönem `[Start, End)`: `PeriodEnd` kapanan dönemin dışlanan sonu, yani açık dönemin ilk günü; kapanış da açık planı tam bu günden dondurur (`PeriodPlanSnapshotService.Freeze`: [15 Şubat, 15 Mart)). Kurulum yolu (`CreateFromSnapshot`) `GetFirstPeriodStartOnOrAfter` kullandığı için doğruydu; iki yol aynı durum için farklı başlangıç veriyordu. Bugün `FirstUnrealizedPeriodStartDate`'i okuyan üretim kodu yok: 12 Dönem ve simülatör zinciri `ProjectionChainBuilder` ile açık dönemin bitişinden kurar (`S74`, `S76-1`). Hata kullanıcıya görünmüyordu; sınırı okuyan ilk kod açık dönemi atlardı. |
+| **Yeni** | İlk dönem `GetFirstPeriodStartOnOrAfter(actual.PeriodEnd)`: kapanan dönemin bitişi, yani açık dönemin başı (`I155`). Çağıranı kalmayan `CashFlowPeriodCalculator.GetFirstPeriodStartStrictlyAfter` ve iki testi kaldırıldı: yarı açık modelde "kesinlikle sonraki dönem başı" istenen bir kavram değil, durması aynı hatayı davet ediyordu. |
+| **Eski proje** | Aynı satır eski projede de duruyor; bilerek dokunulmadı (`S17` emsali). |
+| **Etkiler** | `A9` |
+| **İlgili** | `S85`, `S86`: aynı kökten, hatırlatıcıdaki iki pencere. Üç düzeltme önce ayrı dallarda `S74`/`S76`/`I114`–`I117` numaralarıyla yazılmıştı; o numaralar main'de başka kayıtlara verildiği için birleştirmede yeniden numaralandı. |
+| **Durum** | uygulandı (`I155`) |

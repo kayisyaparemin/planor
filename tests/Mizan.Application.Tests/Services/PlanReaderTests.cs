@@ -178,4 +178,55 @@ public sealed class PlanReaderTests
         Assert.Contains(remainingCharges, c => c.PostingDate == new DateOnly(2026, 11, 20));
         Assert.DoesNotContain(remainingCharges, c => c.PostingDate == new DateOnly(2026, 10, 20));
     }
+
+    [Fact]
+    public async Task GetProjectionPlanAsync_DonemKapandiktanSonra_ProjeksiyonAcikDonemdenBaslar()
+    {
+        var anchor = new PeriodAnchor(15);
+        await _userSettingsRepo.SaveSettingsAsync(new UserSettings
+        {
+            PeriodAnchor = anchor,
+            ProjectionOpeningBalance = 42_500m,
+            ProjectionAnchorDate = new DateOnly(2026, 2, 15)
+        });
+        await _recurringIncomeRepo.UpsertRecurringIncomeAsync(new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", IsActive = true });
+
+        // Kapanış [15 Ocak, 15 Şubat) dönemini kapatır, açık dönemi [15 Şubat, 15 Mart) olarak dondurur
+        var newSnapshot = new FinancialSnapshot
+        {
+            Id = Guid.NewGuid(),
+            SnapshotDate = new DateOnly(2026, 2, 15),
+            ProjectionAnchorDate = new DateOnly(2026, 2, 15),
+            ProjectionOpeningBalance = 42_500m,
+            Anchor = anchor
+        };
+        var openPlan = new PeriodPlanSnapshot
+        {
+            Id = Guid.NewGuid(),
+            FinancialSnapshotId = newSnapshot.Id,
+            PeriodStart = new DateOnly(2026, 2, 15),
+            PeriodEnd = new DateOnly(2026, 3, 15)
+        };
+        await _historyRepo.CommitPeriodSettlementAsync(new PeriodSettlementCommit
+        {
+            Actual = new PeriodActual
+            {
+                Id = Guid.NewGuid(),
+                ResultFinancialSnapshotId = newSnapshot.Id,
+                PeriodStart = new DateOnly(2026, 1, 15),
+                PeriodEnd = new DateOnly(2026, 2, 15)
+            },
+            NewSnapshot = newSnapshot,
+            NewPlan = openPlan
+        });
+        var sut = CreateSut();
+
+        var queryPlan = await sut.GetProjectionPlanAsync(new DateOnly(2026, 2, 20));
+
+        // Zincir kapanış bakiyesiyle, o bakiyenin ait olduğu günden başlar; açık dönem atlanmaz (S84)
+        Assert.NotNull(queryPlan.Boundary);
+        Assert.Equal(openPlan.PeriodStart, queryPlan.Boundary.FirstUnrealizedPeriodStartDate);
+        Assert.Equal(openPlan.PeriodStart, queryPlan.Boundary.ProjectionAnchorDate);
+        Assert.Equal(42_500m, queryPlan.Boundary.StartingBalance);
+    }
 }

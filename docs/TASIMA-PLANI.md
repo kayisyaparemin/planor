@@ -101,6 +101,7 @@ Geri kalan her şey bu omurgadan sarkar.
 - [x] **A7** — depo kompozisyonu. Eski `IMizanStore` **taşınmaz**; dar portlar kullanılır *(düğüm T10; S26 ile IMizanStore ve kompozit arayüzler elendi, mimari testle yasaklandı)*
 - [x] **A8** — saf hesap yardımcıları: `PlanActualComparisonCalculator`, `ObligationValidation`
 - [x] **A9** — projeksiyon ince kabuğu: `FinancialProjectionService`, `ProjectionBoundaryResolver`
+      *(S84 düzeltmesi: kapanıştan sonra ilk projeksiyon dönemi açık dönemdir, bir sonraki değil; `I155`)*
 - [x] **A10** — dönem planı dondurma: `PeriodPlanSnapshotService`, `FinancialSnapshotService`
       — *"dondurulmuş plan değişmez" invariant'ı burada doğar*
       *(S31 düzeltmesiyle geri açılıp kapandı: dondurma gelir satırlarını tarihleriyle üretir; satır üretimi 200 satır sınırı için `PeriodPlanLineBuilder`'a çıktı)*

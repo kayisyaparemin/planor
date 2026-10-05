@@ -47,7 +47,9 @@ public sealed class ProjectionBoundaryResolver(
         ClosedCheckpointDate = actual.PeriodEnd,
         SourcePeriodActualId = actual.Id,
         ProjectionAnchorDate = actual.PeriodEnd,
-        FirstUnrealizedPeriodStartDate = _periodCalculator.GetFirstPeriodStartStrictlyAfter(actual.PeriodEnd, anchor),
+        // Dönem yarı açık olduğu için kapanan dönemin bitişi açık dönemin ilk günüdür; atlanırsa
+        // açık dönemin gelir ve giderleri zincirden düşer (S84).
+        FirstUnrealizedPeriodStartDate = _periodCalculator.GetFirstPeriodStartOnOrAfter(actual.PeriodEnd, anchor),
         StartingBalance = snapshot.ProjectionOpeningBalance
     };
 
