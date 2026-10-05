@@ -6,13 +6,20 @@
 |---|---|
 | Son tamamlanan adım | **Sürüm 0.3.0** (versionCode 6): F1 / K9 mimari test kalkanı (`YasakliTerimler_KaynaktaGecemez`) |
 | Sıradaki adım | Sıradaki açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.) |
-| Test sayısı | 2256 |
+| Test sayısı | 2258 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Hata düzeltme — dönem karosunda tutarın alt satıra kırılması; kararlar `GS26`-1, `I172`
+
+Belirti: 12 Dönem ve Simülatör'ün 3 × 4 dönem sonları ızgarasında, dar ekranda altı haneli tutar ("−118.250 ₺") karoya sığmıyor; rakamlar ya da ₺ simgesi alt satıra kırılıyordu.
+Kök neden: karo `Space3` dolgusu ve `TypeFigure` (16) puntosuyla üç sütunlu ızgarada tutara yetecek genişlik bırakmıyordu; `ParaConverter.Bicimle` tutar ile ₺ arasına düz boşluk koyduğu için satır orada kırılabiliyordu. V8a'dan (0.1.0) beri var. Kayıtlı veri etkilenmedi.
+Düzeltme: iki sayfanın `DonemKarosu` şablonunda dolgu `Space2`, tutar `TypeBody` ve `LineBreakMode="NoWrap"`; `ParaConverter` tutar ile ₺ arasına bölünemez boşluk (U+00A0) koyar — bu tüm ekranlardaki tutarlara geçerlidir. `GS26`-1 ve `EK-V8` / `EK-V10` blok şemaları güncellendi.
+Koruyan: `DesignGridTileTests.DonemKarosu_HucreDolgusuVeYaziBoyutu_GuvenliOlcudeVeNoWrapOlmali` ve `DesignGridTileTests.ParaConverter_TutarIleSimgeArasinda_BolunemezBoslukKullanir` (önceki XAML'de `Space3` / `TypeFigure` / `NoWrap` yokluğuyla kırmızı) (`I172`). Hatayı dondurmuş test yoktu. Toplam 2.258 test yeşil, 0 hata, 0 uyarı.
 
 ### Hata düzeltme — kurulumda ilk dönemin bir sonraki aydan başlaması; kararlar `I171`
 

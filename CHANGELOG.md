@@ -13,6 +13,7 @@ değildir ve yayınlanamaz.
 ### Düzeltildi
 
 - Kurulum sihirbazı ayın çapa gününden sonraki bir tarihte tamamlandığında ilk dönemin bir sonraki aydan başlatılması ve cari döneme bakiye girilememesi düzeltildi; ilk dönem artık kurulum gününün içinde bulunduğu takvim döneminden başlar.
+- 12 Dönem ve Simülatör'ün dönem sonları ızgarasında altı haneli tutarlar dar ekranda alt satıra kırılıyor, ₺ simgesi tek başına aşağı düşüyordu; tutar artık karoda tek satırda kalır ve ₺ rakamdan ayrılmaz.
 
 ## [0.3.0] - 2026-10-05
 

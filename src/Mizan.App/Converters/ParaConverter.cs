@@ -28,7 +28,7 @@ public sealed class ParaConverter : IValueConverter
     }
 
     /// <summary>Tutarı aynı biçimle yazar; başka bir çeviricinin cümlesine giren tutar ekranın geri kalanından ayrışmasın.</summary>
-    internal static string Bicimle(decimal? amount) => amount is { } value ? value.ToString("N0", Tr) + " ₺" : Bilinmiyor;
+    internal static string Bicimle(decimal? amount) => amount is { } value ? value.ToString("N0", Tr) + "\u00A0₺" : Bilinmiyor;
 
     /// <inheritdoc />
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>

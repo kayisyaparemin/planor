@@ -72,14 +72,15 @@
             <VerticalStackLayout Grid.Row="{Binding Index, Converter={StaticResource IzgaraKonumu}, ConverterParameter=Satir}"
                                  Grid.Column="{Binding Index, Converter={StaticResource IzgaraKonumu}}"
                                  BackgroundColor="{DynamicResource SurfaceCard}"
-                                 Padding="{StaticResource Space3}"
+                                 Padding="{StaticResource Space2}"
                                  Spacing="{StaticResource Space1}">
                 <Label Text="{Binding ., Converter={StaticResource DonemAyi}}"
                        Style="{StaticResource Caption}" />
                 <Label Text="{Binding EndingBalance, Converter={StaticResource Para}}"
-                       FontSize="{StaticResource TypeFigure}"
+                       FontSize="{StaticResource TypeBody}"
                        FontFamily="OpenSansRegular"
-                       TextColor="{DynamicResource TextPrimary}">
+                       TextColor="{DynamicResource TextPrimary}"
+                       LineBreakMode="NoWrap">
                     <Label.Triggers>
                         <DataTrigger TargetType="Label" Binding="{Binding IsLowest}" Value="True">
                             <Setter Property="FontFamily" Value="OpenSansSemibold" />

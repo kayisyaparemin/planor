@@ -1884,12 +1884,12 @@ tutar `ParaConverter`'ın biçimiyle yazılır.
 │ Etiket_DonemSonlari                     Eyebrow             │
 │ ┌───────────┬───────────┬───────────┐  Grid 3 sütun × 4 satır, BindableLayout (satır, sütun dizinden)
 │ │ Ekim 2026 │ Kasım     │ Aralık    │  ay: Caption / TextSecondary; yıl ilk karoda ve Ocak'ta
-│ │ 44.120 ₺  │ 47.900 ₺  │ 38.300 ₺  │  tutar: TypeFigure; en düşük SemiBold, diğerleri Regular;
+│ │ 44.120 ₺  │ 47.900 ₺  │ 38.300 ₺  │  tutar: TypeBody; en düşük SemiBold, diğerleri Regular;
 │ ├───────────┼───────────┼───────────┤         eksi NegativeText, değilse TextPrimary
 │ │ Ocak 2027 │ Şubat     │ Mart      │
 │ │ 41.050 ₺  │ 45.600 ₺  │ −18.250 ₺ │
 │ │ …                                 │  ayırıcı: aralık StrokeHairline, zemin BorderSubtle
-│ └───────────┴───────────┴───────────┘  karo: zemin SurfaceCard, dolgu Space3
+│ └───────────┴───────────┴───────────┘  karo: zemin SurfaceCard, dolgu Space2, NoWrap
 │ karoya dokun → Routes.PeriodDetail + periodStart (V9, S75-1)  │
 └─────────────────────────────────────────────────────────────┘
 ┌─ ListCard (V8b; öneri yoksa ya da hata verdiyse görünmez) ──┐  ← S5
@@ -2164,7 +2164,7 @@ denemeler `ListCard`), grafik 1/1, label 11/28 (analizci 15: `<Label.Triggers>`'
   [ Planıma ekle ]             Button (ActionFill); yalnız açık ve geçerli deneme varsa  ← S5, V10f
 ┌─ Dönem sonları (ham Border)  SurfaceCard / BorderSubtle / RadiusCard ┐  V10b2  ← S1
 │ Etiket_DonemSonlari                      Eyebrow            │
-│ 3 × 4 karo: ay (Caption) + denemeyle dönem sonu (TypeFigure; en düşük SemiBold, eksi NegativeText)
+│ 3 × 4 karo: ay (Caption) + denemeyle dönem sonu (TypeBody, NoWrap; en düşük SemiBold, eksi NegativeText)
 │ 12 Dönem'in karo şablonunun aynısı (GS26-1); dokunma yok (S76-9)
 └─────────────────────────────────────────────────────────────┘
 ```
