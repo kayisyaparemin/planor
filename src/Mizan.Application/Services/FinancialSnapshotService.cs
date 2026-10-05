@@ -141,37 +141,33 @@ public sealed class FinancialSnapshotService(
         FinancialSnapshot current,
         CancellationToken cancellationToken)
     {
-        var expectedSettlementDate = _periodCalculator.GetNextSettlementDate(current.SnapshotDate, current.Anchor);
+        var targetDate = (current.Source == FinancialSnapshotSource.Initial && history.Actuals.Count == 0 && current.SnapshotDate > _clock.Today)
+            ? _periodCalculator.GetPeriod(_clock.Today, current.Anchor).Start
+            : current.SnapshotDate;
+
+        var expectedSettlement = _periodCalculator.GetNextSettlementDate(targetDate, current.Anchor);
         var pendingPlan = history.FindOpenPlan();
 
-        var requiresCadenceRepair = pendingPlan is not null &&
-            (current.NextSettlementDate != expectedSettlementDate ||
-             pendingPlan.PeriodStart != current.SnapshotDate ||
-             pendingPlan.PeriodEnd != expectedSettlementDate ||
-             pendingPlan.SettlementAvailableFrom != expectedSettlementDate);
-
-        if (!requiresCadenceRepair)
+        if (pendingPlan is null || (current.SnapshotDate == targetDate && current.NextSettlementDate == expectedSettlement &&
+            pendingPlan.PeriodStart == targetDate && pendingPlan.PeriodEnd == expectedSettlement &&
+            pendingPlan.SettlementAvailableFrom == expectedSettlement))
         {
             return current;
         }
 
-        var correctedSnapshot = current with { NextSettlementDate = expectedSettlementDate };
+        var corrected = current with { SnapshotDate = targetDate, ProjectionAnchorDate = targetDate, NextSettlementDate = expectedSettlement };
         var snapshotPlan = plan with
         {
             Settings = plan.Settings with
             {
                 ProjectionOpeningBalance = current.ProjectionOpeningBalance,
-                ProjectionAnchorDate = current.SnapshotDate,
+                ProjectionAnchorDate = targetDate,
                 PeriodAnchor = current.Anchor
             }
         };
 
-        var correctedPlan = _planSnapshotService.Freeze(snapshotPlan, correctedSnapshot, _clock.UtcNow);
-        await _periodHistoryRepository.ReplacePendingFinancialSnapshotPlanAsync(
-            correctedSnapshot,
-            correctedPlan,
-            cancellationToken);
-
-        return correctedSnapshot;
+        var correctedPlan = _planSnapshotService.Freeze(snapshotPlan, corrected, _clock.UtcNow);
+        await _periodHistoryRepository.ReplacePendingFinancialSnapshotPlanAsync(corrected, correctedPlan, cancellationToken);
+        return corrected;
     }
 }

@@ -13,12 +13,15 @@ namespace Mizan.Application.Services;
 public sealed class OnboardingService(
     OnboardingPlanWriter planWriter,
     FinancialSnapshotService snapshotService,
+    CashFlowPeriodCalculator periodCalculator,
     IClock clock) : IOnboardingService
 {
     private readonly OnboardingPlanWriter _planWriter =
         planWriter ?? throw new ArgumentNullException(nameof(planWriter));
     private readonly FinancialSnapshotService _snapshotService =
         snapshotService ?? throw new ArgumentNullException(nameof(snapshotService));
+    private readonly CashFlowPeriodCalculator _periodCalculator =
+        periodCalculator ?? throw new ArgumentNullException(nameof(periodCalculator));
     private readonly IClock _clock =
         clock ?? throw new ArgumentNullException(nameof(clock));
 
@@ -50,14 +53,8 @@ public sealed class OnboardingService(
 
     private UserSettings NormalizeSettings(UserSettings settings)
     {
-        var anchor = settings.PeriodAnchor;
-        var today = _clock.Today;
-        var candidateAnchor = CalendarRules.ResolveDay(today.Year, today.Month, anchor.DayOfMonth);
-        var anchorDate = today <= candidateAnchor
-            ? candidateAnchor
-            : CalendarRules.AddMonthsKeepingDay(candidateAnchor, 1, anchor.DayOfMonth);
-
-        return settings with { ProjectionAnchorDate = anchorDate };
+        var containingPeriod = _periodCalculator.GetPeriod(_clock.Today, settings.PeriodAnchor);
+        return settings with { ProjectionAnchorDate = containingPeriod.Start };
     }
 
     private CreditCard[] NormalizeCards(

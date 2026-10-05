@@ -6,13 +6,20 @@
 |---|---|
 | Son tamamlanan adım | **Sürüm 0.3.0** (versionCode 6): F1 / K9 mimari test kalkanı (`YasakliTerimler_KaynaktaGecemez`) |
 | Sıradaki adım | Sıradaki açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.) |
-| Test sayısı | 2254 |
+| Test sayısı | 2256 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Hata düzeltme — kurulumda ilk dönemin bir sonraki aydan başlaması; kararlar `I171`
+
+Belirti: Kullanıcı kurulum sihirbazını ayın çapa gününden sonraki bir tarihte tamamladığında (örneğin ayın 5'inde çapa günü 1 seçildiğinde), uygulama içinde bulunulan cari dönemi (1 Ekim – 31 Ekim) es geçip bir sonraki ayı (1 Kasım – 30 Kasım) ilk açık dönem olarak donduruyordu. Ana sayfada "1 Kasım – 30 Kasım" başlığı görünüyor, "Bakiye Gir" tarih seçici Kasım'a kilitlendiği için bakiye girilemiyor ve cari ayın taksitleri ilk döneme dahil edilmiyordu.
+Kök neden: `OnboardingService.NormalizeSettings` metodu bugünün ait olduğu dönemi çözmek yerine `today <= candidateAnchor ? candidateAnchor : AddMonths(...)` mantığıyla dönemi bir sonraki aya öteliyordu. 0.1.0'dan beri var.
+Düzeltme: `OnboardingService`'e `CashFlowPeriodCalculator` enjekte edildi; `NormalizeSettings` dönemin başlangıcını `_periodCalculator.GetPeriod(_clock.Today, settings.PeriodAnchor).Start` ile bugünün ait olduğu takvim döneminden başlattı. `FinancialSnapshotService.HandleExistingSnapshotAsync` henüz gerçekleşmesi ve gözlemi bulunmayan ilk snapshot'ın gelecekte kalmış çapa tarihini bugünün ait olduğu döneme onaracak şekilde güncellendi.
+Koruyan: `OnboardingPeriodAnchorTests.InitializeFromOnboardingAsync_BugunCapaGunundenSonraysa_IcindeBulunulanDoneminBaslangiciniAlir` (kırmızıydı: 1.10.2026 ≠ 1.11.2026) ve `OnboardingPeriodAnchorTests.EnsureInitialSnapshotAsync_GelecekteKalmisIlkSnapshot_BugununDonemineOnarilir` (`I171`). Ekrana dokunmadı. Toplam 2.256 test yeşil, 0 hata, 0 uyarı.
 
 ### Geliştirme — F1 / K9 mimari test kalkanı (`YasakliTerimler_KaynaktaGecemez`); kural K9
 

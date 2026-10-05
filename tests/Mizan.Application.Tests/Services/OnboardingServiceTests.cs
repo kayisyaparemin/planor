@@ -48,6 +48,7 @@ public sealed class OnboardingServiceTests
         var service = new OnboardingService(
             planWriter,
             snapshotService,
+            _periodCalculator,
             _clock);
 
         var draft = new OnboardingDraft
@@ -106,6 +107,7 @@ public sealed class OnboardingServiceTests
         var service = new OnboardingService(
             planWriter,
             snapshotService,
+            _periodCalculator,
             _clock);
 
         var card = new CreditCard
