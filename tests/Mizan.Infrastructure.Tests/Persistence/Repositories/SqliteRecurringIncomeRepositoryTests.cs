@@ -5,22 +5,21 @@ using SQLite;
 
 namespace Mizan.Infrastructure.Tests.Persistence.Repositories;
 
-public sealed class SqliteRecurringIncomeRepositoryTests : IDisposable
+public sealed class SqliteRecurringIncomeRepositoryTests : IAsyncLifetime
 {
-    private readonly string _databasePath;
-    private readonly SQLiteAsyncConnection _connection;
+    private readonly string _databasePath = Path.Combine(Path.GetTempPath(), $"mizan_test_recurring_income_{Guid.NewGuid():N}.db3");
+    private SQLiteAsyncConnection _connection = null!;
 
-    public SqliteRecurringIncomeRepositoryTests()
+    public async Task InitializeAsync()
     {
-        _databasePath = Path.Combine(Path.GetTempPath(), $"mizan_test_recurring_income_{Guid.NewGuid():N}.db3");
         SQLitePCL.Batteries_V2.Init();
         _connection = new SQLiteAsyncConnection(_databasePath);
-        new DatabaseSchema().EnsureInitializedAsync(_connection).GetAwaiter().GetResult();
+        await new DatabaseSchema().EnsureInitializedAsync(_connection);
     }
 
-    public void Dispose()
+    public async Task DisposeAsync()
     {
-        _connection.CloseAsync().GetAwaiter().GetResult();
+        await _connection.CloseAsync();
         if (File.Exists(_databasePath))
         {
             try { File.Delete(_databasePath); } catch { /* cleanup */ }
