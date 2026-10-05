@@ -134,13 +134,13 @@ public sealed class PeriodProgressServiceTests
         });
         await GozlemKaydetAsync(plan, new DateOnly(2026, 9, 4), 20_000m);
 
-        // Uygula — vadeden bir gün önce ve vade günü
-        var oncekiGun = await Servis(new DateOnly(2026, 9, 14)).GetAsync();
-        var vadeGunu = await Servis(new DateOnly(2026, 9, 15)).GetAsync();
+        // Uygula — vade günü
+        var gidisat = await Servis(new DateOnly(2026, 9, 15)).GetAsync();
 
-        // Doğrula — ödeme kalandan ödenmişe geçince tutarı değişmez: 20.000 − 10.095 (I23, I165)
-        Assert.Equal(9_905m, oncekiGun?.ProjectedEndingBalance);
-        Assert.Equal(9_905m, vadeGunu?.ProjectedEndingBalance);
+        // Doğrula — vadeden önceki tahminle aynı (…_PlansizKartHarcamasi_…): ödeme kalandan ödenmişe geçince
+        // tutarı değişmez, 20.000 − 10.095 (I23, I165)
+        Assert.NotNull(gidisat);
+        Assert.Equal(9_905m, gidisat.ProjectedEndingBalance);
     }
 
     [Fact]
