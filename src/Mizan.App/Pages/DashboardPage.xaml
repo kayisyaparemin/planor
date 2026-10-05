@@ -14,9 +14,13 @@
     <!-- EK-V3: Ana sayfa, "Rota + Tempo" (GS24, S72); 1. sayfada grafik yerine plan / şu an tablosu (GS34, S87) -->
 
     <ContentPage.Resources>
-        <!-- Kalan ödeme satırı: ad, vade, tutar (S72-9) -->
+        <!-- Kalan ödeme satırı: ad, vade, tutar (S72-9); dokununca "Ödedim" onayı (S88) -->
         <DataTemplate x:Key="OdemeSatiri" x:DataType="models:DashboardRemainingItem">
             <Grid ColumnDefinitions="*, Auto" ColumnSpacing="{StaticResource Space3}">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=Remaining.MarkAsPaidCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Grid.GestureRecognizers>
                 <VerticalStackLayout Grid.Column="0" Spacing="{StaticResource Space1}">
                     <Label Text="{Binding Name}"
                            FontSize="{StaticResource TypeBody}"
@@ -299,17 +303,19 @@
                                    SecondaryActionText="{x:Static strings:DashboardStrings.Aksiyon_Ertele}"
                                    SecondaryActionCommand="{Binding Reminders.SnoozeCommand}" />
 
-                <!-- Kalan ödemeler: üç satır; fazlası "+N daha" ile yerinde açılır (S4, S75-9) -->
-                <comp:ListCard EyebrowText="{x:Static strings:DashboardStrings.Etiket_KalanOdemeler}"
-                               ItemsSource="{Binding RemainingLines}"
+                <!-- Kalan ödemeler: üç satır; fazlası "+N daha" ile yerinde açılır (S4, S75-9); satırdan "Ödedim" (S88);
+                     kalan ödeme yoksa görünmez (S88-6) -->
+                <comp:ListCard IsVisible="{Binding Remaining.HasItems}"
+                               EyebrowText="{x:Static strings:DashboardStrings.Etiket_KalanOdemeler}"
+                               ItemsSource="{Binding Remaining.Items}"
                                ItemTemplate="{StaticResource OdemeSatiri}"
-                               OverflowText="{Binding HiddenRemainingCount, Converter={StaticResource FazlaKayit}}"
-                               OverflowCommand="{Binding ExpandRemainingCommand}"
+                               OverflowText="{Binding Remaining.HiddenCount, Converter={StaticResource FazlaKayit}}"
+                               OverflowCommand="{Binding Remaining.ExpandCommand}"
                                AutomationId="{x:Static auto:AutomationIds.ListRemainingPayments}">
                     <comp:ListCard.NoteText>
                         <MultiBinding StringFormat="{x:Static strings:DashboardStrings.Bicim_OdemeAdediToplam}">
-                            <Binding Path="RemainingCount" />
-                            <Binding Path="RemainingTotal" Converter="{StaticResource Para}" />
+                            <Binding Path="Remaining.Count" />
+                            <Binding Path="Remaining.Total" Converter="{StaticResource Para}" />
                         </MultiBinding>
                     </comp:ListCard.NoteText>
                 </comp:ListCard>

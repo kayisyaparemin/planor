@@ -22,6 +22,8 @@ public sealed class DashboardViewModelTests : IDisposable
 
     private readonly FakePeriodProgressService _progressService = new();
     private readonly FakeNavigationService _navigation = new();
+    private readonly FakePaymentReminderService _reminderService = new();
+    private readonly FakeDialogService _dialog = new();
     private readonly ProfileService _profileService;
     private readonly DashboardViewModel _viewModel;
 
@@ -30,8 +32,8 @@ public sealed class DashboardViewModelTests : IDisposable
         var clock = new SabitSaat(Today);
         _profileService = new ProfileService(new FakeProfileRepository(), new FakeProfileStoreSwitch(), clock);
         var reminders = new ReminderCardViewModel(
-            new FakePaymentReminderService(), new FakePaymentReminderScheduler(), new FakeDialogService(), clock, _profileService);
-        _viewModel = new DashboardViewModel(_progressService, _navigation, reminders);
+            _reminderService, new FakePaymentReminderScheduler(), _dialog, clock, _profileService);
+        _viewModel = new DashboardViewModel(_progressService, _navigation, reminders, _dialog);
     }
 
     [Fact]
@@ -193,13 +195,13 @@ public sealed class DashboardViewModelTests : IDisposable
 
         await _viewModel.LoadAsync();
 
-        Assert.Equal(3, _viewModel.RemainingLines.Count);
-        Assert.Equal("Ödeme 0", _viewModel.RemainingLines[0].Name);
-        Assert.Equal(new DateOnly(2026, 10, 1), _viewModel.RemainingLines[0].DueDate);
-        Assert.Equal(1000m, _viewModel.RemainingLines[0].Amount);
-        Assert.Equal(3, _viewModel.RemainingCount);
-        Assert.Equal(3000m, _viewModel.RemainingTotal);
-        Assert.False(_viewModel.HasOverflow);
+        Assert.Equal(3, _viewModel.Remaining.Items.Count);
+        Assert.Equal("Ödeme 0", _viewModel.Remaining.Items[0].Name);
+        Assert.Equal(new DateOnly(2026, 10, 1), _viewModel.Remaining.Items[0].DueDate);
+        Assert.Equal(1000m, _viewModel.Remaining.Items[0].Amount);
+        Assert.Equal(3, _viewModel.Remaining.Count);
+        Assert.Equal(3000m, _viewModel.Remaining.Total);
+        Assert.False(_viewModel.Remaining.HasOverflow);
     }
 
     [Fact]
@@ -209,10 +211,10 @@ public sealed class DashboardViewModelTests : IDisposable
 
         await _viewModel.LoadAsync();
 
-        Assert.Equal(3, _viewModel.RemainingLines.Count);
-        Assert.Equal(5, _viewModel.RemainingCount);
-        Assert.Equal(2, _viewModel.HiddenRemainingCount);
-        Assert.True(_viewModel.HasOverflow);
+        Assert.Equal(3, _viewModel.Remaining.Items.Count);
+        Assert.Equal(5, _viewModel.Remaining.Count);
+        Assert.Equal(2, _viewModel.Remaining.HiddenCount);
+        Assert.True(_viewModel.Remaining.HasOverflow);
     }
 
     [Fact]
@@ -221,12 +223,12 @@ public sealed class DashboardViewModelTests : IDisposable
         _progressService.CurrentProgress = Progress(lineCount: 5);
         await _viewModel.LoadAsync();
 
-        _viewModel.ExpandRemaining();
+        _viewModel.Remaining.Expand();
 
-        Assert.Equal(5, _viewModel.RemainingLines.Count);
-        Assert.Equal("Ödeme 4", _viewModel.RemainingLines[4].Name);
-        Assert.Equal(0, _viewModel.HiddenRemainingCount);
-        Assert.False(_viewModel.HasOverflow);
+        Assert.Equal(5, _viewModel.Remaining.Items.Count);
+        Assert.Equal("Ödeme 4", _viewModel.Remaining.Items[4].Name);
+        Assert.Equal(0, _viewModel.Remaining.HiddenCount);
+        Assert.False(_viewModel.Remaining.HasOverflow);
         Assert.Null(_navigation.LastNavigatedRoute);
     }
 
@@ -235,24 +237,100 @@ public sealed class DashboardViewModelTests : IDisposable
     {
         _progressService.CurrentProgress = Progress(lineCount: 5);
         await _viewModel.LoadAsync();
-        _viewModel.ExpandRemaining();
+        _viewModel.Remaining.Expand();
 
         await _viewModel.LoadAsync();
 
-        Assert.Equal(3, _viewModel.RemainingLines.Count);
-        Assert.True(_viewModel.HasOverflow);
+        Assert.Equal(3, _viewModel.Remaining.Items.Count);
+        Assert.True(_viewModel.Remaining.HasOverflow);
     }
 
+    // S88-6: kalan ödeme yoksa kart görünmez; önceden "0 ödeme · 0 ₺" yazan boş kart duruyordu.
     [Fact]
-    public async Task Yukle_KalanOdemeYoksa_ListeBosTasmaYoktur()
+    public async Task Yukle_KalanOdemeYoksa_KartGizlenirTasmaYoktur()
     {
         _progressService.CurrentProgress = Progress(lineCount: 0);
 
         await _viewModel.LoadAsync();
 
-        Assert.Empty(_viewModel.RemainingLines);
-        Assert.Equal(0, _viewModel.RemainingCount);
-        Assert.False(_viewModel.HasOverflow);
+        Assert.False(_viewModel.Remaining.HasItems);
+        Assert.Empty(_viewModel.Remaining.Items);
+        Assert.Equal(0, _viewModel.Remaining.Count);
+        Assert.False(_viewModel.Remaining.HasOverflow);
+    }
+
+    [Fact]
+    public async Task KalanOdemeyeOdedimDenince_SayfaYerindeYenilenirAcikListeVeKartSayfasiKorunur()
+    {
+        // Hazırla — liste açıldı, kaydırılan kart 2. sayfada; "Ödedim"den sonra gidişat dört ödemeyle gelir (S88-4)
+        _progressService.CurrentProgress = Progress(lineCount: 5);
+        await _viewModel.LoadAsync();
+        _viewModel.Remaining.Expand();
+        _viewModel.HeroPageIndex = 1;
+        _progressService.CurrentProgress = Progress(lineCount: 4);
+
+        // Uygula
+        await _viewModel.Remaining.MarkAsPaidCommand.ExecuteAsync(_viewModel.Remaining.Items[0]);
+
+        // Doğrula
+        Assert.Equal(ScreenState.Content, _viewModel.State);
+        Assert.Equal(4, _viewModel.Remaining.Count);
+        Assert.Equal(4, _viewModel.Remaining.Items.Count);
+        Assert.False(_viewModel.Remaining.HasOverflow);
+        Assert.Equal(1, _viewModel.HeroPageIndex);
+    }
+
+    [Fact]
+    public async Task KalanOdemeyeOdedimDenince_YenilemeSurerkenYukleniyorDurumunaDusmez()
+    {
+        // Hazırla — yenileme okuması bitmeden ekran iskelete dönmez, sayfa başa kaymaz (S88-4)
+        _progressService.CurrentProgress = Progress(lineCount: 2);
+        await _viewModel.LoadAsync();
+        var pending = new TaskCompletionSource<PeriodProgress?>();
+        _progressService.Pending = pending;
+
+        // Uygula
+        await _viewModel.Remaining.MarkAsPaidCommand.ExecuteAsync(_viewModel.Remaining.Items[0]);
+
+        // Doğrula — eski rakamlar yenisi gelene kadar yerinde
+        Assert.Equal(ScreenState.Content, _viewModel.State);
+        Assert.Equal(2, _viewModel.Remaining.Count);
+        pending.SetResult(Progress(lineCount: 1));
+        await _viewModel.RefreshCommand.ExecutionTask!;
+        Assert.Equal(1, _viewModel.Remaining.Count);
+    }
+
+    [Fact]
+    public async Task KalanOdemeyeOdedimDenince_YenilemeOkunamazsaHataDurumudur()
+    {
+        _progressService.CurrentProgress = Progress(lineCount: 2);
+        await _viewModel.LoadAsync();
+        _progressService.Failure = new InvalidOperationException("Gidişat okunamadı.");
+
+        await _viewModel.Remaining.MarkAsPaidCommand.ExecuteAsync(_viewModel.Remaining.Items[0]);
+
+        Assert.Equal(ScreenState.Error, _viewModel.State);
+    }
+
+    [Fact]
+    public async Task HatirlaticiKartindaOdedimDenince_KalanOdemelerYenilenir()
+    {
+        // Hazırla — ertelenmiş ödeme hem kartta hem listede; karttan "Ödedim" denince liste sayfa yeniden
+        // açılmadan güncellenmeli (S88-4; önceden AnswersChanged'i dinleyen yoktu)
+        _reminderService.CurrentBoard = new PaymentReminderBoard
+        {
+            Mode = PaymentReminderMode.Relaxed,
+            DueToday = [new PaymentDue("loan-1", "İhtiyaç Kredisi", Today, 7000m)]
+        };
+        _progressService.CurrentProgress = Progress(lineCount: 2);
+        await _viewModel.LoadAsync();
+        _progressService.CurrentProgress = Progress(lineCount: 1);
+
+        // Uygula
+        await _viewModel.Reminders.MarkAsPaidCommand.ExecuteAsync(null);
+
+        // Doğrula
+        Assert.Equal(1, _viewModel.Remaining.Count);
     }
 
     [Fact]
@@ -284,7 +362,7 @@ public sealed class DashboardViewModelTests : IDisposable
         Assert.Empty(_viewModel.Comparison.Cards);
         Assert.False(_viewModel.Comparison.HasRows);
         Assert.Null(_viewModel.Comparison.PlannedLivingExpense);
-        Assert.Empty(_viewModel.RemainingLines);
+        Assert.Empty(_viewModel.Remaining.Items);
     }
 
     [Fact]
@@ -341,7 +419,7 @@ public sealed class DashboardViewModelTests : IDisposable
             ? new PeriodBalancePath([new(Start, 60000m)], [new(Start, 60000m), new(new DateOnly(2026, 9, 15), 45000m), new(End, planned)])
             : new PeriodBalancePath([new(Start, 60000m), new(observedOn, 58940m)], [new(observedOn, 58940m), new(End, projected!.Value)]);
         var payments = Enumerable.Range(0, lineCount)
-            .Select(i => new PeriodRemainingPayment(Guid.NewGuid(), $"Ödeme {i}", new DateOnly(2026, 10, 1).AddDays(i), 1000m))
+            .Select(i => new PeriodRemainingPayment(Guid.NewGuid(), $"key-{i}", $"Ödeme {i}", new DateOnly(2026, 10, 1).AddDays(i), 1000m))
             .ToList();
 
         return new PeriodProgress

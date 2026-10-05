@@ -10,6 +10,14 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+### Eklendi
+
+- Ana sayfadaki "Kalan ödemeler" listesinde bir ödemeye dokunup "Ödedim" diyebilirsin. Hatırlatıcıdaki gibi ödeme listeden çıkar ve hatırlatması gelmez; vadesinden önce yaptığın ödemeler için de çalışır. Kalan ödeme kalmayınca kart gizlenir.
+
+### Düzeltildi
+
+- Hatırlatıcı kartında "Ödedim" ya da "Ertele" dediğinde kalan ödemeler listesi artık hemen güncelleniyor; önceden sayfadan çıkıp dönmek gerekiyordu.
+
 ## [0.3.1] - 2026-10-05
 
 ### Düzeltildi

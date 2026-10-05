@@ -15,6 +15,9 @@ internal sealed class FakePaymentReminderService : IPaymentReminderService
     public List<PaymentDue> UpcomingDues { get; } = [];
     public DateTime? BoardRequestedAt { get; private set; }
 
+    /// <summary>Doluysa RecordAnswerAsync bu hatayı fırlatır; cevabın yazılamamasını taklit eder.</summary>
+    public Exception? RecordFailure { get; set; }
+
     public Task<PaymentReminderMode> GetModeAsync(CancellationToken cancellationToken = default) =>
         Task.FromResult(Mode);
 
@@ -35,6 +38,7 @@ internal sealed class FakePaymentReminderService : IPaymentReminderService
 
     public Task RecordAnswerAsync(PaymentReminderAnswer answer, CancellationToken cancellationToken = default)
     {
+        if (RecordFailure is not null) { return Task.FromException(RecordFailure); }
         RecordedAnswers.Add(answer);
         return Task.CompletedTask;
     }

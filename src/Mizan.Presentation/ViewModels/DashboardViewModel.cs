@@ -1,9 +1,9 @@
-using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Mizan.Application.Abstractions;
 using Mizan.Application.Models;
 using Mizan.Presentation.Charts;
+using Mizan.Presentation.Dialogs;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Navigation;
 
@@ -12,16 +12,12 @@ namespace Mizan.Presentation.ViewModels;
 /// <summary>
 /// Ana sayfanın görünüm modeli: açık dönemin sonunda ne kalacağını ve plandan nerede saptığını (S87), yaşam
 /// giderinin temposunu, son girilen bakiyeyi ve kalan ödemeleri tek ekranda sunar (EK-V3, S72). Bakiye girişi
-/// ayrı sayfadır (V3b); bu model yalnız okur.
+/// ayrı sayfadır (V3b); ödeme cevapları hatırlatıcı kartından ve kalan ödemeler listesinden yazılır (S88).
 /// </summary>
 public sealed partial class DashboardViewModel : ViewModelBase
 {
-    // EK-V3 kesme kararı: kalan ödemeler kartında üç satır; fazlası "+N daha" ile yerinde açılır (S75-9).
-    private const int VisibleRemainingLimit = 3;
-
     private readonly IPeriodProgressService _progressService;
     private readonly INavigationService _navigationService;
-    private IReadOnlyList<PeriodRemainingPayment> _remaining = [];
 
     /// <summary>Vadesi gelen veya ertelenmiş acil ödemeleri yöneten çocuk görünüm modeli.</summary>
     public ReminderCardViewModel Reminders { get; }
@@ -29,11 +25,8 @@ public sealed partial class DashboardViewModel : ViewModelBase
     /// <summary>Kaydırılan kartın plan / şu an tablosu ve yaşam giderinin tutarları (S87).</summary>
     public PeriodComparisonViewModel Comparison { get; } = new();
 
-    /// <summary>Kalan ödemelerden kartta görünen satırlar: ilk üçü, "+N daha"ya dokununca hepsi.</summary>
-    public ObservableCollection<DashboardRemainingItem> RemainingLines { get; } = [];
-
-    /// <summary>Kartta gizli kalan ödeme var mı; taşma satırı yalnız o zaman görünür.</summary>
-    public bool HasOverflow => HiddenRemainingCount > 0;
+    /// <summary>"Kalan ödemeler" kartı: satırlar, adet, toplam, "+N daha" ve satırdan "Ödedim" (S88).</summary>
+    public RemainingPaymentsViewModel Remaining { get; }
 
     [ObservableProperty] private bool hasActivePeriod;
     [ObservableProperty] private DateOnly? periodStart; [ObservableProperty] private DateOnly? periodLastDay;
@@ -54,16 +47,20 @@ public sealed partial class DashboardViewModel : ViewModelBase
 
     [ObservableProperty] private decimal? lastObservedBalance; [ObservableProperty] private DateOnly? lastObservedOn;
 
-    [ObservableProperty] private int remainingCount; [ObservableProperty] private decimal remainingTotal;
-    [ObservableProperty, NotifyPropertyChangedFor(nameof(HasOverflow))] private int hiddenRemainingCount;
-
-    /// <summary>Ana sayfa görünüm modelini gidişat okuma portu, gezinme portu ve hatırlatıcı kartıyla başlatır.</summary>
+    /// <summary>
+    /// Ana sayfa görünüm modelini gidişat okuma portu, gezinme portu, hatırlatıcı kartı ve kalan ödemelerin onayını
+    /// soracak diyalog servisiyle başlatır.
+    /// </summary>
     public DashboardViewModel(
-        IPeriodProgressService progressService, INavigationService navigationService, ReminderCardViewModel reminders)
+        IPeriodProgressService progressService, INavigationService navigationService, ReminderCardViewModel reminders,
+        IDialogService dialogService)
     {
         _progressService = progressService ?? throw new ArgumentNullException(nameof(progressService));
         _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
         Reminders = reminders ?? throw new ArgumentNullException(nameof(reminders));
+        Remaining = new RemainingPaymentsViewModel(reminders, dialogService);
+        // Kartta ya da listede verilen her ödeme cevabı gidişatı değiştirir; sayfa yeniden açılmayı beklemez (S88-4).
+        Reminders.AnswersChanged += (_, _) => RefreshCommand.Execute(null);
     }
 
     /// <summary>Açık dönemin gidişatını ve hatırlatıcıyı yükler; kaydırılan kart her yüklemede ilk sayfaya döner.</summary>
@@ -73,6 +70,24 @@ public sealed partial class DashboardViewModel : ViewModelBase
         SetBusy(true);
         State = ScreenState.Loading;
         HeroPageIndex = 0;
+        Remaining.Collapse();
+        try
+        {
+            await RefreshAsync();
+        }
+        finally
+        {
+            SetBusy(false);
+        }
+    }
+
+    /// <summary>
+    /// Gidişatı ekranı yükleniyor hâline düşürmeden yeniden okur: ödeme cevabından sonra iskelet çıkmaz, sayfa başa
+    /// kaymaz, kaydırılan kart ve açılmış liste yerinde kalır (S88-4).
+    /// </summary>
+    [RelayCommand]
+    private async Task RefreshAsync()
+    {
         try
         {
             var progress = await _progressService.GetAsync();
@@ -86,19 +101,15 @@ public sealed partial class DashboardViewModel : ViewModelBase
             ApplyEnding(progress);
             ApplyPace(progress);
             Comparison.Show(progress);
-            ApplyRemainingLines(progress);
+            Remaining.Show(progress);
             await Reminders.LoadAsync();
             State = ScreenState.Content;
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[DashboardViewModel ERROR] {ex}");
-            // Okuma hatası ekranda StateBlock (Hata) olarak görünür; "Tekrar dene" bu komutu yeniden çalıştırır.
+            // Okuma hatası ekranda StateBlock (Hata) olarak görünür; "Tekrar dene" yüklemeyi yeniden çalıştırır.
             State = ScreenState.Error;
-        }
-        finally
-        {
-            SetBusy(false);
         }
     }
 
@@ -136,32 +147,9 @@ public sealed partial class DashboardViewModel : ViewModelBase
         Gauge = pace is null ? new ChartGauge(0m, null) : new ChartGauge(Math.Clamp(pace.SpentRatio, 0m, 1m), pace.ElapsedRatio);
     }
 
-    private void ApplyRemainingLines(PeriodProgress progress)
-    {
-        _remaining = progress.RemainingPayments;
-        RemainingCount = progress.RemainingPayments.Count;
-        RemainingTotal = progress.RemainingTotal;
-        ShowRemaining(VisibleRemainingLimit);
-    }
-
-    private void ShowRemaining(int limit)
-    {
-        RemainingLines.Clear();
-        foreach (var payment in _remaining.Take(limit))
-        {
-            RemainingLines.Add(new DashboardRemainingItem
-            {
-                DueDate = payment.DueDate, Name = payment.Name, Amount = payment.Amount
-            });
-        }
-        HiddenRemainingCount = _remaining.Count - RemainingLines.Count;
-    }
-
     private void ShowEmptyState()
     {
-        _remaining = [];
-        RemainingLines.Clear();
-        HiddenRemainingCount = 0;
+        Remaining.Clear();
         HasActivePeriod = HasObservation = HasPace = IsPeriodEnded = false;
         EndingBalance = EndingDeviation = LastObservedBalance = null;
         Comparison.Clear();
@@ -173,8 +161,6 @@ public sealed partial class DashboardViewModel : ViewModelBase
     [RelayCommand] public Task OpenBalanceEntryAsync() => _navigationService.NavigateToAsync(Routes.BalanceEntry);
     /// <summary>Biten dönemin kapanışını açar (V11).</summary>
     [RelayCommand] public Task ClosePeriodAsync() => _navigationService.NavigateToAsync(Routes.PeriodSettlement);
-    /// <summary>Kalan ödemeler kartının gizli satırlarını yerinde açar; açık dönemin ayrıntısı bu sayfanın kendisi (S75-9).</summary>
-    [RelayCommand] public void ExpandRemaining() => ShowRemaining(_remaining.Count);
     /// <summary>Açık dönem yokken kurulum sihirbazını açar.</summary>
     [RelayCommand] public Task OpenOnboardingAsync() => _navigationService.NavigateToAsync(Routes.Onboarding);
 }

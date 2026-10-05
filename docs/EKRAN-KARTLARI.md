@@ -29,6 +29,9 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 > Geliştirme "ana sayfada plan / şu an" (2026-10-05, `S87`, `GS34`): 1. sayfada sütun grafiği yerine plan / şu an
 > tablosu, 2. sayfada yaşam giderinin tutarları; "Bakiye gir" önizlemesi grafiksiz. Değişen satırlar `← yeni`,
 > `← değişti`, `← çıktı` ile işaretli.
+> Geliştirme "kalan ödemelerden Ödedim" (2026-10-05, `S88`): kalan ödeme satırına dokununca onay penceresi,
+> "Ödedim" hatırlatıcının cevabını yazar; ana sayfa cevaptan sonra yerinde yenilenir. Değişen satırlar
+> `← yeni (S88)` ve `← değişti (S88)` ile işaretli.
 
 **Önceki hâl (`V3`, `GS20`):** `DashboardPage.xaml` 233 satır, 11 `<Label>`, 3 kart, 1 buton, 5 `NavRow`, 1 grafik (halka).
 **Eski proje:** `MainPage.xaml` 425 satır, **54 `<Label>`**, 5 kart, 11 buton, 1 geliştirici dökümü.
@@ -42,6 +45,7 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 | S3 | "Bankada şu an ne var, en son ne zaman girdim?" | Yarım: giriş kutucuğu vardı, son bakiye ve tarihi ekrana bağlı değildi |
 | S4 | "Bu dönem daha ne ödeyeceğim, bugün ödemem gereken var mı?" | Hatırlatıcı + ≤ 3 ikonlu satır + "+N ödeme daha" (5 etiket) |
 | S5 | "Dönem bitti mi, kapatmam gerekiyor mu?" | Dönem çubuğundaki gün sayacı + "Dönemi Kapat" butonu |
+| S6 | "Bu ödemeyi yaptım, vadesinden önce de olsa; listeden nasıl düşürürüm, hatırlatması gelmesin?" ← yeni (S88) | Cevapsızdı: yalnız vadesi bugün olan ya da ertelenmiş ödemede hatırlatıcı kartının "Ödedim"i; erken ödenen ödeme listede ve bildirimde kalıyordu (0 etiket) |
 
 ### 2. Kesme kararları (`GS24`)
 
@@ -63,8 +67,12 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 | Son bakiye + tarihi + "Bakiye gir" | **Kart** | S3; giriş ayrı sayfa (`V3b`, `S72-8`) |
 | Dönem bitti + son gün + "Dönemi kapat" | **Kart** (bakiye kartının yerinde) | S5; biten döneme bakiye yazılamaz (`S68-4`), cümle yok (`V11`) |
 | Hatırlatıcı | **Kart** (`ReminderCard`, `EK-V2`) | S4 acil ödeme; aktif kayıt yoksa görünmez |
-| Kalan ödemeler | **Kart** (`ListCard`, ≤ 3 satır: ad, vade, tutar) | S4 tarama sorusu; adet ve toplam kartın notunda |
+| Kalan ödemeler | **Kart** (`ListCard`, ≤ 3 satır: ad, vade, tutar); kalan ödeme yoksa görünmez ← değişti (S88) | S4 tarama sorusu; adet ve toplam kartın notunda. Boş kart yalnız "0 ödeme · 0 ₺" diyordu; hatırlatıcı kartı ve plan / şu an tablosu gibi kalkar (`S88`-6) |
 | Tüm kalan ödemeler | **Kart** içinde yerinde açılır ("+N daha", yalnız gizli satır varsa; `GS21` deseni) | S4'ün ikinci seviyesi; açık dönemin ayrıntısı ana sayfanın kendisi, `EK-V9` yalnız gelecek dönemler (`S75`-9, `GS27`-5; ilk karar "→ `EK-V9`" idi) |
+| Kalan ödemeyi "Ödedim" diye işaretlemek | **Satır** (satıra dokunma) + onay penceresi ← yeni (S88) | S6; kayıt hatırlatıcının "Ödedim"iyle aynı (`S88`-3); pencere yanlış dokunuşa karşı, geri alma yok (`S88`-5) |
+| Listede "Ertele" | **Çıkar** ← yeni (S88) | Vadesi gelmemiş ödemeyi ertelemek anlamsız; ertelemenin yeri vade günündeki kart (`S88`-2) |
+| Satırda "dokunulabilir" ikonu | **Çıkar** ← yeni (S88) | Analizcide etiket 28 / 28; GK6 kart başına bir ikon, `ListCard`'ın taşma oku zaten var (`T7` ile aynı sorun ailesi) |
+| Ödenenleri geri almak | **Çıkar** (Derine'yi bekliyor) ← yeni (S88) | `EK-V2` S3 ile aynı karar: ödenenlerin listesi `V11` / `EK-V12`'ye bırakıldı |
 | Dönem aralığı + gün sayacı / "Bitti" | **Satır** (başlık, `Shell.TitleView`) | S5 takvim bağlamı |
 | Gezinme satırları × 4, ayarlar ikonu | **Çıkar** | Aynı hedefler yan menüde |
 | Dönem çubuğu (`PeriodRail`) | **Çıkar** | Aralık ve sayaç başlıkta, geçen süre halkanın işaretinde |
@@ -93,6 +101,10 @@ Analizci kartı 2 sayar: ham `Border` (bakiye kartı) ve `ReminderCard` onun lis
 sayar: `<Label.Text>` (2) ve `<Label.Triggers>` (1) özellik öğelerini de `<Label` sayıyor. Bütçe
 dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML'inde görünmez; yine sayılır.
 Analizcinin sayımı bu geliştirmeden sonra da 28: ana sayfaya yeni bir `<Label` için yer yok.
+
+`S88` bütçeyi değiştirmez: satır şablonuna yalnız dokunma tanıyıcısı eklenir, etiket ve ikon eklenmez.
+Onay penceresinin metni sayfanın dizesi değil, ViewModel sabitidir (diyalog metinlerinin bugünkü deseni,
+`T8` açık); `Cumle_` sayımına girmez.
 
 ### 4. Blok şeması
 
@@ -147,15 +159,33 @@ Analizcinin sayımı bu geliştirmeden sonra da 28: ana sayfaya yeni bir `<Label
 │                                  [ Aksiyon_DonemiKapat ActionFill ]  │
 └──────────────────────────────────────────────────────────────────────┘
 ┌─ ReminderCard (HasActiveReminder) — EK-V2, değişmedi ────────────────┐  ← S4
+│   "Ödedim" / "Ertele" cevabından sonra ana sayfa yerinde yenilenir   │  ← değişti (S88-4)
 └──────────────────────────────────────────────────────────────────────┘
-┌─ ListCard ───────────────────────────────────────────────────────────┐  ← S4
+┌─ ListCard  (Remaining.HasItems; kalan ödeme yoksa görünmez) ─────────┐  ← S4 ← değişti (S88-6)
 │ Etiket_KalanOdemeler               4 ödeme · 24.009 ₺  (Bicim_OdemeAdediToplam)
-│ Kredi taksiti                                   12.450 ₺             │  TypeBody / TextPrimary · Figure
-│ 1 Ekim                                                               │  Caption
+│ ┌ satır: dokunulur → onay penceresi ─────────────────────────────┐  │  ← yeni (S88-1) ← S6
+│ │ Kredi taksiti                                   12.450 ₺       │  │  TypeBody / TextPrimary · Figure
+│ │ 1 Ekim                                                         │  │  Caption
+│ └────────────────────────────────────────────────────────────────┘  │
 │ … en fazla 3 satır                                                   │
 │ +3 daha                                                              │  yalnız gizli satır varsa; yerinde açılır (S75-9)
 └──────────────────────────────────────────────────────────────────────┘
 ```
+
+Satıra dokununca açılan onay penceresi (`IDialogService.ConfirmAsync`, Android'in sistem diyaloğu, `T8`):
+
+```
+┌─ ConfirmAsync ───────────────────────────────────────────────┐  ← yeni (S88-1) ← S6
+│ Kredi taksiti                          başlık: ödemenin adı   │
+│ Ödendi olarak işaretlensin mi? Kalan ödemelerden çıkar,       │  mesaj (ViewModel sabiti)
+│ hatırlatması gelmez.                                          │
+│                                  [ Vazgeç ]   [ Ödedim ]      │
+└───────────────────────────────────────────────────────────────┘
+```
+
+"Ödedim"den sonra ödeme listeden, adetten ve toplamdan çıkar; dönem sonu ve plan / şu an tablosu aynı kalır
+(`S88`-3). Ana sayfa yerinde yenilenir: iskelet çıkmaz, sayfa başa kaymaz, kaydırılan kart bulunduğu sayfada
+kalır, "+N daha" ile açılmış liste açık kalır (`S88`-4). "Vazgeç" hiçbir şey yazmaz.
 
 Yeni ölçü token'ı `ChartHeight` (144): `HeightRequest` literali yasak (GK3) ve iki hero sayfasının
 görseli aynı yükseklikte durmalı. `HeroPager` iki sayfayı üst üste ölçer (görünmeyen sayfa saydam),
@@ -173,6 +203,12 @@ boyunda durur ve 1. sayfanın altında boşluk kalır. Sayfa yüksekliği sabitl
 
 Dolu hâlin iki çeşidi durum değil, içeriktir ve şemada yazılı: bakiye hiç girilmemiş (plan rakamı,
 plan rotası, boş halka) ve dönem bitmiş ama kapanmamış (bakiye kartının yerinde kapanış).
+
+Satırdan "Ödedim" (`S88`): yenileme sırasında **yükleniyor** hâli gösterilmez, eski rakamlar yenisi gelene kadar
+yerinde durur. "Ödedim" kaydı yazılamazsa uyarı penceresi çıkar ("Ödeme işaretlenemedi"), liste değişmez.
+Yenileme okunamazsa ilk yüklemedeki **hata** hâli (`Hata_DashboardYuklenemedi`). Kalan ödeme yoksa "Kalan
+ödemeler" kartı görünmez; son kalan ödemeye "Ödedim" denince yerinde yenilemeyle kalkar (`S88`-6, Kapı C kararı:
+önceden "0 ödeme · 0 ₺" yazan başlıklı boş kart duruyordu).
 
 ### 6. Konsept ilişkisi
 

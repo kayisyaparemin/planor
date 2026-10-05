@@ -124,12 +124,18 @@ public static class PeriodProgressCalculator
 
     // Kalan kart satırı dondurulan tahminle değil kartın bugünkü hâliyle gösterilir ve sayılır: dönem içi plansız
     // harcama planı değil, gidişatı değiştirir (I23). Liste ve dönem sonu tahmini aynı tutarları kullanır (I165).
+    // Anahtar hatırlatıcının anahtarıdır: listeden "Ödedim" denen ödeme sınıflandırıcıda ve bildirimde aynı ödemeye
+    // bağlanmalı (S88, I22).
     private static PeriodRemainingPayment[] RemainingPayments(
         IReadOnlyList<PeriodPlanPaymentLine> remainingLines,
         IReadOnlyDictionary<Guid, decimal> currentCardPayments) =>
         remainingLines
             .Select(line => new PeriodRemainingPayment(
-                line.Id, line.Name, line.PlannedDate, ProjectedPaymentAmount.Of(line, currentCardPayments)))
+                line.Id,
+                PaymentReminderPlanner.DueKey(line.SourceEntityId, line.Name, line.PlannedDate),
+                line.Name,
+                line.PlannedDate,
+                ProjectedPaymentAmount.Of(line, currentCardPayments)))
             .ToArray();
 
     private static PeriodCardComparison[] CompareCards(

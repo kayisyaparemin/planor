@@ -122,6 +122,54 @@ public sealed class PeriodProgressServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_KalanOdeme_HatirlaticininOdemeAnahtariniTasir()
+    {
+        // Hazırla — bildirimler bu anahtarla kurulur (PaymentDueCollector); listeden "Ödedim" denen ödemenin
+        // bildirimi ancak anahtarlar aynıysa düşer (S88, I22)
+        var kira = KiraSatiri();
+        await AcikDonemKurAsync(new PeriodPlanSnapshot { PaymentLines = [kira] });
+
+        // Uygula
+        var gidisat = await Servis(new DateOnly(2026, 9, 10)).GetAsync();
+
+        // Doğrula
+        Assert.NotNull(gidisat);
+        Assert.Equal(
+            PaymentReminderPlanner.DueKey(kira.SourceEntityId, "Kira", new DateOnly(2026, 9, 20)),
+            Assert.Single(gidisat.RemainingPayments).DueKey);
+    }
+
+    [Fact]
+    public async Task GetAsync_KalanOdemeyeOdedimDenince_ListedenCikarDonemSonuTahminiDegismez()
+    {
+        // Hazırla — 20 Eylül vadeli 4.000'lik kira, bakiye 4 Eylül'de 20.000. Kullanıcı kirayı 10 Eylül'de erken
+        // ödüyor ve listede satıra dokunup "Ödedim" diyor: cevap satırın taşıdığı anahtarla yazılır (S88)
+        var plan = await AcikDonemKurAsync(new PeriodPlanSnapshot { OpeningBalance = 20_000m, PaymentLines = [KiraSatiri()] });
+        await GozlemKaydetAsync(plan, new DateOnly(2026, 9, 4), 20_000m);
+        var bugun = new DateOnly(2026, 9, 10);
+        var satir = Assert.Single((await Servis(bugun).GetAsync())!.RemainingPayments);
+        await _hatirlaticilar.UpsertResponsesAsync([new PaymentReminderResponse
+        {
+            DueKey = satir.DueKey,
+            Name = satir.Name,
+            DueDate = satir.DueDate,
+            Amount = satir.Amount,
+            Kind = PaymentReminderAnswerKind.Paid,
+            AnsweredAt = new DateTime(2026, 9, 10, 10, 0, 0)
+        }]);
+
+        // Uygula
+        var gidisat = await Servis(bugun).GetAsync();
+
+        // Doğrula — ödeme listeden ve toplamdan çıkar; tahmin "Ödedim"den önceki gibi 20.000 − 4.000: ödeme aynı
+        // tutarla kalandan yapılmışa geçti (I166)
+        Assert.NotNull(gidisat);
+        Assert.Empty(gidisat.RemainingPayments);
+        Assert.Equal(0m, gidisat.RemainingTotal);
+        Assert.Equal(16_000m, gidisat.ProjectedEndingBalance);
+    }
+
+    [Fact]
     public async Task GetAsync_KartinVadesiGeldiyse_DonemSonuTahminiKartinGuncelOdemesiyleKalir()
     {
         // Hazırla — plan Bonus'un 15 Eylül ödemesini 8.000 diye dondurdu, ödeme 10.095'e çıktı; bakiye 4 Eylül'de
@@ -265,6 +313,16 @@ public sealed class PeriodProgressServiceTests
         BalanceAsOfDate = DonemBasi,
         UnbilledSpending = 8_000m,
         Charges = [new CardCharge { PostingDate = new DateOnly(2026, 9, 3), Amount = 2_095m }]
+    };
+
+    // Kaynağı bir düzenli ödeme olan, 20 Eylül vadeli 4.000'lik kira satırı.
+    private static PeriodPlanPaymentLine KiraSatiri() => new()
+    {
+        SourceEntityId = Guid.NewGuid(),
+        SourceType = PlanPaymentSourceType.OtherScheduledPayment,
+        Name = "Kira",
+        PlannedDate = new DateOnly(2026, 9, 20),
+        PlannedAmount = 4_000m
     };
 
     private static PeriodPlanPaymentLine KartSatiri(CreditCard kart, DateOnly vade, decimal tutar) => new()

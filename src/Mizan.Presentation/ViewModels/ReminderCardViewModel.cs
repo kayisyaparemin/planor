@@ -135,10 +135,19 @@ public sealed partial class ReminderCardViewModel : ViewModelBase
         }
 
         var due = new PaymentDue(reminder.DueKey, reminder.Name, reminder.DueDate, reminder.Amount);
+        // Kart, olay ateşlenmeden kapanır: olay ana sayfayı yeniler ve yenileme kartın sıradaki ödemesini kurar.
+        ClearActive();
+        await RecordPaidAsync(due, cancellationToken);
+    }
+
+    /// <summary>
+    /// Ödemeyi "Ödedim" cevabıyla, telefonun yerel saatiyle kaydeder (I168). Kartın "Ödedim"i ile ana sayfanın kalan
+    /// ödemeler listesi aynı kaydı bu yoldan yazar (S88); cevaptan sonra ana sayfa yenilensin diye olay ateşlenir.
+    /// </summary>
+    public async Task RecordPaidAsync(PaymentDue due, CancellationToken cancellationToken = default)
+    {
         var answer = new PaymentReminderAnswer(PaymentReminderAnswerKind.Paid, _clock.Now.DateTime, null, [due]);
         await _reminderService.RecordAnswerAsync(answer, cancellationToken);
-
-        ClearActive();
         AnswersChanged?.Invoke(this, EventArgs.Empty);
     }
 
