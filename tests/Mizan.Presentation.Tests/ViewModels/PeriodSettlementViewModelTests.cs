@@ -181,6 +181,26 @@ public sealed class PeriodSettlementViewModelTests
         Assert.Equal(ScreenState.Error, _viewModel.State);
     }
 
+    [Fact]
+    public async Task Yukle_YalnizBakiyeGozlemiVarsa_OdemeDurumuSayisiVeKapanisBakiyesiDogrudur()
+    {
+        // Kullanıcı yalnız bakiye girmiş, ödeme işareti koymamış (Payments = [])
+        _workflow.ObservedDraft = new PeriodSettlementDraft
+        {
+            PeriodPlanSnapshotId = PlanId,
+            Payments = [],
+            ActualLivingSpend = 28750m,
+            ActualInterest = 0m,
+            ConfirmedEndingBalance = 42180m
+        };
+
+        await _viewModel.LoadAsync();
+
+        // 7 ödemenin 7'si sayılmalı (0/0 kalmamalı)
+        Assert.Equal(7, _viewModel.TotalPaymentsCount);
+        Assert.Equal(7, _viewModel.PaidPaymentsCount);
+    }
+
     private void SetupDefaultContext()
     {
         var plan = new PeriodPlanSnapshot
@@ -263,7 +283,9 @@ public sealed class PeriodSettlementViewModelTests
                 [
                     new PlanActualComparisonLine("Yaşam giderleri", 29650m, 28750m, -900m),
                     new PlanActualComparisonLine("Faiz", 0m, 0m, 0m)
-                ])
+                ]),
+            TotalPaymentsCount = 7,
+            PaidPaymentsCount = 7
         };
     }
 }

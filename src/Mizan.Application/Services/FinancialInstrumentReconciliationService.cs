@@ -21,6 +21,14 @@ public sealed class FinancialInstrumentReconciliationService(
         loanReconciler ?? throw new ArgumentNullException(nameof(loanReconciler));
 
     /// <summary>
+    /// Kartların açık dönemdeki ekstre projeksiyonlarını hesaplayarak güncel ödeme tutarlarını döner.
+    /// </summary>
+    public IReadOnlyDictionary<Guid, decimal> ResolveCurrentCardPayments(
+        FinancialPlan data,
+        CashFlowPeriod period) =>
+        CurrentCardPayments.Of(data.CreditCards, period, data.Settings.CreditCardCarryInterestRate, _cardStatementCalculator);
+
+    /// <summary>
     /// Kapanan dönemin dondurulmuş plan satırları ve kullanıcının fiili ödeme bildirimlerini
     /// finansal plana uygulayarak bir sonraki döneme devreden sözleşme durumlarını üretir.
     /// </summary>

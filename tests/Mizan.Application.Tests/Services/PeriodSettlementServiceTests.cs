@@ -597,6 +597,166 @@ public sealed class PeriodSettlementServiceTests
         Assert.Equal(2, history.Plans.Count);
     }
 
+    [Fact]
+    public async Task FinalizeAsync_KartaDonemIcindeHarcamaGirildiyse_KapanisKartiGuncelOdemeIleKapatirVeHaksizDevredenBakiyeUretmez()
+    {
+        var service = CreateService();
+        var cardId = Guid.NewGuid();
+        var dueDate = new DateOnly(2026, 9, 15);
+
+        var card = new CreditCard
+        {
+            Id = cardId,
+            Name = "Bonus",
+            StatementClosingDay = 27,
+            PaymentDueDay = 15,
+            Limit = 100_000m,
+            CarriedBalance = 0m,
+            BalanceAsOfDate = new DateOnly(2026, 8, 28),
+            PaymentStrategy = CreditCardPaymentStrategy.FullStatement,
+            CurrentStatement = new CreditCardStatement
+            {
+                StatementDate = new DateOnly(2026, 8, 27),
+                DueDate = dueDate,
+                StatementAmount = 30_000m,
+                MinimumPaymentAmount = 6_000m
+            }
+        };
+
+        var plan = CreateSamplePlan() with { CreditCards = [card] };
+
+        var snapshot = new FinancialSnapshot
+        {
+            Id = Guid.NewGuid(),
+            SnapshotDate = InitialDate,
+            ProjectionAnchorDate = InitialDate,
+            ProjectionOpeningBalance = 50_000m,
+            Anchor = new PeriodAnchor(1),
+            Source = FinancialSnapshotSource.Initial,
+            IsCurrent = true,
+            CreatedAtUtc = InitialNowUtc
+        };
+
+        var line = new PeriodPlanPaymentLine
+        {
+            Id = Guid.NewGuid(),
+            PeriodPlanSnapshotId = Guid.NewGuid(),
+            SourceEntityId = cardId,
+            SourceType = PlanPaymentSourceType.CreditCard,
+            Name = "Bonus",
+            PlannedDate = dueDate,
+            PlannedAmount = 20_000m
+        };
+
+        var frozenPlan = new PeriodPlanSnapshot
+        {
+            Id = line.PeriodPlanSnapshotId,
+            FinancialSnapshotId = snapshot.Id,
+            PeriodStart = InitialDate,
+            PeriodEnd = SettlementDate,
+            SettlementAvailableFrom = SettlementDate,
+            OpeningBalance = 50_000m,
+            PlannedIncome = 60_000m,
+            PlannedVariableExpenseAllowance = 20_000m,
+            PlannedDeficitInterest = 0m,
+            CreatedAtUtc = InitialNowUtc,
+            PaymentLines = [line]
+        };
+
+        await _historyRepo.SaveCurrentFinancialSnapshotAsync(snapshot, frozenPlan);
+        _clock.SetDate(SettlementDate);
+
+        var draft = new PeriodSettlementDraft
+        {
+            PeriodPlanSnapshotId = frozenPlan.Id,
+            Payments = [],
+            ActualLivingSpend = 20_000m,
+            ActualInterest = 0m,
+            ConfirmedEndingBalance = 60_000m
+        };
+
+        var result = await service.FinalizeAsync(plan, draft);
+
+        Assert.Equal(30_000m, result.Actual.ActualCardPayments);
+
+        var commit = Assert.Single(_historyRepo.Commits);
+        var updatedCard = Assert.Single(commit.UpdatedCreditCards.Where(c => c.Id == cardId));
+        Assert.Equal(0m, updatedCard.CarriedBalance);
+    }
+
+    [Fact]
+    public async Task GetContextAsync_KartaDonemIcindeHarcamaGirildiyse_OnerilenBakiyeGuncelOdemeIleHesaplanir()
+    {
+        var service = CreateService();
+        var cardId = Guid.NewGuid();
+        var dueDate = new DateOnly(2026, 9, 15);
+
+        var card = new CreditCard
+        {
+            Id = cardId,
+            Name = "Bonus",
+            StatementClosingDay = 27,
+            PaymentDueDay = 15,
+            Limit = 100_000m,
+            CarriedBalance = 0m,
+            BalanceAsOfDate = new DateOnly(2026, 8, 28),
+            PaymentStrategy = CreditCardPaymentStrategy.FullStatement,
+            CurrentStatement = new CreditCardStatement
+            {
+                StatementDate = new DateOnly(2026, 8, 27),
+                DueDate = dueDate,
+                StatementAmount = 30_000m,
+                MinimumPaymentAmount = 6_000m
+            }
+        };
+
+        var plan = CreateSamplePlan() with { CreditCards = [card] };
+
+        var snapshot = new FinancialSnapshot
+        {
+            Id = Guid.NewGuid(),
+            SnapshotDate = InitialDate,
+            ProjectionAnchorDate = InitialDate,
+            ProjectionOpeningBalance = 50_000m,
+            Anchor = new PeriodAnchor(1),
+            Source = FinancialSnapshotSource.Initial,
+            IsCurrent = true,
+            CreatedAtUtc = InitialNowUtc
+        };
+
+        var line = new PeriodPlanPaymentLine
+        {
+            Id = Guid.NewGuid(),
+            PeriodPlanSnapshotId = Guid.NewGuid(),
+            SourceEntityId = cardId,
+            SourceType = PlanPaymentSourceType.CreditCard,
+            Name = "Bonus",
+            PlannedDate = dueDate,
+            PlannedAmount = 20_000m
+        };
+
+        var frozenPlan = new PeriodPlanSnapshot
+        {
+            Id = line.PeriodPlanSnapshotId,
+            FinancialSnapshotId = snapshot.Id,
+            PeriodStart = InitialDate,
+            PeriodEnd = SettlementDate,
+            SettlementAvailableFrom = SettlementDate,
+            OpeningBalance = 50_000m,
+            PlannedIncome = 60_000m,
+            PlannedVariableExpenseAllowance = 20_000m,
+            PlannedDeficitInterest = 0m,
+            CreatedAtUtc = InitialNowUtc,
+            PaymentLines = [line]
+        };
+
+        await _historyRepo.SaveCurrentFinancialSnapshotAsync(snapshot, frozenPlan);
+
+        // 50.000 + 60.000 - 30.000 (güncel ekstre borcu) - 20.000 = 60.000 TL
+        var context = await service.GetContextAsync(plan, frozenPlan.Id);
+        Assert.Equal(60_000m, context.SuggestedStartingBalance);
+    }
+
     private sealed class MutableClock(DateOnly today, DateTimeOffset utcNow) : IClock
     {
         public DateOnly Today { get; private set; } = today;

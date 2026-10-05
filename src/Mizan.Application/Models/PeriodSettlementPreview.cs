@@ -17,4 +17,10 @@ public sealed record PeriodSettlementPreview
 
     /// <summary>Dondurulan plan ile taslaktaki gerçekleşme arasındaki 12 kategorili karne kıyaslaması.</summary>
     public required PlanActualComparison Comparison { get; init; }
+
+    /// <summary>Kapanan dönem planındaki toplam ödeme satırı sayısı.</summary>
+    public int TotalPaymentsCount { get; init; }
+
+    /// <summary>Ödendi veya farklı tutarla ödendi olarak gerçekleşen ödeme satırı sayısı.</summary>
+    public int PaidPaymentsCount { get; init; }
 }

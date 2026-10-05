@@ -88,14 +88,16 @@ public sealed partial class PeriodSettlementViewModel : ViewModelBase
         var context = await _workflowService.GetSettlementContextAsync(plan.Id);
         var observed = await _workflowService.GetObservedSettlementDraftAsync(plan.Id);
 
-        _draft = observed ?? new PeriodSettlementDraft
-        {
-            PeriodPlanSnapshotId = plan.Id,
-            Payments = plan.PaymentLines.Select(DefaultPaymentDraft).ToArray(),
-            ActualLivingSpend = plan.PlannedVariableExpenseAllowance,
-            ActualInterest = 0m,
-            ConfirmedEndingBalance = context.SuggestedStartingBalance
-        };
+        _draft = observed is not null
+            ? observed with { ConfirmedEndingBalance = observed.ConfirmedEndingBalance ?? context.SuggestedStartingBalance }
+            : new PeriodSettlementDraft
+            {
+                PeriodPlanSnapshotId = plan.Id,
+                Payments = [],
+                ActualLivingSpend = plan.PlannedVariableExpenseAllowance,
+                ActualInterest = 0m,
+                ConfirmedEndingBalance = context.SuggestedStartingBalance
+            };
 
         await ApplyDraftAndPreviewAsync(_draft);
     }
@@ -176,8 +178,8 @@ public sealed partial class PeriodSettlementViewModel : ViewModelBase
         IsLivingSaved = LivingDifference > 0m;
         IsLivingOverspent = LivingDifference < 0m;
 
-        TotalPaymentsCount = draft.Payments.Count;
-        PaidPaymentsCount = draft.Payments.Count(p => p.Status is ActualPaymentStatus.Paid or ActualPaymentStatus.DifferentAmount);
+        TotalPaymentsCount = preview.TotalPaymentsCount;
+        PaidPaymentsCount = preview.PaidPaymentsCount;
         var paymentLines = comparison.Lines.Where(x => x.Category is "Krediler" or "Kredi kartları" or "Zorunlu ödemeler" or "Diğer planlı ödemeler" or "Geçici ödemeler" or "Taksitli ödemeler").ToList();
         PaymentsDifference = paymentLines.Sum(x => x.Difference);
 
@@ -187,12 +189,4 @@ public sealed partial class PeriodSettlementViewModel : ViewModelBase
         ConfirmedBalance = preview.ConfirmedEndingBalance;
         ConfirmedDate = PeriodLastDay;
     }
-
-    private static ActualPaymentDraft DefaultPaymentDraft(PeriodPlanPaymentLine line) => new()
-    {
-        PeriodPlanPaymentLineId = line.Id,
-        Status = line.PlannedAmount is null ? ActualPaymentStatus.Unpaid : ActualPaymentStatus.Paid,
-        ActualAmount = line.PlannedAmount.GetValueOrDefault(),
-        ActualPaymentDate = line.PlannedDate
-    };
 }

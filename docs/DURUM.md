@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **Sürüm 0.2.0** (versionCode 3): ana sayfada plan / şu an tablosu ve beş düzeltme (kart tutarları, hatırlatıcı kartı); son iş **Hata düzeltme — hatırlatıcı kartında UTC saat** (`I168`) |
-| Sıradaki adım | Kullanıcı "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. Bekleyen kayıtlı hatalar: (c) kapanışta kartın gerçekleşen tutarı kilitli tahminle doluyor, (e) bakiye rotasının katedilen kısmı plan tutarıyla (okuyan ekran yok) |
-| Test sayısı | 2248 |
+| Son tamamlanan adım | **Hata düzeltme — dönem kapanışında kartın güncel ödemesi** (`I169`); bekleyen yayın: 0.2.1 |
+| Sıradaki adım | Kullanıcı "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. Bekleyen kayıtlı hatalar: (e) bakiye rotasının katedilen kısmı plan tutarıyla (okuyan ekran yok) |
+| Test sayısı | 2251 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Hata düzeltme — dönem kapanışında kartın güncel ödemesi; karar `I169`
+
+Belirti: Dönem kapanışında (`PeriodSettlementViewModel` / `PeriodSettlementService`), kullanıcı bir ara ödeme işareti koymamışsa (`Payments = []` veya kısmi), kartın gerçekleşen ödeme tutarı dondurulmuş plan tahminiyle (`line.PlannedAmount`) kapatılıyordu. Bu durum dönem içi harcama girilmiş kartta haksız devreden bakiye (`CarriedBalance`) bırakıyor ve sonraki dönemde KMH/gecikme faizine yol açıyordu; ayrıca kapanışın önerdiği açılış bakiyesi (`SuggestedStartingBalance`) güncel ödeme yerine plan tutarını düşüyordu ve ara bakiye girilip ödeme işareti konmamışsa ödeme sayaçları (0/0) görünüyordu. Kök neden: `PeriodActualBuilder` varsayılan taslakta ve `PeriodSettlementService.FinalizeAsync` mutabakatında kartların güncel dönem içi ödemesini bilmiyor, sadece dondurulmuş plandaki `PlannedAmount`'u alıyordu; `PeriodWorkflowService` de `GetSettlementContextAsync` ve `PreviewSettlementAsync` çağrılarında planı iletmiyordu. 0.1.0'dan beri var.
+Düzeltme: `FinancialInstrumentReconciliationService.ResolveCurrentCardPayments` metodu ile kartların güncel ekstre borcu çözümlendi; `PeriodActualBuilder` eksik ödemeleri tamamlarken kart satırları için güncel tutarı kullandı; `PeriodSettlementService` hem `FinalizeAsync` hem `PreviewAsync` hem de `GetContextAsync` akışlarında güncel kart ödemelerini devreye aldı; `PeriodSettlementPreview`'a `TotalPaymentsCount` ve `PaidPaymentsCount` eklendi; `PeriodSettlementViewModel` ödeme sayılarını doğrudan `preview`'dan alacak şekilde bağlandı ve kullanılmayan `DefaultPaymentDraft` silindi.
+Koruyan: `PeriodSettlementServiceTests.FinalizeAsync_KartaDonemIcindeHarcamaGirildiyse_KapanisKartiGuncelOdemeIleKapatirVeHaksizDevredenBakiyeUretmez` (kırmızıydı: 30.000 ≠ 20.000), `PeriodSettlementServiceTests.GetContextAsync_KartaDonemIcindeHarcamaGirildiyse_OnerilenBakiyeGuncelOdemeIleHesaplanir` (kırmızıydı: 60.000 ≠ 70.000) ve `PeriodSettlementViewModelTests.Yukle_YalnizBakiyeGozlemiVarsa_OdemeDurumuSayisiVeKapanisBakiyesiDogrudur` (kırmızıydı: 7 ≠ 0) (`I169`). Ekrana (XAML) dokunmadı. Toplam 2.251 test yeşil, 0 hata, 0 uyarı.
+Sürüm: 0.2.1 (bekliyor).
 
 ### Hata düzeltme — hatırlatıcı kartında UTC saat; karar `I168`
 

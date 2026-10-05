@@ -43,7 +43,11 @@ public sealed class PeriodSettlementService(
     }
 
     /// <summary>Dönem kapanışı ekranı ve sihirbazı için bağlam nesnesini hazırlar.</summary>
-    public async Task<PeriodSettlementContext> GetContextAsync(Guid? planId = null, CancellationToken cancellationToken = default)
+    public Task<PeriodSettlementContext> GetContextAsync(Guid? planId = null, CancellationToken cancellationToken = default) =>
+        GetContextAsync(null, planId, cancellationToken);
+
+    /// <summary>Dönem kapanışı ekranı ve sihirbazı için bağlam nesnesini güncel finansal planla hazırlar.</summary>
+    public async Task<PeriodSettlementContext> GetContextAsync(FinancialPlan? financialPlan, Guid? planId = null, CancellationToken cancellationToken = default)
     {
         var history = await _periodHistoryRepository.GetFinancialHistoryAsync(cancellationToken);
         var current = history.FindLatestCurrentSnapshot() ?? throw new InvalidOperationException("Önce güncel finansal durumunu kaydetmelisin.");
@@ -62,9 +66,13 @@ public sealed class PeriodSettlementService(
         var plannedIncome = revision?.PlannedIncome ?? plan.PlannedIncome;
         var plannedLiving = revision?.PlannedVariableExpenseAllowance ?? plan.PlannedVariableExpenseAllowance;
         var plannedInterest = revision?.PlannedDeficitInterest ?? plan.PlannedDeficitInterest;
+        var cardPayments = financialPlan is not null
+            ? _instrumentService.ResolveCurrentCardPayments(financialPlan, new CashFlowPeriod(plan.PeriodStart, plan.PeriodEnd))
+            : null;
 
         var suggestedStartingBalance = source.ProjectionOpeningBalance + plannedIncome
-            - paymentLines.Sum(x => x.PlannedAmount.GetValueOrDefault()) - plannedLiving - plannedInterest;
+            - paymentLines.Sum(x => ProjectedPaymentAmount.Of(x, cardPayments ?? new Dictionary<Guid, decimal>()))
+            - plannedLiving - plannedInterest;
 
         return new PeriodSettlementContext
         {
@@ -79,7 +87,11 @@ public sealed class PeriodSettlementService(
     }
 
     /// <summary>Kapanış taslağının onay öncesi önizleme sonuçlarını hesaplar.</summary>
-    public async Task<PeriodSettlementPreview> PreviewAsync(PeriodSettlementDraft draft, CancellationToken cancellationToken = default)
+    public Task<PeriodSettlementPreview> PreviewAsync(PeriodSettlementDraft draft, CancellationToken cancellationToken = default) =>
+        PreviewAsync(draft, null, cancellationToken);
+
+    /// <summary>Kapanış taslağının onay öncesi önizleme sonuçlarını güncel finansal planla hesaplar.</summary>
+    public async Task<PeriodSettlementPreview> PreviewAsync(PeriodSettlementDraft draft, FinancialPlan? financialPlan, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(draft);
 
@@ -88,14 +100,19 @@ public sealed class PeriodSettlementService(
         var snapshot = history.Snapshots.Single(x => x.Id == plan.FinancialSnapshotId);
         var revisions = history.FindFinalRevisions(plan);
         var revision = revisions.Count > 0 ? revisions[^1] : null;
-        var actual = PeriodActualBuilder.Build(plan, snapshot, revision, FinalPaymentLines(plan, revision), draft, _clock.UtcNow, Guid.Empty, false);
+        var cardPayments = financialPlan is not null
+            ? _instrumentService.ResolveCurrentCardPayments(financialPlan, new CashFlowPeriod(plan.PeriodStart, plan.PeriodEnd))
+            : null;
+        var actual = PeriodActualBuilder.Build(plan, snapshot, revision, FinalPaymentLines(plan, revision), draft, _clock.UtcNow, Guid.Empty, false, cardPayments);
 
         return new PeriodSettlementPreview
         {
             DerivedEndingBalance = actual.DerivedEndingBalance,
             ConfirmedEndingBalance = actual.ConfirmedEndingBalance,
             ReconciliationAdjustment = actual.ReconciliationAdjustment,
-            Comparison = _comparisonCalculator.Calculate(plan, revision, actual)
+            Comparison = _comparisonCalculator.Calculate(plan, revision, actual),
+            TotalPaymentsCount = actual.Payments.Count,
+            PaidPaymentsCount = actual.Payments.Count(p => p.Status is ActualPaymentStatus.Paid or ActualPaymentStatus.DifferentAmount)
         };
     }
 
@@ -114,7 +131,8 @@ public sealed class PeriodSettlementService(
         var revisions = history.FindFinalRevisions(plan);
         var revision = revisions.Count > 0 ? revisions[^1] : null;
         var lines = FinalPaymentLines(plan, revision);
-        var provisional = PeriodActualBuilder.Build(plan, current, revision, lines, draft, _clock.UtcNow, Guid.Empty, true);
+        var cardPayments = _instrumentService.ResolveCurrentCardPayments(financialPlan, new CashFlowPeriod(plan.PeriodStart, plan.PeriodEnd));
+        var provisional = PeriodActualBuilder.Build(plan, current, revision, lines, draft, _clock.UtcNow, Guid.Empty, true, cardPayments);
 
         var (bundle, instruments) = ReconcileAndBuildBundle(financialPlan, lines, provisional, plan.SettlementAvailableFrom, current.Id);
         var actual = provisional with { ResultFinancialSnapshotId = bundle.Snapshot.Id };

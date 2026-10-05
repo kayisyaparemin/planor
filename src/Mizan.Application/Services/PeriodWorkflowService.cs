@@ -33,10 +33,13 @@ public sealed class PeriodWorkflowService(
         _settlementService.GetAvailabilityAsync(cancellationToken);
 
     /// <inheritdoc />
-    public Task<PeriodSettlementContext> GetSettlementContextAsync(
+    public async Task<PeriodSettlementContext> GetSettlementContextAsync(
         Guid? planId = null,
-        CancellationToken cancellationToken = default) =>
-        _settlementService.GetContextAsync(planId, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        var plan = await _planReader.GetPlanAsync(cancellationToken);
+        return await _settlementService.GetContextAsync(plan, planId, cancellationToken);
+    }
 
     /// <inheritdoc />
     public async Task<PeriodSettlementDraft?> GetObservedSettlementDraftAsync(
@@ -65,10 +68,13 @@ public sealed class PeriodWorkflowService(
     }
 
     /// <inheritdoc />
-    public Task<PeriodSettlementPreview> PreviewSettlementAsync(
+    public async Task<PeriodSettlementPreview> PreviewSettlementAsync(
         PeriodSettlementDraft draft,
-        CancellationToken cancellationToken = default) =>
-        _settlementService.PreviewAsync(draft, cancellationToken);
+        CancellationToken cancellationToken = default)
+    {
+        var plan = await _planReader.GetPlanAsync(cancellationToken);
+        return await _settlementService.PreviewAsync(draft, plan, cancellationToken);
+    }
 
     /// <inheritdoc />
     public async Task<PeriodSettlementResult> FinalizeSettlementAsync(

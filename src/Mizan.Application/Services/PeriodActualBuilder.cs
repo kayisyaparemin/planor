@@ -19,7 +19,8 @@ public static class PeriodActualBuilder
         PeriodSettlementDraft draft,
         DateTimeOffset finalizedAtUtc,
         Guid resultSnapshotId,
-        bool validateDates)
+        bool validateDates,
+        IReadOnlyDictionary<Guid, decimal>? currentCardPayments = null)
     {
         ArgumentNullException.ThrowIfNull(plan);
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -29,7 +30,7 @@ public static class PeriodActualBuilder
         ValidateDraft(plan, draft, validateDates);
 
         var actualId = Guid.NewGuid();
-        var payments = BuildPayments(plan, paymentLines, draft, actualId, validateDates);
+        var payments = BuildPayments(plan, paymentLines, draft, actualId, validateDates, currentCardPayments);
         var flows = BuildFlows(draft, actualId);
         var breakdown = BuildBreakdown(draft, actualId);
 
@@ -61,23 +62,33 @@ public static class PeriodActualBuilder
         IReadOnlyList<PeriodPlanPaymentLine> paymentLines,
         PeriodSettlementDraft draft,
         Guid actualId,
-        bool validateDates)
+        bool validateDates,
+        IReadOnlyDictionary<Guid, decimal>? currentCardPayments)
     {
         var paymentDrafts = draft.Payments.GroupBy(x => x.PeriodPlanPaymentLineId).ToDictionary(x => x.Key, x => x.Single());
         return paymentLines.Select(line =>
         {
-            var input = paymentDrafts.GetValueOrDefault(line.Id) ?? DefaultDraft(line);
+            var input = paymentDrafts.GetValueOrDefault(line.Id) ?? DefaultDraft(line, currentCardPayments);
             return BuildActualPayment(plan, line, input, actualId, validateDates);
         }).ToArray();
     }
 
-    private static ActualPaymentDraft DefaultDraft(PeriodPlanPaymentLine line) => new()
+    private static ActualPaymentDraft DefaultDraft(
+        PeriodPlanPaymentLine line,
+        IReadOnlyDictionary<Guid, decimal>? currentCardPayments)
     {
-        PeriodPlanPaymentLineId = line.Id,
-        Status = line.PlannedAmount is null ? ActualPaymentStatus.Unpaid : ActualPaymentStatus.Paid,
-        ActualAmount = line.PlannedAmount.GetValueOrDefault(),
-        ActualPaymentDate = line.PlannedAmount is null ? null : line.PlannedDate
-    };
+        var amount = currentCardPayments is not null
+            ? ProjectedPaymentAmount.Of(line, currentCardPayments)
+            : line.PlannedAmount.GetValueOrDefault();
+        var isPaid = amount > 0m || (currentCardPayments is null && line.PlannedAmount is not null);
+        return new ActualPaymentDraft
+        {
+            PeriodPlanPaymentLineId = line.Id,
+            Status = isPaid ? ActualPaymentStatus.Paid : ActualPaymentStatus.Unpaid,
+            ActualAmount = amount,
+            ActualPaymentDate = line.PlannedAmount is null && amount == 0m ? null : line.PlannedDate
+        };
+    }
 
     private static ActualPayment BuildActualPayment(
         PeriodPlanSnapshot plan,
@@ -140,6 +151,7 @@ public static class PeriodActualBuilder
         var confirmed = draft.ConfirmedEndingBalance ?? derived;
 
         decimal Sum(PlanPaymentSourceType type) => payments.Where(x => x.SourceType == type).Sum(x => x.ActualAmount);
+        var mandatory = payments.Where(x => x.SourceType != PlanPaymentSourceType.PlannedLargeExpense).Sum(x => x.ActualAmount);
 
         return new PeriodActual
         {
@@ -157,13 +169,10 @@ public static class PeriodActualBuilder
             ActualInstallmentPayments = Sum(PlanPaymentSourceType.InstallmentPayment),
             ActualOtherScheduledPayments = Sum(PlanPaymentSourceType.OtherScheduledPayment),
             ActualLargeExpenses = Sum(PlanPaymentSourceType.PlannedLargeExpense),
-            ActualMandatoryPayments = payments.Where(x => x.SourceType != PlanPaymentSourceType.PlannedLargeExpense).Sum(x => x.ActualAmount),
-            ActualLivingSpend = draft.ActualLivingSpend,
-            ActualInterest = draft.ActualInterest,
-            UnplannedIncome = unplannedIncome,
-            UnplannedPayments = unplannedPayments,
-            DerivedEndingBalance = derived,
-            ConfirmedEndingBalance = confirmed,
+            ActualMandatoryPayments = mandatory,
+            ActualLivingSpend = draft.ActualLivingSpend, ActualInterest = draft.ActualInterest,
+            UnplannedIncome = unplannedIncome, UnplannedPayments = unplannedPayments,
+            DerivedEndingBalance = derived, ConfirmedEndingBalance = confirmed,
             ReconciliationAdjustment = confirmed - derived,
             Note = (draft.ActualNote ?? string.Empty).Trim(),
             Payments = payments,
@@ -175,19 +184,13 @@ public static class PeriodActualBuilder
     private static ActualFlow[] BuildFlows(PeriodSettlementDraft draft, Guid actualId) =>
         draft.Flows.Select(x => new ActualFlow
         {
-            PeriodActualId = actualId,
-            Type = x.Type,
-            Name = x.Name.Trim(),
-            Category = (x.Category ?? string.Empty).Trim(),
-            Date = x.Date,
-            Amount = x.Amount
+            PeriodActualId = actualId, Type = x.Type, Name = x.Name.Trim(),
+            Category = (x.Category ?? string.Empty).Trim(), Date = x.Date, Amount = x.Amount
         }).ToArray();
 
     private static ActualLivingBreakdown[] BuildBreakdown(PeriodSettlementDraft draft, Guid actualId) =>
         draft.LivingBreakdown.Where(x => x.Amount > 0m).Select(x => new ActualLivingBreakdown
         {
-            PeriodActualId = actualId,
-            Category = x.Category.Trim(),
-            Amount = x.Amount
+            PeriodActualId = actualId, Category = x.Category.Trim(), Amount = x.Amount
         }).ToArray();
 }
