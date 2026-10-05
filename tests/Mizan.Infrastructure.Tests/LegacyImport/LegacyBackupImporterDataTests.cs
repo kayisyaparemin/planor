@@ -116,6 +116,28 @@ public sealed class LegacyBackupImporterDataTests : IDisposable
     }
 
     /// <summary>
+    /// Eski modelde dönem (kapanış, sonraki kapanış] idi; kapanış günü ve öncesi kapanmış döneme aitti ve eski
+    /// pano o cevapları göstermiyordu. Yeni dönem [başlangıç, bitiş) olduğu için taşınsalar açık dönemin ilk
+    /// gününe düşüp bayat bir "ertelendi" kartı olarak geri gelirlerdi (S86).
+    /// </summary>
+    [Fact]
+    public async Task ImportAsync_EskiKapanisGunuVeOncesineVadeliCevaplar_Tasinmaz()
+    {
+        using var yedek = Eski17Yedegi.Olustur(Eski17Yedegi.Emin, "Emin", """
+            INSERT INTO payment_reminder_responses (DueKey, Name, DueDate, Amount, Kind, AnsweredAt, SnoozedUntil) VALUES
+                ('kredi-2026-09-15', 'Ihtiyac Kredisi', '2026-09-15', 5000, 1, '2026-09-15T09:00:00.0000000+00:00',
+                 '2026-09-15T12:00:00.0000000+00:00'),
+                ('kredi-2026-08-20', 'Ihtiyac Kredisi', '2026-08-20', 5000, 1, '2026-08-19T09:00:00.0000000+00:00', NULL);
+            """);
+
+        var profil = await _kurulum.AktarAsync(yedek, Eski17Yedegi.Emin);
+
+        Assert.Equal(
+            ["kredi-2026-09-20"],
+            _kurulum.Satirlar<string>(profil, "SELECT DueKey FROM payment_reminder_responses;"));
+    }
+
+    /// <summary>
     /// Simülasyon taslakları varsayımsal denemedir; eski koşul türlerinin bir kısmı yeni uygulamada yok ve
     /// tarihleri geçmiş olur (S76-3, S83-3). Çalışma listesi boş başlar.
     /// </summary>

@@ -4,7 +4,9 @@ namespace Mizan.Infrastructure.LegacyImport;
 /// Eski kredi, kart, ödeme planı ve hatırlatıcı kayıtlarının yeni şemaya çevrilmesi. Eski şemada ilişkiler
 /// zorlanmadığı için karşı kaydı olmayan çocuk satırlar (yetim) <c>EXISTS</c> ile elenir. İki kolon yalan
 /// söylüyordu ve doğru adlarına taşınır: kredinin <c>StartDate</c>'i sonraki ödeme tarihini, kart
-/// harcamasının <c>DueDate</c>'i işlem tarihini taşıyordu.
+/// harcamasının <c>DueDate</c>'i işlem tarihini taşıyordu. Hatırlatıcı cevaplarından yalnız eski son
+/// kapanıştan sonraki vadeler taşınır: eski dönem (kapanış, sonraki kapanış] olduğu için kapanış günü ve
+/// öncesi kapanmış döneme aitti; yeni [başlangıç, bitiş) modelinde açık dönemin ilk gününe düşerlerdi (S86).
 /// </summary>
 internal static class LegacyObligationStatements
 {
@@ -75,7 +77,9 @@ internal static class LegacyObligationStatements
         """,
         """
         INSERT INTO payment_reminder_responses (DueKey, Name, DueDate, Amount, Kind, AnsweredAt, SnoozedUntil)
-        SELECT DueKey, Name, DueDate, Amount, Kind, AnsweredAt, SnoozedUntil FROM old.payment_reminder_responses;
+        SELECT r.DueKey, r.Name, r.DueDate, r.Amount, r.Kind, r.AnsweredAt, r.SnoozedUntil
+        FROM old.payment_reminder_responses r
+        WHERE NOT EXISTS (SELECT 1 FROM old.financial_snapshots f WHERE f.IsCurrent = 1 AND r.DueDate <= f.SnapshotDate);
         """
     ];
 }

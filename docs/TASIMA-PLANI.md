@@ -133,8 +133,8 @@ Geri kalan her şey bu omurgadan sarkar.
       *(S47: tanrı arayüz ve partial elendi; kredi, vadeli plan ve büyük harcamalar 5 dar bağımlılıkla IObligationManagementService'te toplandı; gelir yönetimi IIncomePlanService portuna ayrıldı)*
 - [x] **A21** — dönem iş akışı: `IPeriodWorkflowService`
       *(S48: Kural M5 ve M3 gereği dönem mutabakat/gözlem servisi IPeriodWorkflowService ve ödeme hatırlatıcı servisi IPaymentReminderService olarak ayrıştırıldı; PaymentDueCollector odaklı yardımcı servisi eklendi)*
-      *(S85 düzeltmesi: `PaymentDueCollector` vadesi açık dönemin bitiş gününe düşen ödemeyi sonraki dönemden alır; filtre `>` yerine `>=`; `I156`, `I157`)*
-      *(S86 düzeltmesi: hatırlatıcı panosu dönemin ilk gününün cevaplarını taşır, pencere yarı açık döneme bağlandı; `I158`)*
+      *(S85 düzeltmesi: `PaymentDueCollector` vadesi açık dönemin bitiş gününe düşen ödemeyi sonraki dönemden alır; filtre `>` yerine `>=`, açık planda olan vade ikinci kez eklenmez; `I156`, `I157`, `I159`)*
+      *(S86 düzeltmesi: hatırlatıcı panosu dönemin ilk gününün cevaplarını taşır, pencere yarı açık döneme bağlandı; `I158`; içe aktarma: `I160`)*
 - [x] **A22** — cephe `MizanService`: **TAŞINMADI (ELENDİ)** — S49: Düğüm T7, Kural M3; 515 satırlık tanrı cephe elendi, ViewModel'ler dar portlara bağlanır, mimari testle yasaklandı
 - [x] **A23** — sunum yardımcıları *(~1.300 satır ve iki bağımsız sunum yeteneği olduğu için iki alt adıma bölündü; S50)*
   - [x] **A23a** — dönem ayrıntısı sunumu: `CashFlowPeriodDetailPresenter`, modelleri (`CashFlowPeriodDetailData`, `DetailMetric` …) *(S50: Mizan.Presentation projesine taşındı, S18 yapay tahsis elendi, S11/S13 yasaklı terimler düzeltildi)*
@@ -524,6 +524,7 @@ bileşen / servis düzeyinde çözülür (`/duzeltme` tür G, "sistem" satırı)
       Aşama 1'de ikiye bölündü (S83):
   - [x] **G1a** — `ILegacyBackupImporter` portu, `Infrastructure/LegacyImport/` altında v17→v1
         dönüştürücü ve içe aktarıcı, testler *(2026-10-05; S83; `LegacyBackupImporter`, `LegacyDatabaseConverter`, `LegacyProfileStager`, dört SQL dosyası; v1 hedefli dönüşüm + normal göç; iki gerçek profille doğrulandı; koruyan: LegacyBackupImporter*Tests, I147–I151)*
+        *(S86 düzeltmesi: eski son kapanış günü ve öncesine vadeli hatırlatıcı cevapları taşınmaz; `I160`)*
   - [x] **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi, ViewModel, dosya seçici,
         kompozisyon kaydı *(2026-10-05; S83-8; `ILegacyImportService` / `LegacyImportService` (Application), `ProfileBackupHandler.ImportLegacyAsync`, `ProfileSelectionViewModel.ImportFromLegacyCommand`, iki yerde düğme; mevcut dosya seçici yeniden kullanıldı; koruyan: LegacyImportServiceTests, ProfileBackupHandlerTests, ProfileSelectionViewModelTests, I152, I153)*
 

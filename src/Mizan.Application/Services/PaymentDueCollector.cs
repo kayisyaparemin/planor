@@ -34,28 +34,39 @@ public sealed class PaymentDueCollector(
 
         var today = DateOnly.FromDateTime(now);
         var last = today.AddDays(PaymentReminderPlanner.HorizonDays);
+        var currentLines = CurrentLines(openPlan, history);
 
-        var dues = await CollectOpenPlanDuesAsync(openPlan, history, today, last, cancellationToken);
-        if (last > openPlan.PeriodEnd)
+        var dues = await CollectOpenPlanDuesAsync(openPlan, currentLines, today, last, cancellationToken);
+        // Ufuk kapsayıcıdır (<= last): son günü dönem bitişine denk gelse bile o günün vadesi sonraki
+        // dönemden gelir (S85).
+        if (last >= openPlan.PeriodEnd)
         {
-            await AppendFutureDuesAsync(dues, openPlan.PeriodEnd, today, last, cancellationToken);
+            var openPlanKeys = currentLines
+                .Select(x => PaymentReminderPlanner.DueKey(x.SourceEntityId, x.Name, x.PlannedDate))
+                .ToHashSet();
+            await AppendFutureDuesAsync(dues, openPlan.PeriodEnd, openPlanKeys, today, last, cancellationToken);
         }
 
         return dues;
     }
 
+    private static IReadOnlyList<PeriodPlanPaymentLine> CurrentLines(
+        PeriodPlanSnapshot openPlan,
+        FinancialHistoryData history)
+    {
+        var revisions = history.FindFinalRevisions(openPlan);
+        return revisions.Count > 0 && revisions[^1].PaymentLines.Count > 0
+            ? revisions[^1].PaymentLines
+            : openPlan.PaymentLines;
+    }
+
     private async Task<List<PaymentDue>> CollectOpenPlanDuesAsync(
         PeriodPlanSnapshot openPlan,
-        FinancialHistoryData history,
+        IReadOnlyList<PeriodPlanPaymentLine> currentLines,
         DateOnly today,
         DateOnly last,
         CancellationToken cancellationToken)
     {
-        var revisions = history.FindFinalRevisions(openPlan);
-        var currentLines = revisions.Count > 0 && revisions[^1].PaymentLines.Count > 0
-            ? revisions[^1].PaymentLines
-            : openPlan.PaymentLines;
-
         var marks = await _periodObservationRepository.GetPaymentMarksAsync(openPlan.Id, cancellationToken);
         var settled = marks
             .Where(x => x.IsSettled)
@@ -75,6 +86,7 @@ public sealed class PaymentDueCollector(
     private async Task AppendFutureDuesAsync(
         List<PaymentDue> dues,
         DateOnly periodEnd,
+        HashSet<string> openPlanKeys,
         DateOnly today,
         DateOnly last,
         CancellationToken cancellationToken)
@@ -84,21 +96,25 @@ public sealed class PaymentDueCollector(
 
         // Gelecek dönemler açık dönemin kendisinden başlar; açık plan [Start, End) vadelerini zaten
         // taşıdığı için yalnız onu ayıklıyoruz. Bitiş günü sonraki dönemin ilk günüdür, buradan gelir (S85).
-        dues.AddRange(futurePeriods
+        var mandatoryDues = futurePeriods
             .SelectMany(x => x.MandatoryItems)
             .Where(x => x.DueDate >= periodEnd && x.DueDate >= today && x.DueDate <= last)
             .Select(x => new PaymentDue(
                 PaymentReminderPlanner.DueKey(x.PaymentId, x.Name, x.DueDate),
                 x.Name,
                 x.DueDate,
-                x.Amount)));
+                x.Amount));
 
-        dues.AddRange(plan.PlannedLargeExpenses
+        var largeExpenseDues = plan.PlannedLargeExpenses
             .Where(x => x.Status == PlannedExpenseStatus.Planned && x.ExactDate >= periodEnd && x.ExactDate >= today && x.ExactDate <= last)
             .Select(x => new PaymentDue(
                 PaymentReminderPlanner.DueKey(x.Id, x.Name, x.ExactDate),
                 x.Name,
                 x.ExactDate,
-                x.Amount)));
+                x.Amount));
+
+        // Açık planda zaten bulunan vade buradan ikinci kez gelmez: eskiden içe aktarılan plan bitiş gününe
+        // satır taşıyabilir ve o satır ödendi işaretliyse projeksiyon onu geri getirirdi (S85).
+        dues.AddRange(mandatoryDues.Concat(largeExpenseDues).Where(x => !openPlanKeys.Contains(x.Key)));
     }
 }

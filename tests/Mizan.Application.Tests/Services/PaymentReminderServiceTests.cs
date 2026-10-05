@@ -347,6 +347,60 @@ public sealed class PaymentReminderServiceTests
     }
 
     [Fact]
+    public async Task GetUpcomingPaymentDuesAsync_UfukTamDonemBitisindeBitiyorsa_BitisGunuVadesiListededir()
+    {
+        // Hazırla: kurulumdan sonra açık dönem [1 Eylül, 1 Ekim) ileride başlıyor; bugün 27 Ağustos,
+        // 35 günlük ufuk tam 1 Ekim'de bitiyor. Taksit 1 Ekim'de.
+        var service = CreateService(out _, out var planReader);
+        var plan = CreateSampleFinancialPlan();
+        var loan = plan.Loans[0] with { PaymentDay = 1, NextPaymentDate = SettlementDate };
+        plan = plan with { Loans = [loan] };
+        planReader.PlanToReturn = plan;
+        await SeedCurrentPlanAsync(plan);
+
+        // Uygula
+        var dues = await service.GetUpcomingPaymentDuesAsync(new DateTime(2026, 8, 27, 10, 0, 0));
+
+        // Doğrula
+        Assert.Single(dues, x => x.Key == PaymentReminderPlanner.DueKey(loan.Id, loan.Name, SettlementDate));
+    }
+
+    [Fact]
+    public async Task GetUpcomingPaymentDuesAsync_AcikPlandaBitisGunuSatiriOdendiyse_ProjeksiyondanGeriGelmez()
+    {
+        // Hazırla: eski uygulamadan içe aktarılan açık plan (başlangıç, bitiş] modelinden geldiği için bitiş
+        // gününe (1 Ekim) satır taşıyabilir. O satır ödendi işaretli; aynı taksiti projeksiyon da üretir.
+        var service = CreateService(out _, out var planReader);
+        var plan = CreateSampleFinancialPlan();
+        var loan = plan.Loans[0] with { PaymentDay = 1, NextPaymentDate = SettlementDate };
+        plan = plan with { Loans = [loan] };
+        planReader.PlanToReturn = plan;
+        var endDayLine = new PeriodPlanPaymentLine
+        {
+            Id = Guid.NewGuid(),
+            SourceType = PlanPaymentSourceType.Loan,
+            SourceEntityId = loan.Id,
+            Name = loan.Name,
+            PlannedDate = SettlementDate,
+            PlannedAmount = loan.MonthlyPayment
+        };
+        var snapshotPlan = await SeedCurrentPlanAsync(plan, endDayLine);
+        await _observationRepo.UpsertPaymentMarkAsync(new PeriodPaymentMark
+        {
+            PeriodPlanSnapshotId = snapshotPlan.Id,
+            PeriodPlanPaymentLineId = endDayLine.Id,
+            Status = ActualPaymentStatus.Paid,
+            ActualAmount = loan.MonthlyPayment
+        });
+
+        // Uygula
+        var dues = await service.GetUpcomingPaymentDuesAsync(new DateTime(2026, 9, 15, 10, 0, 0));
+
+        // Doğrula
+        Assert.DoesNotContain(dues, x => x.Key == PaymentReminderPlanner.DueKey(loan.Id, loan.Name, SettlementDate));
+    }
+
+    [Fact]
     public async Task GetBoardAsync_DonemIlkGunuVadeliOdemeErtelendiginde_TakipHatirlatmasiKurulur()
     {
         var service = await CreateServiceWithOpenPlanAsync();
@@ -415,8 +469,21 @@ public sealed class PaymentReminderServiceTests
     private static PaymentDue AnsweredDue(DateOnly dueDate) =>
         new(PaymentReminderPlanner.DueKey(Guid.NewGuid(), "Devreden Kredi", dueDate), "Devreden Kredi", dueDate, 10_000m);
 
-    private async Task<PeriodPlanSnapshot> SeedCurrentPlanAsync(FinancialPlan? plan = null)
+    private async Task<PeriodPlanSnapshot> SeedCurrentPlanAsync(
+        FinancialPlan? plan = null,
+        PeriodPlanPaymentLine? extraLine = null)
     {
+        var sampleLine = new PeriodPlanPaymentLine
+        {
+            Id = Guid.NewGuid(),
+            PeriodPlanSnapshotId = Guid.Empty,
+            SourceType = PlanPaymentSourceType.Loan,
+            SourceEntityId = Guid.NewGuid(),
+            Name = "Kira / Kredi",
+            PlannedDate = new DateOnly(2026, 9, 10),
+            PlannedAmount = 10_000m
+        };
+
         var snapshot = new FinancialSnapshot
         {
             Id = Guid.NewGuid(),
@@ -440,19 +507,7 @@ public sealed class PaymentReminderServiceTests
             PlannedIncome = 60_000m,
             PlannedVariableExpenseAllowance = 20_000m,
             CreatedAtUtc = InitialNowUtc,
-            PaymentLines =
-            [
-                new PeriodPlanPaymentLine
-                {
-                    Id = Guid.NewGuid(),
-                    PeriodPlanSnapshotId = Guid.Empty,
-                    SourceType = PlanPaymentSourceType.Loan,
-                    SourceEntityId = Guid.NewGuid(),
-                    Name = "Kira / Kredi",
-                    PlannedDate = new DateOnly(2026, 9, 10),
-                    PlannedAmount = 10_000m
-                }
-            ]
+            PaymentLines = extraLine is null ? [sampleLine] : [sampleLine, extraLine]
         };
 
         await _historyRepo.SaveCurrentFinancialSnapshotAsync(snapshot, frozenPlan);

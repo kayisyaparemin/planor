@@ -207,11 +207,12 @@ public sealed class PlanReaderTests
             PeriodStart = new DateOnly(2026, 2, 15),
             PeriodEnd = new DateOnly(2026, 3, 15)
         };
+        var actualId = Guid.NewGuid();
         await _historyRepo.CommitPeriodSettlementAsync(new PeriodSettlementCommit
         {
             Actual = new PeriodActual
             {
-                Id = Guid.NewGuid(),
+                Id = actualId,
                 ResultFinancialSnapshotId = newSnapshot.Id,
                 PeriodStart = new DateOnly(2026, 1, 15),
                 PeriodEnd = new DateOnly(2026, 2, 15)
@@ -223,8 +224,11 @@ public sealed class PlanReaderTests
 
         var queryPlan = await sut.GetProjectionPlanAsync(new DateOnly(2026, 2, 20));
 
-        // Zincir kapanış bakiyesiyle, o bakiyenin ait olduğu günden başlar; açık dönem atlanmaz (S84)
+        // Sınır kurulum yolundan değil kapanıştan çözülür; zincir kapanış bakiyesiyle, o bakiyenin ait olduğu
+        // günden başlar ve açık dönem atlanmaz (S84)
         Assert.NotNull(queryPlan.Boundary);
+        Assert.Equal(actualId, queryPlan.Boundary.SourcePeriodActualId);
+        Assert.Equal(new DateOnly(2026, 2, 15), queryPlan.Boundary.ClosedCheckpointDate);
         Assert.Equal(openPlan.PeriodStart, queryPlan.Boundary.FirstUnrealizedPeriodStartDate);
         Assert.Equal(openPlan.PeriodStart, queryPlan.Boundary.ProjectionAnchorDate);
         Assert.Equal(42_500m, queryPlan.Boundary.StartingBalance);
