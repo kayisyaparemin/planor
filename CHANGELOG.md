@@ -10,6 +10,8 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.2.1] - 2026-10-05
+
 ### Düzeltildi
 
 - Dönem kapanışında kredi kartının fiilî ödemesi artık dondurulmuş plan tahminiyle değil, dönem içi harcamaları içeren güncel ekstre borcuyla kapatılıyor. Böylece karta haksız devreden bakiye ve gecikme faizi binmiyor; önerilen kapanış bakiyesi ve ödeme sayaçları da doğru yansıtılıyor.
