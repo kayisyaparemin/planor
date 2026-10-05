@@ -15,8 +15,7 @@ public sealed class DesignChartTests
         "Sparkline",
         "AreaTrend",
         "StackedBar",
-        "RingGauge",
-        "ColumnTrend"
+        "RingGauge"
     ];
 
     private static readonly Dictionary<string, string> PrimitiveQuestions = new()
@@ -24,8 +23,7 @@ public sealed class DesignChartTests
         ["Sparkline"] = "Yön ne, yukarı mı aşağı mı?",
         ["AreaTrend"] = "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?",
         ["StackedBar"] = "Bu dönem neyden oluşuyor?",
-        ["RingGauge"] = "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?",
-        ["ColumnTrend"] = "Dönem boyunca bakiye nerede, plana göre nerede bitiyor?"
+        ["RingGauge"] = "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?"
     };
 
     [Fact]
@@ -174,11 +172,6 @@ public sealed class DesignChartTests
 
         var ringGaugeContent = File.ReadAllText(Path.Combine(chartsDir, "RingGauge.cs"));
         Assert.Contains("decimal Ratio", ringGaugeContent, StringComparison.Ordinal);
-
-        var columnTrendContent = File.ReadAllText(Path.Combine(chartsDir, "ColumnTrend.cs"));
-        Assert.Contains("IReadOnlyList<ChartColumn>? Columns", columnTrendContent, StringComparison.Ordinal);
-        Assert.Contains("ChartThreshold? PlanLevel", columnTrendContent, StringComparison.Ordinal);
-        Assert.Contains("string? TodayLabel", columnTrendContent, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -201,10 +194,5 @@ public sealed class DesignChartTests
         var ringGauge = File.ReadAllText(Path.Combine(chartsDir, "RingGauge.cs"));
         Assert.Contains("DrawArc", ringGauge, StringComparison.Ordinal);
         Assert.Contains("ChartColorResolver.ResolveTint(\"Indicator\")", ringGauge, StringComparison.Ordinal);
-
-        var columnTrend = File.ReadAllText(Path.Combine(chartsDir, "ColumnTrend.cs"));
-        Assert.Contains("ChartColorResolver.ResolveColor(\"Indicator\")", columnTrend, StringComparison.Ordinal);
-        Assert.Contains("ChartColorResolver.ResolveColor(\"NegativeText\")", columnTrend, StringComparison.Ordinal);
-        Assert.Contains("FillRoundedRectangle", columnTrend, StringComparison.Ordinal);
     }
 }

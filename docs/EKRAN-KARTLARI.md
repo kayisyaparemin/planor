@@ -26,6 +26,9 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 > Sayfa dosyaları: `DashboardPage.xaml` (`V3a`), `BalanceEntryPage.xaml` (`V3b`, aşağıda "Sayfa 2")
 > "Rota + Tempo" yenilemesi (`GS24`, `S72`): `V3a` bu sayfa, tamamlandı (Kapı C kararları `GS24`'te).
 > "Bakiye gir" sayfası bu kartın ikinci sayfasıdır (`S73`, `GS25`), `V3b` ile tamamlandı. İlk hâl (`GS20`) iptal.
+> Geliştirme "ana sayfada plan / şu an" (2026-10-05, `S87`, `GS34`): 1. sayfada sütun grafiği yerine plan / şu an
+> tablosu, 2. sayfada yaşam giderinin tutarları; "Bakiye gir" önizlemesi grafiksiz. Değişen satırlar `← yeni`,
+> `← değişti`, `← çıktı` ile işaretli.
 
 **Önceki hâl (`V3`, `GS20`):** `DashboardPage.xaml` 233 satır, 11 `<Label>`, 3 kart, 1 buton, 5 `NavRow`, 1 grafik (halka).
 **Eski proje:** `MainPage.xaml` 425 satır, **54 `<Label>`**, 5 kart, 11 buton, 1 geliştirici dökümü.
@@ -34,8 +37,8 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 
 | Kod | Soru | Önceki hâl nasıl cevaplıyordu |
 |---|---|---|
-| S1 | "Dönem sonunda elimde ne kalacak, plana göre neredeyim?" | Eyebrow + hero rakam (2 etiket); plan ve fark yok, grafik yok, bakiye girilmemişse tire |
-| S2 | "Yaşam giderinden ne kaldı, harcamam süreye göre hızlı mı?" | Kalan oran halkası + kalan / harcanan (4 etiket); süre ayrı çubukta ve bugüne göre (`S70`) |
+| S1 | "Dönem sonunda elimde ne kalacak, plana göre neredeyim; kartım ve KMH faizim plandakinden fazla mı?" | Hero, fark ve plan (3 etiket); sapmanın kaynağı hiçbir yerde yoktu, yerinde tutarsız sütun grafiği (`GS30`) vardı. Eski projede "GİDİŞAT" kartında kart başına ve KMH için planlanan / mevcut |
+| S2 | "Yaşam giderimden ne harcadım, ne kaldı; harcamam süreye göre hızlı mı?" | Halka + ortada kalan + harcanan ve geçen süre **oranı**; planlanan ve harcanan tutar yoktu (`EK-V3` eski kesme kararı) |
 | S3 | "Bankada şu an ne var, en son ne zaman girdim?" | Yarım: giriş kutucuğu vardı, son bakiye ve tarihi ekrana bağlı değildi |
 | S4 | "Bu dönem daha ne ödeyeceğim, bugün ödemem gereken var mı?" | Hatırlatıcı + ≤ 3 ikonlu satır + "+N ödeme daha" (5 etiket) |
 | S5 | "Dönem bitti mi, kapatmam gerekiyor mu?" | Dönem çubuğundaki gün sayacı + "Dönemi Kapat" butonu |
@@ -46,10 +49,16 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 |---|---|---|
 | Dönem sonu (tahmin; bakiye yoksa plan) | **Hero** (`HeroFigure`), kaydırılan kartın 1. sayfası | S1 ekranın asıl sorusu; bakiye yokken planın dediği gösterilir, tire değil (`S72-1`) |
 | Plana göre fark + plan tutarı | **Satır** (hero'nun altında) | S1; yalnız bakiye girildiyse (`S72-2`), fark işaretli ve semantik renkli |
-| Bakiye rotası | **Grafik** (`ColumnTrend`), 1. sayfa | S1 "oraya nasıl gidiyorum": eşit dilimli sütunlar; bugüne kadarki dolu `Indicator`, tahmin soluk, plan altı olumsuz renk, bugün rozeti (`GS30`); bakiye yokken planın rotası |
-| Dönemin ilk ve son günü | **Satır** (grafiğin altında iki etiket) | Grafiğin tarih ekseni; son gün `PeriodEnd − 1` (`S72-7`) |
+| Kart başına plan / şu an | **Satır** (`ComparisonRow`, 1. sayfa) ← yeni | S1 "sapma nereden"; vade sırasıyla, şu an planı aşarsa olumsuz renk (`S87`-1, 3) |
+| KMH faizi plan / şu an | **Satır** (`ComparisonRow`, 1. sayfa) ← yeni | S1; yalnız biri > 0 ise, bakiye yoksa şu an "—" (`S87`-2) |
+| "PLAN" / "ŞU AN" sütun başlığı | **Satır** (iki `Eyebrow`) ← yeni | Tablonun okunması; satır yoksa görünmez (`S87`-4) |
+| Dönem sonu plan / şu an satırı | **Çıkar** | Hero ve "Plana göre · Plan" satırı aynı iki rakam (`S87`-5) |
+| Kartın vade günü (tabloda) | **Çıkar** | Kalan ödemeler listesinde günüyle duruyor; bütçe |
+| Bakiye rotası (`ColumnTrend`) | **Çıkar** ← çıktı | Sıfırsız, tutarsız; kullanıcı "ölü alan" dedi (`GS34`; `GS30` geri alındı) |
+| Dönemin ilk ve son günü (grafik ekseni) | **Çıkar** ← çıktı | Grafikle gitti; aralık başlıkta |
 | Kalan yaşam gideri | **Şema** (`RingGauge` ortasında, `TypeTitle`), 2. sayfa | S2; halka dolgusu harcanan oran, işareti geçen süre (`S72-3`) |
-| Harcanan % / geçen süre % | **Satır** (2 × `MetricRow`) | S2 halkanın sayı karşılığı; ikisi de son bakiyenin gününe göre |
+| Planlanan yaşam gideri | **Satır** (`MetricRow`) ← yeni | S2; bakiye girilmese de görünür (`S87`-6) |
+| Harcanan tutar · oran / geçen süre % | **Satır** (2 × `MetricRow`) ← değişti | S2; harcanan artık tutar da söyler; ikisi de son bakiyenin gününe göre, yalnız tempo varken |
 | Tempo cümlesi | **Satır** (`Bicim_`, bir tek `Cumle_` "aynı hızda") | S2'nin tek cümlelik cevabı (`S72-4`) |
 | Son bakiye + tarihi + "Bakiye gir" | **Kart** | S3; giriş ayrı sayfa (`V3b`, `S72-8`) |
 | Dönem bitti + son gün + "Dönemi kapat" | **Kart** (bakiye kartının yerinde) | S5; biten döneme bakiye yazılamaz (`S68-4`), cümle yok (`V11`) |
@@ -60,9 +69,7 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 | Gezinme satırları × 4, ayarlar ikonu | **Çıkar** | Aynı hedefler yan menüde |
 | Dönem çubuğu (`PeriodRail`) | **Çıkar** | Aralık ve sayaç başlıkta, geçen süre halkanın işaretinde |
 | Ödeme satırı ikonları | **Çıkar** | GK6: kart başına en fazla bir ikon |
-| Harcanan tutarı | **Çıkar** | S2 oranı soruyor |
 | Halkadaki "10 gün kaldı" | **Çıkar** | Başlıktaki gün sayacıyla aynı bilgi |
-| Grafikteki "Bugün" / "Plan" yazıları, gözlem noktası işareti | **Çıkar** | `AreaTrend` yazı ve işaret çizmez; `ColumnTrend` rozet taşır (`GS30`) |
 | Sayfa içi bakiye girişi (`HeroInputCard`) | **Çıkar** → `V3b` | Tarih ve önizlemeyle ayrı sayfa |
 
 ### 3. Bütçe
@@ -71,16 +78,21 @@ Her kart şu altı bölümü taşır — boş bırakılan bölüm, verilmemiş b
 Hero rakam    1 / 1     dönem sonu (tahmin ya da plan)
 Hero yüzey    0 / 1     kaydırılan kart tonlu SurfaceChart (GS24), SurfaceHero değil; HeroInputCard kalktı
 Kart          4 / 4     HeroPager, bakiye/kapanış kartı, ReminderCard, ListCard
-Grafik        1 / 1     aynı anda: 1. sayfada ColumnTrend, 2. sayfada RingGauge
+Grafik        1 / 1     aynı anda: 1. sayfada grafik yok (GS34), 2. sayfada RingGauge
 Hero sayfa    2 / 2
 NavRow        0 / 5
 Label        25 / 28    başlık 4, 1. sayfa 7, 2. sayfa 5, bakiye kartı 6, ödeme satırı şablonu 3
 Cumle_        3 / 3     Cumle_TempoAyniHiz, Cumle_TempoIlkBakiye, Cumle_AcikDonemYokRehber
 ```
 
+1. sayfanın 7 etiketi: iki eyebrow, hero, fark, plan, iki sütun başlığı (önce iki sütun başlığının yerinde
+grafiğin iki uç tarihi vardı; sayı değişmedi). Tablo satırları `ComparisonRow`, yaşam gideri satırları
+`MetricRow` bileşenidir; bileşenin içindeki etiketler sayfanın bütçesine girmez (`EK-V8` emsali, `GS34`-6).
+
 Analizci kartı 2 sayar: ham `Border` (bakiye kartı) ve `ReminderCard` onun listesinde yok. Etiketi 28
 sayar: `<Label.Text>` (2) ve `<Label.Triggers>` (1) özellik öğelerini de `<Label` sayıyor. Bütçe
 dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML'inde görünmez; yine sayılır.
+Analizcinin sayımı bu geliştirmeden sonra da 28: ana sayfaya yeni bir `<Label` için yer yok.
 
 ### 4. Blok şeması
 
@@ -97,22 +109,30 @@ dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML
 │ │ 41.723 ₺                                HeroFigure / TextPrimary
 │ │ Plana göre −2.177 ₺  ·  Plan 43.900 ₺   TypeCaption; fark NegativeText /
 │ │   (yalnız bakiye girildiyse)            PositiveText, plan TextSecondary
-│ │ ColumnTrend  yükseklik ChartHeight                         │ │
-│ │   Eşit dilimler: bugüne kadarki sütun Indicator, tahmin    │ │
-│ │   soluk (%45); plan altı NegativeText; Bugün rozeti;       │ │
-│ │   PlanLevel yatay TextSecondary hairline                   │ │
-│ │ 10 Eylül                                        9 Ekim     │ │  Caption
+│ │                                                            │ │
+│ │                          PLAN        ŞU AN                 │ │  ← yeni (S87-4)
+│ │   Grid 3*, 2*, 2* (ComparisonRow'la aynı oran), üstte Space2;
+│ │   Etiket_Plan, Etiket_SuAn  Eyebrow, sağa yaslı; satır yoksa görünmez
+│ │ ComparisonRow × kart  (BindableLayout, Comparison.Cards)   │ │  ← yeni (S87-1)
+│ │ Akbank Axess            24.233 ₺     26.747 ₺              │ │
+│ │ Garanti Bonus                0 ₺          0 ₺              │ │
+│ │   ad TypeBody / TextPrimary · plan Figure / TextSecondary · şu an Figure / TextPrimary,
+│ │   planı aşarsa Semantic=Negative → NegativeText; kart silindiyse şu an "—"
+│ │ ComparisonRow  Etiket_KmhFaizi   6.831 ₺        —          │ │  ← yeni (S87-2)
+│ │   yalnız plan ya da şu an > 0; bakiye girilmediyse şu an "—"
+│ │ ColumnTrend + iki uç tarih                                 │ │  ← çıktı (GS34)
 │ └────────────────────────────────────────────────────────────┘ │
 │ ┌ HeroPage 2 ────────────────────────────────────────────────┐ │  ← S2
 │ │           ╭ RingGauge  ChartHeight × ChartHeight ╮          │ │
 │ │           │   Etiket_KalanYasamGideri    Caption │          │ │
 │ │           │   8.600 ₺                    TypeTitle / TextPrimary
 │ │           ╰ dolgu Indicator = harcanan · işaret TextSecondary = geçen süre
-│ │ MetricRow  Etiket_Harcanan ......................... %71    │ │
+│ │ MetricRow  Etiket_Planlanan ................... 30.000 ₺   │ │  ← yeni (S87-6), her zaman
+│ │ MetricRow  Etiket_Harcanan ........... 21.300 ₺ · %71      │ │  ← değişti: Bicim_TutarOran
 │ │ MetricRow  Etiket_GecenSure ........................ %67    │ │
 │ │ Harcama, geçen sürenin 4 puan önünde.   TypeCaption / TextSecondary
 │ │ bakiye yoksa: halka boş, ortada Etiket_BakiyeGirilmedi,     │ │
-│ │   MetricRow'lar yok, altta Cumle_TempoIlkBakiye             │ │
+│ │   MetricRow'lardan yalnız Planlanan, altta Cumle_TempoIlkBakiye
 │ └────────────────────────────────────────────────────────────┘ │
 └────────────────────────────────────────────────────────────────┘
                     ▬  •    etkin uzun çubuk Indicator, diğeri nokta TextMuted; dokunulabilir
@@ -140,6 +160,8 @@ dürüst sayımdır. `Cumle_TempoAyniHiz` dönüştürücüden gelir, sayfa XAML
 Yeni ölçü token'ı `ChartHeight` (144): `HeightRequest` literali yasak (GK3) ve iki hero sayfasının
 görseli aynı yükseklikte durmalı. `HeroPager` iki sayfayı üst üste ölçer (görünmeyen sayfa saydam),
 kart kaydırınca boy değiştirmez. Açılışta ve her yüklemede 1. sayfa.
+`GS34`'ten sonra 1. sayfanın boyu kart sayısıyla değişir; kart azsa kart 2. sayfanın (halka + üç satır)
+boyunda durur ve 1. sayfanın altında boşluk kalır. Sayfa yüksekliği sabitlenmez.
 
 ### 5. Üç durum
 
@@ -160,6 +182,8 @@ yükleniyor), `ana-sayfa-rota-tempo-durumlar.png` (boş, bakiye girilmemiş, kap
 token'lardan. Konseptten sapmalar `GS24`'te: kapanış bakiye kartının yerinde, grafikte yazı ve
 gözlem işareti yok, "10 gün kaldı" yok, bakiyesiz grafik planın rotası, ödeme satırı 3 ve ikonsuz,
 boş hâlde ortak `StateBlock`.
+1. sayfanın grafiği (önce `AreaTrend`, sonra `anasayfa-grafik-yerine-sutun.png` ile `ColumnTrend`) `GS34` ile
+çıktı; yerindeki plan / şu an tablosunun konsepti yok, eski uygulamanın "GİDİŞAT" kartından türetildi.
 
 ### Sayfa 2 — "Bakiye gir" (`V3b`)
 
@@ -187,15 +211,14 @@ boş hâlde ortak `StateBlock`.
 | Bu girişle dönem sonu | **Kart** (önizleme), `TypeTitle` | S2; yalnız geçerli tutar varken (`S73-2`) |
 | Plana göre fark | **Satır** (kartta, işaretli, renk artı/eksiye göre) | S2 |
 | Önceki tahmin | **Satır** (kartta), yalnız önceki giriş varsa | S2 "girişim neyi değiştirdi" (`S73-6`); konseptteki okun yerine |
-| Önizleme rotası | **Grafik** (`ColumnTrend`, `ChartHeight`) | S2 "oraya nasıl"; ana sayfanın 1. sayfasıyla aynı roller, taslak giriş noktadır |
+| Önizleme rotası (`ColumnTrend`) | **Çıkar** ← çıktı | Ana sayfadaki grafikle aynı sebep (`GS34`); S2'yi kartın rakamları cevaplıyor |
 | Kaydet | **Buton** (tam genişlik) | S1 |
 | Dönem bitti + "Dönemi Kapat" | **Durum** (`StateBlock`) | `S68-4`: kapanışı bekleyen döneme bakiye yazılmaz (`S73-5`) |
 | "güncel" kelimesi | **Çıkar** | Geriye tarihli girişte yanlış |
 | Ok (`41.723 → 44.380`) | **Çıkar** → "Önceki tahmin" | GK6: ok bir ikon, `Icons.cs`'te ileri ok yok |
 | Takvim ikonu, "Değiştir" | **Çıkar** | `Icons.cs`'te yok; seçicinin kendisine dokunulur (kullanıcı kararı) |
 | Plan tutarı | **Çıkar** | Ana sayfada var; burada soru "girişim neyi değiştirir" |
-| Grafiğin tarih etiketleri | **Çıkar** | Kısa grafik; ana sayfada var |
-| Aynı gün değiştirme notu | **Çıkar** | `S68-2` sessiz çalışır, önizleme grafiği gösterir |
+| Aynı gün değiştirme notu | **Çıkar** | `S68-2` sessiz çalışır, önizlemenin rakamı gösterir |
 
 #### 3. Bütçe
 
@@ -203,7 +226,7 @@ boş hâlde ortak `StateBlock`.
 Hero rakam    1 / 1     girilen bakiye (tutar alanı)
 Hero yüzey    0 / 1     önizleme kartı tonlu SurfaceChart (GS25), SurfaceHero değil
 Kart          1 / 4     önizleme kartı (ham Border; analizci 0 sayar)
-Grafik        1 / 1     önizleme rotası (ColumnTrend)
+Grafik        0 / 1     önizleme rotası çıktı (GS34)
 Hero sayfa    0 / 2
 NavRow        0 / 5
 Label        11 / 28    başlık 1, tutar 2, son giriş 2, bugün 1, önizleme 5
@@ -238,15 +261,12 @@ Etiket sayımı analizcinin sayımıdır: `<Label.Text>` (son giriş) ve `<Label
 │ 44.380 ₺                        TypeTitle / OpenSansSemibold / TextPrimary
 │ Plana göre +480 ₺     Bicim_PlanaGore  Caption; NegativeText / PositiveText
 │ Önceki tahmin 41.723 ₺  Bicim_OncekiTahmin  Caption (yalnız önceki giriş varsa)
-│ ColumnTrend  ChartHeight — ana sayfanın rolleri: eşit dilimler,          │
-│   bugüne kadarki sütun Indicator, tahmin soluk (%45), plan altı Negative, │
-│   Bugün rozeti, PlanLevel yatay TextSecondary                            │
+│ ColumnTrend                                         ← çıktı (GS34)       │
 │ yalnız geçerli tutar ve başarılı önizleme varken görünür                 │
 └──────────────────────────────────────────────────────────────────────────┘
 [ Aksiyon_Kaydet                                 ActionFill, tam genişlik ]  ← S1
 ```
 
-Ana sayfa ile önizleme aynı grafiği aynı yoldan kurar (`BalancePathTrend`, bağımlılıksız yardımcı, M8).
 Önizleme kartının durumu çocuk görünüm modelindedir (`BalancePreviewViewModel`: ya bütün hâliyle görünür ya
 hiç); sayfa `BalanceEntryViewModel`'e bağlıdır (4 bağımlılık). Klavye kendiliğinden açılmaz (`GS25` 5).
 
@@ -263,7 +283,7 @@ hiç); sayfa `BalanceEntryViewModel`'e bağlıdır (4 bağımlılık). Klavye ke
 `docs/assets/konsept/ana-sayfa-rota-tempo-durumlar.png`, "Bakiye gir · Açık" paneli. Yerleşim oradan,
 renkler token'lardan. Sapmalar `GS25`'te: önizleme ana sayfa kartının tonunda, ok yerine "Önceki
 tahmin", takvim ikonu ve "Değiştir" yok, "güncel" yok, klavye kendiliğinden açılmaz, grafik `ChartHeight`
-ve tarihsiz, plan tutarı yok.
+ve tarihsiz, plan tutarı yok. Grafik sonra `GS34` ile tamamen çıktı.
 
 ---
 

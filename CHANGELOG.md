@@ -10,6 +10,12 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+### Değişti
+
+- Ana sayfadaki sütun grafiği kaldırıldı; yerine kartlarının ve KMH faizinin bu dönem için planlanan ve şu anki tutarları yan yana geldi. Planı aşan tutar kırmızı görünür.
+- Ana sayfanın yaşam gideri sayfası planlanan ve harcanan tutarı da gösteriyor.
+- "Bakiye gir" sayfasındaki önizleme grafiği kaldırıldı; önizleme dönem sonunu ve plana göre farkı rakamla söylüyor.
+
 ## [0.1.1] - 2026-10-05
 
 ### Düzeltildi

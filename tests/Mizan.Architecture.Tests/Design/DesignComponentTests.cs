@@ -25,7 +25,8 @@ public sealed class DesignComponentTests
         "StateBlock",
         "ReminderCard",
         "HeroPager",
-        "EntryTypeTiles"
+        "EntryTypeTiles",
+        "ComparisonRow"
     ];
 
     [Fact]

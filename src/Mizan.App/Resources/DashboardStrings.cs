@@ -30,14 +30,29 @@ public static class DashboardStrings
     /// <summary>Planın dönem sonu; {0} tutar.</summary>
     public const string Bicim_Plan = "Plan {0}";
 
+    /// <summary>Plan / şu an tablosunun planlanan tutar sütunu (S87).</summary>
+    public const string Etiket_Plan = "PLAN";
+
+    /// <summary>Plan / şu an tablosunun bugünkü duruma göre tutar sütunu; simülatördeki "Şu an" ile aynı söz (GS28).</summary>
+    public const string Etiket_SuAn = "ŞU AN";
+
+    /// <summary>Plan / şu an tablosunda eksi bakiyenin faiz satırı.</summary>
+    public const string Etiket_KmhFaizi = "KMH faizi";
+
     /// <summary>Halkanın ortasındaki tutarın etiketi.</summary>
     public const string Etiket_KalanYasamGideri = "Kalan yaşam gideri";
 
     /// <summary>Bakiye girilmediyse halkanın ortasında.</summary>
     public const string Etiket_BakiyeGirilmedi = "Bakiye girilmedi";
 
-    /// <summary>Yaşam giderinden harcanan oranın satırı.</summary>
+    /// <summary>Yaşam gideri için ayrılan tutarın satırı; bakiye girilmese de bilinir (S87-6).</summary>
+    public const string Etiket_Planlanan = "Planlanan";
+
+    /// <summary>Yaşam giderinden harcanan tutarın ve oranın satırı.</summary>
     public const string Etiket_Harcanan = "Harcanan";
+
+    /// <summary>Harcanan satırının değeri; {0} tutar, {1} oran.</summary>
+    public const string Bicim_TutarOran = "{0} · {1}";
 
     /// <summary>Dönemden geçen sürenin satırı.</summary>
     public const string Etiket_GecenSure = "Geçen süre";

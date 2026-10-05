@@ -122,11 +122,6 @@
                         <Label Text="{Binding PreviousEndingBalance, Converter={StaticResource Para}, StringFormat={x:Static strings:BalanceEntryStrings.Bicim_OncekiTahmin}}"
                                Style="{StaticResource Caption}"
                                IsVisible="{Binding HasLastObservation}" />
-
-                        <!-- Rota sütunlarla: dönem eşit dilimlerde, bugünkü sütun etiketli -->
-                        <GraphicsView Drawable="{Binding Preview.Trend, Converter={StaticResource SutunGrafigi}}"
-                                      HeightRequest="{StaticResource ChartHeight}"
-                                      InputTransparent="True" />
                     </VerticalStackLayout>
                 </Border>
 

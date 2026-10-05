@@ -4,15 +4,22 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi (Faz G — Geçiş) |
-| Sıradaki adım | Planlanmış taşıma adımı kalmadı. Yeni iş `/development`, kullanıcının gördüğü hata `/bug-fix` ile; ikisi de sürümle biter. Açık işler `docs/TASIMA-PLANI.md`'de ve aşağıdaki "Dikkat" maddelerinde |
-| Test sayısı | 2230 |
+| Son tamamlanan adım | **Geliştirme — ana sayfada plan / şu an** (`S87`, `GS34`); commit'lendi, **sürüm çıkmadı** (kullanıcı kararı) |
+| Sıradaki adım | `/surum` ile 0.2.0 (versionCode 3): `CHANGELOG.md` `[Yayınlanmamış]` bölümü hazır. Sonra kullanıcı telefonda görünce "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. Yeni iş `/development`, kullanıcının gördüğü hata `/bug-fix` ile |
+| Test sayısı | 2237 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Geliştirme — ana sayfada plan / şu an; kararlar `S87`, `GS34`
+
+Kullanıcı (telefonda, eski uygulamayla yan yana): ana sayfa grafiği "ölü alan", mevcut dönem hakkında bilgi yok. Gidişat (`PeriodProgress`) kart başına plan / şu an, KMH faizi ve harcanan yaşam giderini zaten hesaplıyordu ama hiçbir ekran okumuyordu. Kaydırılan kartın 1. sayfasında `ColumnTrend` yerine **PLAN | ŞU AN** tablosu geldi: her kart ve KMH faizi, planı aşan şu an kırmızı, bakiye yoksa KMH'nin şu anı "—" (`S87`). 2. sayfaya yaşam giderinin planlanan ve harcanan tutarı eklendi. "Bakiye gir" önizlemesi de grafiksiz.
+Yeni çocuk görünüm modeli `PeriodComparisonViewModel` (bağımlılıksız, `BalancePreviewViewModel` deseni) ve yeni bileşen `ComparisonRow` (sabit oranlı `3*, 2*, 2*` kolonlar; `MetricRow`'un `Auto` kolonlarında plan rakamı satır satır kayıyordu). `ColumnTrend`, `SutunGrafigiConverter`, `ChartColumns`, `ChartColumn`, `BalancePathTrend` silindi; GK7 dört primitife indi (`GS30` geri alındı). Application, Domain, şema değişmedi.
+Bütçe: ana sayfa hero 1/1, kart 4/4, grafik 1/1 (yalnız 2. sayfadaki halka), label 25/28 (analizci 28/28), cümle 3/3; "Bakiye gir" grafik 0/1, label 11/28. Görsel kontrol: kullanıcı emülatörde onayladı. 16 yeni test, grafiği tarif eden testler çıktı; toplam 2.237 test yeşil (önce 2.230), 0 hata, 0 uyarı.
+**Dikkat:** (a) Sürüm çıkmadı; `CHANGELOG.md` `[Yayınlanmamış]` bölümü 0.2.0'ı bekliyor. (b) Ana sayfanın analizci etiket sayımı 28/28: yeni `<Label>` için yer yok. (c) `ComparisonRow` bugün tek ekranda; ikinci kullanıcı adayı "Bu dönem" sayfası (`GS34`-7). (d) `PeriodProgress.Path` (`S71`) hesaplanmaya devam ediyor ama okuyan ekran kalmadı; silmek Application'a dokunan ayrı bir iş. (e) Emülatör betiği bu koşuda paketi sıfırdan kurdu; 4 profil kurulumdan önceki otomatik yedekten geri yüklendi.
 
 ### Süreç — göçten geliştirmeye: `/development`, `/bug-fix`, `/surum`
 

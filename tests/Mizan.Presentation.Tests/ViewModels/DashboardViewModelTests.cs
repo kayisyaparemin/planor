@@ -79,41 +79,21 @@ public sealed class DashboardViewModelTests : IDisposable
         Assert.Null(_viewModel.LastObservedOn);
     }
 
+    // GS34: rota grafiği çıktı; kaydırılan kartın 1. sayfası gidişatın plan / şu an tablosudur (S87).
     [Fact]
-    public async Task Yukle_RotaGrafigi_KatedilenYolDuzOnumuzdekiYolKesiklidir()
+    public async Task Yukle_PlanSuAnTablosu_GidisattanKurulur()
     {
-        _progressService.CurrentProgress = Progress(projected: 41723m, planned: 43900m);
+        _progressService.CurrentProgress = Progress(cards:
+        [
+            new PeriodCardComparison(Guid.NewGuid(), "Akbank Axess", new DateOnly(2026, 10, 5), 24233m, 26747m)
+        ]);
 
         await _viewModel.LoadAsync();
 
-        var trend = Assert.IsType<ChartTrend>(_viewModel.Trend);
-        Assert.Equal([new ChartPoint(Start, 60000m), new ChartPoint(new DateOnly(2026, 9, 27), 58940m)], trend.Series.Points);
-        Assert.Equal([new ChartPoint(new DateOnly(2026, 9, 27), 58940m), new ChartPoint(End, 41723m)], trend.Projection!.Points);
-        Assert.Equal(Today, trend.Today);
-        Assert.Equal(43900m, trend.PlanLevel!.Value);
-        Assert.Equal([new ChartPoint(new DateOnly(2026, 9, 27), 58940m)], trend.Markers!.Points);
-    }
-
-    [Fact]
-    public async Task Yukle_BakiyeGirilmediyse_GrafikteNoktaYoktur()
-    {
-        _progressService.CurrentProgress = Progress(projected: null);
-
-        await _viewModel.LoadAsync();
-
-        Assert.Empty(Assert.IsType<ChartTrend>(_viewModel.Trend).Markers!.Points);
-    }
-
-    [Fact]
-    public async Task Yukle_BakiyeGirilmediyse_RotaAcilistanKesikliPlandir()
-    {
-        _progressService.CurrentProgress = Progress(projected: null, planned: 43900m);
-
-        await _viewModel.LoadAsync();
-
-        var trend = Assert.IsType<ChartTrend>(_viewModel.Trend);
-        Assert.Equal([new ChartPoint(Start, 60000m)], trend.Series.Points);
-        Assert.Equal(new ChartPoint(End, 43900m), trend.Projection!.Points[^1]);
+        Assert.Equal([new PeriodCardComparisonRow("Akbank Axess", 24233m, 26747m, IsAbovePlan: true)], _viewModel.Comparison.Cards);
+        Assert.True(_viewModel.Comparison.HasRows);
+        Assert.Equal(29650m, _viewModel.Comparison.PlannedLivingExpense);
+        Assert.Equal(21050m, _viewModel.Comparison.SpentLivingExpense);
     }
 
     [Fact]
@@ -289,7 +269,10 @@ public sealed class DashboardViewModelTests : IDisposable
     [Fact]
     public async Task Yukle_AcikDonemYoksa_BosDurumdurOncekiVeriSilinir()
     {
-        _progressService.CurrentProgress = Progress();
+        _progressService.CurrentProgress = Progress(cards:
+        [
+            new PeriodCardComparison(Guid.NewGuid(), "Akbank Axess", new DateOnly(2026, 10, 5), 24233m, 26747m)
+        ]);
         await _viewModel.LoadAsync();
         _progressService.CurrentProgress = null;
 
@@ -298,7 +281,9 @@ public sealed class DashboardViewModelTests : IDisposable
         Assert.Equal(ScreenState.Empty, _viewModel.State);
         Assert.False(_viewModel.HasActivePeriod);
         Assert.Null(_viewModel.EndingBalance);
-        Assert.Null(_viewModel.Trend);
+        Assert.Empty(_viewModel.Comparison.Cards);
+        Assert.False(_viewModel.Comparison.HasRows);
+        Assert.Null(_viewModel.Comparison.PlannedLivingExpense);
         Assert.Empty(_viewModel.RemainingLines);
     }
 
@@ -344,7 +329,8 @@ public sealed class DashboardViewModelTests : IDisposable
         decimal planned = 43900m,
         SpendingPace? pace = null,
         bool isClosable = false,
-        int lineCount = 2)
+        int lineCount = 2,
+        IReadOnlyList<PeriodCardComparison>? cards = null)
     {
         var planId = Guid.NewGuid();
         var observedOn = new DateOnly(2026, 9, 27);
@@ -385,7 +371,7 @@ public sealed class DashboardViewModelTests : IDisposable
             ProjectedDeficitInterest = observation is null ? null : 0m,
             ProjectedEndingBalance = projected,
             Pace = pace,
-            Cards = [],
+            Cards = cards ?? [],
             Observation = observation,
             Observations = observation is null ? [] : [observation],
             Path = path,

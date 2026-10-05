@@ -1,6 +1,5 @@
 using Mizan.Application.Models;
 using Mizan.Domain.Models;
-using Mizan.Presentation.Charts;
 using Mizan.Presentation.Models;
 using Mizan.Presentation.Navigation;
 using Mizan.Presentation.Tests.Fakes;
@@ -177,7 +176,7 @@ public sealed class BalanceEntryViewModelTests
 
         Assert.False(_viewModel.Preview.IsShown);
         Assert.Null(_viewModel.Preview.EndingBalance);
-        Assert.Null(_viewModel.Preview.Trend);
+        Assert.Null(_viewModel.Preview.Deviation);
         Assert.Single(_progress.PreviewRequests);
     }
 
@@ -239,22 +238,7 @@ public sealed class BalanceEntryViewModelTests
         await Settled();
 
         Assert.False(_viewModel.Preview.IsShown);
-        Assert.Null(_viewModel.Preview.Trend);
-    }
-
-    [Fact]
-    public async Task Onizleme_Grafik_TaslakGirisRotadaNoktadir()
-    {
-        await _viewModel.LoadAsync();
-
-        await TypeAsync("62.300");
-
-        var trend = Assert.IsType<ChartTrend>(_viewModel.Preview.Trend);
-        Assert.Equal(new ChartPoint(Today, 62300m), trend.Series.Points[^1]);
-        Assert.Equal(new ChartPoint(End, 44380m), trend.Projection!.Points[^1]);
-        Assert.Equal([new ChartPoint(LastDay, 58940m), new ChartPoint(Today, 62300m)], trend.Markers!.Points);
-        Assert.Equal(Today, trend.Today);
-        Assert.Equal(Planned, trend.PlanLevel!.Value);
+        Assert.Null(_viewModel.Preview.EndingBalance);
     }
 
     [Fact]

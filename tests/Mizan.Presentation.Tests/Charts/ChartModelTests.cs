@@ -66,16 +66,4 @@ public sealed class ChartModelTests
         Assert.Equal("Kredi Taksitleri", category.Label);
         Assert.Equal(24500m, category.Value);
     }
-
-    [Fact]
-    public void ChartColumn_VeriAlanlarini_DogruTasir()
-    {
-        var date = new DateOnly(2026, 9, 30);
-        var column = new ChartColumn(date, 50000m, IsAhead: false, IsToday: true);
-
-        Assert.Equal(date, column.Date);
-        Assert.Equal(50000m, column.Value);
-        Assert.False(column.IsAhead);
-        Assert.True(column.IsToday);
-    }
 }

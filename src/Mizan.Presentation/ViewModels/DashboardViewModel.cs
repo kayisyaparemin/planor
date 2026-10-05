@@ -11,7 +11,7 @@ using Mizan.Presentation.Navigation;
 namespace Mizan.Presentation.ViewModels;
 
 /// <summary>
-/// Ana sayfanın görünüm modeli: açık dönemin sonunda ne kalacağını ve bakiyenin oraya nasıl gittiğini, yaşam
+/// Ana sayfanın görünüm modeli: açık dönemin sonunda ne kalacağını ve plandan nerede saptığını (S87), yaşam
 /// giderinin temposunu, son girilen bakiyeyi ve kalan ödemeleri tek ekranda sunar (EK-V3, S72). Bakiye girişi
 /// ayrı sayfadır (V3b); bu model yalnız okur.
 /// </summary>
@@ -26,6 +26,9 @@ public sealed partial class DashboardViewModel : ViewModelBase
 
     /// <summary>Vadesi gelen veya ertelenmiş acil ödemeleri yöneten çocuk görünüm modeli.</summary>
     public ReminderCardViewModel Reminders { get; }
+
+    /// <summary>Kaydırılan kartın plan / şu an tablosu ve yaşam giderinin tutarları (S87).</summary>
+    public PeriodComparisonViewModel Comparison { get; } = new();
 
     /// <summary>Kalan ödemelerden kartta görünen satırlar: ilk üçü, "+N daha"ya dokununca hepsi.</summary>
     public ObservableCollection<DashboardRemainingItem> RemainingLines { get; } = [];
@@ -43,7 +46,6 @@ public sealed partial class DashboardViewModel : ViewModelBase
     [ObservableProperty] private decimal? endingBalance; [ObservableProperty] private decimal? plannedEndingBalance;
     [ObservableProperty] private decimal? endingDeviation;
     [ObservableProperty] private bool isBehindPlan; [ObservableProperty] private bool isAheadOfPlan;
-    [ObservableProperty] private ChartTrend? trend;
 
     [ObservableProperty] private decimal? remainingVariableExpenseAllowance;
     [ObservableProperty] private bool hasPace;
@@ -84,6 +86,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
             ApplyPeriod(progress);
             ApplyEnding(progress);
             ApplyPace(progress);
+            Comparison.Show(progress);
             ApplyRemainingLines(progress);
             await Reminders.LoadAsync();
             State = ScreenState.Content;
@@ -120,7 +123,6 @@ public sealed partial class DashboardViewModel : ViewModelBase
         EndingDeviation = progress.EndingDeviation;
         IsBehindPlan = EndingDeviation < 0m;
         IsAheadOfPlan = EndingDeviation > 0m;
-        Trend = BalancePathTrend.From(progress);
     }
 
     private void ApplyPace(PeriodProgress progress)
@@ -163,7 +165,7 @@ public sealed partial class DashboardViewModel : ViewModelBase
         HiddenRemainingCount = 0;
         HasActivePeriod = HasObservation = HasPace = IsPeriodEnded = false;
         EndingBalance = EndingDeviation = LastObservedBalance = null;
-        Trend = null;
+        Comparison.Clear();
         Gauge = null;
         State = ScreenState.Empty;
     }

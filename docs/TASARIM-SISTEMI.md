@@ -404,6 +404,7 @@ o ekranın XAML'inde durur.
 | `ReminderCard` | Hatırlatıcı metni + iki aksiyon | "Ödedim / Ertele" bildirimi |
 | `HeroPager` | `SurfaceCard` kart, iki `HeroPage`, altında dokunulabilir iki nokta; yatay kaydırma, animasyonsuz | "Rota + Tempo" kaydırılan hero (`GS22`, `GS24`) |
 | `EntryTypeTiles` | Tür seçicinin bir grubu: renkli nokta + eyebrow, altında ≤ 2 sütun karo (ikon + başlık + alt satır); rengi sayfa verir. Bir kart sayılır | "Ne eklemek istiyorsun?" (`GS29`; Finansal Yapı `V6f`, simülatör `V10c`) |
+| `ComparisonRow` | Kalem adı + planlanan + şu anki tutar, sabit oranlı kolonlarla alt alta hizalı; yalnız planı aşan şu an olumsuz renkli | Konseptte yok; eski uygulamanın "GİDİŞAT" kartından (`GS34`; ana sayfanın plan / şu an tablosu) |
 
 `ListCard` sınırı **4 satır**. Daha fazlası varsa kart "+7 daha" satırı gösterir ve detay
 sayfasına gider. Sebep: dördüncü satırdan sonra kullanıcı okumuyor, tarıyor.
@@ -420,8 +421,8 @@ olduğunu bilmez.
 
 Dizin: `src/Mizan.App/Charts/`. Her biri bir `IDrawable`, ≤ 200 satır.
 
-Beş primitif var, altıncısı yok (kural GK7). Her birinin `<summary>`'si cevapladığı soruyu
-cümle olarak taşır.
+Dört primitif var, beşincisi yok (kural GK7); `ColumnTrend` beşinciydi, `GS34` ile çıktı. Her birinin
+`<summary>`'si cevapladığı soruyu cümle olarak taşır.
 
 | Primitif | Cevapladığı soru | Girdi |
 |---|---|---|
@@ -429,7 +430,6 @@ cümle olarak taşır.
 | `AreaTrend` | "Bakiye nereye gidiyor, plana ve eşiğe göre neredeyim?" | Bir seri (tarih eksenli) + isteğe bağlı eşik, plan serisi, kesikli devam, bugün ve plan seviyesi (`GS23`). Eşik verilirse alan dolgusu tabana değil eşiğe iner (`GS26`-4). |
 | `StackedBar` | "Bu dönem neyden oluşuyor?" | ≤ 4 kategori. |
 | `RingGauge` | "Ne kadarı tamamlandı, geçen süreye göre önde miyiz geride mi?" | Tek oran (0–1) + isteğe bağlı geçen süre oranı (0–1) (`GS23`). |
-| `ColumnTrend` | "Dönem boyunca bakiye nerede, plana göre nerede bitiyor?" | Sütunlar (tarih dilimleri) + plan seviyesi + bugün etiketi (`GS30`). |
 
 **Ekranda aynı anda en fazla bir grafik görünür.** İkinci bir grafik gerekiyorsa o ekran iki
 ekrandır; tek istisna `HeroPager`: en fazla bir kaydırılan kart, en fazla iki sayfa, sayfa
