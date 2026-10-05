@@ -10,6 +10,8 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.2.2] - 2026-10-05
+
 ### Düzeltildi
 
 - Kredi kartına dönem içinde harcama yapıldığında, bakiye rotasının katedilen kısmındaki ara günler artık dondurulmuş plan tutarıyla değil kartın güncel ödeme tutarıyla hesaplanıyor; kartın güncel borç farkı açıklanamayan yaşam harcaması gibi günlere dağıtılmıyor.

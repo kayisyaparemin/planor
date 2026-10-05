@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | Hata düzeltme — bakiye rotasının katedilen kısmı plan tutarıyla (`I170`) |
+| Son tamamlanan adım | **Sürüm 0.2.2** (versionCode 5): bakiye rotasının katedilen kısmı plan tutarıyla (`I170`) |
 | Sıradaki adım | Kullanıcı "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. |
 | Test sayısı | 2252 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
@@ -19,6 +19,7 @@ ne geldi, hangi kararı verdik, nereye dikkat etmeli.
 Belirti: Kredi kartına dönem içi harcama girilip kartın vadesinden sonra bakiye girildiğinde, bakiye rotasının (`PeriodBalancePath`) katedilen kısmındaki (`Travelled`) ara günlerde kart ödemesi dondurulmuş plan tutarıyla (`PlannedAmount`) düşülüyor ve kartın planı aşan güncel borç farkı açıklanamayan günlük yaşam harcaması gibi günlere eşit yayılıyordu. Rotanın uçları (açılış ve girilen bakiye) doğru kalsa da aradaki bakiye seyri yapay olarak bozuluyordu. Kök neden: `PeriodBalancePathCalculator.FromObservations` metodu elindeki `currentCardPayments` sözlüğünü `Ahead`'e aktarırken `Travelled`'a iletmiyor, `PlannedMovements` da ödenen satırlar için `-(x.PlannedAmount ?? 0m)` kullanıyordu. A30'dan (commit `09ead47`), 0.1.0'dan beri var. Kayıtlı veri bozulmadı.
 Düzeltme: `Travelled` ve `PlannedMovements`'a `currentCardPayments` parametresi eklendi; ödenen satırların tutarı `ProjectedPaymentAmount.Of(x, currentCardPayments)` ile güncel tutara bağlandı; `FromPlan` saf plan davranışını boş sözlükle korudu.
 Koruyan: `PeriodBalancePathCalculatorTests.FromObservations_GozlemdenOncekiKartinBugunkuTutariFarkliysa_KatedilenYolGuncelTutarlaCizilirVeAciklanamayanFarkDogrudur` (kırmızıydı: 51.041,67 ≠ 49.458,33; 36.833,33 ≠ 37.166,67) (`I170`). Hatayı dondurmuş test yoktu. Aynı sınıftan açık kalan başka yer kalmadı (tümü kapatıldı). Ekrana (XAML) dokunmadı. Toplam 2.252 test yeşil, 0 hata, 0 uyarı.
+Sürüm: 0.2.2 (versionCode 5).
 
 ### Hata düzeltme — dönem kapanışında kartın güncel ödemesi; karar `I169`
 
