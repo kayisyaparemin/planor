@@ -10,6 +10,14 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.1.1] - 2026-10-05
+
+### Düzeltildi
+
+- Ödeme hatırlatıcısı, vadesi içinde bulunulan dönemin bittiği güne (sonraki dönemin ilk günü) denk gelen ödemeleri (kredi, kart, taksit) ve planlı büyük harcamaları artık atlamıyor.
+- Dönemin ilk gününe vadeli bir ödemeye "Ertele" denince takip hatırlatması artık kuruluyor ve ödeme ertelenmiş görünüyor.
+- Eski uygulamadan alınan verilerde, ödendi işaretlenmiş bir taksit yeniden hatırlatılmıyor; eski uygulamanın kapanmış dönemlerine ait ertelemeler de "ertelendi" kartı olarak geri gelmiyor.
+
 ## [0.1.0] - 2026-10-05
 
 ### Eklendi

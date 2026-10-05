@@ -6,13 +6,21 @@
 |---|---|
 | Son tamamlanan adım | **G1b** — profil seçimi ekranında "Eski uygulamadan al" girişi (Faz G — Geçiş) |
 | Sıradaki adım | Planlanmış adım kalmadı; açık işler için `docs/TASIMA-PLANI.md` |
-| Test sayısı | 2223 |
+| Test sayısı | 2230 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Sürüm 0.1.1 — ayrı dallarda kalmış üç dönem sınırı düzeltmesi main'e alındı; kararlar `S84`–`S86`
+
+Üç düzeltme 2 Ekim'de ayrı oturumlarda yazılmış ama main'e hiç birleştirilmemişti (`claude/keen-tu-1291d3`, `claude/cool-cerf-0d671b`, `claude/admiring-goldberg-ed8e6a`; main o sırada 25 commit ilerideydi). Kod ve testler temiz uygulandı; iki dal aynı test dosyasına aynı yerden eklediği için ikisi de tutuldu. Üçünün de kökü aynı: eski sol-açık `(başlangıç, bitiş]` dönem modelinden kalan pencereler.
+Dallar kayıtlarını `S74`/`S76` ve `I114`, `I115`, `I117` diye açmıştı; bu numaralar main'de başka kayıtlara verildiği için yeniden numaralandı: projeksiyon sınırı `S84` (`I155`), vade toplayıcının bitiş günü `S85` (`I156`, `I157`), panonun ilk günü `S86` (`I158`). Koddaki göndermeler de çevrildi. `I154` dokümanlarda anılıyor ama tabloda yok; karışmasın diye atlandı.
+Birleştirmeden sonra dört bağımsız şüpheci ajan düzeltmeleri bugünkü main'de çürütmeye çalıştı. Üçü de doğru; `S84` hiçbir ekranı kaydırmıyor (`FirstUnrealizedPeriodStartDate`'i okuyan üretim kodu yok). Ama eski uygulamadan **içe aktarılan** profillerde iki dar yan etki çıktı, ikisi de kırmızı testle kapatıldı: (1) içe aktarılan açık plan eski modelin bitiş günü satırını taşıyabiliyor; ödendi işaretliyse `>=` onu projeksiyondan geri getiriyordu. Artık açık planda olan vade ikinci kez eklenmez (`S85`-3, `I159`). (2) Eski kapanış gününe vadeli eski "ertele" cevapları `>=` ile panoya bayat kart olarak dönüyordu. Artık içe aktarıcı eski son kapanış ve öncesinin cevaplarını taşımaz (`S86`-2, `I160`). Ayrıca ufuk koşulu `last >= PeriodEnd` oldu (`S85`-2): kurulumdan sonra açık dönem ileride başlarken ufkun son günü bitiş gününe denk gelebiliyordu. Sürüm notu ve `S86`/`I158` metinleri abartıdan arındırıldı ("Ödendi" listesini okuyan ekran yok).
+Sürüm `0.1.1` (versionCode 2), `CHANGELOG.md` bölümüyle. 9 yeni test, çağıranı kalmayan yardımcının 2 testi kaldırıldı; toplam 2.230 test yeşil, 0 hata, 0 uyarı.
+**Dikkat — doğrulamanın bulduğu, bu sürümden bağımsız ve 0.1.0'da da var olan hatalar (henüz kayıtsız, `/duzeltme` işi):** (a) Ayarlar'da dönem günü değiştirilirse sonraki dönem kapanışı `InvalidOperationException` ile düşüyor (`FinancialSnapshotService.Build` yeni çapayı eski `PeriodEnd`'e uyguluyor, `FinancialProjectionCalculator.ValidateProjectionBoundary` reddediyor); kod izinden çıktı, çalıştırılarak doğrulanmadı. (b) Hatırlatıcının ödendi işaretleri satır kimliğiyle eşleniyor, revizyon her satıra yeni kimlik verdiği için plan değişikliğinden sonra ödenmiş taksit tekrar hatırlatılabiliyor (`S33`/`I22`'ye aykırı; `PeriodPaymentLineClassifier.ExplicitMarksByDueKey` doğru yolu gösteriyor). (c) Kapanışta devreden vadesi geçmiş yükümlülük hatırlatıcıya hiç girmiyor. (d) `I147`–`I153` hem `V10e`/`V10f` hem `G1a`/`G1b` için kullanılmış; V10e/V10f satırları tabloda yok. Üç birleştirilmiş dal yerelde duruyor; silinebilirler (worktree'leri `.claude/worktrees/` altında).
 
 ### CI'ın GitHub'daki ilk koşusu — iki Linux hatası
 
