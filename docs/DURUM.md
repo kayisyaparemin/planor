@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **Geliştirme — kalan ödemelerden "Ödedim"** (`S88`, `I173`): ana sayfanın kalan ödemeler satırına dokunup onayla "Ödedim"; ana sayfa cevaptan sonra yerinde yenilenir, kalan ödeme yoksa kart gizlenir |
+| Son tamamlanan adım | **Sürüm 0.4.0** (versionCode 8) — Geliştirme "kalan ödemelerden Ödedim" (`S88`, `I173`): ana sayfanın kalan ödemeler satırına dokunup onayla "Ödedim"; ana sayfa cevaptan sonra yerinde yenilenir, kalan ödeme yoksa kart gizlenir |
 | Sıradaki adım | Sıradaki açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.); aşağıdaki girişteki "Dikkat" notları |
 | Test sayısı | 2274 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
@@ -21,6 +21,7 @@ Bütçe: hero 1/1, kart 4/4, grafik 1/1, label 25/28 (analizci 28/28), cümle 3/
 Koruyan: `I173`'ün dokuz testi; kırmızıydı: anahtar boş geliyordu, "Ödedim"den sonra kira listede kalıyordu, kart cevabından sonra liste yenilenmiyordu, dolu liste kartı görünmüyordu. Var olan beş liste testinde yalnız alan yolları değişti; boş liste testi "kart gizlenir"e güncellendi (`S88`-6). Toplam 2.274 test yeşil, 0 hata, 0 uyarı.
 Görsel kontrol: kullanıcı emülatörde onayladı ("devam", 2026-10-06).
 **Dikkat:** (1) Geri alma yok (`S88`-5); yanlış "Ödedim" ödemenin bildirimini düşürür ve sonraki bakiye girişinde ödemeyi yapılmış sayar. (2) Hatırlatıcı kartının "Ödedim" / "Ertele"si kayıt düşerse yakalanmıyor (`EK-V2`'deki `Hata_HatirlaticiGuncellenemedi` uygulanmamış), kartın `IDialogService`'i hâlâ kullanılmıyor; listenin yolunda yakalanıyor. (3) `ReminderCardViewModel` 196 / 200 satırda.
+Sürüm: 0.4.0 (versionCode 8).
 
 ### Hata düzeltme — dönem karosunda tutarın alt satıra kırılması; kararlar `GS26`-1, `I172`
 

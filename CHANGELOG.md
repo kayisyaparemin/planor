@@ -10,6 +10,8 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.4.0] - 2026-10-06
+
 ### Eklendi
 
 - Ana sayfadaki "Kalan ödemeler" listesinde bir ödemeye dokunup "Ödedim" diyebilirsin. Hatırlatıcıdaki gibi ödeme listeden çıkar ve hatırlatması gelmez; vadesinden önce yaptığın ödemeler için de çalışır. Kalan ödeme kalmayınca kart gizlenir.
