@@ -498,7 +498,7 @@ public sealed class SimulationPlanApplierTests
         var request = new SimulationRequest
         {
             Type = SimulationScenarioType.IncomeChange,
-            Name = "Maaş Zammı",
+            Name = "Gelir Artışı",
             Amount = 65_000m,
             StartDate = new DateOnly(2027, 1, 1),
             RecurringIncomeId = streamId,

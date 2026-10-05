@@ -27,5 +27,5 @@ public enum OnboardingStep
     Balance = 7,
 
     /// <summary>Adım 8: Kontrol ve kurulumu başlatma özeti.</summary>
-    Review = 8
+    Summary = 8
 }

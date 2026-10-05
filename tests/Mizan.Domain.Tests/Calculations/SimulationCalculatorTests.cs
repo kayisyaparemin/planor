@@ -182,7 +182,7 @@ public sealed class SimulationCalculatorTests
                 new RecurringIncome
                 {
                     Id = streamId,
-                    Name = "Maaş",
+                    Name = "Gelir",
                     PaymentDay = 10,
                     IsActive = true
                 }

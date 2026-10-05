@@ -15,12 +15,11 @@ Geri kalan her şey bu omurgadan sarkar.
 
 ## Faz F — Temel
 
-- [ ] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K8'i denetleyen testler.
+- [x] **F1** — Mimari test kalkanı. `Mizan.Architecture.Tests` içinde K1–K9'u denetleyen testler.
       *Bu adım kasıtlı olarak birincidir: kuralları zorlayan mekanizma, kuralların koruyacağı
       koddan önce ayakta olmalı.*
-      ⚠️ **Geri açıldı:** kural kitabı K9'u (yasaklı terim) listeliyor ama testi yok.
-      `ArchitectureTests.YasakliTerimler_KaynaktaGecemez` ve
-      `ArchitectureTests.YasakliTerimRegex_YanlisPozitifUretmez` yazılmalı.
+      K9 kuralı tamamlandı: `ArchitectureTests.YasakliTerimler_KaynaktaGecemez` ve
+      `ArchitectureTests.YasakliTerimRegex_YanlisPozitifUretmez` yazıldı; kod ve testlerdeki kalıntılar temizlendi.
 - [x] **F2** — `IClock` + `SystemClock` + takvim kuralları (`CalendarRules`)
 - [x] **F3** — Para ve yuvarlama yardımcıları + `SOZLUK.md`'nin ilk doldurulması
 - [x] **F4** — `.runsettings` + kapsam eşiği, CI'da zorlanır hâle getirilir

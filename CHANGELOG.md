@@ -10,6 +10,10 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+### Eklendi
+
+- Mimari kural K9: Sözlükteki yasaklı terimlerin kaynak ve test kodlarına sızmasını engelleyen otomatik mimari test kalkanı (`YasakliTerimler_KaynaktaGecemez`).
+
 ## [0.2.2] - 2026-10-05
 
 ### Düzeltildi

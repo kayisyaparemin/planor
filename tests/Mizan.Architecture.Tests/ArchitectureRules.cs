@@ -44,4 +44,7 @@ internal static class ArchitectureRules
 
     public static IReadOnlyList<string> VerifyRegistrationsOnlyInCompositionRoot() =>
         CompositionRootRules.CheckRegistrationsOnlyInCompositionRoot();
+
+    public static IReadOnlyList<string> VerifyForbiddenTerms() =>
+        ForbiddenTermRules.CheckForbiddenTerms();
 }

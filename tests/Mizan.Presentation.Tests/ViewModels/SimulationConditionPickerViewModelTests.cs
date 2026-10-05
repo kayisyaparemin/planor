@@ -72,7 +72,7 @@ public sealed class SimulationConditionPickerViewModelTests
     [Fact]
     public async Task SelectOption_GelirDegisikligi_TekGelir_FormuGelirleAcar()
     {
-        var (income, histories) = Income("Maaş", 15, true, (45000m, Today));
+        var (income, histories) = Income("Gelir", 15, true, (45000m, Today));
         _reader.Plan = new FinancialPlan { RecurringIncomes = [income], IncomeHistories = histories };
 
         await _viewModel.SelectOptionCommand.ExecuteAsync(_viewModel.IncomeSection.Options[1]);
@@ -87,7 +87,7 @@ public sealed class SimulationConditionPickerViewModelTests
     [Fact]
     public async Task SelectOption_GelirDegisikligi_CokGelir_IkinciSeviyeyiAcar()
     {
-        var (income1, h1) = Income("Maaş", 15, true, (45000m, Today));
+        var (income1, h1) = Income("Gelir", 15, true, (45000m, Today));
         var (income2, h2) = Income("Kira Geliri", 1, true, (12000m, Today));
         _reader.Plan = new FinancialPlan
         {
@@ -106,7 +106,7 @@ public sealed class SimulationConditionPickerViewModelTests
     [Fact]
     public async Task ChooseRecord_AdayGelirSecildiginde_FormuAcar()
     {
-        var (income1, h1) = Income("Maaş", 15, true, (45000m, Today));
+        var (income1, h1) = Income("Gelir", 15, true, (45000m, Today));
         var (income2, h2) = Income("Kira Geliri", 1, true, (12000m, Today));
         _reader.Plan = new FinancialPlan
         {

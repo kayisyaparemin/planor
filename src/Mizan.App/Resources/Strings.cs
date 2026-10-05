@@ -92,7 +92,7 @@ public static class Strings
     public const string Baslik_NavGelirPlani = "Gelir Planı";
 
     /// <summary>Gelir planı özet alt yazısı.</summary>
-    public const string Etiket_GelirPlaniOzet = "Maaş ve yan gelirler";
+    public const string Etiket_GelirPlaniOzet = "Düzenli ve ek gelirler";
 
     /// <summary>Ödeme planları gezinme başlığı.</summary>
     public const string Baslik_NavOdemePlanlari = "Ödeme Planları";

@@ -208,7 +208,7 @@ public sealed class SimulationWorkflowServiceTests
             },
             RecurringIncomes =
             [
-                new RecurringIncome { Id = incomeId, Name = "Maaş", PaymentDay = 15 }
+                new RecurringIncome { Id = incomeId, Name = "Gelir", PaymentDay = 15 }
             ],
             IncomeHistories =
             [

@@ -231,7 +231,7 @@ public sealed class LoanPayoffAdvisorTests
     private static FinancialPlan PlanWith(
         decimal openingBalance, decimal monthlyIncome, IReadOnlyList<Loan> loans, decimal deficitRate = 0.05m)
     {
-        var income = new RecurringIncome { Name = "Maaş", PaymentDay = 1 };
+        var income = new RecurringIncome { Name = "Gelir", PaymentDay = 1 };
         return new FinancialPlan
         {
             Settings = new UserSettings

@@ -291,7 +291,7 @@ public sealed class SimulationRequestValidatorTests
         var request = new SimulationRequest
         {
             Type = SimulationScenarioType.IncomeChange,
-            Name = "Maaş Zammı",
+            Name = "Gelir Artışı",
             Amount = 120_000m,
             StartDate = new DateOnly(2027, 1, 1),
             RecurringIncomeId = null

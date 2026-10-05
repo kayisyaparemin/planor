@@ -9,12 +9,12 @@ public sealed class RecurringIncomeTests
     {
         var income = new RecurringIncome
         {
-            Name = "Maaş Geliri",
+            Name = "Aylık Gelir",
             PaymentDay = 15
         };
 
         Assert.NotEqual(Guid.Empty, income.Id);
-        Assert.Equal("Maaş Geliri", income.Name);
+        Assert.Equal("Aylık Gelir", income.Name);
         Assert.Equal(15, income.PaymentDay);
         Assert.True(income.IsActive);
     }

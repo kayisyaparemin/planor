@@ -28,7 +28,7 @@ public sealed class FinancialPlanValidatorTests
             },
             RecurringIncomes =
             [
-                new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 15, IsActive = true }
+                new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 15, IsActive = true }
             ],
             IncomeHistories =
             [

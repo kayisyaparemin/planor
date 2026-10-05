@@ -29,7 +29,7 @@ public sealed class FinancialPlanTests
             Settings = new UserSettings { ProjectionAnchorDate = default },
             RecurringIncomes =
             [
-                new RecurringIncome { Name = "Maaş", PaymentDay = 15, IsActive = true }
+                new RecurringIncome { Name = "Gelir", PaymentDay = 15, IsActive = true }
             ]
         };
 
@@ -72,7 +72,7 @@ public sealed class FinancialPlanTests
             RecurringIncomes =
             [
                 new RecurringIncome { Name = "Emekli Aylığı", PaymentDay = 1, IsActive = false },
-                new RecurringIncome { Name = "Maaş", PaymentDay = 15, IsActive = true }
+                new RecurringIncome { Name = "Gelir", PaymentDay = 15, IsActive = true }
             ]
         };
 

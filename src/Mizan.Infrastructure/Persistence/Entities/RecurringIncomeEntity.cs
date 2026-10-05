@@ -3,7 +3,7 @@ using SQLite;
 namespace Mizan.Infrastructure.Persistence.Entities;
 
 /// <summary>
-/// Kullanıcının düzenli gelir akışlarını (maaş, kira vb.) saklayan
+/// Kullanıcının düzenli gelir akışlarını (aylık gelir, kira vb.) saklayan
 /// <c>recurring_incomes</c> tablosunun SQLite varlık modeli.
 /// </summary>
 [Table(DatabaseConstants.TableRecurringIncomes)]

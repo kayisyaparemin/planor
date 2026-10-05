@@ -446,7 +446,7 @@ public sealed class FinancialInstrumentReconciliationServiceTests
             new RecurringIncome
             {
                 Id = Guid.NewGuid(),
-                Name = "Maaş",
+                Name = "Gelir",
                 PaymentDay = 20,
                 IsActive = true
             }

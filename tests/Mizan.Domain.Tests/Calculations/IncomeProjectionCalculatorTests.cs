@@ -51,7 +51,7 @@ public sealed class IncomeProjectionCalculatorTests
         var streamId = Guid.NewGuid();
         var streams = new[]
         {
-            new RecurringIncome { Id = streamId, Name = "Maaş", PaymentDay = 15, IsActive = true }
+            new RecurringIncome { Id = streamId, Name = "Gelir", PaymentDay = 15, IsActive = true }
         };
         var history = new[]
         {
@@ -62,7 +62,7 @@ public sealed class IncomeProjectionCalculatorTests
 
         Assert.Single(result.Items);
         var item = result.Items[0];
-        Assert.Equal("Maaş", item.Name);
+        Assert.Equal("Gelir", item.Name);
         Assert.Equal(IncomeSourceType.Recurring, item.Type);
         Assert.Equal(new DateOnly(2026, 9, 15), item.SourceDate);
         Assert.Equal(45_000m, item.Amount);

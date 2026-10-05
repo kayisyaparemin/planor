@@ -35,7 +35,7 @@ public sealed class OnboardingViewModelTests
         Assert.Equal(0.125, _viewModel.StepProgress, 3);
         Assert.False(_viewModel.CanGoBack);
         Assert.True(_viewModel.CanGoNext);
-        Assert.False(_viewModel.IsReviewStep);
+        Assert.False(_viewModel.IsSummaryStep);
     }
 
     [Fact]
@@ -67,14 +67,14 @@ public sealed class OnboardingViewModelTests
     [Fact]
     public void Adim2_GelirEkleVeSil_DraftKoleksiyonunuGunceller()
     {
-        _viewModel.IncomeName = "Maaş";
+        _viewModel.IncomeName = "Gelir";
         _viewModel.IncomeAmount = 45000m;
         _viewModel.IncomePaymentDay = 15;
 
         _viewModel.AddIncomeCommand.Execute(null);
 
         Assert.Single(_viewModel.DraftIncomes);
-        Assert.Equal("Maaş", _viewModel.DraftIncomes[0].Title);
+        Assert.Equal("Gelir", _viewModel.DraftIncomes[0].Title);
         Assert.Equal(45000m, _viewModel.DraftIncomes[0].Amount);
 
         _viewModel.RemoveIncomeCommand.Execute(_viewModel.DraftIncomes[0]);
@@ -173,7 +173,7 @@ public sealed class OnboardingViewModelTests
         _viewModel.VariableExpenseAllowance = 18000m;
         _viewModel.CurrentBalance = 12000m;
 
-        _viewModel.IncomeName = "Maaş";
+        _viewModel.IncomeName = "Gelir";
         _viewModel.IncomeAmount = 50000m;
         _viewModel.AddIncomeCommand.Execute(null);
 
@@ -198,7 +198,7 @@ public sealed class OnboardingViewModelTests
         }
 
         Assert.Equal(8, _viewModel.StepIndex);
-        Assert.True(_viewModel.IsReviewStep);
+        Assert.True(_viewModel.IsSummaryStep);
         Assert.Equal(15, _viewModel.Summary.PeriodDay);
         Assert.Equal(1, _viewModel.Summary.IncomeCount);
         Assert.Equal(50000m, _viewModel.Summary.IncomeTotal);

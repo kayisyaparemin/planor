@@ -15,7 +15,7 @@ public sealed class IncomePlanReaderTests
         var recurringIncome = new RecurringIncome
         {
             Id = Guid.NewGuid(),
-            Name = "Maaş",
+            Name = "Gelir",
             IsActive = true,
             PaymentDay = 15
         };
@@ -43,7 +43,7 @@ public sealed class IncomePlanReaderTests
 
         Assert.NotNull(bundle);
         Assert.Single(bundle.RecurringIncomes);
-        Assert.Equal("Maaş", bundle.RecurringIncomes[0].Name);
+        Assert.Equal("Gelir", bundle.RecurringIncomes[0].Name);
         Assert.Single(bundle.IncomeHistories);
         Assert.Equal(50_000m, bundle.IncomeHistories[0].Amount);
         Assert.Single(bundle.AdHocIncomes);

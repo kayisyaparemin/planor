@@ -44,7 +44,7 @@ public sealed class SqliteRecurringIncomeRepositoryTests : IAsyncLifetime
         var income = new RecurringIncome
         {
             Id = incomeId,
-            Name = "Maaş",
+            Name = "Gelir",
             PaymentDay = 15,
             IsActive = true
         };
@@ -53,15 +53,15 @@ public sealed class SqliteRecurringIncomeRepositoryTests : IAsyncLifetime
 
         var list = await repository.GetRecurringIncomesAsync();
         Assert.Single(list);
-        Assert.Equal("Maaş", list[0].Name);
+        Assert.Equal("Gelir", list[0].Name);
         Assert.Equal(15, list[0].PaymentDay);
 
-        var updated = income with { Name = "Ana Maaş", PaymentDay = 1 };
+        var updated = income with { Name = "Ana Gelir", PaymentDay = 1 };
         await repository.UpsertRecurringIncomeAsync(updated);
 
         var updatedList = await repository.GetRecurringIncomesAsync();
         Assert.Single(updatedList);
-        Assert.Equal("Ana Maaş", updatedList[0].Name);
+        Assert.Equal("Ana Gelir", updatedList[0].Name);
         Assert.Equal(1, updatedList[0].PaymentDay);
     }
 

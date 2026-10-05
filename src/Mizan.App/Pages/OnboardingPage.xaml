@@ -144,7 +144,7 @@
             <Button Grid.Column="1"
                     Text="{x:Static res:OnboardingStrings.Aksiyon_PlanoruBaslat}"
                     Command="{Binding StartPlanorCommand}"
-                    IsVisible="{Binding IsReviewStep}"
+                    IsVisible="{Binding IsSummaryStep}"
                     AutomationId="{x:Static auto:AutomationIds.BtnOnboardingStart}" />
         </Grid>
 

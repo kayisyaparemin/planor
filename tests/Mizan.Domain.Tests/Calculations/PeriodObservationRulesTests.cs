@@ -75,7 +75,7 @@ public sealed class PeriodObservationRulesTests
     [InlineData(10, 3, 10, 3)]
     public void CanObserveOn_DonemBittiKapanmadi_HicbirGuneYazilamaz(int bugunAy, int bugunGun, int ay, int gun)
     {
-        // Hazırla: Eylül bitti, Ekim maaşı yattı ama Eylül kapatılmadı.
+        // Hazırla: Eylül bitti, Ekim geliri yattı ama Eylül kapatılmadı.
         var bugun = new DateOnly(Yil, bugunAy, bugunGun);
 
         // Uygula

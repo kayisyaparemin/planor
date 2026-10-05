@@ -43,7 +43,7 @@ public sealed partial class OnboardingViewModel : ViewModelBase
     [ObservableProperty] private double stepProgress = 0.125;
     [ObservableProperty] private bool canGoBack;
     [ObservableProperty] private bool canGoNext = true;
-    [ObservableProperty] private bool isReviewStep;
+    [ObservableProperty] private bool isSummaryStep;
 
     [ObservableProperty] private int periodDay = 15;
     [ObservableProperty] private string incomeName = string.Empty;
@@ -178,10 +178,10 @@ public sealed partial class OnboardingViewModel : ViewModelBase
 
     private void RefreshStepState()
     {
-        CanGoBack = StepIndex > 1; CanGoNext = StepIndex < 8; IsReviewStep = StepIndex == 8;
+        CanGoBack = StepIndex > 1; CanGoNext = StepIndex < 8; IsSummaryStep = StepIndex == 8;
         StepCounter = $"{StepIndex}/8"; StepTitle = OnboardingDraftBuilder.ResolveTitle(StepIndex);
         StepProgress = (double)StepIndex / 8;
-        if (IsReviewStep) { RefreshSummary(); }
+        if (IsSummaryStep) { RefreshSummary(); }
     }
 
     private void RefreshSummary()

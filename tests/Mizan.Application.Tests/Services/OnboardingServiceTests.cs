@@ -60,7 +60,7 @@ public sealed class OnboardingServiceTests
             },
             RecurringIncomes =
             [
-                new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 15 }
+                new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 15 }
             ],
             IncomeAmountHistories =
             [
@@ -131,7 +131,7 @@ public sealed class OnboardingServiceTests
             CreditCards = [card],
             RecurringIncomes =
             [
-                new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 10 }
+                new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 10 }
             ],
             IncomeAmountHistories =
             [

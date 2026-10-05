@@ -6,7 +6,7 @@ namespace Mizan.Domain.Models;
 /// </summary>
 public enum IncomeSourceType
 {
-    /// <summary>Düzenli ve periyodik olarak tekrarlayan gelir akışı (maaş, kira geliri, düzenli hakediş vb.).</summary>
+    /// <summary>Düzenli ve periyodik olarak tekrarlayan gelir akışı (aylık gelir, kira geliri, düzenli hakediş vb.).</summary>
     Recurring = 1,
 
     /// <summary>Belirli bir tarihte tahsil edilen tek seferlik arızi gelir (ikramiye, prim, iade vb.).</summary>

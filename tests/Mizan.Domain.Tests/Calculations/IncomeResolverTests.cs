@@ -11,7 +11,7 @@ public sealed class IncomeResolverTests
     public void Resolve_BirdenFazlaAktifAkisVarsa_HerIkiGeliriDeCozumler_BirincisiEzilmez()
     {
         // Arrange (S2 kuralı: birden fazla düzenli gelir birbirini ezmemeli)
-        var stream1 = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 10 };
+        var stream1 = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 10 };
         var stream2 = new RecurringIncome { Id = Guid.NewGuid(), Name = "Kira", PaymentDay = 15 };
 
         var history = new[]
@@ -67,7 +67,7 @@ public sealed class IncomeResolverTests
     public void Resolve_DonemOncesiVeDonemBasindakiZamlari_EnGuncelOlarakUygular()
     {
         // Arrange
-        var stream = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 10 };
+        var stream = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 10 };
         var history = new[]
         {
             new IncomeAmountHistory { RecurringIncomeId = stream.Id, Amount = 100_000m, EffectiveDate = new DateOnly(2026, 1, 1) },
@@ -86,7 +86,7 @@ public sealed class IncomeResolverTests
     public void Resolve_DonemIciZamlari_Uygulamaz_OncekiGecerliTutariKorur()
     {
         // Arrange (BR-INCOME-01: 10 Ocak döneminde 15 Ocak zammı devreye girmez)
-        var stream = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 10 };
+        var stream = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 10 };
         var history = new[]
         {
             new IncomeAmountHistory { RecurringIncomeId = stream.Id, Amount = 80_000m, EffectiveDate = new DateOnly(2026, 1, 1) },
@@ -123,7 +123,7 @@ public sealed class IncomeResolverTests
     public void Resolve_AyniEtkinTarihteIkiRevizyonVarsa_IdyeGoreDeterministikCozumler()
     {
         // Arrange
-        var stream = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", PaymentDay = 1 };
+        var stream = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", PaymentDay = 1 };
         var id1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
         var id2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
 

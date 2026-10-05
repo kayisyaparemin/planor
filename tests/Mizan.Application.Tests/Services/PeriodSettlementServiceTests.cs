@@ -67,7 +67,7 @@ public sealed class PeriodSettlementServiceTests
                 new RecurringIncome
                 {
                     Id = incomeId,
-                    Name = "Maaş",
+                    Name = "Gelir",
                     PaymentDay = 1,
                     IsActive = true
                 }

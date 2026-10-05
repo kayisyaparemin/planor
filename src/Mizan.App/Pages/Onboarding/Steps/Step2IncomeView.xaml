@@ -14,7 +14,7 @@
                 <Label Text="{x:Static res:OnboardingStrings.Etiket_GelirAdi}"
                        Style="{StaticResource Eyebrow}" />
                 <Entry Text="{Binding IncomeName}"
-                       Placeholder="Örn. Maaş, Kira Geliri" />
+                       Placeholder="Örn. Aylık Gelir, Kira Geliri" />
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="{StaticResource Space1}">

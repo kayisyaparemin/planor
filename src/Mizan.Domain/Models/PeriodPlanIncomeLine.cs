@@ -23,7 +23,7 @@ public sealed record PeriodPlanIncomeLine
     /// <summary>Kaynak tek seferlik gelirin kimliği (tek seferlik gelirse).</summary>
     public Guid? AdHocIncomeId { get; init; }
 
-    /// <summary>Gelirin adı veya açıklaması (örn. "Maaş", "İkramiye").</summary>
+    /// <summary>Gelirin adı veya açıklaması (örn. "Aylık Gelir", "İkramiye").</summary>
     public string Name { get; init; } = string.Empty;
 
     /// <summary>Gelirin hesaba geçmesi beklenen tarih.</summary>

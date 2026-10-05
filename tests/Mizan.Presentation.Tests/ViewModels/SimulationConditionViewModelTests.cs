@@ -471,7 +471,7 @@ public sealed class SimulationConditionViewModelTests
         var incomeId = Guid.NewGuid();
         _viewModel.Prepare("income-change", null, null, null, incomeId);
         await _viewModel.LoadAsync();
-        _viewModel.Name = "Maaş zammı";
+        _viewModel.Name = "Gelir artışı";
         _viewModel.AmountInput = "60.000";
         _viewModel.Date = Today.AddDays(20);
 
@@ -479,7 +479,7 @@ public sealed class SimulationConditionViewModelTests
 
         var saved = Assert.Single(_service.LastSaved!);
         Assert.Equal(SimulationScenarioType.IncomeChange, saved.Request.Type);
-        Assert.Equal("Maaş zammı", saved.Request.Name);
+        Assert.Equal("Gelir artışı", saved.Request.Name);
         Assert.Equal(60_000m, saved.Request.Amount);
         Assert.Equal(incomeId, saved.Request.RecurringIncomeId);
         Assert.Equal(Today.AddDays(20), saved.Request.StartDate);
@@ -489,7 +489,7 @@ public sealed class SimulationConditionViewModelTests
     public async Task Load_VarOlanGelirDegisikligi_DuzenlemeModundaYukler()
     {
         var incomeId = Guid.NewGuid();
-        var income = new RecurringIncome { Id = incomeId, Name = "Maaş" };
+        var income = new RecurringIncome { Id = incomeId, Name = "Gelir" };
         _reader.Plan = new FinancialPlan { RecurringIncomes = [income] };
 
         var conditionId = Guid.NewGuid();
@@ -510,7 +510,7 @@ public sealed class SimulationConditionViewModelTests
         Assert.True(_viewModel.IsEditing);
         Assert.Equal("Zam", _viewModel.Name);
         Assert.Equal(incomeId, _viewModel.IncomeId);
-        Assert.Equal("Maaş", _viewModel.IncomeName);
+        Assert.Equal("Gelir", _viewModel.IncomeName);
         Assert.Equal("60000", _viewModel.AmountInput);
     }
 

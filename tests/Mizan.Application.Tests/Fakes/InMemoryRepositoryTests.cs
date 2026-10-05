@@ -148,7 +148,7 @@ public sealed class InMemoryRepositoryTests
         var income = new RecurringIncome
         {
             Id = incomeId,
-            Name = "Maaş",
+            Name = "Gelir",
             PaymentDay = 15,
             IsActive = true
         };
@@ -157,7 +157,7 @@ public sealed class InMemoryRepositoryTests
         var incomes = await repo.GetRecurringIncomesAsync();
 
         Assert.Single(incomes);
-        Assert.Equal("Maaş", incomes[0].Name);
+        Assert.Equal("Gelir", incomes[0].Name);
 
         await repo.DeleteRecurringIncomeAsync(incomeId);
         var incomesAfterDelete = await repo.GetRecurringIncomesAsync();

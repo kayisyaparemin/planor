@@ -105,7 +105,7 @@ public sealed class PlanChangeRecorderTests
             ProjectionAnchorDate = new DateOnly(2026, 10, 15)
         };
         await _userSettingsRepo.SaveSettingsAsync(settings);
-        var recurringIncome = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", IsActive = true, PaymentDay = 15 };
+        var recurringIncome = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", IsActive = true, PaymentDay = 15 };
         await _recurringIncomeRepo.UpsertRecurringIncomeAsync(recurringIncome);
         await _recurringIncomeRepo.UpsertIncomeAmountHistoryAsync(new IncomeAmountHistory
         {
@@ -133,7 +133,7 @@ public sealed class PlanChangeRecorderTests
             ProjectionAnchorDate = new DateOnly(2026, 10, 15)
         };
         await _userSettingsRepo.SaveSettingsAsync(settings);
-        var recurringIncome = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", IsActive = true, PaymentDay = 15 };
+        var recurringIncome = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", IsActive = true, PaymentDay = 15 };
         await _recurringIncomeRepo.UpsertRecurringIncomeAsync(recurringIncome);
         await _recurringIncomeRepo.UpsertIncomeAmountHistoryAsync(new IncomeAmountHistory
         {

@@ -52,7 +52,7 @@ public sealed class PlanReaderTests
         };
         await _userSettingsRepo.SaveSettingsAsync(settings);
 
-        var recurringIncome = new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", IsActive = true };
+        var recurringIncome = new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", IsActive = true };
         await _recurringIncomeRepo.UpsertRecurringIncomeAsync(recurringIncome);
 
         var loan = new Loan { Id = Guid.NewGuid(), Name = "Kredi", MonthlyPayment = 3_000m };
@@ -65,7 +65,7 @@ public sealed class PlanReaderTests
         Assert.NotNull(plan);
         Assert.Equal(15, plan.Settings.PeriodAnchor.DayOfMonth);
         Assert.Single(plan.RecurringIncomes);
-        Assert.Equal("Maaş", plan.RecurringIncomes[0].Name);
+        Assert.Equal("Gelir", plan.RecurringIncomes[0].Name);
         Assert.Single(plan.Loans);
         Assert.Equal("Kredi", plan.Loans[0].Name);
     }
@@ -133,7 +133,7 @@ public sealed class PlanReaderTests
             ProjectionAnchorDate = new DateOnly(2026, 10, 15)
         };
         await _userSettingsRepo.SaveSettingsAsync(settings);
-        await _recurringIncomeRepo.UpsertRecurringIncomeAsync(new RecurringIncome { Id = Guid.NewGuid(), Name = "Maaş", IsActive = true });
+        await _recurringIncomeRepo.UpsertRecurringIncomeAsync(new RecurringIncome { Id = Guid.NewGuid(), Name = "Gelir", IsActive = true });
 
         // Açık dönem: [15 Ekim 2026, 15 Kasım 2026)
         var snapshot = new FinancialSnapshot

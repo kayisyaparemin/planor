@@ -47,7 +47,7 @@ public sealed class DatabaseConstraintTests : IDisposable
         var connection = await CreateInitializedConnectionAsync();
         await connection.ExecuteAsync(@"
             INSERT INTO recurring_incomes (Id, Name, PaymentDay, IsActive)
-            VALUES ('income-1', 'Maaş', 15, 1);");
+            VALUES ('income-1', 'Gelir', 15, 1);");
         await connection.ExecuteAsync(@"
             INSERT INTO income_amount_histories (Id, RecurringIncomeId, Amount, EffectiveDate, Description)
             VALUES ('history-1', 'income-1', 90000.0, '2025-06-01', 'Eski zam');");
@@ -94,7 +94,7 @@ public sealed class DatabaseConstraintTests : IDisposable
 
         await connection.ExecuteAsync(@"
             INSERT INTO period_plan_income_lines (Id, PeriodPlanSnapshotId, SourceType, Name, PlannedDate, PlannedAmount)
-            VALUES ('inc-line-1', 'plan-1', 0, 'Maaş', '2026-01-15', 80000.0);");
+            VALUES ('inc-line-1', 'plan-1', 0, 'Gelir', '2026-01-15', 80000.0);");
         await connection.ExecuteAsync(@"
             INSERT INTO period_plan_payment_lines (Id, PeriodPlanSnapshotId, SourceEntityId, SourceType, Name, PlannedDate, IsEstimate, Detail)
             VALUES ('pay-line-1', 'plan-1', 'loan-1', 0, 'Kredi', '2026-01-15', 0, '');");

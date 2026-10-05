@@ -127,7 +127,7 @@ public sealed class FinancialSnapshotServiceTests
                 ProjectionOpeningBalance = 25_000m,
                 PeriodVariableExpenseAllowance = 15_000m
             },
-            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Maaş", PaymentDay = 1, IsActive = true }],
+            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Gelir", PaymentDay = 1, IsActive = true }],
             IncomeHistories = [new IncomeAmountHistory { RecurringIncomeId = id, Amount = income, EffectiveDate = new DateOnly(2026, 10, 1) }]
         };
     }

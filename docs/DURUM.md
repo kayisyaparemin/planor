@@ -4,15 +4,21 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | **Sürüm 0.2.2** (versionCode 5): bakiye rotasının katedilen kısmı plan tutarıyla (`I170`) |
-| Sıradaki adım | Kullanıcı "Bu dönem" ayrıntı sayfasına (2. parça) karar verecek. |
-| Test sayısı | 2252 |
+| Son tamamlanan adım | **F1 / K9 mimari test kalkanı** (`YasakliTerimler_KaynaktaGecemez`); kural K9 |
+| Sıradaki adım | Sürüm çıkarma (0.3.0) veya sıradaki açık işler (T7, T8, Takip vb.) |
+| Test sayısı | 2254 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
 ## Adım günlüğü
 
 Her taşıma adımından sonra buraya en üste 3–6 satırlık bir giriş eklenir:
 ne geldi, hangi kararı verdik, nereye dikkat etmeli.
+
+### Geliştirme — F1 / K9 mimari test kalkanı (`YasakliTerimler_KaynaktaGecemez`); kural K9
+
+Ne geldi: Kural kitabının 9 pazarlıksız kuralından sonuncusu olan K9 (`SOZLUK.md`'deki yasaklı terimlerin kaynak ve test koduna girmesini yasaklayan mimari kural) otomatik test kalkanına bağlandı (`ArchitectureTests.YasakliTerimler_KaynaktaGecemez` ve `YasakliTerimRegex_YanlisPozitifUretmez`). `SOZLUK.md` tablosunu sınır etiketlerinden okur, PascalCase token ayrıştırması yapar (`MigratePeriodPlanRevisionSchemaAsync`, `PreviewSettlementAsync`, `SavingsGoal` gibi meşru adları yanlış pozitif üretmeden ayırır), `LegacyImport` istisnalarını ve v1 SQLite şeması istisnalarını gözetir.
+Temizlik: Kural kalkanı yazıldıktan sonra yakalanan kod ve test kalıntıları temizlendi (`storedSalary`, `salaryId`, `Name = "Maaş"` verileri, Onboarding 8. adımındaki `IsReviewStep` -> `IsSummaryStep`, docstring'lerdeki maaş örnekleri `aylık gelir` yapıldı).
+Koruyan: `ArchitectureTests.YasakliTerimler_KaynaktaGecemez` (önce kırmızıydı: 59 ihlal buldu -> temizlendi ve yeşile döndü) ve `ArchitectureTests.YasakliTerimRegex_YanlisPozitifUretmez`. Ekrana dokunmadı. Toplam 2.254 test yeşil, 0 hata, 0 uyarı.
 
 ### Hata düzeltme — bakiye rotasının katedilen kısmı plan tutarıyla; kararlar `I23`, `S71`, `I170`
 

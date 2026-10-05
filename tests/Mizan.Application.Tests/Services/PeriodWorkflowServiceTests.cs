@@ -539,7 +539,7 @@ public sealed class PeriodWorkflowServiceTests
                 new RecurringIncome
                 {
                     Id = incomeId,
-                    Name = "Maaş",
+                    Name = "Gelir",
                     PaymentDay = 1,
                     IsActive = true
                 }

@@ -304,8 +304,8 @@ public sealed class HistoricalPlanRevisionServiceTests
 
         var history = await _repository.GetFinancialHistoryAsync();
         var storedPlan = history.Plans.Single(x => x.Id == frozenPlan.Id);
-        var storedSalary = Assert.Single(storedPlan.IncomeLines);
-        Assert.Equal(40_000m, storedSalary.PlannedAmount);
+        var storedIncome = Assert.Single(storedPlan.IncomeLines);
+        Assert.Equal(40_000m, storedIncome.PlannedAmount);
     }
 
     [Fact]
@@ -354,7 +354,7 @@ public sealed class HistoricalPlanRevisionServiceTests
                 ProjectionAnchorDate = new DateOnly(2026, 10, 1),
                 PeriodVariableExpenseAllowance = 15_000m
             },
-            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Maaş", PaymentDay = 1, IsActive = true }],
+            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Gelir", PaymentDay = 1, IsActive = true }],
             IncomeHistories = [new IncomeAmountHistory { RecurringIncomeId = id, Amount = income, EffectiveDate = new DateOnly(2026, 10, 1) }]
         };
     }

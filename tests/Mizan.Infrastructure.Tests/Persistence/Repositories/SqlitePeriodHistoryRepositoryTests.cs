@@ -212,7 +212,7 @@ public sealed class SqlitePeriodHistoryRepositoryTests : IAsyncLifetime
                 {
                     Id = Guid.NewGuid(),
                     PeriodPlanSnapshotId = id,
-                    Name = "Maaş",
+                    Name = "Gelir",
                     PlannedDate = DateOnly.ParseExact(start, DatabaseConstants.DateFormat),
                     PlannedAmount = 50000m,
                     SourceType = IncomeSourceType.Recurring

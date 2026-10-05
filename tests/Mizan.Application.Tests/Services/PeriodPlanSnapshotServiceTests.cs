@@ -177,21 +177,21 @@ public sealed class PeriodPlanSnapshotServiceTests
     [Fact]
     public void Freeze_GelirDonemOrtasindaYatiyorsa_GelirSatiriTarihiyleDondurulur()
     {
-        // Çapa ayın 1'i, maaş ayın 15'i: gelir dönemin ortasında yatar (S31)
+        // Çapa ayın 1'i, gelir ayın 15'i: gelir dönemin ortasında yatar (S31)
         var plan = CreateBasicPlan(40_000m, paymentDay: 15);
-        var salaryId = plan.RecurringIncomes[0].Id;
+        var incomeId = plan.RecurringIncomes[0].Id;
         var snapshot = CreateSnapshot(new DateOnly(2026, 10, 1), 20_000m);
 
         var frozen = _service.Freeze(plan, snapshot, DateTimeOffset.UtcNow);
 
-        var salary = Assert.Single(frozen.IncomeLines);
-        Assert.Equal(frozen.Id, salary.PeriodPlanSnapshotId);
-        Assert.Equal(IncomeSourceType.Recurring, salary.SourceType);
-        Assert.Equal(salaryId, salary.RecurringIncomeId);
-        Assert.Null(salary.AdHocIncomeId);
-        Assert.Equal("Maaş", salary.Name);
-        Assert.Equal(new DateOnly(2026, 10, 15), salary.PlannedDate);
-        Assert.Equal(40_000m, salary.PlannedAmount);
+        var income = Assert.Single(frozen.IncomeLines);
+        Assert.Equal(frozen.Id, income.PeriodPlanSnapshotId);
+        Assert.Equal(IncomeSourceType.Recurring, income.SourceType);
+        Assert.Equal(incomeId, income.RecurringIncomeId);
+        Assert.Null(income.AdHocIncomeId);
+        Assert.Equal("Gelir", income.Name);
+        Assert.Equal(new DateOnly(2026, 10, 15), income.PlannedDate);
+        Assert.Equal(40_000m, income.PlannedAmount);
     }
 
     [Fact]
@@ -214,7 +214,7 @@ public sealed class PeriodPlanSnapshotServiceTests
         Assert.Equal(frozen.PlannedIncome, frozen.IncomeLines.Sum(x => x.PlannedAmount));
         Assert.Collection(
             frozen.IncomeLines,
-            salary => Assert.Equal(new DateOnly(2026, 10, 15), salary.PlannedDate),
+            income => Assert.Equal(new DateOnly(2026, 10, 15), income.PlannedDate),
             bonus =>
             {
                 Assert.Equal(IncomeSourceType.AdHoc, bonus.SourceType);
@@ -246,7 +246,7 @@ public sealed class PeriodPlanSnapshotServiceTests
                 ProjectionAnchorDate = new DateOnly(2026, 10, 1),
                 PeriodVariableExpenseAllowance = 15_000m
             },
-            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Maaş", PaymentDay = paymentDay, IsActive = true }],
+            RecurringIncomes = [new RecurringIncome { Id = id, Name = "Gelir", PaymentDay = paymentDay, IsActive = true }],
             IncomeHistories = [new IncomeAmountHistory { RecurringIncomeId = id, Amount = income, EffectiveDate = new DateOnly(2026, 10, 1) }]
         };
     }

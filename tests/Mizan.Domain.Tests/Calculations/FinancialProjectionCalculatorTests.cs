@@ -316,7 +316,7 @@ public sealed class FinancialProjectionCalculatorTests
                 new RecurringIncome
                 {
                     Id = streamId,
-                    Name = "Maaş Geliri",
+                    Name = "Düzenli Gelir",
                     PaymentDay = 10,
                     IsActive = true
                 }
