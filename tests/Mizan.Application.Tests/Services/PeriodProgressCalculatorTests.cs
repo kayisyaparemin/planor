@@ -91,6 +91,30 @@ public sealed class PeriodProgressCalculatorTests
         Assert.Equal(23_000m, gidisat.ProjectedEndingBalance);
     }
 
+    [Fact]
+    public void Calculate_OdedimdenSonraAyniGunBakiyeGirilirse_OdemeIkinciKezDusulmez()
+    {
+        // Hazırla — 18 Eylül: 25.000 harcanmış (havuz 20.000). Kullanıcı vadesi 20'si olan kartı 10:05'te ödeyip
+        // "Ödedim" diyor, 10:06'da bankadaki bakiyeyi giriyor: 30.000 − 15.000 + 40.000 − 25.000 − 12.000 = 18.000
+        var odedim = new PaymentReminderResponse
+        {
+            DueKey = PaymentReminderPlanner.DueKey(Kart.SourceEntityId, Kart.Name, Kart.PlannedDate),
+            Name = Kart.Name,
+            DueDate = Kart.PlannedDate,
+            Kind = PaymentReminderAnswerKind.Paid,
+            AnsweredAt = new DateTime(2026, 9, 18, 10, 5, 0)
+        };
+        var bakiyeGirisi = new DateTimeOffset(new DateTime(2026, 9, 18, 10, 6, 0, DateTimeKind.Local));
+        var defter = Defter(Plan, Gozlem(Gun(18), 18_000m) with { RecordedAtUtc = bakiyeGirisi }, cevaplar: [odedim]);
+
+        // Uygula
+        var gidisat = Hesapla(defter, Gun(18));
+
+        // Doğrula — kart bakiyenin içinde: harcamaya eklenmez, dönem sonundan ikinci kez düşülmez
+        Assert.Equal(25_000m, gidisat.ObservedLivingSpend);
+        Assert.Equal(18_000m, gidisat.ProjectedEndingBalance);
+    }
+
     // ---------------------------------------------------------------
     // Havuz ve KMH
     // ---------------------------------------------------------------

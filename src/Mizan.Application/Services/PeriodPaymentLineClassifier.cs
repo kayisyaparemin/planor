@@ -78,9 +78,7 @@ public static class PeriodPaymentLineClassifier
             mark.ActualAmount);
     }
 
-    // "Ertele" denen ödeme vadesi geçse de kalandır. "Ödedim" cevabı gözlem gününden önceki bir günde verildiyse
-    // ödeme bakiyeye yansımıştır; aynı gün ya da sonra verildiyse bakiyede henüz görünmez (kötümser). Kayıt zamanına
-    // bakılmaz: geriye tarihli gözlemin kayıt zamanı bugündür ve cevabı yanlış tarafa atardı (S68 açık not b).
+    // "Ertele" denen ödeme vadesi geçse de kalandır. "Ödedim" cevabının bakiyeye yansıyıp yansımadığı IsInObservedBalance'ta.
     private static LineOutcome? FromReminderAnswer(
         PeriodPlanPaymentLine line,
         Dictionary<string, PaymentReminderResponse> answers,
@@ -97,8 +95,23 @@ public static class PeriodPaymentLineClassifier
             return new LineOutcome(line, LineState.Snoozed, 0m);
         }
 
-        var isReflected = observation is null || AnsweredOn(answer) < observation.ObservedOn;
-        return Settled(line, isReflected, currentCardPayments);
+        return Settled(line, observation is null || IsInObservedBalance(answer, observation), currentCardPayments);
+    }
+
+    // Cevap gözlem gününden önceki bir gündeyse ödeme bakiyededir, sonraki bir gündeyse değildir. Aynı gündeyse sıraya
+    // bakılır: kullanıcı önce ödeyip sonra bakiyesini girer (S88). Sıra yalnız bakiye o gün girildiyse bilinir;
+    // geriye tarihli gözlemin kayıt zamanı sonraki bir gündür ve cevabı yanlış tarafa atardı (S68 açık not b) —
+    // orada ödeme bakiyede sayılmaz (kötümser).
+    private static bool IsInObservedBalance(PaymentReminderResponse answer, PeriodObservation observation)
+    {
+        var answeredOn = AnsweredOn(answer);
+        if (answeredOn != observation.ObservedOn)
+        {
+            return answeredOn < observation.ObservedOn;
+        }
+
+        var recordedOn = DateOnly.FromDateTime(observation.RecordedAtUtc.ToLocalTime().DateTime);
+        return recordedOn == observation.ObservedOn && AnsweredAtUtc(answer) < observation.RecordedAtUtc.UtcDateTime;
     }
 
     // Gözlem günü düşen ödeme bakiyeye henüz yansımamış sayılır: yanılırsak dönem sonu kötümser çıkar.

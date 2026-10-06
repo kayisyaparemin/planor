@@ -160,6 +160,10 @@ Geri kalan her şey bu omurgadan sarkar.
       yazılmaz, "Bakiye gir" önce kapanışı ister (4, `PeriodObservationRules.CanObserveOn`). Açık notlar: kurulum
       gözlemi dönemden önceki güne düşebiliyor; hatırlatıcı cevabı gözlemle zaman damgasıyla kıyaslanıyor,
       geriye tarihli gözlemde bu yanıltır.
+      *Not (2026-10-06, hata düzeltme "aynı gün Ödedim'den sonra girilen bakiye", `I174`): A28'in "aynı günün
+      cevabı her zaman bakiyeye yansımamış" kuralı, "Ödedim"den sonra aynı gün girilen bakiyede ödemeyi ikinci
+      kez düşüyordu. Aynı gün ve bakiye o gün girildiyse artık zaman damgası kıyaslanır; geriye tarihli gözlemde
+      gün kuralı (kötümser) sürer.*
 - [x] **A29** — harcama temposu *(V3 yenilemesi, kaynak eski proje değil — bkz. `V3`)*: `PeriodProgress`'e yaşam havuzundan harcanan
       oran ile geçen süre oranı ve aradaki fark (puan). **İkisi aynı güne göre** hesaplanır: son gözlemin
       günü. Bugünle kıyaslanırsa bakiye girilmedikçe harcama donar, süre ilerler ve ekran "harcama geride"
