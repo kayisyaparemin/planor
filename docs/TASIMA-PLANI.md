@@ -520,6 +520,13 @@ yeni token ya da bileşen gerektiği için `/development T7` gibi yürür):
 - [x] **K4** — Sürüm hattı: sürüm notları `CHANGELOG.md`'den okunur, elle `echo` edilmez
       *(2026-10-05; S82; `tools/Mizan.ReleaseNotes` (`ChangelogReader`), `scripts/release-notes.ps1`, `CHANGELOG.md`; `release.yml` notu imzalamadan önce okur ve `--notes-file` verir, bölüm yoksa/boşsa yayın durur; csproj sürümünün notu PR'da da denetlenir; YAML GitHub'da henüz çalıştırılmadı (remote yok); koruyan: ChangelogReaderTests, ReleaseNotesProgramTests, ChangelogTests, WorkflowTests)*
 
+- [ ] **K5** — İş akışı bakımı *(0.4.0 yayın koşusunun uyarıları, 2026-10-06; `docs/DURUM.md` → 0.4.0 "Dikkat" (k))*:
+      Node.js 20 hedefleyen aksiyonlar Node 24'te zorla çalışıyor (`actions/checkout`, `setup-dotnet`,
+      `setup-java`, `upload-artifact`, hepsi @v4) → Node 24'ü destekleyen sürümlere geçiş; `setup-java@v4`
+      artık güncellenmiyor → v5; `ubuntu-latest` **19 Ekim 2026**'dan itibaren Ubuntu 26 → koşucu sürümü
+      sabitlenir ya da Ubuntu 26'da Android workload + JDK kurulumu denenir. `ci.yml` ve `release.yml`
+      birlikte; `WorkflowTests` iki dosyanın beklenen adımlarını korur. Bugün yayını bozmuyor.
+
 ## Faz G — Geçiş
 
 - [x] **G1** — Eski uygulamanın (`com.coinflow.mobile`, şema v17) yedek arşivini okuyan
@@ -547,5 +554,5 @@ yeni token ya da bileşen gerektiği için `/development T7` gibi yürür):
 | I | 5 | 6 *(I5 taşınmıyor; I4 üç alt adımda tamamlandı; I6'da Sentry taşınmadı — S60; I7 V3 yenilemesi için açıldı)* |
 | T | 6 | 10 *(T7, T8 V7 Kapı C'de açıldı; T9, T10 V3 yenilemesi için açıldı)* |
 | V | 12 | 14 *(V3 "Rota + Tempo" için geri açıldı, V3a ve V3b olarak bölündü ve kapandı; V6 on alt adımda tamamdı, `V6f` tür seçici için geri açıldı ve iki alt adımda (V6f1, V6f2) yeniden kapandı; V8 iki alt adımda: V8a, V8b tamam; sayı V8b'de kutulardan yeniden sayıldı: V0–V8; V9 tamam; V10 yedi alt adıma bölündü (V10b ikiye: V10b1, V10b2), V10a–V10f tamam; V11 dönem kapanışı özeti tamam; V12 geçmiş ve geçmiş ayrıntısı tamam)* |
-| K | 1 | 4 |
+| K | 4 | 5 *(K5 0.4.0 yayın koşusunun uyarılarıyla açıldı; tamamlanan sayısı 1'de kalmıştı, kutulardan yeniden sayıldı)* |
 | G | 1 | 1 *(G1 iki alt adımda: G1a, G1b tamam)* |

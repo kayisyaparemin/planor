@@ -5,7 +5,7 @@
 | | |
 |---|---|
 | Son tamamlanan adım | **Sürüm 0.4.0** (versionCode 8) — Geliştirme "kalan ödemelerden Ödedim" (`S88`, `I173`): ana sayfanın kalan ödemeler satırına dokunup onayla "Ödedim"; ana sayfa cevaptan sonra yerinde yenilenir, kalan ödeme yoksa kart gizlenir |
-| Sıradaki adım | Sıradaki açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.); aşağıdaki girişteki "Dikkat" notları |
+| Sıradaki adım | 0.4.0 girişindeki "Dikkat" (h)–(k): (h) hatırlatıcı kartının çökmesi ve (i) kartın tarih / tutar biçimi `/bug-fix`, (j) ile birlikte; (k) iş akışı bakımı `K5` (19 Ekim 2026'dan önce). Sonra açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.) |
 | Test sayısı | 2274 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
 
@@ -20,8 +20,13 @@ Ne geldi: ana sayfanın "Kalan ödemeler" satırına dokununca onay penceresi (b
 Bütçe: hero 1/1, kart 4/4, grafik 1/1, label 25/28 (analizci 28/28), cümle 3/3 — değişmedi; pencere metni ViewModel sabiti (`T8`).
 Koruyan: `I173`'ün dokuz testi; kırmızıydı: anahtar boş geliyordu, "Ödedim"den sonra kira listede kalıyordu, kart cevabından sonra liste yenilenmiyordu, dolu liste kartı görünmüyordu. Var olan beş liste testinde yalnız alan yolları değişti; boş liste testi "kart gizlenir"e güncellendi (`S88`-6). Toplam 2.274 test yeşil, 0 hata, 0 uyarı.
 Görsel kontrol: kullanıcı emülatörde onayladı ("devam", 2026-10-06).
-**Dikkat:** (1) Geri alma yok (`S88`-5); yanlış "Ödedim" ödemenin bildirimini düşürür ve sonraki bakiye girişinde ödemeyi yapılmış sayar. (2) Hatırlatıcı kartının "Ödedim" / "Ertele"si kayıt düşerse yakalanmıyor (`EK-V2`'deki `Hata_HatirlaticiGuncellenemedi` uygulanmamış), kartın `IDialogService`'i hâlâ kullanılmıyor; listenin yolunda yakalanıyor. (3) `ReminderCardViewModel` 196 / 200 satırda.
+**Dikkat:** Geri alma yok (`S88`-5); yanlış "Ödedim" ödemenin bildirimini düşürür ve sonraki bakiye girişinde ödemeyi yapılmış sayar. Bilinçli karar, hata değil.
 Sürüm: 0.4.0 (versionCode 8).
+**Dikkat — bu işin parçası olmayan, iş sırasında görülen dört şey** (önerilen sıra: (h) → (i) → (k); (j) (h) ile birlikte):
+(h) **Hatırlatıcı kartının cevabı yazılamazsa uygulama çökebilir** (`/bug-fix`): `ReminderCardViewModel.MarkAsPaidAsync` ve `SnoozeAsync` kaydı `try/catch`'siz yazıyor; düşen komut süreci düşürür. `EK-V2` "Hata" satırı `Hata_HatirlaticiGuncellenemedi` uyarısını tarif ediyor ama ne dize ne davranış var; karta enjekte edilen `IDialogService` hiç kullanılmıyor. V2'den beri. Listenin yolu (`RemainingPaymentsViewModel.MarkAsPaidAsync`) yakalıyor ve uyarı gösteriyor; kartın düzeltmesi aynı deseni kullanabilir.
+(i) **Hatırlatıcı kartı tarihi ve tutarı ana sayfanın geri kalanından farklı yazıyor** (`/bug-fix`, görünüş): `ReminderCardViewModel.Message` metni ViewModel'de kuruyor (`{Amount:N0} ₺ · {DueDate:dd MMMM}`, cihaz kültürüyle): kart "05 Ekim", hemen altındaki kalan ödemeler "5 Ekim" diyor (`TarihConverter`, `d MMMM`, tr-TR); tutar ile ₺ arasında `ParaConverter`'ın bölünemez boşluğu yok (`I172`). Kural 03 (ViewModel metin üretmez) ve 05 (kültür yalnız converter'da) ihlali; düzeltmede `Message` kalkar, kart `Amount` ve `DueDate`'i converter'la bağlar.
+(j) **`ReminderCardViewModel` 196 / 200 satırda** (K3): (h) ve (i) bu dosyaya dokunacak; önce sorumluluk bölünmeli (ör. cevap yazma ayrı bir çocuğa), satır kırpılarak sığdırılmamalı.
+(k) **Yayın koşusunun uyarıları** (0.4.0 koşusu `37380914825`): Node.js 20 hedefleyen aksiyonlar Node 24'te zorla çalışıyor (`actions/checkout`, `setup-dotnet`, `setup-java`, `upload-artifact`, hepsi @v4); `setup-java@v4` artık güncellenmiyor (v5'e geçiş); `ubuntu-latest` 19 Ekim 2026'dan itibaren Ubuntu 26'ya geçiyor. Bugün yayını bozmuyor. Kayıt: `docs/TASIMA-PLANI.md` → `K5`.
 
 ### Hata düzeltme — dönem karosunda tutarın alt satıra kırılması; kararlar `GS26`-1, `I172`
 

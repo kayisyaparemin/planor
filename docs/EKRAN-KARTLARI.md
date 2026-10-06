@@ -533,7 +533,7 @@ Konsept panellerinde profil seçimi ekranı yer almamaktadır (`GS2`). Yerleşim
 | Bilgi / Öğe | Karar | Gerekçe |
 |---|---|---|
 | Aktif hatırlatıcı başlığı ve vadesi | **Kart** (`ReminderCard.Title`) | S1: Anlık müdahale bekleyen acil ödeme kimliği (`TypeSection`) |
-| Ödeme tutarı ve detay açıklaması | **Kart** (`ReminderCard.Message`) | S1: Tek bakışta okunur tutar ve açıklama (`TypeBody`) |
+| Ödeme tutarı ve detay açıklaması | **Kart** (`ReminderCard.Message`) | S1: Tek bakışta okunur tutar ve açıklama (`TypeBody`). ⚠️ Metin bugün ViewModel'de kuruluyor ("05 Ekim"; ana sayfanın geri kalanı "5 Ekim"), kural 03 / 05 ihlali: `docs/DURUM.md` → 0.4.0 "Dikkat" (i) |
 | "Ödedim" aksiyonu | **Aksiyon** (`ActionFill`) | S2: Tek dokunuşla borcu kapatma (`PrimaryActionText`) |
 | "Ertele" aksiyonu | **Aksiyon** (`SecondaryButton`) | S2: 3 saat öteleme (`SecondaryActionText`) |
 | Bildirim modu çipleri (Kapalı/Rahat/Agresif) | **Derine** → `EK-V13` | S4: Sistemik ayar; ana sayfa hatırlatıcı kartını meşgul etmemeli |
@@ -584,7 +584,7 @@ Kart görünmezdir (`IsVisible = false`), ana sayfada yer tutmaz.
 |---|---|
 | Boş | Vadesi gelen veya ertelenen aktif bir hatırlatıcı yoksa kart görünmezdir (`IsVisible = false`), yerleşim zıplaması yaratmaz. |
 | Yükleniyor | Çocuk kart bağımsız bir yükleme iskeleti göstermez; ana sayfa (`EK-V3`) genel yükleme iskeletinin (`ScreenState.Loading`) bir parçası olarak değerlendirilir. |
-| Hata | Hatırlatıcı defteri okunamaz veya yanıt kaydedilemezse diyalog uyarısı verilir (`Hata_HatirlaticiGuncellenemedi`), kart ana sayfayı kilitlemez. |
+| Hata | ⚠️ **Uygulanmadı** (`docs/DURUM.md` → 0.4.0 "Dikkat" (h)): bugün yanıt yazılamazsa komut yakalanmıyor, dize de yok. Tarif: Hatırlatıcı defteri okunamaz veya yanıt kaydedilemezse diyalog uyarısı verilir (`Hata_HatirlaticiGuncellenemedi`), kart ana sayfayı kilitlemez. |
 
 ### 6. Konsept ilişkisi
 
