@@ -4,7 +4,7 @@
 
 | | |
 |---|---|
-| Son tamamlanan adım | Hata düzeltme "aynı gün Ödedim'den sonra girilen bakiye" (`I174`): "Ödedim"den sonra aynı gün girilen bakiye ödemeyi içerir sayılır, dönem sonu tahmini ödemeyi ikinci kez düşmez |
+| Son tamamlanan adım | **Sürüm 0.4.1** (versionCode 9) — Hata düzeltme "aynı gün Ödedim'den sonra girilen bakiye" (`I174`): "Ödedim"den sonra aynı gün girilen bakiye ödemeyi içerir sayılır, dönem sonu tahmini ödemeyi ikinci kez düşmez |
 | Sıradaki adım | 0.4.0 girişindeki "Dikkat" (h)–(k): (h) hatırlatıcı kartının çökmesi ve (i) kartın tarih / tutar biçimi `/bug-fix`, (j) ile birlikte; (k) iş akışı bakımı `K5` (19 Ekim 2026'dan önce). Sonra açık işler (T7 başlık aksiyonu, T8 diyalog tasarımı, Takip taksit silme vb.) |
 | Test sayısı | 2277 |
 | Şema sürümü | v3 (v1 + `period_payment_marks` + yeniden kurulmuş `period_observations`; sürüm `SchemaMigrations.CurrentVersion`'dan okunur) |
@@ -20,6 +20,7 @@ Belirti (telefon, 6 Ekim): 7 Ekim vadeli Garanti Borç Kapama'ya (14.501) 10:05'
 Kök neden: `PeriodPaymentLineClassifier.FromReminderAnswer` gözlemle aynı günün cevabını saate bakmadan "bakiyeye yansımamış" sayıyordu (kötümser; `S68` A28 notu c, `S88`-3'te tekrarlanmış). A28'den (`b6e1926`), 0.1.0'dan beri; 0.4.0'ın listeden "Ödedim"i akışı olası kıldı. Kayıtlı veri bozulmadı: telefon yedeğinin kopyası gerçek servislerle hesaplandı, düzeltilmiş kodla tahmin −174.097,50 (−167.000 − KMH 7.097,50).
 Düzeltme: aynı gün ve bakiye o gün girildiyse cevap ile bakiyenin kayıt zamanı kıyaslanır (`IsInObservedBalance`); geriye tarihli bakiyede kötümser kalır (açık not b). "Bakiye gir" önizlemesi ve bakiye rotası aynı sınıflandırıcıdan düzelir. `S68` A28 notu c, `S88`-3 ve `TASIMA-PLANI` A28'e not güncellendi.
 Koruyan: `PeriodProgressCalculatorTests.Calculate_OdedimdenSonraAyniGunBakiyeGirilirse_OdemeIkinciKezDusulmez` (kırmızıydı: harcama 37.000 ≠ 25.000), `PeriodPaymentLineClassifierTests.Classify_OdedimCevabiAyniGunBakiyeGirisindenOnceVerildiyse_BakiyeyeYansimisSayilir` (kırmızıydı: 0 ≠ 12.000), bekçi `…Classify_GeriyeTarihliBakiyeninGunuVerilenOdedim_BakiyeyeYansimamisSayilir` (`I174`). Hatayı dondurmuş test yoktu. Aynı sınıf: sınıflandırıcının üç yansıma kuralından yalnız "Ödedim" etkileniyordu (açık işaret saatsiz ve hiçbir ekrandan yazılmıyor; vade kuralında kullanıcı eylemi yok). Ekrana dokunmadı. Toplam 2.277 test yeşil, 0 hata, 0 uyarı.
+Sürüm: 0.4.1 (versionCode 9).
 
 ### Geliştirme — kalan ödemelerden "Ödedim"; kararlar `S88`, `I173`
 

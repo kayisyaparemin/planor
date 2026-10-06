@@ -10,6 +10,8 @@ değildir ve yayınlanamaz.
 
 ## [Yayınlanmamış]
 
+## [0.4.1] - 2026-10-06
+
 ### Düzeltildi
 
 - Bir ödemeyi "Ödedim" diye işaretleyip aynı gün bankadaki bakiyeni girdiğinde, dönem sonu tahmini o ödemeyi bakiyeden bir kez daha düşüyor ve harcanan yaşam giderine ekliyordu. Artık "Ödedim"den sonra girdiğin bakiye ödemeyi içeriyor sayılır; bakiyeyi önce girdiysen ödeme yine ayrıca düşülür.
